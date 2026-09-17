@@ -136,9 +136,10 @@ function openOnboarding(asSelector=false){
   overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
   const title=$('#onboardingTitle');
-  if(asSelector && state.onboarded) title.textContent='Başlangıç içerik haritasını değiştir.';
-  else title.textContent='Önce doğru başlangıç noktasını seçelim.';
+  if(asSelector && state.onboarded) title.textContent='Başlangıç seviyesini değiştir.';
+  else title.textContent='Başlangıç seviyesini seçelim.';
 }
+
 function closeOnboarding(){
   if(!state.onboarded) return;
   const overlay=$('#onboardingOverlay'); overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); document.body.style.overflow='';
@@ -147,7 +148,7 @@ function selectOnboardingLevel(profile,announce=true){
   if(!PROFILE_META[profile]) return;
   selectedOnboardingProfile=profile;
   $$('#onboardingLevels [data-profile]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.profile===profile));
-  if(announce) showToast(`${PROFILE_META[profile].label} başlangıç haritası seçildi`);
+  if(announce) showToast(`${PROFILE_META[profile].label} seçildi`);
 }
 function completeOnboarding(){
   state.profile=selectedOnboardingProfile;
@@ -192,36 +193,35 @@ function renderHome(){
   const focus=pickFocus();
   const summary=profileSummary(state);
   const ss=focus?.state;
-  const pct=ss?masteryPercent(ss):0;
-  const gap=ss?representationGap(ss):{rep:'build',score:0};
+  const worked=skillsFor(state.profile).filter(s=>ensureSkillState(state,s.id).totalAttempts>0).length;
+  const sessions=state.sessions?.length||0;
+  const childStatus=!ss?.totalAttempts?'Yeni bir konu':ss.stable?'Daha önce çalıştığın bir konu':'Biraz daha keşfedelim';
 
   $('#focusCard').innerHTML=focus?`
-    <div class="focus-top"><span class="focus-label">ŞİMDİ ODAK</span><span class="focus-percent">${pct}% kavrayış</span></div>
-    <div class="focus-copy"><h2>${esc(focus.skill.label)}</h2><p>${esc(focusDescription(focus))}</p></div>
-    <div class="prism-visual" aria-label="Beş kavrayış penceresi">
+    <div class="focus-top"><span class="focus-label">BUGÜNÜN KONUSU</span><span class="focus-percent">${esc(PROFILE_META[state.profile].label)}</span></div>
+    <div class="focus-copy"><h2>${esc(focus.skill.label)}</h2><p>${esc(childStatus)}</p></div>
+    <div class="prism-visual" aria-label="Bugünkü görev adımları">
       <div class="prism-ring"></div>
-      ${REPRESENTATIONS.map(r=>{ const ev=ss.evidence[r]; return `<div class="facet ${ev.score>=.72?'done':''}"><div><b>${REPRESENTATION_META[r].icon}</b><small>${REPRESENTATION_META[r].label}</small></div></div>`; }).join('')}
-      <div class="prism-core"><span><strong>${pct}</strong><small>kavrayış</small></span></div>
+      ${REPRESENTATIONS.map(r=>`<div class="facet"><div><b>${REPRESENTATION_META[r].icon}</b><small>${REPRESENTATION_META[r].label}</small></div></div>`).join('')}
+      <div class="prism-core"><span><strong>5</strong><small>görev</small></span></div>
     </div>
-    <div class="focus-reason"><span>↳</span><div><b>Neden bu kavram?</b><small>${esc(repReasons[gap.rep])}</small></div></div>
-  `:'<p>Başlangıç seviyesi seçildiğinde odak kavram burada görünür.</p>';
+  `:'<p>Başlangıç seviyeni seçtiğinde bugünkü konu burada görünür.</p>';
 
-  $('#lensGrid').innerHTML=REPRESENTATIONS.map((r,i)=>`<article class="lens-card"><span class="lens-step">0${i+1}</span><div class="lens-icon">${REPRESENTATION_META[r].icon}</div><div><b>${REPRESENTATION_META[r].label}</b><p>${repDescriptions[r]}</p></div></article>`).join('');
+  $('#lensGrid').innerHTML=REPRESENTATIONS.map((r,i)=>`<article class="lens-card"><span class="lens-step">0${i+1}</span><div class="lens-icon">${REPRESENTATION_META[r].icon}</div><div><b>${REPRESENTATION_META[r].label}</b></div></article>`).join('');
 
-  const due=dueReviewItems().length;
-  const worked=skillsFor(state.profile).filter(s=>ensureSkillState(state,s.id).totalAttempts>0).length;
   $('#homeInsightGrid').innerHTML=`
-    <article class="insight-card main"><div><span class="mini-kicker">BUGÜNKÜ NEDEN</span><h3>${focus?esc(REPRESENTATION_META[gap.rep].label)+' bağlantısı':'İlk keşif'}</h3><p>${focus?esc(repReasons[gap.rep]):'İlk kavram seçilecek.'}</p></div><div class="micro-ring" style="--pct:${pct}%"><b>${pct}%</b></div></article>
-    <article class="insight-card"><span class="mini-kicker">GERİ ÇAĞIRMA</span><div class="insight-number">${due}<small>hazır</small></div><p>Zamanı gelen kısa hatırlamalar.</p></article>
-    <article class="insight-card"><span class="mini-kicker">SAĞLAMLAŞAN</span><div class="insight-number">${summary.stable}<small>/ ${summary.total}</small></div><p>${worked} kavramla karşılaşıldı.</p></article>`;
+    <article class="insight-card main"><div><span class="mini-kicker">BUGÜN</span><h3>${focus?esc(focus.skill.label):'İlk keşif'}</h3><p>Hazırsan kısa keşfe başlayabilirsin.</p></div><div class="micro-ring" style="--pct:100%"><b>▶</b></div></article>
+    <article class="insight-card"><span class="mini-kicker">KEŞİFLER</span><div class="insight-number">${sessions}<small>tamamlandı</small></div><p>Bu cihazdaki tamamlanan oturumlar.</p></article>
+    <article class="insight-card"><span class="mini-kicker">KONULAR</span><div class="insight-number">${worked}<small>/ ${summary.total}</small></div><p>Şimdiye kadar karşılaştığın konular.</p></article>`;
 
   const preview=skillsFor(state.profile).map(skill=>({skill,ss:ensureSkillState(state,skill.id),ready:prerequisitesReady(state,skill)})).sort((a,b)=>Number(b.ready)-Number(a.ready)||masteryPercent(a.ss)-masteryPercent(b.ss)).slice(0,4);
-  $('#conceptPreviewRow').innerHTML=preview.map(({skill,ss,ready})=>`
-    <article class="concept-mini" style="--tint:${accentTint[skill.accent]||'#eef0ef'}">
+  $('#conceptPreviewRow').innerHTML=preview.map(({skill,ss,ready})=>{
+    const status=!ready?'Daha sonra':ss.stable?'Tamamlandı':ss.totalAttempts?'Devam ediyor':'Hazır';
+    return `<article class="concept-mini" style="--tint:${accentTint[skill.accent]||'#eef0ef'}">
       <span>${esc(skill.family.toUpperCase())}</span><h3>${esc(skill.label)}</h3>
-      <div class="facet-strip">${REPRESENTATIONS.map(r=>`<i class="${ss.evidence[r].score>=.72?'strong':ss.evidence[r].attempts?'seen':''}"></i>`).join('')}</div>
-      <small>${ready?(ss.stable?'Sağlam kavram':`${evidenceCoverage(ss)}/5 pencere görüldü`):'Ön koşul bekliyor'}</small>
-    </article>`).join('');
+      <small>${status}</small>
+    </article>`;
+  }).join('');
 
   const locked=state.cooldownUntil && state.cooldownUntil>Date.now();
   const main=$('#startSessionButton');
@@ -232,15 +232,15 @@ function renderHome(){
 }
 
 function renderAtlas(){
-  const summary=profileSummary(state);
   const list=skillsFor(state.profile);
+  const completed=list.filter(s=>ensureSkillState(state,s.id).stable).length;
   const inProgress=list.filter(s=>{const ss=ensureSkillState(state,s.id); return ss.totalAttempts>0&&!ss.stable;}).length;
-  const due=dueReviewItems().length;
+  const notStarted=list.filter(s=>ensureSkillState(state,s.id).totalAttempts===0).length;
   $('#atlasSummary').innerHTML=`
-    <div class="summary-card"><span>GENEL KAVRAYIŞ</span><strong>${summary.avg}%</strong><p>Temsil genişliği ve hatırlama dahil.</p></div>
-    <div class="summary-card"><span>SAĞLAM</span><strong>${summary.stable}</strong><p>Çoklu kanıt + gecikmeli başarı.</p></div>
-    <div class="summary-card"><span>GELİŞİYOR</span><strong>${inProgress}</strong><p>Kanıt birikmeye devam ediyor.</p></div>
-    <div class="summary-card"><span>GERİ ÇAĞIRMA</span><strong>${due}</strong><p>Şu an zamanı gelen kısa tekrar.</p></div>`;
+    <div class="summary-card"><span>TAMAMLANAN</span><strong>${completed}</strong><p>Güçlü görünen konular.</p></div>
+    <div class="summary-card"><span>DEVAM EDEN</span><strong>${inProgress}</strong><p>Üzerinde çalıştığın konular.</p></div>
+    <div class="summary-card"><span>BAŞLANMAYAN</span><strong>${notStarted}</strong><p>Henüz karşılaşmadığın konular.</p></div>
+    <div class="summary-card"><span>TOPLAM</span><strong>${list.length}</strong><p>Bu seviyedeki konu sayısı.</p></div>`;
 
   const domains=['Tümü',...new Set(list.map(s=>s.family))];
   if(!domains.includes(activeDomain)) activeDomain='Tümü';
@@ -249,11 +249,13 @@ function renderAtlas(){
 
   const filtered=activeDomain==='Tümü'?list:list.filter(s=>s.family===activeDomain);
   $('#skillMap').innerHTML=filtered.map(skill=>{
-    const ss=ensureSkillState(state,skill.id), pct=masteryPercent(ss), ready=prerequisitesReady(state,skill);
+    const ss=ensureSkillState(state,skill.id), ready=prerequisitesReady(state,skill);
+    const status=!ready?'Daha sonra':ss.stable?'Tamamlandı':ss.totalAttempts?'Devam ediyor':'Hazır';
+    const ring=ss.stable?100:ss.totalAttempts?55:0;
+    const mark=ss.stable?'✓':ss.totalAttempts?'•':'○';
     return `<article class="skill-card ${ready?'':'locked'}">
-      <div class="skill-head"><div><span class="skill-family">${esc(skill.family)}</span><h3>${esc(skill.label)}</h3></div><div class="mini-ring" style="--mastery:${pct}%;--ring:${accentRing[skill.accent]||'#2f9987'}"><b>${pct}%</b></div></div>
-      <div class="evidence-strip">${REPRESENTATIONS.map(r=>{const ev=ss.evidence[r];return `<div class="evidence-dot ${ev.score>=.72?'strong':ev.attempts?'seen':''}" title="${REPRESENTATION_META[r].label}">${REPRESENTATION_META[r].icon}</div>`;}).join('')}</div>
-      <div class="skill-status"><span>${!ready?'Ön koşul bekliyor':ss.stable?'Sağlam':ss.totalAttempts?'Kanıt birikiyor':'Keşfedilmedi'}</span><span>${ss.totalAttempts||0} karşılaşma</span></div>
+      <div class="skill-head"><div><span class="skill-family">${esc(skill.family)}</span><h3>${esc(skill.label)}</h3></div><div class="mini-ring" style="--mastery:${ring}%;--ring:${accentRing[skill.accent]||'#2f9987'}"><b>${mark}</b></div></div>
+      <div class="skill-status"><span>${status}</span><span>${ss.totalAttempts||0} görev</span></div>
     </article>`;
   }).join('');
 }
@@ -728,23 +730,23 @@ function finishSession(){
   state.sessions.push({at:Date.now(),profile:state.profile,focusSkillId:ended.focusSkillId,correct:ended.correct,wrong:ended.wrong,hints:ended.hints,questions:ended.questionIndex,duration,newStable:ended.newStable});
   if(state.sessions.length>80) state.sessions=state.sessions.slice(-80);
   saveState();
-  const attempts=ended.correct+ended.wrong; const rate=attempts?Math.round(ended.correct/attempts*100):0;
-  const focusSkill=skillsFor(state.profile).find(s=>s.id===ended.focusSkillId); const focusState=focusSkill?ensureSkillState(state,focusSkill.id):null;
+  const focusSkill=skillsFor(state.profile).find(s=>s.id===ended.focusSkillId);
   $('#practiceProgress').style.width='100%';
   $('#practiceCounter').textContent=`${ended.questionIndex} / ${ended.questionIndex}`;
   $('#practiceContent').innerHTML=`<section class="session-end">
-    <div class="end-mark">✓</div><span class="section-kicker">KEŞİF TAMAMLANDI</span><h2>Bir kavramı ${ended.focusRepresentations?.length||5} farklı görev türünde çalıştın.</h2>
-    <p>${focusSkill?`“${esc(focusSkill.label)}” için oluşan kanıt profili kaydedildi.`:'Bugünkü kanıt profili kaydedildi.'} Hız puanlanmadı; yanlışlar sonraki köprüyü belirledi.</p>
-    <div class="end-stats"><div><strong>${focusState?evidenceCoverage(focusState):0}/5</strong><span>temsil görüldü</span></div><div><strong>${rate}%</strong><span>ilk yanıt</span></div><div><strong>${ended.newStable}</strong><span>yeni sağlam</span></div></div>
-    <button class="primary-cta" id="finishToRest"><span class="cta-icon">☼</span><span><b>Ekran dışı molaya geç</b><small>öğrenme burada durabilir</small></span><i>→</i></button>
+    <div class="end-mark">✓</div><span class="section-kicker">KEŞİF TAMAMLANDI</span><h2>Bugünkü matematik keşfin bitti.</h2>
+    <p>${focusSkill?`“${esc(focusSkill.label)}” üzerinde çalıştın.`:'Bugünkü görevleri tamamladın.'} Güzel iş; şimdi biraz dinlenebilirsin.</p>
+    <div class="end-stats"><div><strong>${ended.questionIndex}</strong><span>görev tamamlandı</span></div></div>
+    <button class="primary-cta" id="finishToRest"><span class="cta-icon">☼</span><span><b>Mola zamanı</b><small>biraz ekran dışına çık</small></span><i>→</i></button>
   </section>`;
   $('#finishToRest').addEventListener('click',()=>{
     $('#practiceOverlay').classList.remove('open'); $('#practiceOverlay').setAttribute('aria-hidden','true'); document.body.style.overflow='';
     session=null; currentQuestion=null; currentSelection=null; renderAll(); startCooldown();
   });
 }
+
 function closePractice(confirmClose=false){
-  if(confirmClose&&session&&session.questionIndex>0&&!confirm('Bu keşfi şimdi kapatmak ister misin? İlerleme kaydedildi; tamamlanmayan pencereler daha sonra yeniden gelir.')) return;
+  if(confirmClose&&session&&session.questionIndex>0&&!confirm('Bu keşfi şimdi kapatmak ister misin? Yaptıkların kaydedildi; daha sonra yeniden devam edebilirsin.')) return;
   $('#practiceOverlay').classList.remove('open'); $('#practiceOverlay').setAttribute('aria-hidden','true'); document.body.style.overflow='';
   session=null; currentQuestion=null; currentSelection=null; renderAll();
 }
@@ -902,7 +904,7 @@ function renderVisual(v,q){
     case 'three-add-interactive': return threeAddBuilder(v.values);
     case 'three-add-strategy': return threeAddStrategy(v.values,v.pair,v.total);
     case 'three-box-story': return threeBoxStory(v.values);
-    default: return `<div style="position:relative;z-index:1;color:var(--muted)">Model hazırlanıyor.</div>`;
+    default: return '';
   }
 }
 function threeAddBuilder(values){
