@@ -33,6 +33,22 @@ for(const [i,skill] of p1.entries()){
   assert.ok(q.id,`${skill.id} readiness id missing`);
 }
 
+const p2A1=skillsFor('grade2').filter(s=>supportsLearningCycle(s.id));
+assert.deepEqual(p2A1.map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','addSub1000']);
+for(const [i,skill] of p2A1.entries()){
+  const sources=readinessSourcesFor(skill.id);
+  assert.ok(sources.length>=1,`${skill.id} must have authentic P2 readiness provenance`);
+  assert.ok(sources.every(id=>id!==skill.id));
+  const q=generateLearningQuestion(skill.id,'readiness','see',1,makeSeeded(4000+i),null);
+  assert.equal(q.learningPhase,'readiness');
+  assert.equal(q.countsTowardEvidence,false);
+  assert.ok(q.readinessSourceSkillId);
+  const p=buildLearningCyclePlan(ensureSkillState(defaultState(),skill.id));
+  assert.deepEqual(p.map(x=>x.phase),['readiness','model','representation','symbol','reasoning','context','practice','practice']);
+}
+assert.deepEqual(readinessSourcesFor('number1000'),['number100']);
+assert.deepEqual(readinessSourcesFor('addSub1000'),['addSub100']);
+
 const state=defaultState();
 const ss=ensureSkillState(state,'time1');
 const plan=buildLearningCyclePlan(ss);

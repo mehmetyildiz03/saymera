@@ -14,6 +14,10 @@ const P1_SKILLS=[
   'numberPattern1','addSub100','multiply40','divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1'
 ];
 assert.deepEqual(skillsFor('grade1').map(s=>s.id),P1_SKILLS,'Primary 1 coverage graph changed unexpectedly');
+const P2_A1_SKILLS=['number1000','compareOrder1000','numberPattern1000','addSub1000'];
+assert.deepEqual(skillsFor('grade2').slice(0,4).map(s=>s.id),P2_A1_SKILLS,'Primary 2 A1 foundation graph changed unexpectedly');
+for(const legacy of ['place100','add100','sub100','numberPattern2']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
+
 
 const fresh=defaultState();
 const freshPick=selectNextSkill(fresh,{questionIndex:0,recentSkillIds:[]},Date.now(),()=>0.5);
@@ -60,6 +64,16 @@ for(const skillId of P1_SKILLS){
   assert.equal(new Set(tasks.map(q=>q.taskKind)).size,5,`${skillId} must use five distinct cognitive task families`);
   assert.ok(new Set(tasks.map(q=>q.response.kind)).size>=3,`${skillId} must use at least three response families`);
   for(const q of tasks) assert.equal(q.taskKind,expectedKinds[q.representation],`${skillId}/${q.representation} task family mismatch`);
+}
+
+// Singapore P2-A1 quality gate: new foundational skills use the same five genuine cognitive actions.
+for(const skillId of P2_A1_SKILLS){
+  const concept=createConceptInstance(skillId,2,seeded);
+  assert.equal(concept.skillId,skillId);
+  const tasks=REPRESENTATIONS.map(rep=>generateQuestion(skillId,rep,2,seeded,concept));
+  assert.equal(new Set(tasks.map(q=>q.taskKind)).size,5,`${skillId} must use five distinct cognitive task families`);
+  assert.ok(new Set(tasks.map(q=>q.response.kind)).size>=3,`${skillId} must use at least three response families`);
+  for(const q of tasks) assert.equal(q.taskKind,expectedKinds[q.representation],`${skillId}/${q.representation} P2 task family mismatch`);
 }
 
 // Singapore P1 mental-strategy coverage: no single 'make ten for everything' shortcut.
@@ -152,6 +166,24 @@ for(let i=0;i<100;i++){
   const q=generateQuestion('addSub100','explain',4,seeded,c);
   if(c.anchor.renaming) assert.match(q.explain,/yeniden grupl/i);
 }
+
+// Singapore P2-A1 scope guards.
+const seen1000=new Set(), seenP2Steps=new Set(), seenP2Modes=new Set();
+for(let i=0;i<1200;i++){
+  const n=createConceptInstance('number1000',2,seeded); seen1000.add(n.anchor.n); seen1000.add(n.symbol.n); seen1000.add(n.transfer.n);
+  const p=createConceptInstance('numberPattern1000',2,seeded); seenP2Steps.add(p.anchor.step);
+  const a1=createConceptInstance('addSub1000',1,seeded); seenP2Modes.add(a1.anchor.mode);
+  const a4=createConceptInstance('addSub1000',4,seeded); seenP2Modes.add(a4.anchor.mode);
+}
+assert.ok(seen1000.has(1000),'P2 whole numbers must include endpoint 1000');
+for(const step of [1,-1,10,-10,100,-100]) assert.ok(seenP2Steps.has(step),`P2 number pattern missing step ${step}`);
+assert.ok(seenP2Modes.has('mental')&&seenP2Modes.has('regroup'),'P2 add/sub must cover mental place-value work and regrouping');
+const p2NumberBuild=generateQuestion('number1000','build',2,seeded,createConceptInstance('number1000',2,seeded));
+assert.equal(p2NumberBuild.response.interaction,'base1000-build');
+assert.equal(p2NumberBuild.visual.type,'base1000-build-interactive');
+const p2AddBuild=generateQuestion('addSub1000','build',4,seeded,createConceptInstance('addSub1000',4,seeded));
+assert.equal(p2AddBuild.response.interaction,'base1000-build');
+assert.equal(p2AddBuild.visual.type,'base1000-operation-build');
 
 // Grade 2 geometry reference gate: each evidence window must require a distinct cognitive action.
 const shapes2Concept=createConceptInstance('shapes2',2,seeded);

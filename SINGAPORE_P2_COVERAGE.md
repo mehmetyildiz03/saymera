@@ -135,3 +135,17 @@ Bir P2 becerisi ancak şu koşullarda **P2-REFERENCE** sayılır:
 9. Otomatik generator, UI/render ve öğrenme-döngüsü testleri geçer.
 
 P2 geçişi kademeli yapılacaktır; LEGACY beceriler sırf etiketi değiştirilerek referans kabul edilmeyecektir.
+
+
+## Uygulama ilerlemesi — v1.4.0 / P2-A1
+
+İlk temel katman **P2-REFERENCE** seviyesine taşındı:
+
+- `number1000` — 1000'e kadar sayı ve yüzlük–onluk–birlik
+- `compareOrder1000` — 1000'e kadar karşılaştırma ve sıralama
+- `numberPattern1000` — ±1, ±10, ±100 sabit değişim örüntüleri
+- `addSub1000` — zihinsel basamak işlemleri, 3 basamaklı standart işlemler ve yeniden gruplama
+
+Eski `place100`, `add100`, `sub100` ve `numberPattern2` becerileri görünür P2 haritasından çıkarıldı. Yeni beceriler yeni kimliklerle oluşturuldu; böylece eski, daha kolay içeriğe ait yerel ilerleme yeni Singapore P2 içeriğine yanlışlıkla taşınmaz.
+
+Sıradaki P2-A2: tek/çift sayılar + 1–2 adımlı toplama/çıkarma problem yapıları.

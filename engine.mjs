@@ -22,7 +22,8 @@ export const LEARNING_PHASE_META = {
 const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
-  'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1'
+  'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
+  'number1000','compareOrder1000','numberPattern1000','addSub1000'
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
@@ -69,19 +70,21 @@ export const SKILLS = [
   skill('shapePattern1','grade1','2B şekillerden figür oluşturma ve çözümleme','Geometri','rose',['shapes1']),
   skill('data1','grade1','Resimli grafik okuma ve yorumlama','Veri','amber',['number20']),
 
-  skill('place100','grade2','Onluk–birlik','Sayı sistemi','amber'),
-  skill('add100','grade2','100 içinde toplama','İşlemler','blue',['place100']),
-  skill('sub100','grade2','100 içinde çıkarma','İşlemler','violet',['place100']),
-  skill('multiply5','grade2','Gruplarla çarpma','Çarpma','green',['add100']),
+  // Primary 2 migration is deliberate: reference-quality skills use new ids so legacy
+  // evidence cannot silently carry over to materially harder Singapore P2 content.
+  skill('number1000','grade2','1000’e kadar sayı ve basamak','Sayılar','amber'),
+  skill('compareOrder1000','grade2','1000’e kadar karşılaştırma ve sıralama','Sayılar','blue',['number1000']),
+  skill('numberPattern1000','grade2','1, 10 ve 100 ile sayı örüntüleri','Örüntü','navy',['number1000']),
+  skill('addSub1000','grade2','1000 içinde toplama ve çıkarma','İşlemler','violet',['number1000']),
+  skill('multiply5','grade2','Gruplarla çarpma','Çarpma','green',['addSub1000']),
   skill('divide20','grade2','Paylaştırarak bölme','Bölme','teal',['multiply5']),
   skill('fraction','grade2','Yarım ve çeyrek','Kesir','rose'),
-  skill('word2','grade2','İki ilişkiyi birleştiren problem','Problem çözme','navy',['add100','sub100']),
-  skill('numberPattern2','grade2','Sayı örüntülerini sürdürme','Örüntü','navy',['place100']),
+  skill('word2','grade2','İki ilişkiyi birleştiren problem','Problem çözme','navy',['addSub1000']),
   skill('shapes2','grade2','Şekil ve cisim ilişkileri','Geometri','rose'),
   skill('lengthCm','grade2','Santimetre ile ölçme','Ölçme','green'),
   skill('time2','grade2','Saat ve yarım saat','Zaman','violet'),
-  skill('moneyTL','grade2','Lira ile para problemleri','Para','teal',['add100']),
-  skill('data2','grade2','Sütun grafiğini yorumlama','Veri','amber',['place100']),
+  skill('moneyTL','grade2','Lira ile para problemleri','Para','teal',['addSub1000']),
+  skill('data2','grade2','Sütun grafiğini yorumlama','Veri','amber',['number1000']),
 ];
 
 export function skillsFor(profile){ return SKILLS.filter(s => s.profile === profile); }
@@ -443,6 +446,41 @@ function shapePatternCases(){
     {id:'window',name:'pencere',pieces:['square','square','square','square'],copy:'window',description:'dört kare'}
   ];
 }
+
+function number1000Cases(){
+  const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
+  return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
+}
+function compare1000Cases(){
+  return [[342,349],[509,490],[675,625],[808,880],[999,909],[420,421],[731,701],[1000,999],[456,546],[603,630],[288,208],[917,971]]
+    .map(([a,b])=>({a,b,relation:a>b?'>':'<',larger:Math.max(a,b),smaller:Math.min(a,b)}));
+}
+function pattern1000Cases(){
+  const specs=[
+    [214,1],[376,1],[645,1],[980,1],
+    [120,10],[245,10],[530,10],[760,10],
+    [100,100],[230,100],[405,100],[600,100],
+    [615,-1],[904,-1],[870,-10],[655,-10],[900,-100],[780,-100],[650,-100]
+  ];
+  return specs.map(([start,step])=>{
+    const seq=Array.from({length:4},(_,i)=>start+i*step);
+    return {start,step,seq,next:start+4*step};
+  }).filter(x=>x.seq.every(n=>n>=0&&n<=1000)&&x.next>=0&&x.next<=1000);
+}
+function addSub1000Cases(){
+  const raw=[
+    [342,5,'+','mental'],[618,20,'+','mental'],[427,100,'+','mental'],[853,3,'−','mental'],[764,40,'−','mental'],[925,200,'−','mental'],
+    [243,315,'+','standard'],[421,356,'+','standard'],[132,446,'+','standard'],[786,243,'−','standard'],[954,321,'−','standard'],[875,452,'−','standard'],
+    [268,157,'+','regroup'],[347,286,'+','regroup'],[486,378,'+','regroup'],[562,178,'−','regroup'],[734,268,'−','regroup'],[900,457,'−','regroup']
+  ];
+  return raw.map(([a,b,op,mode])=>{
+    const ans=op==='+'?a+b:a-b;
+    const renaming=mode==='regroup';
+    return {a,b,op,ans,mode,renaming};
+  });
+}
+function hto(n){ return {hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}; }
+
 function shapes2Cases(){
   return [
     {id:'cube',name:'Küp',kind:'cube',flat:'6',curved:'0',face:'square',fact:'6 düz yüzünün tamamı karedir',scene:'dice'},
@@ -467,8 +505,15 @@ function shapeTokenLabel(token){
 function trNumberWord(n){
   const ones=['sıfır','bir','iki','üç','dört','beş','altı','yedi','sekiz','dokuz'];
   const tens=['','on','yirmi','otuz','kırk','elli','altmış','yetmiş','seksen','doksan'];
-  n=Number(n); if(n<10) return ones[n]; if(n===100) return 'yüz';
-  const t=Math.floor(n/10), o=n%10; return `${tens[t]}${o?' '+ones[o]:''}`;
+  n=Number(n);
+  if(n<10) return ones[n];
+  if(n===1000) return 'bin';
+  const h=Math.floor(n/100), rest=n%100, t=Math.floor(rest/10), o=rest%10;
+  const parts=[];
+  if(h) parts.push(h===1?'yüz':`${ones[h]} yüz`);
+  if(t) parts.push(tens[t]);
+  if(o) parts.push(ones[o]);
+  return parts.join(' ');
 }
 
 export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
@@ -499,6 +544,14 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='shapes1') return make('shape-properties',shapes1Cases());
   if(skillId==='shapePattern1') return make('shape-composition-and-copying',shapePatternCases());
   if(skillId==='data1') return make('pictograph-data',data1Cases());
+  if(skillId==='number1000') return make('numbers-to-1000-place-value',number1000Cases());
+  if(skillId==='compareOrder1000') return make('compare-order-to-1000',compare1000Cases());
+  if(skillId==='numberPattern1000') return make('one-ten-hundred-patterns-to-1000',pattern1000Cases());
+  if(skillId==='addSub1000'){
+    const all=addSub1000Cases();
+    const cases=d===1?all.filter(z=>z.mode==='mental'):d===2?all.filter(z=>z.mode!=='regroup'):d===3?all.filter(z=>z.mode!=='mental'):all.filter(z=>z.mode==='regroup');
+    return make('addition-subtraction-within-1000',cases);
+  }
   if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
 }
@@ -1223,6 +1276,142 @@ function genShapePattern1(rep,d,rng,concept){
     taskKind:'context-transfer',taskLabel:'Şekil düzenini ızgaraya kopyala',visual:{type:'composite-figure',figure:y.id,pieces:y.pieces},hint:'Parçaların yalnız adını değil, göreli konumlarını ve yönlerini de koru.',explain:`Doğru kopya ${y.name} figürünün parça düzenini korur.`
   });
 }
+
+function genNumber1000(rep,d,rng,concept){
+  const c=concept?.skillId==='number1000'?concept:createConceptInstance('number1000',d,rng);
+  const x=c.anchor;
+  if(rep==='build') return qTask('number1000',rep,`${x.n} sayısını yüzlük, onluk ve birlik bloklarıyla kur.`,`${x.hundreds}|${x.tens}|${x.ones}`,{kind:'manipulative',interaction:'base1000-build',expectedValue:`${x.hundreds}|${x.tens}|${x.ones}`,checkLabel:'Modelimi kontrol et'}, {
+    taskKind:'manipulative-build',taskLabel:'Yüzlük–onluk–birlik yapısını kur',visual:{type:'base1000-build-interactive',target:x.n,maxHundreds:10,maxTens:9,maxOnes:9},hint:'Önce yüzlükleri, sonra onlukları ve birlikleri yerleştir.',explain:`${x.n} = ${x.hundreds} yüzlük + ${x.tens} onluk + ${x.ones} birlik.`
+  });
+  if(rep==='see'){
+    const candidates=[x.n,Math.max(100,x.n-10),Math.min(1000,x.n+100)];
+    const uniq=[...new Set(candidates)]; while(uniq.length<3) uniq.push(Math.max(100,x.n-1-uniq.length));
+    const opts=shuffled(uniq.slice(0,3).map((n,i)=>{const z=hto(n); return {value:n===x.n?'correct':`wrong-${i}`,visual:{type:'base1000',...z},ariaLabel:`${n} sayısının yüzlük onluk birlik modeli`};}),rng);
+    return qTask('number1000',rep,`${x.n} sayısını gösteren model hangisi?`,'correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Basamak modelini görselde ayırt et',visual:{type:'numbercard',n:x.n},hint:'Yüzlük, onluk ve birlik bloklarını ayrı ayrı say.',explain:`${x.n}, ${x.hundreds} yüzlük, ${x.tens} onluk ve ${x.ones} birlikten oluşur.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('number1000',rep,`“${trNumberWord(y.n)}” sayısını rakamla yaz.`,y.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Yazdığımı kontrol et'}, {
+      taskKind:'symbol-entry',taskLabel:'Sayı sözcüğünü rakama çevir',visual:{type:'base1000',...hto(y.n)},hint:'Yüzlük, onluk ve birlik basamaklarını sırayla düşün.',explain:`“${trNumberWord(y.n)}” = ${y.n}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=x.n===1000?'10 yüzlük, 1000 değerini oluşturur':`${x.hundreds} yüzlük, ${x.hundreds*100} değerini gösterir`;
+    return qBase('number1000',rep,`${x.n} sayısında yüzlük basamağını nasıl açıklarsın?`,answer,semanticChoices(answer,['Yüzlük basamağı yalnız rakamın şeklini gösterir','Onluk ve yüzlük aynı değerdedir','Birlik basamağı bütün sayının değerini tek başına belirler'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Basamak değerini gerekçelendir',visual:{type:'base1000',...hto(x.n)},hint:'Bir yüzlük 100 birimdir.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer;
+  return qTask('number1000',rep,`Depoda ${y.hundreds} kutu 100’lük, ${y.tens} paket 10’luk ve ${y.ones} tek parça var. Toplam kaç parça vardır?`,y.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Problemi kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'Basamak değerini paketleme bağlamına taşı',visual:{type:'base1000',...hto(y.n)},hint:'Yüzlük kutuları 100, onluk paketleri 10 olarak düşün.',explain:`${y.hundreds*100}+${y.tens*10}+${y.ones}=${y.n}.`
+  });
+}
+
+function genCompareOrder1000(rep,d,rng,concept){
+  const c=concept?.skillId==='compareOrder1000'?concept:createConceptInstance('compareOrder1000',d,rng);
+  const x=c.anchor;
+  if(rep==='build') return qTask('compareOrder1000',rep,`${x.a} ve ${x.b} sayı kartlarını küçükten büyüğe sırala.`,`${x.smaller}|${x.larger}`,{kind:'manipulative',interaction:'order-pair',expectedValue:`${x.smaller}|${x.larger}`,checkLabel:'Sıramı kontrol et'}, {
+    taskKind:'manipulative-build',taskLabel:'Üç basamaklı sayıları sırala',visual:{type:'order-pair-interactive',a:x.a,b:x.b},hint:'Önce yüzlükleri; eşitse onlukları, sonra birlikleri karşılaştır.',explain:`${x.smaller} < ${x.larger}.`
+  });
+  if(rep==='see'){
+    const rels=[x.relation,x.relation==='>'?'<':'>','='];
+    const opts=shuffled(rels.map((relation,i)=>({value:relation===x.relation?'correct':`wrong-${i}`,visual:{type:'compare-base1000',a:x.a,b:x.b,relation},ariaLabel:`${x.a} ${relation} ${x.b}`})),rng);
+    return qTask('compareOrder1000',rep,'Yüzlük–onluk–birlik bilgisine göre doğru karşılaştırma hangisi?','correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Karşılaştırmayı basamak modelinde gör',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},hint:'Soldaki en büyük basamaktan karşılaştırmaya başla.',explain:`${x.a} ${x.relation} ${x.b}.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qBase('compareOrder1000',rep,`${y.a} __ ${y.b} boşluğuna hangi işaret gelir?`,y.relation,semanticChoices(y.relation,[y.relation==='>'?'<':'>','=','+'],rng),{
+      taskKind:'symbol-entry',taskLabel:'Karşılaştırmayı sembolleştir',visual:{type:'equation',text:`${y.a} __ ${y.b}`},hint:'Önce yüzlükleri karşılaştır.',explain:`${y.a} ${y.relation} ${y.b}.`
+    });
+  }
+  if(rep==='explain'){
+    const ah=Math.floor(x.a/100), bh=Math.floor(x.b/100), at=Math.floor((x.a%100)/10), bt=Math.floor((x.b%100)/10);
+    const answer=ah!==bh?'Önce yüzlük basamağını karşılaştırırım':at!==bt?'Yüzlükler eşit; onluk basamağını karşılaştırırım':'Yüzlük ve onluklar eşit; birlikleri karşılaştırırım';
+    return qBase('compareOrder1000',rep,`${x.a} ile ${x.b} karşılaştırılırken hangi düşünce doğrudur?`,answer,semanticChoices(answer,['Yalnız son rakama bakarım','Rakam sayıları eşitse sayılar da eşittir','Basamakların yerini önemsemem'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Basamak sırasını gerekçelendir',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:x.relation},hint:'Basamak değeri soldan sağa azalır.',explain:`${answer}; sonuç ${x.a} ${x.relation} ${x.b}.`
+    });
+  }
+  const y=c.transfer;
+  return qTask('compareOrder1000',rep,`İki depoda ${y.a} ve ${y.b} ürün var. Daha çok ürünü olan depoda kaç ürün vardır?`,y.larger,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Karşılaştırmayı kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'Karşılaştırmayı gerçek miktara taşı',visual:{type:'shelf-counts',a:y.a,b:y.b},hint:'İki sayıyı yüzlüklerden başlayarak karşılaştır.',explain:`${y.larger}, ${y.smaller}'dan büyüktür.`
+  });
+}
+
+function genNumberPattern1000(rep,d,rng,concept){
+  const c=concept?.skillId==='numberPattern1000'?concept:createConceptInstance('numberPattern1000',d,rng);
+  const x=c.anchor;
+  const rule=step=>`Her adımda ${Math.abs(step)} ${step>0?'ekleniyor':'çıkarılıyor'}`;
+  if(rep==='build'){
+    const candidates=shuffled([...new Set([x.step,-x.step,x.step>0?10: -10,x.step>0?100:-100])],rng).slice(0,4);
+    if(!candidates.includes(x.step)) candidates[0]=x.step;
+    return qTask('numberPattern1000',rep,'Örüntünün sonraki adımını oluşturacak kuralı seç.',x.step,{kind:'manipulative',interaction:'pattern-step',expectedValue:String(x.step),checkLabel:'Kuralımı kontrol et'}, {
+      taskKind:'manipulative-build',taskLabel:'Sabit adımı uygulayarak örüntüyü kur',visual:{type:'pattern-step-interactive',seq:x.seq,candidates:shuffled([...new Set(candidates)],rng)},hint:'Ardışık iki sayı arasındaki farkı bul.',explain:`${rule(x.step)}; sonraki sayı ${x.next}.`
+    });
+  }
+  if(rep==='see'){
+    const options=[x.next,x.next+x.step,x.next-x.step].filter((v,i,a)=>v>=0&&v<=1000&&a.indexOf(v)===i);
+    while(options.length<3) options.push(x.next+options.length+1);
+    const opts=shuffled(options.slice(0,3).map((next,i)=>({value:next===x.next?'correct':`wrong-${i}`,visual:{type:'sequence',items:[...x.seq,next]},ariaLabel:`örüntü ${next} ile devam ediyor`})),rng);
+    return qTask('numberPattern1000',rep,'Aynı kuralı doğru sürdüren dizi hangisi?','correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Doğru devamı görselde ayırt et',visual:{type:'sequence',items:[...x.seq,'?']},hint:'Her geçişte aynı miktar değişmeli.',explain:`${rule(x.step)}; doğru devam ${x.next}.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('numberPattern1000',rep,`${y.seq.join(', ')}, … sıradaki sayıyı yaz.`,y.next,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Sayımı kontrol et'}, {
+      taskKind:'symbol-entry',taskLabel:'Örüntüyü sayıyla sürdür',visual:{type:'sequence',items:[...y.seq,'?']},hint:'Sabit adımı bir kez daha uygula.',explain:`${rule(y.step)}; sıradaki sayı ${y.next}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=rule(x.step);
+    return qBase('numberPattern1000',rep,`${x.seq.join(', ')}, … dizisinin kuralı nedir?`,answer,semanticChoices(answer,[`Her adımda ${Math.abs(x.step)} ${x.step>0?'çıkarılıyor':'ekleniyor'}`,'Her sayı rastgele seçiliyor','Her adımda sayı iki katına çıkıyor'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Sabit değişimi gerekçelendir',visual:{type:'sequence',items:[...x.seq,'?']},hint:'İki komşu sayı arasındaki farkı karşılaştır.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer;
+  const context=y.step>0?'Bir depoya her gün aynı sayıda ürün ekleniyor':'Bir depodan her gün aynı sayıda ürün çıkıyor';
+  return qTask('numberPattern1000',rep,`${context}. Sayımlar ${y.seq.join(', ')} oldu. Bir sonraki sayım kaç olur?`,y.next,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Tahminimi kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'Sabit değişimi günlük duruma taşı',visual:{type:'sequence',items:[...y.seq,'?']},hint:'Günler arasında değişen miktar hep aynı.',explain:`${rule(y.step)}; yeni sayım ${y.next}.`
+  });
+}
+
+function genAddSub1000(rep,d,rng,concept){
+  const c=concept?.skillId==='addSub1000'?concept:createConceptInstance('addSub1000',d,rng);
+  const x=c.anchor, result=hto(x.ans);
+  if(rep==='build') return qTask('addSub1000',rep,`${x.a} ${x.op} ${x.b} işleminin sonucunu yüzlük, onluk ve birlik bloklarıyla kur.`,`${result.hundreds}|${result.tens}|${result.ones}`,{kind:'manipulative',interaction:'base1000-build',expectedValue:`${result.hundreds}|${result.tens}|${result.ones}`,checkLabel:'Sonuç modelini kontrol et'}, {
+    taskKind:'manipulative-build',taskLabel:'Üç basamaklı işlemin sonucunu modelle',visual:{type:'base1000-operation-build',a:x.a,b:x.b,op:x.op,maxHundreds:10,maxTens:9,maxOnes:9},hint:x.renaming?'10 birlik = 1 onluk ve 10 onluk = 1 yüzlük ilişkisini kullan.':'Aynı basamakları kendi aralarında işle.',explain:`${x.a} ${x.op} ${x.b} = ${x.ans}.`
+  });
+  if(rep==='see'){
+    const vals=[x.ans,Math.max(0,x.ans-10),Math.min(1000,x.ans+100)];
+    const uniq=[...new Set(vals)]; while(uniq.length<3) uniq.push(Math.min(1000,x.ans+uniq.length+1));
+    const opts=shuffled(uniq.slice(0,3).map((n,i)=>({value:n===x.ans?'correct':`wrong-${i}`,visual:{type:'base1000',...hto(n)},ariaLabel:`${n} sonuç modeli`})),rng);
+    return qTask('addSub1000',rep,`${x.a} ${x.op} ${x.b} işleminin doğru sonuç modeli hangisi?`,'correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'İşlem sonucunu modelde ayırt et',visual:{type:'equation',text:`${x.a} ${x.op} ${x.b} = ?`},hint:'Yüzlük, onluk ve birlikleri ayrı kontrol et.',explain:`Doğru model ${x.ans} sayısını gösterir.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('addSub1000',rep,`${y.a} ${y.op} ${y.b} = ?`,y.ans,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'İşlemimi kontrol et'}, {
+      taskKind:'symbol-entry',taskLabel:'Üç basamaklı işlemi sembolle çöz',visual:{type:'equation',text:`${y.a} ${y.op} ${y.b}`},hint:y.renaming?'Gerekirse 10 birlik ile 1 onluk, 10 onluk ile 1 yüzlük arasında yeniden grupla.':'Basamakları hizala.',explain:`${y.a} ${y.op} ${y.b} = ${y.ans}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=x.renaming?'Yeniden gruplama sayının değerini değiştirmez; 10 birlik 1 onluk, 10 onluk 1 yüzlüktür':'Aynı basamakları işlerim; bu örnekte yeniden gruplama gerekmez';
+    return qBase('addSub1000',rep,`${x.a} ${x.op} ${x.b} işlemini yaparken hangi açıklama doğrudur?`,answer,semanticChoices(answer,['Yüzlükleri birlik gibi sayarım','Basamakların yerini değiştirsem sonuç aynı kalır','Yalnız en soldaki rakamı işlerim'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Basamak ve yeniden gruplamayı açıkla',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:x.op},hint:'10 birlik ile 1 onluk aynı değeri temsil eder.',explain:`${answer}. Sonuç ${x.ans}.`
+    });
+  }
+  const y=c.transfer;
+  const prompt=y.op==='+'?`Kütüphanede ${y.a} kitap vardı, ${y.b} kitap daha geldi. Şimdi kaç kitap var?`:`Kütüphanede ${y.a} kitap vardı, ${y.b} kitap ödünç verildi. Kaç kitap kaldı?`;
+  return qTask('addSub1000',rep,prompt,y.ans,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Problemi kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'Üç basamaklı işlemi günlük probleme taşı',visual:{type:'story',a:y.a,b:y.b,kind:y.op==='+'?'gain':'loss'},hint:`Hikâyedeki değişim ${y.op==='+'?'artış':'azalış'} gösteriyor.`,explain:`${y.a} ${y.op} ${y.b} = ${y.ans}.`
+  });
+}
+
 function genPlace100(rep,d,rng){
   const tens=randInt(1,8,rng), ones=randInt(0,9,rng), n=tens*10+ones;
   if(rep==='explain'){ const otherTens=ones===tens?((tens%8)+1):ones; return qBase('place100',rep,`${n} sayısındaki ${tens} neyi gösterir?`,`${tens} onluğu`,semanticChoices(`${tens} onluğu`,[`${tens} birliği`,`${otherTens} onluğu`,'Sadece rakamın şeklini'],rng),{visual:{type:'base10',tens,ones},hint:'Soldaki basamak onlukları gösterir.',explain:`${n} = ${tens} onluk + ${ones} birlik.`}); }
@@ -1542,6 +1731,7 @@ const GENERATORS={
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
   lengthCompare1:genLengthCompare1,lengthMeasure1:genLengthMeasure1,time1:genTime1,shapes1:genShapes1,shapePattern1:genShapePattern1,data1:genData1,
+  number1000:genNumber1000,compareOrder1000:genCompareOrder1000,numberPattern1000:genNumberPattern1000,addSub1000:genAddSub1000,
   place100:genPlace100,add100:genAdd100,sub100:genSub100,multiply5:genMultiply5,divide20:genDivide20,fraction:genFraction,word2:genWord2,numberPattern2:genNumberPattern2,shapes2:genShapes2,lengthCm:genLengthCm,time2:genTime2,moneyTL:genMoneyTL,data2:genData2
 };
 
@@ -1608,14 +1798,18 @@ const READINESS_SOURCE_OVERRIDES={
   number20:['count10'],
   lengthCompare1:['compare10'],
   time1:['time-foundation'],
-  shapes1:['shapesBasic']
+  shapes1:['shapesBasic'],
+  number1000:['number100'],
+  addSub1000:['addSub100']
 };
 
 export function readinessSourcesFor(skillId){
   const skillObj=SKILLS.find(s=>s.id===skillId);
   if(!skillObj) return [];
+  const override=READINESS_SOURCE_OVERRIDES[skillId];
+  if(override?.length) return [...override];
   if(skillObj.prerequisite?.length) return [...skillObj.prerequisite];
-  return [...(READINESS_SOURCE_OVERRIDES[skillId]||[])];
+  return [];
 }
 
 export function readinessSourceFor(skillId,rng=Math.random){
@@ -1724,6 +1918,7 @@ const CONCEPT_KEYS={
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
   lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data',
+  number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',addSub1000:'addition-subtraction-within-1000',
   shapes2:'solid-properties-and-invariance'
 };
 

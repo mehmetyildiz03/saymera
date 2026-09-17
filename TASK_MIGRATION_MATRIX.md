@@ -1,8 +1,9 @@
-# SAYMERA v1.2.1 — Görev Motoru Geçiş Matrisi
+# SAYMERA v1.4.0 — Görev Motoru Geçiş Matrisi
 
 Durum:
 
 - **P1-REFERENCE:** Singapur P1 coverage matrix'ine bağlı, beş ayrı task family ve otomatik kalite kapısı var.
+- **P2-REFERENCE:** Singapur P2 kapsamına bağlı, aynı beş görev ailesi + 8 aşamalı öğrenme döngüsü + adaptif pekiştirme + gecikmeli geri çağırma kalite kapısı var.
 - **REFERENCE:** Kur · Gör · Yaz · Anlat · Taşı görevleri gerçekten farklı bilişsel eylemler olarak yeniden tasarlandı ve otomatik kalite/render kapısına alındı.
 - **LEGACY:** Çalışır; reference görev mimarisine henüz taşınmadı.
 
@@ -38,18 +39,18 @@ Durum:
 | 1. sınıf | `shapes1` | 2B şekilleri tanı/adlandır/sınıflandır | **P1-REFERENCE** |
 | 1. sınıf | `shapePattern1` | 2B figür oluşturma/çözümleme/kopyalama | **P1-REFERENCE** |
 | 1. sınıf | `data1` | Resimli grafik | **P1-REFERENCE** |
-| 2. sınıf | `place100` | Onluk–birlik | LEGACY |
-| 2. sınıf | `add100` | 100 içinde toplama | LEGACY |
-| 2. sınıf | `sub100` | 100 içinde çıkarma | LEGACY |
+| 2. sınıf | `number1000` | 1000’e kadar sayı ve basamak | **P2-REFERENCE** |
+| 2. sınıf | `compareOrder1000` | 1000’e kadar karşılaştırma/sıralama | **P2-REFERENCE** |
+| 2. sınıf | `numberPattern1000` | 1/10/100 ile sayı örüntüleri | **P2-REFERENCE** |
+| 2. sınıf | `addSub1000` | 1000 içinde toplama/çıkarma | **P2-REFERENCE** |
 | 2. sınıf | `multiply5` | Gruplarla çarpma | LEGACY |
 | 2. sınıf | `divide20` | Paylaştırarak bölme | LEGACY |
 | 2. sınıf | `fraction` | Yarım ve çeyrek | LEGACY |
 | 2. sınıf | `word2` | İki ilişkili problem | LEGACY |
-| 2. sınıf | `numberPattern2` | Sayı örüntüsü | LEGACY |
 | 2. sınıf | `shapes2` | Şekil/cisim ilişkileri | **REFERENCE** |
 | 2. sınıf | `lengthCm` | Santimetre | LEGACY |
 | 2. sınıf | `time2` | Saat | LEGACY |
 | 2. sınıf | `moneyTL` | Para | LEGACY |
 | 2. sınıf | `data2` | Sütun grafiği | LEGACY |
 
-Toplam: **43 beceri**. Bunun **22'si P1-REFERENCE**, **1'i Grade 2 REFERENCE** ve **20'si LEGACY** durumundadır.
+Toplam: **43 beceri**. Bunun **22'si P1-REFERENCE**, **4'ü P2-REFERENCE**, **1'i Grade 2 REFERENCE** ve **16'sı LEGACY** durumundadır.

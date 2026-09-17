@@ -577,6 +577,10 @@ function wireManipulator(q){
     const root=$('.sg-base10-builder');
     root?.querySelectorAll('.sg-base10-ten,.sg-base10-one').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
   }
+  if(interaction==='base1000-build'){
+    const root=$('.sg-base1000-builder');
+    root?.querySelectorAll('.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
+  }
   if(interaction==='order-pair'){
     const root=$('.sg-order-builder');
     root?.querySelectorAll('.sg-order-card').forEach(btn=>btn.addEventListener('click',()=>{
@@ -656,6 +660,7 @@ function readManipulatorValue(q){
   if(interaction==='remove-counters') return $$('.remove-counter-builder .remove-token.removed').length;
   if(interaction==='bond-fill') return $$('.sg-bond-builder .sg-bond-token.selected').length;
   if(interaction==='base10-build') return `${$$('.sg-base10-builder .sg-base10-ten.selected').length}|${$$('.sg-base10-builder .sg-base10-one.selected').length}`;
+  if(interaction==='base1000-build') return `${$$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
   if(interaction==='order-pair'){
     const cards=[...$$('.sg-order-builder .sg-order-card[data-order]')].sort((a,b)=>Number(a.dataset.order)-Number(b.dataset.order)); return cards.length===2?cards.map(x=>x.dataset.value).join('|'):null;
   }
@@ -696,6 +701,7 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='remove-counters') node.textContent=`Ayırdığın taş: ${value}`;
   else if(q.response?.interaction==='bond-fill') node.textContent=`Eksik parçaya koyduğun taş: ${value}`;
   else if(q.response?.interaction==='base10-build') { const [t='0',o='0']=String(value).split('|'); node.textContent=`Modelin: ${t} onluk · ${o} birlik`; }
+  else if(q.response?.interaction==='base1000-build') { const [h='0',t='0',o='0']=String(value).split('|'); node.textContent=`Modelin: ${h} yüzlük · ${t} onluk · ${o} birlik`; }
   else if(q.response?.interaction==='order-pair') node.textContent=value?`Sıran: ${String(value).replace('|',' → ')}`:'Önce küçük, sonra büyük karta dokun';
   else if(q.response?.interaction==='ordinal-position') node.textContent=value?`Seçtiğin sıra: ${value}.`:'Bir sıra konumu seç';
   else if(q.response?.interaction==='equal-groups') node.textContent=value!=null?`Eşit gruplar hazır · toplam ${value}`:'Taşları bütün gruplara eşit dağıt';
@@ -752,7 +758,7 @@ function answerQuestion(value,button){
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
@@ -946,6 +952,10 @@ function renderVisual(v,q){
     case 'bar': { const total=v.op==='+'?v.a+v.b:v.a; const w1=Math.max(22,Math.round(v.a/Math.max(1,total)*100)), w2=Math.max(18,100-w1); return `<div class="bar-model"><span style="width:${w1}%">${v.a}</span><span style="width:${w2}%">${v.op==='+'?v.b:'− '+v.b}</span></div>`; }
     case 'story': return `<div class="story-visual"><div class="bag">${v.a}</div><span class="story-arrow">${v.kind==='gain'?'＋':'−'}</span><div class="bag" style="background:var(--blue-soft);border-color:#9fb3c4">${v.b}</div></div>`;
     case 'base10': return `<div class="base10"><div class="tens">${Array.from({length:v.tens},()=>'<i class="ten-rod"></i>').join('')}</div><div class="ones">${Array.from({length:v.ones},()=>'<i class="one-cube"></i>').join('')}</div></div>`;
+    case 'base1000': return base1000Visual(v.hundreds,v.tens,v.ones);
+    case 'base1000-build-interactive': return base1000BuildBuilder(v.target,v.maxHundreds,v.maxTens,v.maxOnes);
+    case 'base1000-operation-build': return base1000OperationBuilder(v);
+    case 'compare-base1000': return compareBase1000Visual(v.a,v.b,v.relation);
     case 'bar-add': return `<div class="bar-model"><span style="width:58%">${v.a}</span><span style="width:42%">+ ${v.b}</span></div>`;
     case 'groups': return `<div class="group-wrap">${Array.from({length:v.groups},()=>`<div class="group">${Array.from({length:v.each},()=>'<i></i>').join('')}</div>`).join('')}</div>`;
     case 'share': { const each=v.total/v.divisor; return `<div class="share-wrap">${Array.from({length:v.divisor},()=>`<div class="share-person">${Array.from({length:each},()=>'<i></i>').join('')}</div>`).join('')}</div>`; }
@@ -1068,6 +1078,18 @@ function base10BuildControls(maxTens=9,maxOnes=9){
   return `<div class="sg-base10-bank"><div><small>ONLUK</small>${Array.from({length:maxTens},(_,i)=>`<button class="sg-base10-ten" type="button" aria-label="${i+1}. onluk"></button>`).join('')}</div><div><small>BİRLİK</small>${Array.from({length:maxOnes},(_,i)=>`<button class="sg-base10-one" type="button" aria-label="${i+1}. birlik"></button>`).join('')}</div></div>`;
 }
 function base10BuildBuilder(target,maxTens,maxOnes){ return `<div class="sg-base10-builder"><div class="sg-target-pill">HEDEF <b>${target}</b></div>${base10BuildControls(maxTens,maxOnes)}</div>`; }
+function base1000BuildControls(maxHundreds=10,maxTens=9,maxOnes=9){
+  return `<div class="sg-base1000-bank"><div><small>YÜZLÜK</small>${Array.from({length:maxHundreds},(_,i)=>`<button class="sg-base1000-hundred" type="button" aria-label="${i+1}. yüzlük"></button>`).join('')}</div><div><small>ONLUK</small>${Array.from({length:maxTens},(_,i)=>`<button class="sg-base1000-ten" type="button" aria-label="${i+1}. onluk"></button>`).join('')}</div><div><small>BİRLİK</small>${Array.from({length:maxOnes},(_,i)=>`<button class="sg-base1000-one" type="button" aria-label="${i+1}. birlik"></button>`).join('')}</div></div>`;
+}
+function base1000BuildBuilder(target,maxHundreds,maxTens,maxOnes){ return `<div class="sg-base1000-builder"><div class="sg-target-pill">HEDEF <b>${target}</b></div>${base1000BuildControls(maxHundreds,maxTens,maxOnes)}</div>`; }
+function base1000OperationBuilder(v){ return `<div class="sg-base1000-builder"><div class="sg-operation-header">${v.a} ${esc(v.op)} ${v.b} = ?</div>${base1000BuildControls(v.maxHundreds,v.maxTens,v.maxOnes)}</div>`; }
+function base1000Visual(hundreds=0,tens=0,ones=0){
+  return `<div class="sg-base1000"><div class="sg-place-column hundreds"><small>YÜZLÜK</small><div>${Array.from({length:Number(hundreds)||0},()=>'<i class="sg-hundred-block"></i>').join('')||'<em>0</em>'}</div><b>${hundreds}</b></div><div class="sg-place-column tens"><small>ONLUK</small><div>${Array.from({length:Number(tens)||0},()=>'<i class="sg-ten-block"></i>').join('')||'<em>0</em>'}</div><b>${tens}</b></div><div class="sg-place-column ones"><small>BİRLİK</small><div>${Array.from({length:Number(ones)||0},()=>'<i class="sg-one-block"></i>').join('')||'<em>0</em>'}</div><b>${ones}</b></div></div>`;
+}
+function compareBase1000Visual(a,b,relation){
+  const mini=n=>{ const h=Math.floor(n/100), t=Math.floor((n%100)/10), o=n%10; return `<div class="sg-mini-base1000"><b>${n}</b><span>${h}Y · ${t}O · ${o}B</span></div>`; };
+  return `<div class="sg-compare-base1000">${mini(a)}<strong>${esc(relation)}</strong>${mini(b)}</div>`;
+}
 function bundleStory(tens,ones){ return `<div class="sg-bundle-story"><div>${Array.from({length:tens},()=>'<span class="bundle">10</span>').join('')}</div><div>${Array.from({length:ones},()=>'<i></i>').join('')||'<em>0 birlik</em>'}</div></div>`; }
 function orderPairBuilder(a,b){ return `<div class="sg-order-builder"><small>KÜÇÜKTEN BÜYÜĞE DOKUN</small><div><button type="button" class="sg-order-card" data-value="${a}">${a}</button><button type="button" class="sg-order-card" data-value="${b}">${b}</button></div></div>`; }
 function compareBase10Visual(a,b,relation){
