@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.maintenance/v1.4.1/apply.py'
+      - '.maintenance/v1.4.1/apply2.py'
       - '.github/workflows/apply-v1-4-1.yml'
 
 permissions:
@@ -18,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Apply P2-A2 migration
-        run: python .maintenance/v1.4.1/apply.py
+        run: python .maintenance/v1.4.1/apply2.py
       - name: Validate
         run: npm test
       - name: Commit
