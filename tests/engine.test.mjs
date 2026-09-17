@@ -16,10 +16,11 @@ const P1_SKILLS=[
 assert.deepEqual(skillsFor('grade1').map(s=>s.id),P1_SKILLS,'Primary 1 coverage graph changed unexpectedly');
 const P2_A1_SKILLS=['number1000','compareOrder1000','numberPattern1000','addSub1000'];
 const P2_A2_SKILLS=['oddEven1000','wordAddSub2'];
+const P2_MULT_DIV_SKILLS=['times23510','divisionTables2','multDivFamilies2'];
 const P2_FRACTION_SKILLS=['fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'];
-const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_FRACTION_SKILLS];
-assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'],'Primary 2 reference graph changed unexpectedly');
-for(const legacy of ['place100','add100','sub100','numberPattern2','word2','fraction']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
+const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_MULT_DIV_SKILLS,...P2_FRACTION_SKILLS];
+assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'],'Primary 2 reference graph changed unexpectedly');
+for(const legacy of ['place100','add100','sub100','numberPattern2','word2','multiply5','divide20','fraction']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
 
 
 const fresh=defaultState();
@@ -200,6 +201,32 @@ const p2AddBuild=generateQuestion('addSub1000','build',4,seeded,createConceptIns
 assert.equal(p2AddBuild.response.interaction,'base1000-build');
 assert.equal(p2AddBuild.visual.type,'base1000-operation-build');
 
+
+
+
+// Singapore P2 multiplication/division progression: table structure precedes ÷ notation, then inverse fact families.
+const seenP2TableFactors=new Set();
+for(let i=0;i<700;i++){
+  const t=createConceptInstance('times23510',4,seeded);
+  seenP2TableFactors.add(t.anchor.factor); seenP2TableFactors.add(t.symbol.factor); seenP2TableFactors.add(t.transfer.factor);
+}
+assert.deepEqual([...seenP2TableFactors].sort((a,b)=>a-b),[2,3,4,5,10],'P2 multiplication must cover tables 2,3,4,5,10');
+const tableConcept=createConceptInstance('times23510',3,seeded);
+const tableBuild=generateQuestion('times23510','build',3,seeded,tableConcept);
+assert.equal(tableBuild.response.interaction,'pattern-step','P2 table construction should build the skip-count pattern without excessive tapping');
+const divisionConcept=createConceptInstance('divisionTables2',3,seeded);
+const divisionBuild=generateQuestion('divisionTables2','build',3,seeded,divisionConcept);
+assert.ok(!divisionBuild.prompt.includes('÷'),'division model must be built before ÷ notation is assumed');
+const divisionSee=generateQuestion('divisionTables2','see',3,seeded,divisionConcept);
+assert.match(divisionSee.teachingNote,/÷/,'÷ notation must be explicitly taught in the representation phase');
+const divisionSymbol=generateQuestion('divisionTables2','symbol',3,seeded,divisionConcept);
+assert.match(divisionSymbol.prompt,/÷/,'symbol phase should assess ÷ only after it has been taught');
+const familyConcept=createConceptInstance('multDivFamilies2',3,seeded);
+const familySee=generateQuestion('multDivFamilies2','see',3,seeded,familyConcept);
+assert.equal(familySee.response.kind,'visual-choice');
+assert.match(familySee.explain,/×/); assert.match(familySee.explain,/÷/);
+const familyTransfer=generateQuestion('multDivFamilies2','transfer',3,seeded,familyConcept);
+assert.match(familyTransfer.prompt,/eşit dağıtırsan/);
 
 
 // Singapore P2 fraction progression: meaning precedes notation; notation precedes comparison and like-fraction operations.

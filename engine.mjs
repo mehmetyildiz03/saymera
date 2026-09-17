@@ -24,6 +24,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
+  'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
@@ -79,8 +80,9 @@ export const SKILLS = [
   skill('oddEven1000','grade2','1000’e kadar tek ve çift sayılar','Sayılar','green',['number1000']),
   skill('addSub1000','grade2','1000 içinde toplama ve çıkarma','İşlemler','violet',['number1000']),
   skill('wordAddSub2','grade2','1–2 adımlı toplama ve çıkarma problemleri','Problem çözme','teal',['addSub1000']),
-  skill('multiply5','grade2','Gruplarla çarpma','Çarpma','green',['addSub1000']),
-  skill('divide20','grade2','Paylaştırarak bölme','Bölme','teal',['multiply5']),
+  skill('times23510','grade2','2, 3, 4, 5 ve 10 çarpım tabloları','Çarpma','green'),
+  skill('divisionTables2','grade2','Bölme ve ÷ gösterimi','Bölme','teal',['times23510']),
+  skill('multDivFamilies2','grade2','Çarpma–bölme işlem aileleri','İşlem ilişkileri','violet',['divisionTables2']),
   skill('fractionMeaning2','grade2','Eş parçalar ve bütün','Kesir','rose'),
   skill('fractionNotation2','grade2','Kesirleri okuma ve yazma','Kesir','rose',['fractionMeaning2']),
   skill('fractionCompare2','grade2','Kesirleri karşılaştırma ve sıralama','Kesir','violet',['fractionNotation2']),
@@ -545,6 +547,29 @@ function trNumberWord(n){
 }
 
 
+
+function p2TableFactorsForDifficulty(d){ return d<=1?[2,5,10]:[2,3,4,5,10]; }
+function times23510Cases(d=4){
+  const factors=p2TableFactorsForDifficulty(d), maxMultiplier=d===1?5:d===2?7:10, rows=[];
+  for(const factor of factors) for(let multiplier=1;multiplier<=maxMultiplier;multiplier++) rows.push({factor,multiplier,total:factor*multiplier});
+  return rows;
+}
+function divisionTables2Cases(d=4){
+  const rows=[];
+  for(const z of times23510Cases(d)){
+    rows.push({...z,mode:'sharing',groups:z.multiplier,each:z.factor,divisor:z.multiplier,quotient:z.factor});
+    rows.push({...z,mode:'grouping',groups:z.multiplier,each:z.factor,divisor:z.factor,quotient:z.multiplier});
+  }
+  return rows;
+}
+function multDivFamily2Cases(d=4){ return times23510Cases(d).filter(z=>z.multiplier!==z.factor); }
+function makeP2Concept(skillId,conceptKey,d,rng,all,anchorFilter=()=>true){
+  const anchors=all.filter(anchorFilter), anchor=choice(anchors.length?anchors:all,rng);
+  const rest=all.filter(z=>JSON.stringify(z)!==JSON.stringify(anchor));
+  const [symbol,transfer]=pickDifferent(rest.length>=2?rest:all,2,rng);
+  return {version:2,skillId,conceptKey,difficulty:d,anchor,symbol,transfer};
+}
+
 function fractionMeaning2Cases(maxDenom=12){
   return Array.from({length:Math.max(1,maxDenom-1)},(_,i)=>({denom:i+2,numerator:1}));
 }
@@ -623,6 +648,9 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
     return make('addition-subtraction-within-1000',cases);
   }
   if(skillId==='wordAddSub2') return make('one-two-step-add-sub-problems',wordAddSub2Cases());
+  if(skillId==='times23510') return make('tables-2-3-4-5-10',times23510Cases(d));
+  if(skillId==='divisionTables2'){ const all=divisionTables2Cases(d); return makeP2Concept(skillId,'division-symbol-within-tables',d,rng,all,z=>z.total<=24&&z.groups<=6); }
+  if(skillId==='multDivFamilies2'){ const all=multDivFamily2Cases(d); return makeP2Concept(skillId,'multiplication-division-fact-families',d,rng,all,z=>z.total<=30&&z.multiplier<=6); }
   if(skillId==='fractionMeaning2') return make('fraction-equal-parts-whole',fractionPoolForDifficulty('meaning',d));
   if(skillId==='fractionNotation2') return make('fraction-notation-representation',fractionPoolForDifficulty('notation',d));
   if(skillId==='fractionCompare2') return make('fraction-compare-unit-like',fractionPoolForDifficulty('compare',d));
@@ -1588,6 +1616,126 @@ function fractionVisualOptions(correct,wrongCases,rng=Math.random){
   wrongCases.slice(0,3).forEach((x,i)=>opts.push({value:`wrong-${i}`,visual:{type:'fraction-strip',numerator:x.numerator,denom:x.denom},ariaLabel:`${x.denom} eş parçadan ${x.numerator} boyalı`}));
   return shuffled(opts,rng);
 }
+
+function genTimes23510(rep,d,rng,concept){
+  const c=concept?.skillId==='times23510'?concept:createConceptInstance('times23510',d,rng), x=c.anchor;
+  if(rep==='build'){
+    const seq=[x.factor,x.factor*2,x.factor*3];
+    const other=[2,3,4,5,10].filter(n=>n!==x.factor);
+    const candidates=shuffled([x.factor,...other.slice(0,2)],rng);
+    return qTask('times23510',rep,`${x.factor}’er ritmik saymayı doğru adımla sürdür.`,x.factor,{kind:'manipulative',interaction:'pattern-step',expectedValue:String(x.factor),checkLabel:'Adımı kontrol et'},{
+      taskKind:'manipulative-build',taskLabel:'Çarpım tablosunun sabit adımını kur',visual:{type:'pattern-step-interactive',seq,candidates},hint:`${x.factor} tablosunda her yeni sayı öncekinin ${x.factor} fazlasıdır.`,explain:`${seq.join(', ')} dizisi her adımda ${x.factor} artar; bu ${x.factor} çarpım tablosunun örüntüsüdür.`
+    });
+  }
+  if(rep==='see'){
+    const correct=[1,2,3,4].map(k=>k*x.factor);
+    const alt=choice([2,3,4,5,10].filter(n=>n!==x.factor),rng);
+    const wrongA=[1,2,3,4].map(k=>k*alt);
+    const wrongB=[x.factor,x.factor*2,x.factor*3,x.factor*4+1];
+    const options=shuffled([
+      {value:'correct',visual:{type:'sequence',items:correct},ariaLabel:`${x.factor} tablosunun katları`},
+      {value:'wrong-table',visual:{type:'sequence',items:wrongA},ariaLabel:'başka tablonun katları'},
+      {value:'wrong-step',visual:{type:'sequence',items:wrongB},ariaLabel:'son adımı bozuk dizi'}
+    ],rng);
+    return qTask('times23510',rep,`Hangi dizi ${x.factor} çarpım tablosunun örüntüsünü doğru gösteriyor?`,'correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Tablo örüntüsünü görselde ayırt et',visual:{type:'equation',text:`${x.factor}, ${x.factor*2}, ${x.factor*3}, …`},hint:`Her adımda ${x.factor} eklenmeli.`,explain:`${correct.join(', ')} sayıları ${x.factor}'in ardışık katlarıdır.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('times23510',rep,`${y.factor} × ${y.multiplier} = □`,y.total,{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Çarpımı kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Tablo bilgisini çarpma cümlesiyle yaz',visual:{type:'equation',text:`${y.factor} × ${y.multiplier}`},hint:`${y.factor}'er ${y.multiplier} kez ilerlemeyi düşün.`,explain:`${y.factor} × ${y.multiplier} = ${y.total}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=`${x.factor} × ${x.multiplier}’dan bir sonraki çarpıma geçerken bir ${x.factor} daha eklenir`;
+    return qBase('times23510',rep,`${x.factor} çarpım tablosunda ardışık sonuçlar neden ${x.factor} artar?`,answer,semanticChoices(answer,['Çarpma işareti sayıyı rastgele büyüttüğü için','Her sonuç bir öncekinin iki katı olduğu için','Tablolarda sayıların sırası önemli olmadığı için'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Çarpım tablosu örüntüsünü gerekçelendir',visual:{type:'sequence',items:[x.factor,x.factor*2,x.factor*3,x.factor*4]},hint:'Her yeni adımda bir eş grup daha eklendiğini düşün.',explain:`Bir grup daha eklemek ${x.factor} tane daha eklemek demektir.`
+    });
+  }
+  const y=c.transfer;
+  return qTask('times23510',rep,`${y.multiplier} kutunun her birinde ${y.factor} kalem var. Toplam kaç kalem var?`,y.total,{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Problemi kontrol et'},{
+    taskKind:'context-transfer',taskLabel:'Çarpım tablosunu günlük probleme taşı',visual:{type:'equation',text:`${y.multiplier} eşit grup · her grupta ${y.factor}`},hint:`${y.factor} sayısını ${y.multiplier} kez düşün.`,explain:`${y.multiplier} × ${y.factor} = ${y.total}.`
+  });
+}
+
+function genDivisionTables2(rep,d,rng,concept){
+  const c=concept?.skillId==='divisionTables2'?concept:createConceptInstance('divisionTables2',d,rng), x=c.anchor;
+  const equation=z=>`${z.total} ÷ ${z.divisor} = ${z.quotient}`;
+  if(rep==='build'){
+    if(x.mode==='sharing') return qTask('divisionTables2',rep,`${x.total} taşı ${x.groups} kişiye eşit paylaştır.`,x.each,{kind:'manipulative',interaction:'share-equally',expectedValue:String(x.each),checkLabel:'Paylaşımı kontrol et'},{
+      taskKind:'manipulative-build',taskLabel:'Bölmeyi eşit paylaşma olarak kur',visual:{type:'share-equally-interactive',total:x.total,groups:x.groups},hint:'Her turda herkese birer taş ver ve bütün taşları kullan.',explain:`${x.total} nesne ${x.groups} eşit paya ayrıldığında her payda ${x.each} nesne olur.`
+    });
+    return qTask('divisionTables2',rep,`${x.total} taşı her grupta ${x.each} taş olacak biçimde eşit gruplara yerleştir.`,x.total,{kind:'manipulative',interaction:'equal-groups',expectedValue:String(x.total),checkLabel:'Grupları kontrol et'},{
+      taskKind:'manipulative-build',taskLabel:'Bölmeyi eşit gruplama olarak kur',visual:{type:'equal-groups-interactive',groups:x.groups,each:x.each},hint:`Her grupta ${x.each} taş olmalı ve bütün taşlar kullanılmalı.`,explain:`${x.total} nesnenin içinde ${x.groups} tane ${x.each}'li eşit grup vardır.`
+    });
+  }
+  if(rep==='see'){
+    const good={value:'correct',visual:{type:'share-model',groups:x.groups,each:x.each},ariaLabel:`${x.groups} eşit grupta ${x.each} nesne`};
+    const wrong1={value:'wrong-each',visual:{type:'share-model',groups:x.groups,each:Math.max(1,x.each-1)},ariaLabel:'grup büyüklüğü yanlış model'};
+    const wrong2={value:'wrong-groups',visual:{type:'share-model',groups:Math.max(1,x.groups-1),each:x.each},ariaLabel:'grup sayısı yanlış model'};
+    const prompt=x.mode==='sharing'?`${x.total} nesneyi ${x.groups} eşit paya ayıran model hangisi?`:`${x.total} nesneyi ${x.each}'erli eşit gruplara ayıran model hangisi?`;
+    return qTask('divisionTables2',rep,prompt,'correct',{kind:'visual-choice',options:shuffled([good,wrong1,wrong2],rng)},{
+      taskKind:'visual-discrimination',taskLabel:'Bölme modelini gör ve ÷ gösterimiyle bağla',teachingNote:`Bu eşit ayırma işlemi matematikte ${equation(x)} diye yazılır. “÷” işareti bölmeyi gösterir.`,visual:{type:'share-model',groups:x.groups,each:x.each},hint:'Bütün nesneler kullanılmalı ve gruplar eşit olmalı.',explain:`Model ${equation(x)} ilişkisini gösterir.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('divisionTables2',rep,`${y.total} ÷ ${y.divisor} = □`,y.quotient,{kind:'number-input',placeholder:'?',maxLength:2,checkLabel:'Bölmeyi kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Eşit ayırmayı ÷ ile yaz ve çöz',visual:{type:'equation',text:`${y.total} ÷ ${y.divisor}`},hint:`${y.divisor} × hangi sayı ${y.total} eder?`,explain:`${equation(y)}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=`${x.divisor} × ${x.quotient} = ${x.total} olduğu için ${equation(x)}`;
+    return qBase('divisionTables2',rep,`${equation(x)} sonucunu hangi düşünce doğrular?`,answer,semanticChoices(answer,['Bölmede grupların eşit olması gerekmediği için','Bölme her zaman toplamı büyüttüğü için','Yalnız ÷ işaretinin şekline bakıldığı için'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Bölme sonucunu çarpma bilgisiyle doğrula',visual:{type:'share-model',groups:x.groups,each:x.each},hint:'Aynı eşit grup yapısını çarpma yönünden düşün.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer;
+  const prompt=y.mode==='sharing'?`${y.total} çıkartma ${y.groups} çocuğa eşit paylaştırılıyor. Her çocuk kaç çıkartma alır?`:`${y.total} boncuk ${y.each}'erli paketlere konuyor. Kaç paket gerekir?`;
+  return qTask('divisionTables2',rep,prompt,y.quotient,{kind:'number-input',placeholder:'?',maxLength:2,checkLabel:'Problemi kontrol et'},{
+    taskKind:'context-transfer',taskLabel:'Bölmeyi günlük paylaşma/gruplama problemine taşı',visual:{type:'equation',text:y.mode==='sharing'?`${y.total} nesne → ${y.groups} eşit pay`:`${y.total} nesne → ${y.each}'erli gruplar`},hint:y.mode==='sharing'?'Bütünü eşit paylara ayır.':'Bütünün içinde kaç eşit grup olduğunu bul.',explain:`${equation(y)}.`
+  });
+}
+
+function multDivFamilyText(z){ return `${z.factor} × ${z.multiplier} = ${z.total} · ${z.multiplier} × ${z.factor} = ${z.total} · ${z.total} ÷ ${z.factor} = ${z.multiplier} · ${z.total} ÷ ${z.multiplier} = ${z.factor}`; }
+function genMultDivFamilies2(rep,d,rng,concept){
+  const c=concept?.skillId==='multDivFamilies2'?concept:createConceptInstance('multDivFamilies2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('multDivFamilies2',rep,`${x.multiplier} eşit grup kur; her grupta ${x.factor} taş olsun. Bu yapı daha sonra hem çarpma hem bölme cümlelerini açıklayacak.`,x.total,{kind:'manipulative',interaction:'equal-groups',expectedValue:String(x.total),checkLabel:'Yapıyı kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'İşlem ailesinin ortak eş-grup modelini kur',visual:{type:'equal-groups-interactive',groups:x.multiplier,each:x.factor},hint:`${x.multiplier} grubun her birinde ${x.factor} taş olmalı.`,explain:`Bu tek modelde ${x.factor}, ${x.multiplier} ve ${x.total} sayıları birlikte yer alır.`
+  });
+  if(rep==='see'){
+    const correct=multDivFamilyText(x);
+    const wrong1=`${x.factor} × ${x.multiplier} = ${x.total} · ${x.total} ÷ ${x.factor} = ${x.multiplier+1}`;
+    const wrong2=`${x.factor} + ${x.multiplier} = ${x.total} · ${x.total} − ${x.factor} = ${x.multiplier}`;
+    const options=shuffled([
+      {value:'correct',visual:{type:'equation',text:correct},ariaLabel:'doğru çarpma bölme işlem ailesi'},
+      {value:'wrong-quotient',visual:{type:'equation',text:wrong1},ariaLabel:'bölme sonucu yanlış aile'},
+      {value:'wrong-ops',visual:{type:'equation',text:wrong2},ariaLabel:'toplama çıkarma ile karışmış aile'}
+    ],rng);
+    return qTask('multDivFamilies2',rep,'Aynı üç sayıdan oluşan doğru çarpma–bölme işlem ailesi hangisi?','correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Dört temel işlemi aynı eş-grup yapısında gör',visual:{type:'share-model',groups:x.multiplier,each:x.factor},hint:'İki çarpma cümlesi aynı bütünü kurmalı; iki bölme cümlesi bu bütünü ters yönden ayırmalı.',explain:correct
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol, answer=`${y.total} ÷ ${y.multiplier} = ${y.factor}`;
+    const distractors=[`${y.total} ÷ ${y.factor} = ${y.factor}`,`${y.multiplier} ÷ ${y.total} = ${y.factor}`,`${y.total} − ${y.multiplier} = ${y.factor}`];
+    return qBase('multDivFamilies2',rep,`${y.factor} × ${y.multiplier} = ${y.total}, ${y.multiplier} × ${y.factor} = ${y.total} ve ${y.total} ÷ ${y.factor} = ${y.multiplier}. Ailenin eksik cümlesi hangisi?`,answer,semanticChoices(answer,distractors,rng),{
+      taskKind:'symbol-entry',taskLabel:'İşlem ailesindeki eksik bölme cümlesini tamamla',visual:{type:'equation',text:`${y.factor}, ${y.multiplier}, ${y.total}`},hint:'Bütünü grup sayısına bölersen her gruptaki miktarı bulursun.',explain:`Eksik cümle ${answer}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer='Çarpma eşit gruplardan bütünü kurar; bölme aynı bütünü eşit gruplara ters yönden ayırır';
+    return qBase('multDivFamilies2',rep,'Çarpma ve bölme neden aynı işlem ailesinde yer alabilir?',answer,semanticChoices(answer,['İki işlem de her zaman sayıyı büyütür','× ve ÷ işaretleri birbirine benzediği için','Bölmede eşit grup düşüncesi gerekmediği için'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Çarpma–bölme ters ilişkisini açıkla',visual:{type:'equation',text:multDivFamilyText(x)},hint:'Aynı grup modeline bir kez bütünü kurma, bir kez bütünü ayırma yönünden bak.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer;
+  return qTask('multDivFamilies2',rep,`${y.multiplier} kutuda ${y.factor}’er boya kalemi var; toplam ${y.total}. ${y.total} kalemi yine ${y.multiplier} kutuya eşit dağıtırsan her kutuda kaç kalem olur?`,y.factor,{kind:'number-input',placeholder:'?',maxLength:2,checkLabel:'Ters ilişkiyi kontrol et'},{
+    taskKind:'context-transfer',taskLabel:'Çarpma–bölme ters ilişkisini yeni bağlama taşı',visual:{type:'equation',text:`${y.multiplier} × ${y.factor} = ${y.total} → ${y.total} ÷ ${y.multiplier} = ?`},hint:'İlk cümledeki eşit grup yapısını ters yönden oku.',explain:`${y.total} ÷ ${y.multiplier} = ${y.factor}.`
+  });
+}
+
 function genFractionMeaning2(rep,d,rng,concept){
   const c=concept?.skillId==='fractionMeaning2'?concept:createConceptInstance('fractionMeaning2',d,rng), x=c.anchor;
   if(rep==='build') return qTask('fractionMeaning2',rep,`Bütün ${x.denom} eş parçaya ayrıldı. Tam bir eş parçayı boya.`,1,{kind:'manipulative',interaction:'fraction-shade',expectedValue:'1',checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Bir eş parçayı modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:1},hint:'Yalnızca bir eş parçayı seç.',explain:`Bütün ${x.denom} eş parçaya ayrıldı ve bunlardan biri seçildi.`});
@@ -1950,6 +2098,7 @@ const GENERATORS={
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
   lengthCompare1:genLengthCompare1,lengthMeasure1:genLengthMeasure1,time1:genTime1,shapes1:genShapes1,shapePattern1:genShapePattern1,data1:genData1,
   number1000:genNumber1000,compareOrder1000:genCompareOrder1000,numberPattern1000:genNumberPattern1000,oddEven1000:genOddEven1000,addSub1000:genAddSub1000,wordAddSub2:genWordAddSub2,
+  times23510:genTimes23510,divisionTables2:genDivisionTables2,multDivFamilies2:genMultDivFamilies2,
   fractionMeaning2:genFractionMeaning2,fractionNotation2:genFractionNotation2,fractionCompare2:genFractionCompare2,fractionAddSub2:genFractionAddSub2,
   place100:genPlace100,add100:genAdd100,sub100:genSub100,multiply5:genMultiply5,divide20:genDivide20,fraction:genFraction,word2:genWord2,numberPattern2:genNumberPattern2,shapes2:genShapes2,lengthCm:genLengthCm,time2:genTime2,moneyTL:genMoneyTL,data2:genData2
 };
@@ -2022,6 +2171,8 @@ const READINESS_SOURCE_OVERRIDES={
   oddEven1000:['pairing-foundation'],
   addSub1000:['addSub100'],
   wordAddSub2:['word1'],
+  times23510:['multiply40'],
+  divisionTables2:['divide20g1'],
   fractionMeaning2:['partwhole5']
 };
 
@@ -2156,6 +2307,7 @@ const CONCEPT_KEYS={
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
   lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data',
   number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',oddEven1000:'odd-even-pairing-to-1000',addSub1000:'addition-subtraction-within-1000',wordAddSub2:'one-two-step-add-sub-problems',
+  times23510:'tables-2-3-4-5-10',divisionTables2:'division-symbol-within-tables',multDivFamilies2:'multiplication-division-fact-families',
   fractionMeaning2:'fraction-equal-parts-whole',fractionNotation2:'fraction-notation-representation',fractionCompare2:'fraction-compare-unit-like',fractionAddSub2:'fraction-like-add-sub',
   shapes2:'solid-properties-and-invariance'
 };

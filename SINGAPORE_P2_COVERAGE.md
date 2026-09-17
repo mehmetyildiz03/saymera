@@ -80,9 +80,10 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 | `place100` | onluk–birlik, 100 altı | **Yetersiz** — 1000 ve yüzlük basamağı gerekli |
 | `add100` | 100 içinde toplama | **Yetersiz** — 3 basamaklı toplama gerekli |
 | `sub100` | 100 içinde çıkarma | **Yetersiz** — 3 basamaklı çıkarma gerekli |
-| `multiply5` | küçük eşit gruplar | **Yetersiz** — 2/3/4/5/10 tabloları gerekli |
-| `divide20` | 20 içinde paylaşma | **Yetersiz** — tablo ilişkisi ve ÷ gerekli |
-| `fraction` | yalnız yarım/çeyrek | **Yetersiz** — daha geniş kesir yapısı gerekli |
+| `times23510` | 2/3/4/5/10 tabloları ve örüntüler | **P2-REFERENCE** |
+| `divisionTables2` | paylaşma/gruplama, `÷`, tablo içi bölme | **P2-REFERENCE** |
+| `multDivFamilies2` | çarpma–bölme ters ilişkisi | **P2-REFERENCE** |
+| `fractionMeaning2`–`fractionAddSub2` | anlam → gösterim → karşılaştırma → eş paydalı işlemler | **P2-REFERENCE** |
 | `word2` | tek tip iki adımlı problem | **Dar** — parça-bütün/karşılaştırma model çeşitliliği gerekli |
 | `numberPattern2` | genel örüntü | **Yeniden tasarlanmalı** — 1000'e kadar örüntü ve 1/10/100 ilişkisi |
 | `shapes2` | 3B cisim ilişkileri | **Kısmi referans** — koni ve daha geniş P2 özellik seti eklenecek |
@@ -102,23 +103,26 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 6. `wordAddSub2` — 1–2 adımlı parça-bütün/karşılaştırma problemleri
 
 ### P2-B — Multiplication/Division + Fractions
-7. `times23510` — 2/3/4/5/10 tabloları
-8. `divisionTables2` — bölme sembolü ve ters işlem ilişkisi
-9. `fractionsWhole2` — bütünün kesri, okuma/yazma, karşılaştırma
-10. `fractionsAddSub2` — eş paydalı kesirlerde toplama/çıkarma
+7. `times23510` — 2/3/4/5/10 tabloları ve tablo örüntüleri
+8. `divisionTables2` — eşit paylaşma/gruplama ve `÷` gösterimi
+9. `multDivFamilies2` — çarpma–bölme ters ilişkisi ve dört temel işlem ailesi
+10. `fractionMeaning2` — eş parçalar ve bütün
+11. `fractionNotation2` — kesirleri okuma/yazma
+12. `fractionCompare2` — birim ve eş paydalı kesirleri karşılaştırma/sıralama
+13. `fractionAddSub2` — eş paydalı kesirlerde toplama/çıkarma
 
 ### P2-C — Measurement + Time + Money
-11. `lengthMetric2` — cm/m
-12. `massMetric2` — g/kg
-13. `volumeLitre2` — litre
-14. `timeP2` — 5 dakika, ÖÖ/ÖS, h/min ve süre
-15. `moneyP2` — TL/kuruş, ondalık gösterim, karşılaştırma ve problem
+14. `lengthMetric2` — cm/m
+15. `massMetric2` — g/kg
+16. `volumeLitre2` — litre
+17. `timeP2` — 5 dakika, ÖÖ/ÖS, h/min ve süre
+18. `moneyP2` — TL/kuruş, ondalık gösterim, karşılaştırma ve problem
 
 ### P2-D — Geometry + Data
-16. `shapes2D2` — yarım/çeyrek daire, bileşik figür ve ızgara
-17. `solids2` — küp/prizma/koni/silindir/küre ve özellikleri
-18. `shapePatterns2` — 2B/3B şekil örüntüleri
-19. `pictureGraphScale2` — ölçekli resimli grafik
+19. `shapes2D2` — yarım/çeyrek daire, bileşik figür ve ızgara
+20. `solids2` — küp/prizma/koni/silindir/küre ve özellikleri
+21. `shapePatterns2` — 2B/3B şekil örüntüleri
+22. `pictureGraphScale2` — ölçekli resimli grafik
 
 ## Kalite kapısı
 
@@ -161,3 +165,20 @@ P2 sayı ve toplama/çıkarma temel katmanı genişletildi:
 Her iki beceri de gerçek ön-bilgi kontrolü, beş ayrı görev ailesi, adaptif pekiştirme ve gecikmeli geri çağırma sözleşmesine dahildir. Eski `word2` görünür içerik haritasından çıkarılmıştır.
 
 Sıradaki katman: P2-B — 2/3/4/5/10 çarpım tabloları, bölme ve kesirler.
+
+
+## Uygulama ilerlemesi — v1.4.2 / P2-B Kesirler
+
+Kesir katmanı tek bir legacy beceriden dört aşamalı P2-REFERENCE zincirine ayrıldı: eş parça/bütün → gösterim → karşılaştırma/sıralama → eş paydalı toplama/çıkarma. Kesir sembolü anlam kurulmadan sınanmıyor.
+
+## Uygulama ilerlemesi — v1.4.3 / P2-B Çarpma ve Bölme
+
+Legacy `multiply5` ve `divide20` görünür haritadan çıkarıldı. Yerlerine:
+
+- `times23510` — 2, 3, 4, 5 ve 10 tabloları; sabit-adım örüntüsü, zihinsel fact ve tek adımlı problem
+- `divisionTables2` — önce eşit paylaşma/gruplama modeli, ardından `÷` gösteriminin açık öğretimi ve tablo içi bölme
+- `multDivFamilies2` — iki çarpma + iki bölme cümlesinden oluşan fact family ve ters işlem düşüncesi
+
+eklendi. Üçü de gerçek ön-bilgi kaynağı, beş farklı görev ailesi, adaptif pekiştirme ve gecikmeli geri çağırma sözleşmesine dahildir.
+
+Sıradaki katman: P2-C — ölçme (m/cm, kg/g, litre), zaman ve para.

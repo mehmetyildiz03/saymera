@@ -45,8 +45,9 @@ Durum:
 | 2. sınıf | `oddEven1000` | 1000’e kadar tek/çift sayılar | **P2-REFERENCE** |
 | 2. sınıf | `addSub1000` | 1000 içinde toplama/çıkarma | **P2-REFERENCE** |
 | 2. sınıf | `wordAddSub2` | 1–2 adımlı toplama/çıkarma problemleri | **P2-REFERENCE** |
-| 2. sınıf | `multiply5` | Gruplarla çarpma | LEGACY |
-| 2. sınıf | `divide20` | Paylaştırarak bölme | LEGACY |
+| 2. sınıf | `times23510` | 2/3/4/5/10 çarpım tabloları | **P2-REFERENCE** |
+| 2. sınıf | `divisionTables2` | Bölme ve ÷ gösterimi | **P2-REFERENCE** |
+| 2. sınıf | `multDivFamilies2` | Çarpma–bölme işlem aileleri | **P2-REFERENCE** |
 | 2. sınıf | `fractionMeaning2` | Eş parçalar ve bütün | **P2-REFERENCE** |
 | 2. sınıf | `fractionNotation2` | Kesirleri okuma ve yazma | **P2-REFERENCE** |
 | 2. sınıf | `fractionCompare2` | Kesirleri karşılaştırma/sıralama | **P2-REFERENCE** |
@@ -57,4 +58,4 @@ Durum:
 | 2. sınıf | `moneyTL` | Para | LEGACY |
 | 2. sınıf | `data2` | Sütun grafiği | LEGACY |
 
-Toplam: **47 beceri**. Bunun **22'si P1-REFERENCE**, **10'u P2-REFERENCE**, **1'i Grade 2 REFERENCE** ve **14'ü LEGACY** durumundadır.
+Toplam: **48 beceri**. Bunun **22'si P1-REFERENCE**, **13'ü P2-REFERENCE**, **1'i Grade 2 REFERENCE** ve **12'si LEGACY** durumundadır.
