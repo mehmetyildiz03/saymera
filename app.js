@@ -386,9 +386,13 @@ function loadPlanItem(){
   const concept=reuseFocusConcept?session.focusConcept:createConceptInstance(skill.id,ss.difficulty||1,Math.random);
 
   if(currentSelection.phase && supportsLearningCycle(skill.id)){
+    const learningOptions=currentSelection.phase==='readiness'?{
+      support:currentSelection.kind==='bridge'||currentSelection.reviewItem?.support===true,
+      sourceSkillId:currentSelection.reviewItem?.readinessSourceSkillId||null
+    }:{};
     currentQuestion=generateLearningQuestion(
       skill.id,currentSelection.phase,currentSelection.representation,
-      ss.difficulty||1,Math.random,concept
+      ss.difficulty||1,Math.random,concept,learningOptions
     );
   } else {
     currentQuestion=generateQuestion(skill.id,currentSelection.representation,ss.difficulty||1,Math.random,concept);

@@ -28,3 +28,12 @@ v1.3'te sözleşme P1 referans kalitesine taşınmış 22 beceride aktiftir. Leg
 ## Çocuk / ebeveyn ayrımı
 
 Çocuk ekranında Kur–Gör–Yaz–Anlat–Taşı veya sekiz aşamalı motorun açıklaması gösterilmez. Çocuk konu, soru, ipucu, geri bildirim ve mola görür. Ayrıntılı pedagojik mantık ebeveyn/eğitmen alanındadır.
+
+
+## v1.3.1 — Gerçek ön-bilgi kontratı
+
+`readiness`, hedef becerinin kolaylaştırılmış bir kopyası değildir. Her P1 becerisi için kaynak beceri açıkça belirlenir: varsa skill graph üzerindeki prerequisite; kök becerilerde daha temel bir önkoşul. Readiness sonucu hedef becerinin mastery/evidence skoruna yazılmaz.
+
+Ön-bilgi yanlışı olduğunda SAYMERA normal öğrenme akışına hemen geçmez. Aynı önkoşulun daha somut `build` görevi bir sonraki ekrana adaptif destek olarak eklenir. Bu destek de hedef mastery skoruna yazılmaz ve başarısız olursa sonsuz destek döngüsü oluşturmaz.
+
+P1 kök eşlemeleri: `number20 ← count10`, `lengthCompare1 ← compare10`, `shapes1 ← shapesBasic`, `time1 ← 5’er sayma / tam saat temeli`. Diğer P1 becerilerinin readiness kaynakları kendi prerequisite alanlarından türetilir.

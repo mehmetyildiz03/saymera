@@ -101,6 +101,7 @@ function defaultLearningCycle(){
     practiceAttempts:0,
     practiceCorrect:0,
     readinessNeedsSupport:false,
+    readinessSupportUsed:false,
     phases:Object.fromEntries(LEARNING_PHASES.map(p=>[p,{attempts:0,correct:0,lastSeen:0}]))
   };
 }
@@ -117,6 +118,7 @@ export function ensureLearningCycleState(skillState){
   lc.practiceAttempts ||= 0;
   lc.practiceCorrect ||= 0;
   lc.readinessNeedsSupport=!!lc.readinessNeedsSupport;
+  lc.readinessSupportUsed=!!lc.readinessSupportUsed;
   lc.phases ||= {};
   for(const p of LEARNING_PHASES) lc.phases[p] ||= {attempts:0,correct:0,lastSeen:0};
   return lc;
@@ -1571,45 +1573,91 @@ export function buildLearningCyclePlan(skillState){
   }));
 }
 
-function generateReadinessQuestion(skillId,difficulty=1,rng=Math.random){
-  if(skillId==='time1'){
-    if(rng()<.5){
-      const starts=[0,5,10,15,20,25,30,35];
-      const start=choice(starts,rng);
-      const seq=[start,start+5,start+10], answer=start+15;
-      return qBase('time1','see',`${seq.join(', ')}, … sıradaki sayı kaç?`,answer,numericChoices(answer,5,rng),{
-        taskKind:'readiness-check',
-        visual:{type:'sequence',items:seq.concat('?')},
-        hint:'Saatte dakikaları okurken 5’er saymak işine yarar.',
-        explain:`5’er sayınca sıradaki sayı ${answer}.`,
-        feedbackTitle:'5’er saymayı kullandın.',
-        countsTowardEvidence:false
-      });
-    }
-    const hour=randInt(1,12,rng), answer=`${hour}:00`;
-    return qBase('time1','see','Yelkovan 12’deyken bu saat kaç?',answer,semanticChoices(answer,[`${hour}:30`,`${(hour%12)+1}:00`,`${hour}:15`],rng),{
-      taskKind:'readiness-check',
-      visual:{type:'clock',hour,minute:0},
-      hint:'Yelkovan 12’deyse tam saattir; akrebin gösterdiği sayıyı oku.',
-      explain:`Yelkovan 12’de ve akrep ${hour} üzerinde: saat ${answer}.`,
-      feedbackTitle:'Tam saati doğru okudun.',
-      countsTowardEvidence:false
-    });
-  }
-  const q=generateQuestion(skillId,'see',difficulty,rng,createConceptInstance(skillId,difficulty,rng));
-  q.taskKind='readiness-check';
+const READINESS_SOURCE_OVERRIDES={
+  number20:['count10'],
+  lengthCompare1:['compare10'],
+  time1:['time-foundation'],
+  shapes1:['shapesBasic']
+};
+
+export function readinessSourcesFor(skillId){
+  const skillObj=SKILLS.find(s=>s.id===skillId);
+  if(!skillObj) return [];
+  if(skillObj.prerequisite?.length) return [...skillObj.prerequisite];
+  return [...(READINESS_SOURCE_OVERRIDES[skillId]||[])];
+}
+
+export function readinessSourceFor(skillId,rng=Math.random){
+  const sources=readinessSourcesFor(skillId);
+  if(!sources.length) return null;
+  return sources[Math.floor(rng()*sources.length)];
+}
+
+function relabelReadinessQuestion(q,targetSkillId,sourceSkillId,{support=false,rng=Math.random}={}){
+  q.skillId=targetSkillId;
+  q.taskKind=support?'readiness-support':'readiness-check';
   q.countsTowardEvidence=false;
-  q.feedbackTitle ||= 'Başlangıç sorusunu tamamladın.';
+  q.readinessSourceSkillId=sourceSkillId;
+  q.conceptKey=`readiness:${sourceSkillId}`;
+  q.feedbackTitle=support?'Birlikte temelini kurduk.':(q.feedbackTitle||'Başlangıç sorusunu tamamladın.');
+  q.id=`${targetSkillId}:readiness:${sourceSkillId}:${Date.now()}:${Math.floor(rng()*1e6)}`;
   return q;
 }
 
-export function generateLearningQuestion(skillId,phase,representation,difficulty=1,rng=Math.random,conceptInstance=null){
+function generateTimeReadinessQuestion(difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
+  const source=sourceSkillId||'time-foundation';
+  if(!support && rng()<.5){
+    const starts=[0,5,10,15,20,25,30,35];
+    const start=choice(starts,rng);
+    const seq=[start,start+5,start+10], answer=start+15;
+    const q=qBase('time1','see',`${seq.join(', ')}, … sıradaki sayı kaç?`,answer,numericChoices(answer,5,rng),{
+      taskKind:'readiness-check',
+      visual:{type:'sequence',items:seq.concat('?')},
+      hint:'Saatte dakikaları okurken 5’er saymak işine yarar.',
+      explain:`5’er sayınca sıradaki sayı ${answer}.`,
+      feedbackTitle:'5’er saymayı kullandın.',
+      countsTowardEvidence:false
+    });
+    return relabelReadinessQuestion(q,'time1',source,{support:false,rng});
+  }
+  const hour=randInt(1,12,rng), answer=`${hour}:00`;
+  const q=qBase('time1','see',support?'Yelkovan 12’de. Akrebin gösterdiği tam saati bul.':'Yelkovan 12’deyken bu saat kaç?',answer,semanticChoices(answer,[`${hour}:30`,`${(hour%12)+1}:00`,`${hour}:15`],rng),{
+    taskKind:support?'readiness-support':'readiness-check',
+    visual:{type:'clock',hour,minute:0},
+    hint:'Yelkovan 12’deyse dakika 00’dır. Sonra akrebin gösterdiği sayıyı oku.',
+    explain:`Yelkovan 12’de ve akrep ${hour} üzerinde: saat ${answer}.`,
+    feedbackTitle:support?'Tam saati birlikte ayırdık.':'Tam saati doğru okudun.',
+    countsTowardEvidence:false
+  });
+  return relabelReadinessQuestion(q,'time1',source,{support,rng});
+}
+
+function generateReadinessQuestion(skillId,difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
+  if(skillId==='time1') return generateTimeReadinessQuestion(difficulty,rng,{support,sourceSkillId});
+
+  const source=sourceSkillId||readinessSourceFor(skillId,rng);
+  if(!source) throw new Error(`No authentic readiness source for ${skillId}`);
+  if(!GENERATORS[source]) throw new Error(`No generator for readiness source ${source} of ${skillId}`);
+
+  const rep=support?'build':'see';
+  const concept=supportsLearningCycle(source)?createConceptInstance(source,1,rng):null;
   let q;
-  if(phase==='readiness') q=generateReadinessQuestion(skillId,difficulty,rng);
+  try{
+    q=generateQuestion(source,rep,1,rng,concept);
+  }catch{
+    q=generateQuestion(source,'see',1,rng,concept);
+  }
+  return relabelReadinessQuestion(q,skillId,source,{support,rng});
+}
+
+export function generateLearningQuestion(skillId,phase,representation,difficulty=1,rng=Math.random,conceptInstance=null,options={}){
+  let q;
+  if(phase==='readiness') q=generateReadinessQuestion(skillId,difficulty,rng,options);
   else q=generateQuestion(skillId,representation,difficulty,rng,conceptInstance);
   q.learningPhase=phase||null;
   if(phase==='readiness') q.countsTowardEvidence=false;
   if(phase==='retrieval') q.retentionProbe=true;
+  q.id ||= `${skillId}:${phase||representation}:${Date.now()}:${Math.floor(rng()*1e6)}`;
   return q;
 }
 
@@ -1671,7 +1719,11 @@ export function applyAnswer(state, question, {correct, usedHint=false, isDelayed
     pe.attempts=(pe.attempts||0)+1;
     if(correct) pe.correct=(pe.correct||0)+1;
     pe.lastSeen=now;
-    if(phase==='readiness') lc.readinessNeedsSupport=!correct;
+    if(phase==='readiness'){
+      if(question.taskKind==='readiness-support') lc.readinessSupportUsed=true;
+      if(!correct) lc.readinessNeedsSupport=true;
+      else if(question.taskKind==='readiness-support' || !lc.readinessSupportUsed) lc.readinessNeedsSupport=false;
+    }
     if(phase==='practice'){
       lc.practiceAttempts=(lc.practiceAttempts||0)+1;
       if(correct) lc.practiceCorrect=(lc.practiceCorrect||0)+1;
@@ -1728,6 +1780,7 @@ export function applyAnswer(state, question, {correct, usedHint=false, isDelayed
   state.history.push({
     at:now,skillId:question.skillId,representation:question.representation,
     learningPhase:phase,taskKind:question.taskKind||null,conceptKey:question.conceptKey||null,
+    readinessSourceSkillId:question.readinessSourceSkillId||null,
     responseKind:question.response?.kind||null,correct,usedHint,delayed:isDelayedReview,
     countsTowardEvidence
   });
@@ -1736,16 +1789,21 @@ export function applyAnswer(state, question, {correct, usedHint=false, isDelayed
   if(!correct){
     const bridgeMap={build:'see',see:'build',symbol:'see',explain:'see',transfer:'build'};
     const readiness=phase==='readiness';
-    const alternative=readiness?'see':(bridgeMap[question.representation]||'see');
-    state.reviewQueue.push({
-      id:`review:${question.id}`,
-      skillId:question.skillId,
-      representation:alternative,
-      phase:readiness?'readiness':'practice',
-      dueQuestion:sessionQuestionIndex+(readiness?1:3),
-      dueAt:now+(readiness?1000*20:1000*60*3),
-      stage:'same-session'
-    });
+    const alreadySupport=readiness && question.taskKind==='readiness-support';
+    if(!alreadySupport){
+      const alternative=readiness?'build':(bridgeMap[question.representation]||'see');
+      state.reviewQueue.push({
+        id:`review:${question.id}`,
+        skillId:question.skillId,
+        representation:alternative,
+        phase:readiness?'readiness':'practice',
+        readinessSourceSkillId:readiness?(question.readinessSourceSkillId||null):null,
+        support:readiness,
+        dueQuestion:readiness?sessionQuestionIndex:sessionQuestionIndex+3,
+        dueAt:readiness?now:now+1000*60*3,
+        stage:'same-session'
+      });
+    }
   }
 
   if(question.cycleFinal){
