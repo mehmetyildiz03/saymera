@@ -853,6 +853,7 @@ function renderVisual(v,q){
     case 'clock': return renderClock(v.hour,v.minute);
     case 'money': { const unit=v.unit==='kr'?'kr':'TL'; return `<div class="money-wrap">${v.values.map(n=>`<div class="money-note">${n}<small>${unit}</small></div>`).join('')}${v.price!=null?`<div class="price-tag">Fiyat ${v.price} ${unit}</div>`:''}</div>`; }
     case 'bar-chart': { const max=Math.max(...v.vals,1); return `<div class="bar-chart">${v.cats.map((cat,i)=>`<div class="bar-col ${v.highlight===i?'highlight':''}" style="height:${Math.max(12,Math.round(v.vals[i]/max*100))}%"><b>${esc(cat)}</b></div>`).join('')}</div>`; }
+    case 'symbol-card': return `<div class="sg-symbol-card">${esc(v.text??'?')}</div>`;
     case 'solid': return solidSvg(v.kind,Number(v.rotate||0));
     case 'solid-pair': return `<div class="solid-pair">${solidSvg(v.kind,0)}${solidSvg(v.kind,Number(v.rotate||28))}</div>`;
     case 'solid-scene': return solidScene(v.kind);
