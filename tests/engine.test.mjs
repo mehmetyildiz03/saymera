@@ -16,9 +16,10 @@ const P1_SKILLS=[
 assert.deepEqual(skillsFor('grade1').map(s=>s.id),P1_SKILLS,'Primary 1 coverage graph changed unexpectedly');
 const P2_A1_SKILLS=['number1000','compareOrder1000','numberPattern1000','addSub1000'];
 const P2_A2_SKILLS=['oddEven1000','wordAddSub2'];
-const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS];
-assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2'],'Primary 2 reference graph changed unexpectedly');
-for(const legacy of ['place100','add100','sub100','numberPattern2','word2']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
+const P2_FRACTION_SKILLS=['fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'];
+const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_FRACTION_SKILLS];
+assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'],'Primary 2 reference graph changed unexpectedly');
+for(const legacy of ['place100','add100','sub100','numberPattern2','word2','fraction']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
 
 
 const fresh=defaultState();
@@ -198,6 +199,33 @@ assert.equal(p2NumberBuild.visual.type,'base1000-build-interactive');
 const p2AddBuild=generateQuestion('addSub1000','build',4,seeded,createConceptInstance('addSub1000',4,seeded));
 assert.equal(p2AddBuild.response.interaction,'base1000-build');
 assert.equal(p2AddBuild.visual.type,'base1000-operation-build');
+
+
+
+// Singapore P2 fraction progression: meaning precedes notation; notation precedes comparison and like-fraction operations.
+const meaningConcept=createConceptInstance('fractionMeaning2',2,seeded);
+const meaningSymbol=generateQuestion('fractionMeaning2','symbol',2,seeded,meaningConcept);
+assert.equal(meaningSymbol.response.kind,'number-input');
+assert.ok(!meaningSymbol.prompt.includes('/'),'fraction meaning must not assume symbolic notation before it is taught');
+const notationConcept=createConceptInstance('fractionNotation2',2,seeded);
+const notationSee=generateQuestion('fractionNotation2','see',2,seeded,notationConcept);
+assert.match(notationSee.teachingNote,/\d+\/\d+/,'fraction notation must be explicitly taught before symbolic assessment');
+const notationSymbol=generateQuestion('fractionNotation2','symbol',2,seeded,notationConcept);
+assert.match(notationSymbol.answer,/^\d+\/\d+$/);
+const seenFractionDenoms=new Set(), seenCompareKinds=new Set();
+for(let i=0;i<1200;i++){
+  const n=createConceptInstance('fractionNotation2',4,seeded); seenFractionDenoms.add(n.anchor.denom);
+  const c=createConceptInstance('fractionCompare2',4,seeded); seenCompareKinds.add(c.anchor.kind); assert.ok(c.anchor.left.denom<=12&&c.anchor.right.denom<=12);
+  const a=createConceptInstance('fractionAddSub2',4,seeded); assert.ok(a.anchor.denom<=12); assert.ok(a.anchor.result<=a.anchor.denom); assert.equal(a.anchor.denom,a.anchor.denom);
+}
+assert.ok(seenFractionDenoms.has(12),'P2 fraction notation must reach denominators up to 12');
+assert.deepEqual([...seenCompareKinds].sort(),['like','unit'],'P2 comparison must include unit and like fractions');
+const fracBuild=generateQuestion('fractionNotation2','build',2,seeded,notationConcept);
+assert.equal(fracBuild.response.interaction,'fraction-shade');
+const compareBuild=generateQuestion('fractionCompare2','build',2,seeded,createConceptInstance('fractionCompare2',2,seeded));
+assert.equal(compareBuild.response.interaction,'fraction-pair-build');
+const addSubBuild=generateQuestion('fractionAddSub2','build',2,seeded,createConceptInstance('fractionAddSub2',2,seeded));
+assert.equal(addSubBuild.response.interaction,'fraction-operation-build');
 
 // Grade 2 geometry reference gate: each evidence window must require a distinct cognitive action.
 const shapes2Concept=createConceptInstance('shapes2',2,seeded);

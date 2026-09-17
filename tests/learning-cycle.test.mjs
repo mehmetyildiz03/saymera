@@ -34,7 +34,7 @@ for(const [i,skill] of p1.entries()){
 }
 
 const p2Reference=skillsFor('grade2').filter(s=>supportsLearningCycle(s.id));
-assert.deepEqual(p2Reference.map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2']);
+assert.deepEqual(p2Reference.map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2']);
 for(const [i,skill] of p2Reference.entries()){
   const sources=readinessSourcesFor(skill.id);
   assert.ok(sources.length>=1,`${skill.id} must have authentic P2 readiness provenance`);
@@ -50,6 +50,10 @@ assert.deepEqual(readinessSourcesFor('number1000'),['number100']);
 assert.deepEqual(readinessSourcesFor('addSub1000'),['addSub100']);
 assert.deepEqual(readinessSourcesFor('oddEven1000'),['pairing-foundation']);
 assert.deepEqual(readinessSourcesFor('wordAddSub2'),['word1']);
+assert.deepEqual(readinessSourcesFor('fractionMeaning2'),['partwhole5']);
+assert.deepEqual(readinessSourcesFor('fractionNotation2'),['fractionMeaning2']);
+assert.deepEqual(readinessSourcesFor('fractionCompare2'),['fractionNotation2']);
+assert.deepEqual(readinessSourcesFor('fractionAddSub2'),['fractionCompare2']);
 
 const state=defaultState();
 const ss=ensureSkillState(state,'time1');

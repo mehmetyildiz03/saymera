@@ -23,7 +23,8 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2'
+  'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
+  'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
@@ -80,7 +81,10 @@ export const SKILLS = [
   skill('wordAddSub2','grade2','1–2 adımlı toplama ve çıkarma problemleri','Problem çözme','teal',['addSub1000']),
   skill('multiply5','grade2','Gruplarla çarpma','Çarpma','green',['addSub1000']),
   skill('divide20','grade2','Paylaştırarak bölme','Bölme','teal',['multiply5']),
-  skill('fraction','grade2','Yarım ve çeyrek','Kesir','rose'),
+  skill('fractionMeaning2','grade2','Eş parçalar ve bütün','Kesir','rose'),
+  skill('fractionNotation2','grade2','Kesirleri okuma ve yazma','Kesir','rose',['fractionMeaning2']),
+  skill('fractionCompare2','grade2','Kesirleri karşılaştırma ve sıralama','Kesir','violet',['fractionNotation2']),
+  skill('fractionAddSub2','grade2','Eş paydalı kesirlerde toplama ve çıkarma','Kesir','teal',['fractionCompare2']),
   skill('shapes2','grade2','Şekil ve cisim ilişkileri','Geometri','rose'),
   skill('lengthCm','grade2','Santimetre ile ölçme','Ölçme','green'),
   skill('time2','grade2','Saat ve yarım saat','Zaman','violet'),
@@ -540,6 +544,47 @@ function trNumberWord(n){
   return parts.join(' ');
 }
 
+
+function fractionMeaning2Cases(maxDenom=12){
+  return Array.from({length:Math.max(1,maxDenom-1)},(_,i)=>({denom:i+2,numerator:1}));
+}
+function fractionNotation2Cases(maxDenom=12){
+  const rows=[];
+  for(let denom=2;denom<=maxDenom;denom++) for(let numerator=1;numerator<denom;numerator++) rows.push({denom,numerator});
+  return rows;
+}
+function fractionCompare2Cases(maxDenom=12){
+  const rows=[];
+  for(let a=2;a<=maxDenom;a++) for(let b=a+1;b<=maxDenom;b++){
+    rows.push({kind:'unit',left:{numerator:1,denom:a},right:{numerator:1,denom:b},relation:'>',larger:'left'});
+    rows.push({kind:'unit',left:{numerator:1,denom:b},right:{numerator:1,denom:a},relation:'<',larger:'right'});
+  }
+  for(let denom=3;denom<=maxDenom;denom++){
+    for(let a=1;a<denom;a++) for(let b=a+1;b<denom;b++){
+      rows.push({kind:'like',left:{numerator:a,denom},right:{numerator:b,denom},relation:'<',larger:'right'});
+      rows.push({kind:'like',left:{numerator:b,denom},right:{numerator:a,denom},relation:'>',larger:'left'});
+    }
+  }
+  return rows;
+}
+function fractionAddSub2Cases(maxDenom=12){
+  const rows=[];
+  for(let denom=3;denom<=maxDenom;denom++){
+    for(let a=1;a<denom;a++) for(let b=1;b<denom;b++){
+      if(a+b<=denom) rows.push({op:'+',denom,a,b,result:a+b});
+      if(a>b) rows.push({op:'−',denom,a,b,result:a-b});
+    }
+  }
+  return rows;
+}
+function fractionPoolForDifficulty(kind,d){
+  const max=d===1?4:d===2?6:d===3?8:12;
+  if(kind==='meaning') return fractionMeaning2Cases(max);
+  if(kind==='notation') return fractionNotation2Cases(max);
+  if(kind==='compare') return fractionCompare2Cases(max);
+  return fractionAddSub2Cases(max);
+}
+
 export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   const d=clamp(difficulty,1,4);
   const make=(conceptKey,cases)=>{
@@ -578,6 +623,10 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
     return make('addition-subtraction-within-1000',cases);
   }
   if(skillId==='wordAddSub2') return make('one-two-step-add-sub-problems',wordAddSub2Cases());
+  if(skillId==='fractionMeaning2') return make('fraction-equal-parts-whole',fractionPoolForDifficulty('meaning',d));
+  if(skillId==='fractionNotation2') return make('fraction-notation-representation',fractionPoolForDifficulty('notation',d));
+  if(skillId==='fractionCompare2') return make('fraction-compare-unit-like',fractionPoolForDifficulty('compare',d));
+  if(skillId==='fractionAddSub2') return make('fraction-like-add-sub',fractionPoolForDifficulty('addsub',d));
   if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
 }
@@ -1525,6 +1574,86 @@ function genDivide20(rep,d,rng){
   const prompt=`${total} nesneyi ${divisor} çocuğa eşit paylaştırırsak kişi başına kaç düşer?`;
   return qBase('divide20',rep,prompt,quotient,numericChoices(quotient,3,rng),{visual:{type:'share',total,divisor},hint:'Her gruba sırayla birer tane dağıt.',explain:`${total} ÷ ${divisor} = ${quotient}.`,effort:1.25});
 }
+
+function fractionSymbol(n,d){ return `${n}/${d}`; }
+function fractionSymbolChoices(n,d,rng=Math.random){
+  const answer=fractionSymbol(n,d), set=new Set([answer]);
+  const candidates=[fractionSymbol(d,n),fractionSymbol(Math.max(1,n-1),d),fractionSymbol(Math.min(d,n+1),d),fractionSymbol(n,d+1),fractionSymbol(n+1,d+1),fractionSymbol(1,d)];
+  for(const x of candidates){ if(set.size>=4) break; set.add(x); }
+  let k=2; while(set.size<4){ set.add(fractionSymbol(Math.min(d,Math.max(1,n+k)),d+k)); k++; }
+  return shuffled([...set],rng);
+}
+function fractionVisualOptions(correct,wrongCases,rng=Math.random){
+  const opts=[{value:'correct',visual:{type:'fraction-strip',numerator:correct.numerator,denom:correct.denom},ariaLabel:`${correct.denom} eş parçadan ${correct.numerator} boyalı`}];
+  wrongCases.slice(0,3).forEach((x,i)=>opts.push({value:`wrong-${i}`,visual:{type:'fraction-strip',numerator:x.numerator,denom:x.denom},ariaLabel:`${x.denom} eş parçadan ${x.numerator} boyalı`}));
+  return shuffled(opts,rng);
+}
+function genFractionMeaning2(rep,d,rng,concept){
+  const c=concept?.skillId==='fractionMeaning2'?concept:createConceptInstance('fractionMeaning2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('fractionMeaning2',rep,`Bütün ${x.denom} eş parçaya ayrıldı. Tam bir eş parçayı boya.`,1,{kind:'manipulative',interaction:'fraction-shade',expectedValue:'1',checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Bir eş parçayı modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:1},hint:'Yalnızca bir eş parçayı seç.',explain:`Bütün ${x.denom} eş parçaya ayrıldı ve bunlardan biri seçildi.`});
+  if(rep==='see'){
+    const wrong=[{numerator:1,denom:Math.max(2,x.denom-1)},{numerator:1,denom:x.denom+1},{numerator:Math.min(2,x.denom-1),denom:x.denom}];
+    return qTask('fractionMeaning2',rep,`Hangisi ${x.denom} eş parçadan yalnız birini gösteriyor?`,'correct',{kind:'visual-choice',options:fractionVisualOptions(x,wrong,rng)},{taskKind:'visual-discrimination',taskLabel:'Eş parça modelini ayırt et',visual:{type:'equal-parts-guide',denom:x.denom},hint:'Önce bütünün kaç eş parçaya ayrıldığına bak.',explain:`Doğru model ${x.denom} eş parçaya ayrılmış ve yalnız bir parçası boyalı.`});
+  }
+  if(rep==='symbol') return qTask('fractionMeaning2',rep,'Bu modelde bütün kaç eş parçaya ayrılmış?',x.denom,{kind:'number-input',placeholder:'?'},{taskKind:'symbol-entry',taskLabel:'Eş parça sayısını sayı ile yaz',visual:{type:'fraction-strip',numerator:1,denom:x.denom},hint:'Boyalı ve boyasız bütün parçaları say.',explain:`Bütün ${x.denom} eş parçadan oluşuyor.`});
+  if(rep==='explain'){
+    const answer=`Parçaların hepsi eş büyüklükte ve bütün ${x.denom} parçaya ayrılmış`;
+    return qBase('fractionMeaning2',rep,'Bu modelde “eş parça” diyebilmemizin nedeni nedir?',answer,semanticChoices(answer,['Parçaların renkleri aynı olduğu için','Yalnız boyalı parça önemli olduğu için','Bütün iki kat büyüdüğü için'],rng),{taskKind:'reasoning-choice',taskLabel:'Eş parçayı gerekçelendir',visual:{type:'fraction-strip',numerator:1,denom:x.denom},hint:'Parçaların büyüklüklerini düşün.',explain:answer+'.'});
+  }
+  const y=c.transfer;
+  const wrong=[{numerator:1,denom:Math.max(2,y.denom-1)},{numerator:Math.min(2,y.denom-1),denom:y.denom},{numerator:1,denom:y.denom+1}];
+  return qTask('fractionMeaning2',rep,`Bir çikolata ${y.denom} eş parçaya bölündü ve bir parçası alındı. Hangi model bunu gösterir?`,'correct',{kind:'visual-choice',options:fractionVisualOptions(y,wrong,rng)},{taskKind:'context-transfer',taskLabel:'Eş parça fikrini günlük duruma taşı',visual:{type:'chocolate-parts',denom:y.denom},hint:`${y.denom} eş parçadan yalnız biri seçilmeli.`,explain:`Bir bütün ${y.denom} eş parçaya bölünmüş ve bir parçası alınmıştır.`});
+}
+function genFractionNotation2(rep,d,rng,concept){
+  const c=concept?.skillId==='fractionNotation2'?concept:createConceptInstance('fractionNotation2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('fractionNotation2',rep,`Bütünü ${x.denom} eş parça olarak düşün. ${x.numerator} parçayı boya.`,x.numerator,{kind:'manipulative',interaction:'fraction-shade',expectedValue:String(x.numerator),checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Sözel kesri modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:x.numerator},hint:`Toplam ${x.denom} eş parça var; ${x.numerator} tanesini seç.`,explain:`${x.denom} eş parçadan ${x.numerator} tanesi seçildi.`});
+  if(rep==='see'){
+    const wrong=[{numerator:Math.max(1,x.numerator-1),denom:x.denom},{numerator:Math.min(x.denom-1,x.numerator+1),denom:x.denom},{numerator:x.numerator,denom:x.denom===2?3:x.denom-1}];
+    return qTask('fractionNotation2',rep,`“${x.denom} eş parçadan ${x.numerator}’ü” ifadesini gösteren model hangisi?`,'correct',{kind:'visual-choice',options:fractionVisualOptions(x,wrong,rng)},{taskKind:'visual-discrimination',taskLabel:'Söz ile modeli eşleştir',teachingNote:`${x.denom} eş parçadan ${x.numerator}’ü, kesirle ${fractionSymbol(x.numerator,x.denom)} diye yazılır.`,visual:{type:'fraction-notation-card',numerator:x.numerator,denom:x.denom},hint:'Alt sayı bütünün kaç eş parçaya ayrıldığını, üst sayı seçilen parça sayısını anlatır.',explain:`${fractionSymbol(x.numerator,x.denom)} = ${x.denom} eş parçadan ${x.numerator}’ü.`});
+  }
+  if(rep==='symbol') return qBase('fractionNotation2',rep,'Boyalı kısmı kesirle nasıl yazarız?',fractionSymbol(x.numerator,x.denom),fractionSymbolChoices(x.numerator,x.denom,rng),{taskKind:'symbol-entry',taskLabel:'Modeli kesir sembolüyle yaz',teachingNote:'Kesir çizgisinin altındaki sayı bütünün kaç eş parçaya ayrıldığını; üstteki sayı kaç parçanın seçildiğini gösterir.',visual:{type:'fraction-strip',numerator:x.numerator,denom:x.denom},hint:`Bütün ${x.denom} eş parça; boyalı parça sayısını üst tarafa yaz.`,explain:`${x.numerator} parça seçildi, bütün ${x.denom} eş parçaya ayrıldı: ${fractionSymbol(x.numerator,x.denom)}.`});
+  if(rep==='explain'){
+    const answer=`Bütün ${x.denom} eş parçaya ayrılmış ve ${x.numerator} parça seçilmiş`;
+    return qBase('fractionNotation2',rep,`${fractionSymbol(x.numerator,x.denom)} ne anlatır?`,answer,semanticChoices(answer,[`Bütün ${x.numerator} eş parçaya ayrılmış ve ${x.denom} parça seçilmiş`,'Yalnız parçaların rengini anlatır','Bütünün kaç kat büyüdüğünü anlatır'],rng),{taskKind:'reasoning-choice',taskLabel:'Kesir sembolünün anlamını açıkla',visual:{type:'fraction-notation-card',numerator:x.numerator,denom:x.denom},hint:'Alt ve üst sayının görevlerini düşün.',explain:answer+'.'});
+  }
+  const y=c.transfer, answer=fractionSymbol(y.numerator,y.denom);
+  return qBase('fractionNotation2',rep,`Bir pizza ${y.denom} eş dilime ayrıldı; ${y.numerator} dilim yenildi. Yenilen kısmı hangi kesir gösterir?`,answer,fractionSymbolChoices(y.numerator,y.denom,rng),{taskKind:'context-transfer',taskLabel:'Kesir gösterimini günlük duruma taşı',visual:{type:'pizza-fraction',numerator:y.numerator,denom:y.denom},hint:`Toplam dilim sayısı alta, yenilen dilim sayısı üste gelir.`,explain:`${y.denom} eş dilimden ${y.numerator}’ü yenildi: ${answer}.`});
+}
+function genFractionCompare2(rep,d,rng,concept){
+  const c=concept?.skillId==='fractionCompare2'?concept:createConceptInstance('fractionCompare2',d,rng), x=c.anchor;
+  const L=fractionSymbol(x.left.numerator,x.left.denom), R=fractionSymbol(x.right.numerator,x.right.denom);
+  if(rep==='build') return qTask('fractionCompare2',rep,`Solda ${L}, sağda ${R} modelini kur.`,`${x.left.numerator}|${x.right.numerator}`,{kind:'manipulative',interaction:'fraction-pair-build',expectedValue:`${x.left.numerator}|${x.right.numerator}`,checkLabel:'İki modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'İki kesri modelle ve karşılaştırmaya hazırla',visual:{type:'fraction-pair-builder',left:x.left,right:x.right},hint:'Her çubukta belirtilen sayıda eş parçayı boya.',explain:`Modeller ${L} ve ${R} kesirlerini gösteriyor.`});
+  if(rep==='see'){
+    const larger=x.larger==='left'?x.left:x.right, smaller=x.larger==='left'?x.right:x.left;
+    const opts=shuffled([{value:'correct',visual:{type:'fraction-strip',...larger},ariaLabel:'daha büyük kesir modeli'},{value:'wrong-0',visual:{type:'fraction-strip',...smaller},ariaLabel:'daha küçük kesir modeli'},{value:'wrong-1',visual:{type:'fraction-strip',numerator:1,denom:12},ariaLabel:'başka kesir modeli'}],rng);
+    return qTask('fractionCompare2',rep,`${L} ile ${R} arasında daha büyük olanın modeli hangisi?`,'correct',{kind:'visual-choice',options:opts},{taskKind:'visual-discrimination',taskLabel:'Büyüklüğü görselden ayırt et',visual:{type:'fraction-pair',left:x.left,right:x.right},hint:x.kind==='unit'?'Birim kesirlerde daha az eş parçaya bölünen bütünün bir parçası daha büyüktür.':'Paydalar aynıysa daha çok parça alan kesir daha büyüktür.',explain:`${L} ${x.relation} ${R}.`});
+  }
+  if(rep==='symbol') return qBase('fractionCompare2',rep,`${L} □ ${R} boşluğuna hangi işaret gelir?`,x.relation,semanticChoices(x.relation,['<','>','='].filter(z=>z!==x.relation).concat(['?']),rng),{taskKind:'symbol-entry',taskLabel:'Kesirleri karşılaştırma işaretiyle yaz',visual:{type:'fraction-pair',left:x.left,right:x.right},hint:x.kind==='unit'?'Paylar 1 ise paydası küçük olan birim kesir daha büyüktür.':'Paydalar aynıysa payı büyük olan kesir daha büyüktür.',explain:`${L} ${x.relation} ${R}.`});
+  if(rep==='explain'){
+    const answer=x.kind==='unit'?'Bütün daha az eş parçaya bölünürse her bir parça daha büyük olur':'Paydalar aynıysa parçaların büyüklüğü aynıdır; daha çok parça alan kesir daha büyüktür';
+    return qBase('fractionCompare2',rep,`${L} ile ${R} karşılaştırmasını hangi düşünce açıklar?`,answer,semanticChoices(answer,['Paydası büyük olan her zaman daha büyüktür','Kesirlerde yalnız üstteki sayıya bakılır','Parçaların eş olması önemli değildir'],rng),{taskKind:'reasoning-choice',taskLabel:'Kesir karşılaştırmasını gerekçelendir',visual:{type:'fraction-pair',left:x.left,right:x.right},hint:'Parça büyüklüğü ile parça sayısını ayır.',explain:answer+'.'});
+  }
+  const y=c.transfer, yL=fractionSymbol(y.left.numerator,y.left.denom), yR=fractionSymbol(y.right.numerator,y.right.denom), answer=y.larger==='left'?'Sol':'Sağ';
+  return qBase('fractionCompare2',rep,`İki aynı büyüklükte çikolatanın biri ${yL}, diğeri ${yR} oranında yenmiş. Hangisinden daha çok yenmiştir?`,answer,semanticChoices(answer,[answer==='Sol'?'Sağ':'Sol','Aynı','Bilinemez'],rng),{taskKind:'context-transfer',taskLabel:'Kesir karşılaştırmasını günlük duruma taşı',visual:{type:'fraction-pair',left:y.left,right:y.right},hint:'Aynı büyüklükte iki bütünü karşılaştırıyorsun.',explain:`${yL} ${y.relation} ${yR}; bu yüzden ${answer.toLowerCase()} taraftan daha çok yenmiştir.`});
+}
+function genFractionAddSub2(rep,d,rng,concept){
+  const c=concept?.skillId==='fractionAddSub2'?concept:createConceptInstance('fractionAddSub2',d,rng), x=c.anchor;
+  const A=fractionSymbol(x.a,x.denom), B=fractionSymbol(x.b,x.denom), RES=fractionSymbol(x.result,x.denom);
+  if(rep==='build') return qTask('fractionAddSub2',rep,`${A} ${x.op} ${B} işleminin sonucunu modelde boya.`,x.result,{kind:'manipulative',interaction:'fraction-operation-build',expectedValue:String(x.result),checkLabel:'Sonuç modelini kontrol et'},{taskKind:'manipulative-build',taskLabel:'Eş paydalı işlemi modelle',visual:{type:'fraction-operation-builder',denom:x.denom,a:x.a,b:x.b,op:x.op},hint:'Parçaların büyüklüğü değişmiyor; aynı büyüklükteki parçaları ekle ya da çıkar.',explain:`${A} ${x.op} ${B} = ${RES}.`});
+  if(rep==='see'){
+    const wrong=[{numerator:Math.max(0,x.result-1),denom:x.denom},{numerator:Math.min(x.denom,x.result+1),denom:x.denom},{numerator:x.result,denom:Math.min(12,x.denom+1)}];
+    return qTask('fractionAddSub2',rep,`${A} ${x.op} ${B} işleminin sonucunu gösteren model hangisi?`,'correct',{kind:'visual-choice',options:fractionVisualOptions({numerator:x.result,denom:x.denom},wrong,rng)},{taskKind:'visual-discrimination',taskLabel:'İşlem sonucunu modelden ayırt et',visual:{type:'fraction-operation',denom:x.denom,a:x.a,b:x.b,op:x.op,result:x.result},hint:'Paydalar aynı; aynı büyüklükteki parçaları say.',explain:`Sonuç ${RES}.`});
+  }
+  if(rep==='symbol') return qBase('fractionAddSub2',rep,`${A} ${x.op} ${B} = ?`,RES,fractionSymbolChoices(x.result,x.denom,rng),{taskKind:'symbol-entry',taskLabel:'Eş paydalı işlemi kesirle yaz',visual:{type:'fraction-operation',denom:x.denom,a:x.a,b:x.b,op:x.op,result:null},hint:'Payda aynı kalır; paylarda toplama ya da çıkarma yap.',explain:`${A} ${x.op} ${B} = ${RES}.`});
+  if(rep==='explain'){
+    const answer='Parçalar aynı büyüklükte olduğu için payda değişmez; kaç parça olduğunu gösteren paylar işleme girer';
+    return qBase('fractionAddSub2',rep,`${A} ${x.op} ${B} işleminde neden payda ${x.denom} olarak kalır?`,answer,semanticChoices(answer,['Paydalar her işlemde toplanır','Pay her zaman 1 olmalıdır','Kesir çizgisi işlemi değiştirdiği için'],rng),{taskKind:'reasoning-choice',taskLabel:'Eş paydalı işlem kuralını gerekçelendir',visual:{type:'fraction-operation',denom:x.denom,a:x.a,b:x.b,op:x.op,result:x.result},hint:'İşlem boyunca parçaların büyüklüğü değişiyor mu?',explain:answer+'.'});
+  }
+  const y=c.transfer, yA=fractionSymbol(y.a,y.denom), yB=fractionSymbol(y.b,y.denom), yRes=fractionSymbol(y.result,y.denom);
+  const prompt=y.op==='+'?`Bir şişenin ${yA}’i sabah, ${yB}’i öğleden sonra içildi. Toplam ne kadarı içildi?`:`Bir şişenin ${yA}’i doluydu; ${yB}’i kadar içildi. Ne kadarı kaldı?`;
+  return qBase('fractionAddSub2',rep,prompt,yRes,fractionSymbolChoices(y.result,y.denom,rng),{taskKind:'context-transfer',taskLabel:'Eş paydalı işlemi günlük duruma taşı',visual:{type:'fraction-operation',denom:y.denom,a:y.a,b:y.b,op:y.op,result:y.result},hint:'Aynı büyüklükteki parçaların sayısını ekle ya da çıkar.',explain:`${yA} ${y.op} ${yB} = ${yRes}.`});
+}
+
 function genFraction(rep,d,rng){
   const quarter=d>=2 && rng()<.5, denom=quarter?4:2, shaded=1, answer=quarter?'Çeyrek':'Yarım';
   if(rep==='symbol') return qBase('fraction',rep,`${answer} hangi kesirle gösterilir?`,quarter?'1/4':'1/2',semanticChoices(quarter?'1/4':'1/2',quarter?['1/2','2/4','1/3']:['1/4','2/2','1/3'],rng),{visual:{type:'fraction',denom,shaded},hint:`Bütün ${denom} eş parçaya ayrılmış.`,explain:`Bir bütün ${denom} eş parçaya ayrılıp 1 parça seçilirse ${quarter?'çeyrek':'yarım'} olur.`});
@@ -1821,6 +1950,7 @@ const GENERATORS={
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
   lengthCompare1:genLengthCompare1,lengthMeasure1:genLengthMeasure1,time1:genTime1,shapes1:genShapes1,shapePattern1:genShapePattern1,data1:genData1,
   number1000:genNumber1000,compareOrder1000:genCompareOrder1000,numberPattern1000:genNumberPattern1000,oddEven1000:genOddEven1000,addSub1000:genAddSub1000,wordAddSub2:genWordAddSub2,
+  fractionMeaning2:genFractionMeaning2,fractionNotation2:genFractionNotation2,fractionCompare2:genFractionCompare2,fractionAddSub2:genFractionAddSub2,
   place100:genPlace100,add100:genAdd100,sub100:genSub100,multiply5:genMultiply5,divide20:genDivide20,fraction:genFraction,word2:genWord2,numberPattern2:genNumberPattern2,shapes2:genShapes2,lengthCm:genLengthCm,time2:genTime2,moneyTL:genMoneyTL,data2:genData2
 };
 
@@ -1891,7 +2021,8 @@ const READINESS_SOURCE_OVERRIDES={
   number1000:['number100'],
   oddEven1000:['pairing-foundation'],
   addSub1000:['addSub100'],
-  wordAddSub2:['word1']
+  wordAddSub2:['word1'],
+  fractionMeaning2:['partwhole5']
 };
 
 export function readinessSourcesFor(skillId){
@@ -2025,6 +2156,7 @@ const CONCEPT_KEYS={
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
   lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data',
   number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',oddEven1000:'odd-even-pairing-to-1000',addSub1000:'addition-subtraction-within-1000',wordAddSub2:'one-two-step-add-sub-problems',
+  fractionMeaning2:'fraction-equal-parts-whole',fractionNotation2:'fraction-notation-representation',fractionCompare2:'fraction-compare-unit-like',fractionAddSub2:'fraction-like-add-sub',
   shapes2:'solid-properties-and-invariance'
 };
 

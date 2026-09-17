@@ -426,6 +426,7 @@ function renderQuestion(){
   $('#practiceContent').innerHTML=`
     <div class="question-stage">
       <h2>${esc(q.prompt)}</h2>
+      ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
       <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''}" id="visualStage">${renderVisual(q.visual,q)}</div>
       ${renderResponse(q)}
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
@@ -581,6 +582,10 @@ function wireManipulator(q){
     const root=$('.sg-base1000-builder');
     root?.querySelectorAll('.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
   }
+  if(interaction==='fraction-shade'||interaction==='fraction-pair-build'||interaction==='fraction-operation-build'){
+    const root=$(interaction==='fraction-shade'?'.sg-fraction-shade-builder':interaction==='fraction-pair-build'?'.sg-fraction-pair-builder':'.sg-fraction-operation-builder');
+    root?.querySelectorAll('.sg-fraction-cell').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
+  }
   if(interaction==='parity-pair'){
     const root=$('.sg-parity-builder');
     root?.querySelector('.sg-pair-action')?.addEventListener('click',()=>{
@@ -679,6 +684,9 @@ function readManipulatorValue(q){
   if(interaction==='bond-fill') return $$('.sg-bond-builder .sg-bond-token.selected').length;
   if(interaction==='base10-build') return `${$$('.sg-base10-builder .sg-base10-ten.selected').length}|${$$('.sg-base10-builder .sg-base10-one.selected').length}`;
   if(interaction==='base1000-build') return `${$$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
+  if(interaction==='fraction-shade') return $$('.sg-fraction-shade-builder .sg-fraction-cell.selected').length;
+  if(interaction==='fraction-pair-build') return `${$$('.sg-fraction-pair-builder [data-side="left"] .sg-fraction-cell.selected').length}|${$$('.sg-fraction-pair-builder [data-side="right"] .sg-fraction-cell.selected').length}`;
+  if(interaction==='fraction-operation-build') return $$('.sg-fraction-operation-builder .sg-fraction-result .sg-fraction-cell.selected').length;
   if(interaction==='parity-pair') return $$('.sg-parity-builder .sg-pair-token:not(.paired)').length;
   if(interaction==='two-step-plan'){
     const a=$('.sg-two-step-plan .sg-plan-op.selected[data-step="1"]')?.dataset.value, b=$('.sg-two-step-plan .sg-plan-op.selected[data-step="2"]')?.dataset.value;
@@ -725,6 +733,9 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='bond-fill') node.textContent=`Eksik parçaya koyduğun taş: ${value}`;
   else if(q.response?.interaction==='base10-build') { const [t='0',o='0']=String(value).split('|'); node.textContent=`Modelin: ${t} onluk · ${o} birlik`; }
   else if(q.response?.interaction==='base1000-build') { const [h='0',t='0',o='0']=String(value).split('|'); node.textContent=`Modelin: ${h} yüzlük · ${t} onluk · ${o} birlik`; }
+  else if(q.response?.interaction==='fraction-shade') node.textContent=`Boyadığın eş parça: ${value}`;
+  else if(q.response?.interaction==='fraction-pair-build') node.textContent=value?`Modellerin: ${String(value).replace('|',' ve ')}`:'İki modeli de kur';
+  else if(q.response?.interaction==='fraction-operation-build') node.textContent=`Sonuçta boyadığın parça: ${value}`;
   else if(q.response?.interaction==='parity-pair') node.textContent=`Eşsiz kalan birlik: ${value}`;
   else if(q.response?.interaction==='two-step-plan') node.textContent=value?`Planın: ${String(value).replace('|',' → ')}`:'1. ve 2. işlem kartlarını seç';
   else if(q.response?.interaction==='order-pair') node.textContent=value?`Sıran: ${String(value).replace('|',' → ')}`:'Önce küçük, sonra büyük karta dokun';
@@ -783,7 +794,7 @@ function answerQuestion(value,button){
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
@@ -989,6 +1000,16 @@ function renderVisual(v,q){
     case 'bar-add': return `<div class="bar-model"><span style="width:58%">${v.a}</span><span style="width:42%">+ ${v.b}</span></div>`;
     case 'groups': return `<div class="group-wrap">${Array.from({length:v.groups},()=>`<div class="group">${Array.from({length:v.each},()=>'<i></i>').join('')}</div>`).join('')}</div>`;
     case 'share': { const each=v.total/v.divisor; return `<div class="share-wrap">${Array.from({length:v.divisor},()=>`<div class="share-person">${Array.from({length:each},()=>'<i></i>').join('')}</div>`).join('')}</div>`; }
+    case 'fraction-strip': return fractionStrip(v.numerator,v.denom);
+    case 'fraction-shade-builder': return fractionShadeBuilder(v.denom,v.target);
+    case 'fraction-pair-builder': return fractionPairBuilder(v.left,v.right);
+    case 'fraction-pair': return fractionPairVisual(v.left,v.right);
+    case 'fraction-operation-builder': return fractionOperationBuilder(v);
+    case 'fraction-operation': return fractionOperationVisual(v);
+    case 'fraction-notation-card': return fractionNotationCard(v.numerator,v.denom);
+    case 'equal-parts-guide': return equalPartsGuide(v.denom);
+    case 'chocolate-parts': return chocolateParts(v.denom);
+    case 'pizza-fraction': return pizzaFraction(v.numerator,v.denom);
     case 'fraction': return fractionSvg(v.denom);
     case 'story2': return `<div style="display:grid;gap:14px;text-align:center;position:relative;z-index:1"><div class="group-wrap">${Array.from({length:v.boxes},()=>`<div class="group">${Array.from({length:v.each},()=>'<i></i>').join('')}</div>`).join('')}</div><div style="color:var(--muted);font-weight:800">sonra ${v.give} kalem veriliyor</div></div>`;
     case 'shape': return `<div class="shape-visual ${esc(v.shape)}" style="--rot:${Number(v.rotate||0)}deg"></div>`;
@@ -1359,6 +1380,33 @@ function numberLine(a,b,max){
   const left=(result-start)/span*100, right=(endValue-start)/span*100;
   return `<div class="numberline"><div class="jump" style="left:${left}%;width:${Math.max(10,right-left)}%"></div><div class="line"></div><div class="ticks">${Array.from({length:11},()=>'<i></i>').join('')}</div><div class="labels"><span>${start}</span><span>${Math.round((start+end)/2)}</span><span>${end}</span></div></div>`;
 }
+
+function fractionStrip(numerator=0,denom=2){
+  const d=Math.max(2,Number(denom)||2), n=Math.max(0,Math.min(d,Number(numerator)||0));
+  return `<div class="sg-fraction-strip" style="--den:${d}" aria-label="${d} eş parçadan ${n} boyalı">${Array.from({length:d},(_,i)=>`<i class="${i<n?'filled':''}"></i>`).join('')}</div>`;
+}
+function fractionShadeBuilder(denom,target){
+  const d=Math.max(2,Number(denom)||2);
+  return `<div class="sg-fraction-shade-builder"><small>${d} EŞ PARÇA</small><div class="sg-fraction-strip interactive" style="--den:${d}">${Array.from({length:d},(_,i)=>`<button type="button" class="sg-fraction-cell" aria-label="${i+1}. eş parça"></button>`).join('')}</div><em>${target} parçayı boya</em></div>`;
+}
+function fractionPairBuilder(left,right){
+  const row=(side,f)=>`<div data-side="${side}"><b>${f.numerator}/${f.denom}</b><div class="sg-fraction-strip interactive" style="--den:${f.denom}">${Array.from({length:f.denom},(_,i)=>`<button type="button" class="sg-fraction-cell" aria-label="${side} ${i+1}. parça"></button>`).join('')}</div></div>`;
+  return `<div class="sg-fraction-pair-builder">${row('left',left)}${row('right',right)}</div>`;
+}
+function fractionPairVisual(left,right){ return `<div class="sg-fraction-pair"><div>${fractionStrip(left.numerator,left.denom)}<b>${left.numerator}/${left.denom}</b></div><strong>↔</strong><div>${fractionStrip(right.numerator,right.denom)}<b>${right.numerator}/${right.denom}</b></div></div>`; }
+function fractionOperationBuilder(v){
+  const resultCells=Array.from({length:v.denom},(_,i)=>`<button type="button" class="sg-fraction-cell" aria-label="sonuç ${i+1}. parça"></button>`).join('');
+  return `<div class="sg-fraction-operation-builder"><div class="sg-fraction-operation-row"><div>${fractionStrip(v.a,v.denom)}<b>${v.a}/${v.denom}</b></div><strong>${esc(v.op)}</strong><div>${fractionStrip(v.b,v.denom)}<b>${v.b}/${v.denom}</b></div></div><span>↓ SONUÇ</span><div class="sg-fraction-result sg-fraction-strip interactive" style="--den:${v.denom}">${resultCells}</div></div>`;
+}
+function fractionOperationVisual(v){
+  const result=v.result==null?'?':`${v.result}/${v.denom}`;
+  return `<div class="sg-fraction-operation-row"><div>${fractionStrip(v.a,v.denom)}<b>${v.a}/${v.denom}</b></div><strong>${esc(v.op)}</strong><div>${fractionStrip(v.b,v.denom)}<b>${v.b}/${v.denom}</b></div><strong>=</strong><div>${v.result==null?'<span class="sg-fraction-question">?</span>':fractionStrip(v.result,v.denom)}<b>${result}</b></div></div>`;
+}
+function fractionNotationCard(n,d){ return `<div class="sg-fraction-notation-card">${fractionStrip(n,d)}<div><b>${n}</b><i></i><b>${d}</b></div><small>${d} eş parçadan ${n}’ü</small></div>`; }
+function equalPartsGuide(denom){ return `<div class="sg-equal-parts-guide">${fractionStrip(0,denom)}<small>Bütün ${denom} eş parçaya ayrılmış.</small></div>`; }
+function chocolateParts(denom){ return `<div class="sg-chocolate-parts" style="--den:${denom}">${Array.from({length:denom},(_,i)=>`<i>${i+1}</i>`).join('')}</div>`; }
+function pizzaFraction(n,d){ return `<div class="sg-pizza-fraction"><span>🍕</span>${fractionStrip(n,d)}<b>${d} dilimden ${n}’ü</b></div>`; }
+
 function fractionSvg(denom){
   if(denom===2) return `<svg class="fraction-svg" viewBox="0 0 100 100" aria-label="yarım model"><path d="M50 50 L50 5 A45 45 0 0 1 50 95 Z" fill="#2f9987"/><path d="M50 50 L50 95 A45 45 0 0 1 50 5 Z" fill="#fff"/><circle cx="50" cy="50" r="45" fill="none" stroke="#66716c" stroke-width="2"/><line x1="50" y1="5" x2="50" y2="95" stroke="#66716c" stroke-width="2"/></svg>`;
   return `<svg class="fraction-svg" viewBox="0 0 100 100" aria-label="çeyrek model"><circle cx="50" cy="50" r="45" fill="#fff"/><path d="M50 50 L50 5 A45 45 0 0 1 95 50 Z" fill="#2f9987"/><circle cx="50" cy="50" r="45" fill="none" stroke="#66716c" stroke-width="2"/><line x1="50" y1="5" x2="50" y2="95" stroke="#66716c" stroke-width="2"/><line x1="5" y1="50" x2="95" y2="50" stroke="#66716c" stroke-width="2"/></svg>`;
