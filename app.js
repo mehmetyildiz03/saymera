@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -607,8 +607,11 @@ function wireManipulator(q){
     const root=$('.sg-base1000-builder');
     root?.querySelectorAll('.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
   }
-  if(interaction==='fraction-shade'||interaction==='fraction-pair-build'||interaction==='fraction-operation-build'){
-    const root=$(interaction==='fraction-shade'?'.sg-fraction-shade-builder':interaction==='fraction-pair-build'?'.sg-fraction-pair-builder':'.sg-fraction-operation-builder');
+  if(interaction==='fraction-shade'){
+    bindFractionPaint($('.sg-fraction-shade-builder'),q);
+  }
+  if(interaction==='fraction-pair-build'||interaction==='fraction-operation-build'){
+    const root=$(interaction==='fraction-pair-build'?'.sg-fraction-pair-builder':'.sg-fraction-operation-builder');
     root?.querySelectorAll('.sg-fraction-cell').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
   }
   if(interaction==='parity-pair'){
@@ -710,6 +713,91 @@ function wireManipulator(q){
   }
   updateManipulatorStatus(q);
 }
+
+function syncFractionPaintSelection(root){
+  if(!root) return {count:0,selected:[]};
+  const cells=[...root.querySelectorAll('.sg-fraction-cell')];
+  const result=classifyFractionPaint(cells.map(cell=>Number(cell.dataset.ink)||0));
+  const selectedSet=new Set(result.selected);
+  cells.forEach((cell,index)=>{
+    const selected=selectedSet.has(index);
+    cell.classList.toggle('selected',selected);
+    cell.setAttribute('aria-pressed',String(selected));
+  });
+  root.dataset.paintCount=String(result.count);
+  return result;
+}
+function clearFractionPaint(root){
+  if(!root) return;
+  root.querySelectorAll('.sg-fraction-cell').forEach(cell=>{
+    cell.dataset.ink='0';
+    cell.classList.remove('selected');
+    cell.setAttribute('aria-pressed','false');
+    cell.querySelectorAll('.sg-fraction-ink-dot').forEach(dot=>dot.remove());
+  });
+  root.dataset.paintCount='0';
+}
+function bindFractionPaint(root,q){
+  if(!root) return;
+  const board=root.querySelector('.sg-fraction-strip.paintable');
+  const cells=[...root.querySelectorAll('.sg-fraction-cell')];
+  if(!board || !cells.length) return;
+  const stroke={active:false,pointerId:null,lastX:null,lastY:null};
+  const paintAt=e=>{
+    const rect=board.getBoundingClientRect();
+    if(rect.width<=0 || rect.height<=0) return;
+    if(e.clientX<rect.left || e.clientX>rect.right || e.clientY<rect.top || e.clientY>rect.bottom) return;
+    const normalizedX=Math.max(0,Math.min(.999999,(e.clientX-rect.left)/rect.width));
+    const index=Math.min(cells.length-1,Math.floor(normalizedX*cells.length));
+    const cell=cells[index], cellRect=cell.getBoundingClientRect();
+    const localX=Math.max(0,Math.min(100,((e.clientX-cellRect.left)/Math.max(1,cellRect.width))*100));
+    const localY=Math.max(0,Math.min(100,((e.clientY-cellRect.top)/Math.max(1,cellRect.height))*100));
+    const distance=stroke.lastX==null?0:Math.hypot(e.clientX-stroke.lastX,e.clientY-stroke.lastY);
+    const weight=stroke.lastX==null?1.35:Math.min(3,Math.max(.55,distance/8));
+    cell.dataset.ink=String((Number(cell.dataset.ink)||0)+weight);
+    const mark=document.createElement('span');
+    mark.className='sg-fraction-ink-dot';
+    mark.style.left=`${localX}%`; mark.style.top=`${localY}%`;
+    cell.append(mark);
+    const marks=root.querySelectorAll('.sg-fraction-ink-dot');
+    if(marks.length>180) marks[0].remove();
+    stroke.lastX=e.clientX; stroke.lastY=e.clientY;
+    syncFractionPaintSelection(root);
+    updateManipulatorStatus(q);
+  };
+  board.addEventListener('pointerdown',e=>{
+    if(answered) return;
+    e.preventDefault();
+    stroke.active=true; stroke.pointerId=e.pointerId; stroke.lastX=null; stroke.lastY=null;
+    try{ board.setPointerCapture(e.pointerId); }catch{}
+    paintAt(e);
+  });
+  board.addEventListener('pointermove',e=>{
+    if(!stroke.active || stroke.pointerId!==e.pointerId || answered) return;
+    e.preventDefault(); paintAt(e);
+  });
+  const endStroke=e=>{
+    if(!stroke.active || (e.pointerId!=null && stroke.pointerId!==e.pointerId)) return;
+    stroke.active=false; stroke.pointerId=null; stroke.lastX=null; stroke.lastY=null;
+    syncFractionPaintSelection(root); updateManipulatorStatus(q);
+  };
+  board.addEventListener('pointerup',endStroke);
+  board.addEventListener('pointercancel',endStroke);
+  cells.forEach(cell=>cell.addEventListener('keydown',e=>{
+    if(answered || (e.key!=='Enter' && e.key!==' ')) return;
+    e.preventDefault();
+    const selected=cell.classList.contains('selected');
+    cell.dataset.ink=selected?'0':'12';
+    cell.querySelectorAll('.sg-fraction-ink-dot').forEach(dot=>dot.remove());
+    syncFractionPaintSelection(root); updateManipulatorStatus(q);
+  }));
+  root.querySelector('.sg-fraction-clear')?.addEventListener('click',()=>{
+    if(answered) return;
+    clearFractionPaint(root); updateManipulatorStatus(q);
+  });
+  syncFractionPaintSelection(root);
+}
+
 function readManipulatorValue(q){
   const interaction=q.response?.interaction;
   if(interaction==='twentyframe-build') return $$('.interactive-twentyframe .added').length;
@@ -734,7 +822,7 @@ function readManipulatorValue(q){
   if(interaction==='bond-fill') return $$('.sg-bond-builder .sg-bond-token.selected').length;
   if(interaction==='base10-build') return `${$$('.sg-base10-builder .sg-base10-ten.selected').length}|${$$('.sg-base10-builder .sg-base10-one.selected').length}`;
   if(interaction==='base1000-build') return `${$$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
-  if(interaction==='fraction-shade') return $$('.sg-fraction-shade-builder .sg-fraction-cell.selected').length;
+  if(interaction==='fraction-shade'){ const root=$('.sg-fraction-shade-builder'); return syncFractionPaintSelection(root).count; }
   if(interaction==='fraction-pair-build') return `${$$('.sg-fraction-pair-builder [data-side="left"] .sg-fraction-cell.selected').length}|${$$('.sg-fraction-pair-builder [data-side="right"] .sg-fraction-cell.selected').length}`;
   if(interaction==='fraction-operation-build') return $$('.sg-fraction-operation-builder .sg-fraction-result .sg-fraction-cell.selected').length;
   if(interaction==='parity-pair') return $$('.sg-parity-builder .sg-pair-token:not(.paired)').length;
@@ -1561,8 +1649,8 @@ function fractionStrip(numerator=0,denom=2){
   return `<div class="sg-fraction-strip" style="--den:${d}" aria-label="${d} eş parçadan ${n} boyalı">${Array.from({length:d},(_,i)=>`<i class="${i<n?'filled':''}"></i>`).join('')}</div>`;
 }
 function fractionShadeBuilder(denom,target){
-  const d=Math.max(2,Number(denom)||2);
-  return `<div class="sg-fraction-shade-builder"><small>${d} EŞ PARÇA</small><div class="sg-fraction-strip interactive" style="--den:${d}">${Array.from({length:d},(_,i)=>`<button type="button" class="sg-fraction-cell" aria-label="${i+1}. eş parça"></button>`).join('')}</div><em>${target} parçayı boya</em></div>`;
+  const d=Math.max(2,Number(denom)||2), t=Math.max(1,Math.min(d,Number(target)||1));
+  return `<div class="sg-fraction-shade-builder" data-target="${t}" data-paint-count="0"><small>${d} EŞ PARÇA</small><div class="sg-fraction-strip interactive paintable" style="--den:${d}" role="group" aria-label="${d} eş parçadan ${t} tanesini boya">${Array.from({length:d},(_,i)=>`<button type="button" class="sg-fraction-cell" data-ink="0" aria-pressed="false" aria-label="${i+1}. eş parça"></button>`).join('')}</div><div class="sg-fraction-paint-tools"><em>Parmağınla veya kalemle ${t} parçayı boya</em><button type="button" class="sg-fraction-clear">Temizle</button></div></div>`;
 }
 function fractionPairBuilder(left,right){
   const row=(side,f)=>`<div data-side="${side}"><b>${f.numerator}/${f.denom}</b><div class="sg-fraction-strip interactive" style="--den:${f.denom}">${Array.from({length:f.denom},(_,i)=>`<button type="button" class="sg-fraction-cell" aria-label="${side} ${i+1}. parça"></button>`).join('')}</div></div>`;

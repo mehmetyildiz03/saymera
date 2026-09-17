@@ -195,6 +195,16 @@ export function masteryPercent(skillState){
   return Math.round(Math.min(1,modal+breadth+retention)*100);
 }
 
+export function classifyFractionPaint(scores,{minSignal=2.5,dominanceRatio=.25}={}){
+  const clean=Array.isArray(scores)?scores.map(v=>Math.max(0,Number(v)||0)):[];
+  const peak=clean.length?Math.max(...clean):0;
+  if(!clean.length || peak<minSignal) return {selected:[],count:0,peak,threshold:minSignal};
+  const threshold=Math.max(minSignal,peak*dominanceRatio);
+  const selected=[];
+  clean.forEach((score,index)=>{ if(score>=threshold) selected.push(index); });
+  return {selected,count:selected.length,peak,threshold};
+}
+
 function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
 function randInt(min,max,rng=Math.random){ return Math.floor(rng()*(max-min+1))+min; }
 function choice(arr,rng=Math.random){ return arr[Math.floor(rng()*arr.length)]; }
@@ -2122,7 +2132,7 @@ function genPictureGraphScale2(rep,d,rng,concept){
 
 function genFractionMeaning2(rep,d,rng,concept){
   const c=concept?.skillId==='fractionMeaning2'?concept:createConceptInstance('fractionMeaning2',d,rng), x=c.anchor;
-  if(rep==='build') return qTask('fractionMeaning2',rep,`Bütün ${x.denom} eş parçaya ayrıldı. Tam bir eş parçayı boya.`,1,{kind:'manipulative',interaction:'fraction-shade',expectedValue:'1',checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Bir eş parçayı modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:1},hint:'Yalnızca bir eş parçayı seç.',explain:`Bütün ${x.denom} eş parçaya ayrıldı ve bunlardan biri seçildi.`});
+  if(rep==='build') return qTask('fractionMeaning2',rep,`Bütün ${x.denom} eş parçaya ayrıldı. Bir eş parçayı boya.`,1,{kind:'manipulative',interaction:'fraction-shade',expectedValue:'1',checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Bir eş parçayı modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:1},hint:'Bir eş parçayı boyaman yeterli.',explain:`Bütün ${x.denom} eş parçaya ayrıldı ve bunlardan biri seçildi.`});
   if(rep==='see'){
     const wrong=[{numerator:1,denom:Math.max(2,x.denom-1)},{numerator:1,denom:x.denom+1},{numerator:Math.min(2,x.denom-1),denom:x.denom}];
     return qTask('fractionMeaning2',rep,`Hangisi ${x.denom} eş parçadan yalnız birini gösteriyor?`,'correct',{kind:'visual-choice',options:fractionVisualOptions(x,wrong,rng)},{taskKind:'visual-discrimination',taskLabel:'Eş parça modelini ayırt et',visual:{type:'equal-parts-guide',denom:x.denom},hint:'Önce bütünün kaç eş parçaya ayrıldığına bak.',explain:`Doğru model ${x.denom} eş parçaya ayrılmış ve yalnız bir parçası boyalı.`});
@@ -2138,7 +2148,7 @@ function genFractionMeaning2(rep,d,rng,concept){
 }
 function genFractionNotation2(rep,d,rng,concept){
   const c=concept?.skillId==='fractionNotation2'?concept:createConceptInstance('fractionNotation2',d,rng), x=c.anchor;
-  if(rep==='build') return qTask('fractionNotation2',rep,`Bütünü ${x.denom} eş parça olarak düşün. ${x.numerator} parçayı boya.`,x.numerator,{kind:'manipulative',interaction:'fraction-shade',expectedValue:String(x.numerator),checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Sözel kesri modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:x.numerator},hint:`Toplam ${x.denom} eş parça var; ${x.numerator} tanesini seç.`,explain:`${x.denom} eş parçadan ${x.numerator} tanesi seçildi.`});
+  if(rep==='build') return qTask('fractionNotation2',rep,`Bütünü ${x.denom} eş parça olarak düşün. ${x.numerator} parçayı boya.`,x.numerator,{kind:'manipulative',interaction:'fraction-shade',expectedValue:String(x.numerator),checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Sözel kesri modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:x.numerator},hint:`Toplam ${x.denom} eş parça var; ${x.numerator} tanesini boya.`,explain:`${x.denom} eş parçadan ${x.numerator} tanesi seçildi.`});
   if(rep==='see'){
     const wrong=[{numerator:Math.max(1,x.numerator-1),denom:x.denom},{numerator:Math.min(x.denom-1,x.numerator+1),denom:x.denom},{numerator:x.numerator,denom:x.denom===2?3:x.denom-1}];
     return qTask('fractionNotation2',rep,`“${x.denom} eş parçadan ${x.numerator}’ü” ifadesini gösteren model hangisi?`,'correct',{kind:'visual-choice',options:fractionVisualOptions(x,wrong,rng)},{taskKind:'visual-discrimination',taskLabel:'Söz ile modeli eşleştir',teachingNote:`${x.denom} eş parçadan ${x.numerator}’ü, kesirle ${fractionSymbol(x.numerator,x.denom)} diye yazılır.`,visual:{type:'fraction-notation-card',numerator:x.numerator,denom:x.denom},hint:'Alt sayı bütünün kaç eş parçaya ayrıldığını, üst sayı seçilen parça sayısını anlatır.',explain:`${fractionSymbol(x.numerator,x.denom)} = ${x.denom} eş parçadan ${x.numerator}’ü.`});
