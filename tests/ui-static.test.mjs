@@ -82,3 +82,9 @@ assert.ok(app.includes('completeCycleOnSuccess'));
 
 assert.ok(app.includes('appendAdaptivePractice'),'adaptive practice insertion missing');
 assert.ok(app.includes('evaluatePracticeCheckpoint'),'adaptive practice decision missing');
+
+assert.ok(app.includes('requiresLearningCompletion'),'first-cycle session completion gate missing');
+assert.ok(app.includes("const critical=review.support===true||review.completeCycleOnSuccess===true"),'critical recovery must bypass general bridge cap');
+assert.ok(app.includes('if(session.bridgeAdds>=4&&!critical) return;'),'general bridge cap must not block critical recovery');
+assert.ok(app.includes('completionRecovery:true'),'finishSession fallback recovery missing');
+assert.ok(app.includes('if(gateState&&!gateState.learningCycle?.firstCycleCompletedAt)'),'finishSession must refuse false completion');

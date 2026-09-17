@@ -352,14 +352,19 @@ function startSession(){
   session={
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
+    requiresLearningCompletion:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
     questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], learningEvents:[], newStable:0, bridgeAdds:0
   };
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
   loadPlanItem();
 }
 function maybeInjectBridgeReview(force=false){
-  if(!session || session.bridgeAdds>=4) return;
+  if(!session) return;
   const review=dueSameSessionReview(force); if(!review) return;
+  const critical=review.support===true||review.completeCycleOnSuccess===true;
+  // General remediation is bounded, but prerequisite support and the final
+  // completion recovery are hard gates and may never be dropped by that bound.
+  if(session.bridgeAdds>=4&&!critical) return;
   const skill=skillsFor(state.profile).find(s=>s.id===review.skillId); if(!skill) return;
   const already=session.plan.slice(session.planIndex).some(x=>x.reviewItem?.id===review.id);
   if(!already){
@@ -372,7 +377,7 @@ function maybeInjectBridgeReview(force=false){
       conceptScope:'fresh',
       countsTowardEvidence:review.phase==='readiness'?false:undefined
     });
-    session.bridgeAdds++;
+    if(!critical) session.bridgeAdds++;
   }
 }
 function loadPlanItem(){
@@ -403,7 +408,7 @@ function loadPlanItem(){
     if(currentSelection.phase) currentQuestion.learningPhase=currentSelection.phase;
   }
   if(currentSelection.countsTowardEvidence===false) currentQuestion.countsTowardEvidence=false;
-  currentQuestion.completionRecovery=!!currentSelection.reviewItem?.completeCycleOnSuccess;
+  currentQuestion.completionRecovery=!!currentSelection.completionRecovery||!!currentSelection.reviewItem?.completeCycleOnSuccess;
   currentQuestion.cycleFinal=!!currentSelection.cycleFinal||currentQuestion.completionRecovery;
 
   session.questionIndex++;
@@ -804,6 +809,30 @@ function nextQuestion(){
 }
 function finishSession(){
   if(!session) return;
+
+  // Hard invariant: a first learning cycle cannot be presented as completed
+  // until a successful consolidation/recovery has actually closed the cycle.
+  if(session.requiresLearningCompletion){
+    const gateSkill=skillsFor(state.profile).find(s=>s.id===session.focusSkillId);
+    const gateState=gateSkill?ensureSkillState(state,gateSkill.id):null;
+    if(gateState&&!gateState.learningCycle?.firstCycleCompletedAt){
+      maybeInjectBridgeReview(true);
+      if(session.planIndex<session.plan.length){ loadPlanItem(); return; }
+      const bridgeMap={build:'see',see:'build',symbol:'see',explain:'see',transfer:'build'};
+      session.plan.splice(session.planIndex,0,{
+        skillId:session.focusSkillId,
+        representation:bridgeMap[currentQuestion?.representation]||'see',
+        phase:'practice',
+        reviewItem:null,
+        kind:'bridge',
+        conceptScope:'fresh',
+        completionRecovery:true
+      });
+      loadPlanItem();
+      return;
+    }
+  }
+
   const ended=session;
   const duration=Math.max(1,Math.round((Date.now()-ended.startedAt)/1000));
   state.totals.activeSeconds=(state.totals.activeSeconds||0)+duration;

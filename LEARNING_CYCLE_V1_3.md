@@ -51,3 +51,8 @@ Saat referans becerisinde ÖÖ/ÖS artık 24 saatlik iç hesap üzerinden taşı
 İlk öğrenme artık “8 soru ve bitti” kuralı değildir. Readiness + model + temsil + sembol + gerekçe + bağlam sonrasında en az iki farklı yeni örnek gelir. Oturum içindeki hata/ipucu sinyallerine göre plan 2, 3 veya en fazla 4 planlı pekiştirme örneğine uzar. Böylece temiz ilk öğrenme 8 temel görevde tamamlanabilir; zorlanma varsa 9–10 planlı göreve uzar. Temsil köprüleri bu sayıya dahil değildir ve gerektiğinde hemen araya girer.
 
 Pekiştirme hedefi: sürtünme yoksa 2; bir hata/ipucu sinyali varsa 3; iki veya daha fazla sinyal varsa 4. Dördüncü planlı pekiştirme de yanlışsa, döngüyü tamamlayan kapı doğrudan temsil değiştiren recovery görevidir. Çocuk bu karar mantığını görmez.
+
+
+## v1.3.4 — Completion gate invariant
+
+A first-cycle session may not enter the completed/rest state while `firstCycleCompletedAt` is still empty. Critical prerequisite support and final completion recovery bypass the general same-session bridge cap. If queue state is unexpectedly missing, `finishSession()` creates a fresh recovery task rather than falsely marking the session complete. The learner can always close the session manually; closing is not recorded as mastery.
