@@ -3093,10 +3093,47 @@ function generateReadinessQuestion(skillId,difficulty=1,rng=Math.random,{support
   return relabelReadinessQuestion(q,skillId,source,{support,rng});
 }
 
+const PRACTICE_PROMPT_PREFIXES={
+  build:['Yeni model:','Bu kez modeli sen kur:','Başka bir model:'],
+  see:['Yeni görsel:','Bu kez doğru olanı bul:','Başka bir örnek:'],
+  symbol:['Yeni örnek:','Bu kez sayı ve işaretlerle çöz:','Başka bir örnek:'],
+  explain:['Bu kez nedenini düşün:','Yeni örneği açıkla:','Başka bir örnekte düşün:'],
+  transfer:['Yeni durum:','Bu kez başka bir durumda kullan:','Başka bir günlük durum:']
+};
+function varyPracticePrompt(q,skillId,representation,index=0){
+  const i=Math.max(0,Number(index)||0);
+  // Fractions get genuinely different practice wording, not merely a cosmetic prefix.
+  // This is where the original child-facing repetition was most visible.
+  if(skillId==='fractionMeaning2'&&representation==='symbol'){
+    q.prompt='Yeni modelde toplam kaç eş parça var?';
+  }else if(skillId==='fractionMeaning2'&&representation==='transfer'){
+    const denom=q.visual?.denom;
+    q.prompt=denom?`${denom} eş parçaya ayrılmış yeni bir bütün düşün. Yalnız bir parçayı gösteren modeli bul.`:'Yeni bir bütün düşün. Yalnız bir eş parçayı gösteren modeli bul.';
+  }else if(skillId==='fractionNotation2'&&representation==='symbol'){
+    q.prompt='Bu yeni modelin kesir gösterimini seç.';
+  }else if(skillId==='fractionNotation2'&&representation==='transfer'){
+    q.prompt='Pizza modelindeki yenilen kısmı kesirle yaz.';
+  }else if(skillId==='fractionCompare2'&&representation==='symbol'){
+    q.prompt='İki kesri karşılaştır. Araya uygun işareti seç.';
+  }else if(skillId==='fractionCompare2'&&representation==='transfer'){
+    q.prompt='İki eş bütünün yenilen kısımlarını karşılaştır. Daha çok yenilen tarafı seç.';
+  }else if(skillId==='fractionAddSub2'&&representation==='symbol'){
+    q.prompt='Modeldeki kesir işleminin sonucunu seç.';
+  }else if(skillId==='fractionAddSub2'&&representation==='transfer'){
+    q.prompt='Günlük durumdaki kesir işlemini çöz ve sonucu seç.';
+  }else{
+    const prefixes=PRACTICE_PROMPT_PREFIXES[representation]||['Yeni örnek:'];
+    q.prompt=`${prefixes[i%prefixes.length]} ${q.prompt}`;
+  }
+  q.practiceVariant=i+1;
+  return q;
+}
+
 function generateLearningQuestion(skillId,phase,representation,difficulty=1,rng=Math.random,conceptInstance=null,options={}){
   let q;
   if(phase==='readiness') q=generateReadinessQuestion(skillId,difficulty,rng,options);
   else q=generateQuestion(skillId,representation,difficulty,rng,conceptInstance);
+  if(phase==='practice') q=varyPracticePrompt(q,skillId,representation,options.practiceIndex??0);
   q.learningPhase=phase||null;
   if(phase==='readiness') q.countsTowardEvidence=false;
   if(phase==='retrieval') q.retentionProbe=true;
@@ -3709,6 +3746,8 @@ function loadPlanItem(){
     const learningOptions=currentSelection.phase==='readiness'?{
       support:currentSelection.kind==='bridge'||currentSelection.reviewItem?.support===true,
       sourceSkillId:currentSelection.reviewItem?.readinessSourceSkillId||null
+    }:currentSelection.phase==='practice'?{
+      practiceIndex:currentSelection.practiceIndex??0
     }:{};
     const makeLearningQuestion=()=>generateLearningQuestion(
       skill.id,currentSelection.phase,currentSelection.representation,

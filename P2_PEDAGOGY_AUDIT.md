@@ -1,4 +1,4 @@
-# SAYMERA — Singapore P2 Pedagogy Audit (v1.5.2)
+# SAYMERA — Singapore P2 Pedagogy Audit (v1.5.4)
 
 Bu kalite kapısı güncel Singapore MOE P2 çekirdeğindeki **22 P2-REFERENCE becerinin** yalnız kapsamını değil, öğrenme davranışını da denetler.
 
@@ -6,6 +6,7 @@ Bu kalite kapısı güncel Singapore MOE P2 çekirdeğindeki **22 P2-REFERENCE b
 - İlk döngü: ön bilgi → model → temsil → sembol → gerekçe → bağlam → en az iki pekiştirme.
 - Kur/Gör/Yaz/Anlat/Taşı beş farklı bilişsel görev ailesi olmalıdır.
 - Aynı tam görev çekirdek döngü içinde tekrar edemez.
+- İlk döngüde aynı temsilin pekiştirmesi gerektiğinde, çocuk aynı normalize edilmiş soru kalıbını yeniden görmez; yeni örnek açıkça farklı yüzey diliyle sunulur.
 - Yeni semboller anlam kurulmadan sınanamaz (özellikle kesir gösterimi ve ÷).
 - Çocuk metninde ürün motoru/kanıt/puanlama jargonu bulunamaz.
 - `conceptScope: fresh` görevleri, oturumdaki yakın geçmişte aynı tam görevi üretirse en fazla 8 kez yeniden örneklenir.

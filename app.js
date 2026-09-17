@@ -409,6 +409,8 @@ function loadPlanItem(){
     const learningOptions=currentSelection.phase==='readiness'?{
       support:currentSelection.kind==='bridge'||currentSelection.reviewItem?.support===true,
       sourceSkillId:currentSelection.reviewItem?.readinessSourceSkillId||null
+    }:currentSelection.phase==='practice'?{
+      practiceIndex:currentSelection.practiceIndex??0
     }:{};
     const makeLearningQuestion=()=>generateLearningQuestion(
       skill.id,currentSelection.phase,currentSelection.representation,
