@@ -40,7 +40,10 @@ jobs:
             .sourcepack/p051
             .sourcepack/p052
             .sourcepack/p053
-            .sourcepack/p06
+            .sourcepack/p060
+            .sourcepack/p061
+            .sourcepack/p062
+            .sourcepack/p063
           )
 
           for part in "${required[@]}"; do
