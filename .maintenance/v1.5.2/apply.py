@@ -61,24 +61,24 @@ new="""    const makeLearningQuestion=()=>generateLearningQuestion(
 """
 s=replace_once(s,old,new,'learning question no-repeat generation')
 
-# Non-learning legacy/review path also records its signature where currentQuestion is assigned directly.
 old2="""    currentQuestion=generateQuestion(skill.id,currentSelection.representation,ss.difficulty||1,Math.random,concept);
 """
 if old2 in s:
     s=replace_once(s,old2,old2+"    rememberQuestionSignature(currentQuestion);\n",'legacy signature record')
 write(p,s)
 
-# Add a dedicated P2 pedagogy audit.
+# Exact current MOE P2 scope is 22 skills. Composite/grid-copy work belongs to P1 learning experiences;
+# P2 geometry core is 2D attribute patterns + 3D identification/classification.
 audit=r'''import assert from 'node:assert/strict';
 import {
   skillsFor, supportsLearningCycle, readinessSourcesFor, buildLearningCyclePlan,
-  ensureSkillState, defaultState, createConceptInstance, generateLearningQuestion,
-  REPRESENTATIONS
+  ensureSkillState, defaultState, createConceptInstance, generateLearningQuestion
 } from '../engine.mjs';
 
 const makeRng=(seed)=>()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
 const p2=skillsFor('grade2').filter(s=>supportsLearningCycle(s.id));
-assert.equal(p2.length,24,'all current Singapore P2 skills must be on the learning-cycle contract');
+assert.equal(p2.length,22,'exact current Singapore P2 graph must contain 22 learning-cycle skills');
+assert.ok(!p2.some(s=>['shapes2D2','solidPatterns2'].includes(s.id)),'P1/complementary geometry must not be mislabeled as P2 core');
 
 const expectedKinds={build:'manipulative-build',see:'visual-discrimination',symbol:'symbol-entry',explain:'reasoning-choice',transfer:'context-transfer'};
 const forbidden=/(kanıt profili|temsil genişliği|puanlanan şey|öğrenme döngüsü|practicecheckpoint|conceptkey|taskkind|readiness)/i;
@@ -135,25 +135,29 @@ for(const [i,skill] of p2.entries()){
   assert.match(String(assess.prompt),/÷/,'division symbol phase must assess ÷ after introduction');
 }
 
-// App-level guard: “fresh” means no exact recent task repetition within a session.
 const app=await (await import('node:fs/promises')).readFile(new URL('../app.js',import.meta.url),'utf8');
 assert.match(app,/recentQuestionSignatures:\[\]/,'session must keep recent task signatures');
 assert.match(app,/retries<8/,'fresh-task generation must retry exact duplicates');
 assert.match(app,/questionRepeatSignature/,'fresh-task repeat guard missing');
 
-console.log(`p2 pedagogy audit: PASS (${p2.length} P2 skills; phase order, task diversity, child-copy, teaching-before-testing, no-repeat guard)`);
+console.log(`p2 pedagogy audit: PASS (${p2.length} exact P2 skills; phase order, task diversity, child-copy, teaching-before-testing, no-repeat guard)`);
 '''
 (root/'tests/p2-pedagogy-audit.test.mjs').write_text(audit,encoding='utf-8')
 
-# package: include audit and bump version
+# Correct stale migration matrix left by the geometry experiment/revert sequence.
+p=Path('TASK_MIGRATION_MATRIX.md'); m=read(p)
+m=m.replace('# SAYMERA v1.4.2 — Görev Motoru Geçiş Matrisi','# SAYMERA v1.5.2 — Görev Motoru Geçiş Matrisi')
+m=m.replace("| 2. sınıf | `shapes2D2` | Bileşik 2B figür, temel parçalar ve kareli alanda kopyalama | **P2-REFERENCE** |\n",'')
+m=m.replace("| 2. sınıf | `solidPatterns2` | 3B cisimlerle bir/iki özellikli örüntüler | **P2-REFERENCE** |\n",'')
+m=m.replace("Toplam: **54 beceri**. Bunun **22'si P1-REFERENCE**, **24'ü P2-REFERENCE** ve **8'i okul öncesi LEGACY** durumundadır. Singapore P1 ve P2 çekirdek kapsamı, geometri öğrenme deneyimleri dahil, referans kalite kapısından geçmektedir.","Toplam: **52 beceri**. Bunun **22'si P1-REFERENCE**, **22'si P2-REFERENCE** ve **8'i okul öncesi LEGACY** durumundadır. Singapore P1 ve güncel MOE P2 çekirdek kapsamı referans kalite kapısından geçmektedir. P1'deki bileşik şekil/ızgara kopyalama P2 çekirdeğine yanlış etiketlenmez.")
+write(p,m)
+
 p=Path('package.json'); data=json.loads(read(p)); data['version']='1.5.2';
 data['scripts']['test']='node build-standalone.mjs && node tests/engine.test.mjs && node tests/learning-cycle.test.mjs && node tests/p2-pedagogy-audit.test.mjs && node tests/ui-static.test.mjs'
 write(p,json.dumps(data,ensure_ascii=False,indent=2)+'\n')
 
-# cache bump
 p=Path('sw.js'); s=read(p); s=s.replace("saymera-v1-5-1-p2-geometry-complete","saymera-v1-5-2-p2-pedagogy-audit"); write(p,s)
 
-# audit documentation
-(root/'P2_PEDAGOGY_AUDIT.md').write_text('''# SAYMERA — Singapore P2 Pedagogy Audit (v1.5.2)\n\nBu kalite kapısı 24 P2-REFERENCE becerinin yalnız kapsamını değil, öğrenme davranışını da denetler.\n\n- Hazırbulunuşluk hedef becerinin kolay kopyası olamaz.\n- İlk döngü: ön bilgi → model → temsil → sembol → gerekçe → bağlam → en az iki pekiştirme.\n- Kur/Gör/Yaz/Anlat/Taşı beş farklı bilişsel görev ailesi olmalıdır.\n- Aynı tam görev çekirdek döngü içinde tekrar edemez.\n- Yeni semboller anlam kurulmadan sınanamaz (özellikle kesir gösterimi ve ÷).\n- Çocuk metninde ürün motoru/kanıt/puanlama jargonu bulunamaz.\n- `conceptScope: fresh` görevleri, oturumdaki yakın geçmişte aynı tam görevi üretirse en fazla 8 kez yeniden örneklenir.\n\nBu audit Singapore MOE Primary Mathematics P2 kapsam denetiminin üstünde bir SAYMERA ürün kalite katmanıdır; MOE'nin resmî sekiz aşamalı modeli olduğu iddia edilmez.\n''',encoding='utf-8')
+(root/'P2_PEDAGOGY_AUDIT.md').write_text('''# SAYMERA — Singapore P2 Pedagogy Audit (v1.5.2)\n\nBu kalite kapısı güncel Singapore MOE P2 çekirdeğindeki **22 P2-REFERENCE becerinin** yalnız kapsamını değil, öğrenme davranışını da denetler.\n\n- Hazırbulunuşluk hedef becerinin kolay kopyası olamaz.\n- İlk döngü: ön bilgi → model → temsil → sembol → gerekçe → bağlam → en az iki pekiştirme.\n- Kur/Gör/Yaz/Anlat/Taşı beş farklı bilişsel görev ailesi olmalıdır.\n- Aynı tam görev çekirdek döngü içinde tekrar edemez.\n- Yeni semboller anlam kurulmadan sınanamaz (özellikle kesir gösterimi ve ÷).\n- Çocuk metninde ürün motoru/kanıt/puanlama jargonu bulunamaz.\n- `conceptScope: fresh` görevleri, oturumdaki yakın geçmişte aynı tam görevi üretirse en fazla 8 kez yeniden örneklenir.\n- P1'e ait bileşik şekil/kareli alanda kopyalama veya P2 çekirdeğinde olmayan 3B örüntü, P2 core etiketiyle şişirilmez.\n\nBu audit Singapore MOE Primary Mathematics P2 kapsam denetiminin üstünde bir SAYMERA ürün kalite katmanıdır; MOE'nin resmî sekiz aşamalı modeli olduğu iddia edilmez.\n''',encoding='utf-8')
 
-print('v1.5.2 pedagogy audit staged')
+print('v1.5.2 exact-scope pedagogy audit staged')
