@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
-  masteryPercent, evidenceCoverage, generateQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady
+  masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -195,14 +195,13 @@ function renderHome(){
   $('#focusCard').innerHTML=focus?`
     <div class="focus-top"><span class="focus-label">BUGÜNKÜ KONU</span></div>
     <div class="focus-copy"><h2>${esc(focus.skill.label)}</h2><p>${esc(focusDescription(focus))}</p></div>
-    <div class="prism-visual" aria-label="Bugünkü görev adımları">
+    <div class="prism-visual" aria-label="Bugünkü konu hazır">
       <div class="prism-ring"></div>
-      ${REPRESENTATIONS.map(r=>{ const ev=ss.evidence[r]; return `<div class="facet ${ev.score>=.72?'done':''}"><div><b>${REPRESENTATION_META[r].icon}</b><small>${REPRESENTATION_META[r].label}</small></div></div>`; }).join('')}
-      <div class="prism-core"><span><strong>5</strong><small>adım</small></span></div>
+      <div class="prism-core"><span><strong>▶</strong><small>hazır</small></span></div>
     </div>
   `:'<p>Başlangıç seviyesi seçildiğinde bugünkü konu burada görünür.</p>';
 
-  $('#lensGrid').innerHTML=REPRESENTATIONS.map((r,i)=>`<article class="lens-card"><span class="lens-step">0${i+1}</span><div class="lens-icon">${REPRESENTATION_META[r].icon}</div><div><b>${REPRESENTATION_META[r].label}</b><p>${repDescriptions[r]}</p></div></article>`).join('');
+  if($('#lensGrid')) $('#lensGrid').innerHTML='';
 
   const due=dueReviewItems().length;
   const worked=skillsFor(state.profile).filter(s=>ensureSkillState(state,s.id).totalAttempts>0).length;
@@ -215,7 +214,6 @@ function renderHome(){
   $('#conceptPreviewRow').innerHTML=preview.map(({skill,ss,ready})=>`
     <article class="concept-mini" style="--tint:${accentTint[skill.accent]||'#eef0ef'}">
       <span>${esc(skill.family.toUpperCase())}</span><h3>${esc(skill.label)}</h3>
-      <div class="facet-strip">${REPRESENTATIONS.map(r=>`<i class="${ss.evidence[r].score>=.72?'strong':ss.evidence[r].attempts?'seen':''}"></i>`).join('')}</div>
       <small>${ready?(ss.stable?'Tamamlandı':ss.totalAttempts?'Devam ediyor':'Başlamadı'):'Daha sonra'}</small>
     </article>`).join('');
 
@@ -317,8 +315,25 @@ function buildSessionPlan(focus){
   const due=dueReviewItems()[0];
   if(due){
     const s=skillsFor(state.profile).find(x=>x.id===due.skillId);
-    if(s) plan.push({skillId:s.id,representation:due.representation,reviewItem:due,kind:'retention'});
+    if(s) plan.push({
+      skillId:s.id,
+      representation:due.representation,
+      phase:due.phase||'retrieval',
+      reviewItem:due,
+      kind:'retention',
+      conceptScope:'fresh'
+    });
   }
+
+  if(supportsLearningCycle(focus.skill.id)){
+    buildLearningCyclePlan(focus.state).forEach(item=>plan.push({
+      skillId:focus.skill.id,
+      reviewItem:null,
+      ...item
+    }));
+    return plan;
+  }
+
   const reps=focusRepresentations(focus.state);
   reps.forEach(rep=>plan.push({skillId:focus.skill.id,representation:rep,reviewItem:null,kind:'focus'}));
   return plan;
@@ -344,7 +359,18 @@ function maybeInjectBridgeReview(){
   const review=dueSameSessionReview(); if(!review) return;
   const skill=skillsFor(state.profile).find(s=>s.id===review.skillId); if(!skill) return;
   const already=session.plan.slice(session.planIndex).some(x=>x.reviewItem?.id===review.id);
-  if(!already){ session.plan.splice(session.planIndex,0,{skillId:skill.id,representation:review.representation||'see',reviewItem:review,kind:'bridge'}); session.bridgeAdds++; }
+  if(!already){
+    session.plan.splice(session.planIndex,0,{
+      skillId:skill.id,
+      representation:review.representation||'see',
+      phase:review.phase||null,
+      reviewItem:review,
+      kind:'bridge',
+      conceptScope:'fresh',
+      countsTowardEvidence:review.phase==='readiness'?false:undefined
+    });
+    session.bridgeAdds++;
+  }
 }
 function loadPlanItem(){
   if(!session) return;
@@ -355,9 +381,22 @@ function loadPlanItem(){
   if(!skill){ session.planIndex++; loadPlanItem(); return; }
   const ss=ensureSkillState(state,skill.id);
   currentSelection.skill=skill;
-  const reuseFocusConcept=skill.id===session.focusSkillId && (currentSelection.kind==='focus'||currentSelection.kind==='bridge');
+  const fresh=currentSelection.conceptScope==='fresh';
+  const reuseFocusConcept=skill.id===session.focusSkillId && !fresh && (currentSelection.kind==='focus'||currentSelection.kind==='bridge');
   const concept=reuseFocusConcept?session.focusConcept:createConceptInstance(skill.id,ss.difficulty||1,Math.random);
-  currentQuestion=generateQuestion(skill.id,currentSelection.representation,ss.difficulty||1,Math.random,concept);
+
+  if(currentSelection.phase && supportsLearningCycle(skill.id)){
+    currentQuestion=generateLearningQuestion(
+      skill.id,currentSelection.phase,currentSelection.representation,
+      ss.difficulty||1,Math.random,concept
+    );
+  } else {
+    currentQuestion=generateQuestion(skill.id,currentSelection.representation,ss.difficulty||1,Math.random,concept);
+    if(currentSelection.phase) currentQuestion.learningPhase=currentSelection.phase;
+  }
+  if(currentSelection.countsTowardEvidence===false) currentQuestion.countsTowardEvidence=false;
+  currentQuestion.cycleFinal=!!currentSelection.cycleFinal;
+
   session.questionIndex++;
   session.recentSkillIds.push(skill.id);
   answered=false; usedHint=false;
@@ -366,7 +405,7 @@ function loadPlanItem(){
 function renderQuestion(){
   const q=currentQuestion, s=currentSelection.skill, rep=q.representation;
   const total=session.plan.length;
-  $('#practiceLens').textContent=REPRESENTATION_META[rep].label.toUpperCase();
+  $('#practiceLens').textContent=s.family.toUpperCase();
   $('#practiceTitle').textContent=s.label;
   $('#practiceCounter').textContent=`${Math.min(session.planIndex+1,total)} / ${total}`;
   $('#practiceProgress').style.width=`${Math.round(session.planIndex/Math.max(1,total)*100)}%`;

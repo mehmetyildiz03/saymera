@@ -7,6 +7,25 @@ export const REPRESENTATION_META = {
   transfer: { label: 'Taşı', icon: '↗', short: 'Yeni durumda kullan' },
 };
 
+export const LEARNING_PHASES = ['readiness','model','representation','symbol','reasoning','context','practice','retrieval'];
+export const LEARNING_PHASE_META = {
+  readiness: { label:'Ön bilgiyi yokla', representation:'see' },
+  model: { label:'Nesne/modelle çalış', representation:'build' },
+  representation: { label:'Farklı temsilini gör', representation:'see' },
+  symbol: { label:'Sembolleştir', representation:'symbol' },
+  reasoning: { label:'Nedenini düşün', representation:'explain' },
+  context: { label:'Gündelik durumda kullan', representation:'transfer' },
+  practice: { label:'Farklı örneklerle pekiştir', representation:null },
+  retrieval: { label:'Daha sonra geri çağır', representation:null },
+};
+
+const LEARNING_CYCLE_READY_SKILLS = new Set([
+  'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
+  'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
+  'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1'
+]);
+export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
+
 export const PROFILE_META = {
   preschool: { label: 'Okul öncesi', age: '4–6 yaş', effortBudget: 5.5, cooldownMinutes: 5 },
   grade1: { label: '1. sınıf', age: '6–7 yaş', effortBudget: 6.5, cooldownMinutes: 5 },
@@ -70,8 +89,48 @@ export function skillsFor(profile){ return SKILLS.filter(s => s.profile === prof
 function defaultEvidence(){
   return Object.fromEntries(REPRESENTATIONS.map(r => [r,{score:0, attempts:0, correct:0, lastSeen:0}]));
 }
+function defaultLearningCycle(){
+  return {
+    version:1,
+    status:'new',
+    firstCycleCompletedAt:0,
+    lastCycleAt:0,
+    retrievalDueAt:0,
+    retrievalAttempts:0,
+    retrievalSuccesses:0,
+    practiceAttempts:0,
+    practiceCorrect:0,
+    readinessNeedsSupport:false,
+    phases:Object.fromEntries(LEARNING_PHASES.map(p=>[p,{attempts:0,correct:0,lastSeen:0}]))
+  };
+}
+export function ensureLearningCycleState(skillState){
+  skillState.learningCycle ||= defaultLearningCycle();
+  const lc=skillState.learningCycle;
+  lc.version ||= 1;
+  lc.status ||= 'new';
+  lc.firstCycleCompletedAt ||= 0;
+  lc.lastCycleAt ||= 0;
+  lc.retrievalDueAt ||= 0;
+  lc.retrievalAttempts ||= 0;
+  lc.retrievalSuccesses ||= 0;
+  lc.practiceAttempts ||= 0;
+  lc.practiceCorrect ||= 0;
+  lc.readinessNeedsSupport=!!lc.readinessNeedsSupport;
+  lc.phases ||= {};
+  for(const p of LEARNING_PHASES) lc.phases[p] ||= {attempts:0,correct:0,lastSeen:0};
+  return lc;
+}
+export function learningCycleStatus(skillState, now=Date.now()){
+  const lc=ensureLearningCycleState(skillState);
+  if(skillState.stable && lc.retrievalSuccesses>=1) return 'secure';
+  if(lc.firstCycleCompletedAt && lc.retrievalDueAt && lc.retrievalDueAt<=now) return 'retrieval-due';
+  if(lc.firstCycleCompletedAt) return 'consolidating';
+  if(LEARNING_PHASES.some(p=>(lc.phases[p]?.attempts||0)>0)) return 'learning';
+  return 'new';
+}
 export function makeSkillState(){
-  return { evidence: defaultEvidence(), totalAttempts:0, totalCorrect:0, difficulty:1, lastDifficultyChangeAttempt:0, delayedSuccesses:0, delayedAttempts:0, lastSeen:0, stable:false };
+  return { evidence: defaultEvidence(), learningCycle:defaultLearningCycle(), totalAttempts:0, totalCorrect:0, difficulty:1, lastDifficultyChangeAttempt:0, delayedSuccesses:0, delayedAttempts:0, lastSeen:0, stable:false };
 }
 export function defaultState(){
   return {
@@ -92,6 +151,7 @@ export function ensureSkillState(state, skillId){
   const ss = state.skills[skillId];
   ss.evidence ||= defaultEvidence();
   for(const r of REPRESENTATIONS){ ss.evidence[r] ||= {score:0,attempts:0,correct:0,lastSeen:0}; }
+  ensureLearningCycleState(ss);
   return ss;
 }
 
@@ -1479,6 +1539,80 @@ export function prerequisitesReady(state, skillObj){
   return !skillObj.prerequisite?.length || skillObj.prerequisite.every(id => { const ss=ensureSkillState(state,id); return masteryPercent(ss) >= 35 && evidenceCoverage(ss) >= 2; });
 }
 
+
+export function buildLearningCyclePlan(skillState){
+  const lc=ensureLearningCycleState(skillState);
+  if(!lc.firstCycleCompletedAt){
+    return [
+      {phase:'readiness',representation:'see',kind:'readiness',conceptScope:'fresh',countsTowardEvidence:false},
+      {phase:'model',representation:'build',kind:'focus'},
+      {phase:'representation',representation:'see',kind:'focus'},
+      {phase:'symbol',representation:'symbol',kind:'focus'},
+      {phase:'reasoning',representation:'explain',kind:'focus'},
+      {phase:'context',representation:'transfer',kind:'focus',conceptScope:'fresh'},
+      {phase:'practice',representation:'symbol',kind:'practice',conceptScope:'fresh',practiceIndex:0},
+      {phase:'practice',representation:'transfer',kind:'practice',conceptScope:'fresh',practiceIndex:1,cycleFinal:true}
+    ];
+  }
+  const ranked=[...REPRESENTATIONS].sort((a,b)=>{
+    const ea=skillState.evidence[a], eb=skillState.evidence[b];
+    const unseenA=(ea?.attempts||0)===0?0:1, unseenB=(eb?.attempts||0)===0?0:1;
+    return unseenA-unseenB || (ea?.score||0)-(eb?.score||0);
+  });
+  const reps=[];
+  for(const r of [...ranked,'symbol','transfer',...REPRESENTATIONS]) if(!reps.includes(r) && reps.length<4) reps.push(r);
+  return reps.map((representation,index)=>({
+    phase:'practice',
+    representation,
+    kind:'practice',
+    conceptScope:'fresh',
+    practiceIndex:index,
+    cycleFinal:index===reps.length-1
+  }));
+}
+
+function generateReadinessQuestion(skillId,difficulty=1,rng=Math.random){
+  if(skillId==='time1'){
+    if(rng()<.5){
+      const starts=[0,5,10,15,20,25,30,35];
+      const start=choice(starts,rng);
+      const seq=[start,start+5,start+10], answer=start+15;
+      return qBase('time1','see',`${seq.join(', ')}, … sıradaki sayı kaç?`,answer,numericChoices(answer,5,rng),{
+        taskKind:'readiness-check',
+        visual:{type:'sequence',items:seq.concat('?')},
+        hint:'Saatte dakikaları okurken 5’er saymak işine yarar.',
+        explain:`5’er sayınca sıradaki sayı ${answer}.`,
+        feedbackTitle:'5’er saymayı kullandın.',
+        countsTowardEvidence:false
+      });
+    }
+    const hour=randInt(1,12,rng), answer=`${hour}:00`;
+    return qBase('time1','see','Yelkovan 12’deyken bu saat kaç?',answer,semanticChoices(answer,[`${hour}:30`,`${(hour%12)+1}:00`,`${hour}:15`],rng),{
+      taskKind:'readiness-check',
+      visual:{type:'clock',hour,minute:0},
+      hint:'Yelkovan 12’deyse tam saattir; akrebin gösterdiği sayıyı oku.',
+      explain:`Yelkovan 12’de ve akrep ${hour} üzerinde: saat ${answer}.`,
+      feedbackTitle:'Tam saati doğru okudun.',
+      countsTowardEvidence:false
+    });
+  }
+  const q=generateQuestion(skillId,'see',difficulty,rng,createConceptInstance(skillId,difficulty,rng));
+  q.taskKind='readiness-check';
+  q.countsTowardEvidence=false;
+  q.feedbackTitle ||= 'Başlangıç sorusunu tamamladın.';
+  return q;
+}
+
+export function generateLearningQuestion(skillId,phase,representation,difficulty=1,rng=Math.random,conceptInstance=null){
+  let q;
+  if(phase==='readiness') q=generateReadinessQuestion(skillId,difficulty,rng);
+  else q=generateQuestion(skillId,representation,difficulty,rng,conceptInstance);
+  q.learningPhase=phase||null;
+  if(phase==='readiness') q.countsTowardEvidence=false;
+  if(phase==='retrieval') q.retentionProbe=true;
+  return q;
+}
+
 export function selectNextSkill(state, session, now=Date.now(), rng=Math.random){
   const candidates=skillsFor(state.profile);
   const due=state.reviewQueue
@@ -1527,60 +1661,117 @@ export function generateQuestion(skillId, representation, difficulty=1, rng=Math
 
 export function applyAnswer(state, question, {correct, usedHint=false, isDelayedReview=false, now=Date.now(), sessionQuestionIndex=0}){
   const ss=ensureSkillState(state,question.skillId);
-  const ev=ss.evidence[question.representation];
-  const gain=correct ? (usedHint?.08:.14) : -.10;
-  ev.score=clamp((ev.score || 0)+gain,0,1);
-  ev.attempts=(ev.attempts||0)+1;
-  if(correct) ev.correct=(ev.correct||0)+1;
-  ev.lastSeen=now;
-  ss.totalAttempts=(ss.totalAttempts||0)+1;
-  if(correct) ss.totalCorrect=(ss.totalCorrect||0)+1;
-  ss.lastSeen=now;
-  if(isDelayedReview){
-    ss.delayedAttempts=(ss.delayedAttempts||0)+1;
-    if(correct) ss.delayedSuccesses=(ss.delayedSuccesses||0)+1;
+  const lc=ensureLearningCycleState(ss);
+  const phase=question.learningPhase||null;
+  const countsTowardEvidence=question.countsTowardEvidence!==false;
+  const ev=countsTowardEvidence?ss.evidence[question.representation]:null;
+
+  if(phase && lc.phases[phase]){
+    const pe=lc.phases[phase];
+    pe.attempts=(pe.attempts||0)+1;
+    if(correct) pe.correct=(pe.correct||0)+1;
+    pe.lastSeen=now;
+    if(phase==='readiness') lc.readinessNeedsSupport=!correct;
+    if(phase==='practice'){
+      lc.practiceAttempts=(lc.practiceAttempts||0)+1;
+      if(correct) lc.practiceCorrect=(lc.practiceCorrect||0)+1;
+    }
+    if(phase==='retrieval'){
+      lc.retrievalAttempts=(lc.retrievalAttempts||0)+1;
+      if(correct) lc.retrievalSuccesses=(lc.retrievalSuccesses||0)+1;
+      lc.retrievalDueAt=0;
+    }
   }
-  // Difficulty changes slowly. A young learner should not jump levels after a short lucky streak.
-  const skillHistory=state.history.filter(h=>h.skillId===question.skillId).slice(-5);
-  const window=[...skillHistory.map(h=>h.correct), correct];
-  const recentAccuracy=window.filter(Boolean).length / window.length;
-  const sinceChange=ss.totalAttempts-(ss.lastDifficultyChangeAttempt||0);
-  if(window.length>=6 && sinceChange>=5){
-    if(recentAccuracy>=.83 && (ss.difficulty||1)<4){ ss.difficulty+=1; ss.lastDifficultyChangeAttempt=ss.totalAttempts; }
-    else if(recentAccuracy<=.45 && (ss.difficulty||1)>1){ ss.difficulty-=1; ss.lastDifficultyChangeAttempt=ss.totalAttempts; }
+
+  if(countsTowardEvidence){
+    const gain=correct ? (usedHint?.08:.14) : -.10;
+    ev.score=clamp((ev.score || 0)+gain,0,1);
+    ev.attempts=(ev.attempts||0)+1;
+    if(correct) ev.correct=(ev.correct||0)+1;
+    ev.lastSeen=now;
+    ss.totalAttempts=(ss.totalAttempts||0)+1;
+    if(correct) ss.totalCorrect=(ss.totalCorrect||0)+1;
+    ss.lastSeen=now;
+    if(isDelayedReview){
+      ss.delayedAttempts=(ss.delayedAttempts||0)+1;
+      if(correct) ss.delayedSuccesses=(ss.delayedSuccesses||0)+1;
+    }
+
+    // Difficulty changes slowly. A young learner should not jump levels after a short lucky streak.
+    const skillHistory=state.history.filter(h=>h.skillId===question.skillId && h.countsTowardEvidence!==false).slice(-5);
+    const window=[...skillHistory.map(h=>h.correct), correct];
+    const recentAccuracy=window.filter(Boolean).length / window.length;
+    const sinceChange=ss.totalAttempts-(ss.lastDifficultyChangeAttempt||0);
+    if(window.length>=6 && sinceChange>=5){
+      if(recentAccuracy>=.83 && (ss.difficulty||1)<4){ ss.difficulty+=1; ss.lastDifficultyChangeAttempt=ss.totalAttempts; }
+      else if(recentAccuracy<=.45 && (ss.difficulty||1)>1){ ss.difficulty-=1; ss.lastDifficultyChangeAttempt=ss.totalAttempts; }
+    }
+    ss.stable=computeStable(ss);
   }
-  ss.stable=computeStable(ss);
+
+  if(phase){
+    if(question.cycleFinal){
+      lc.firstCycleCompletedAt ||= now;
+      lc.lastCycleAt=now;
+      lc.status='consolidating';
+      lc.retrievalDueAt=now+1000*60*60*20;
+    } else if(!lc.firstCycleCompletedAt){
+      lc.status='learning';
+    }
+    if(phase==='retrieval'){
+      lc.status=(ss.stable && correct)?'secure':'consolidating';
+    }
+  }
+
   state.totals.attempts=(state.totals.attempts||0)+1;
   if(correct) state.totals.correct=(state.totals.correct||0)+1;
-  state.history.push({at:now,skillId:question.skillId,representation:question.representation,taskKind:question.taskKind||null,conceptKey:question.conceptKey||null,responseKind:question.response?.kind||null,correct,usedHint,delayed:isDelayedReview});
+  state.history.push({
+    at:now,skillId:question.skillId,representation:question.representation,
+    learningPhase:phase,taskKind:question.taskKind||null,conceptKey:question.conceptKey||null,
+    responseKind:question.response?.kind||null,correct,usedHint,delayed:isDelayedReview,
+    countsTowardEvidence
+  });
   if(state.history.length>250) state.history=state.history.slice(-250);
 
   if(!correct){
     const bridgeMap={build:'see',see:'build',symbol:'see',explain:'see',transfer:'build'};
-    const alternative=bridgeMap[question.representation]||'see';
+    const readiness=phase==='readiness';
+    const alternative=readiness?'see':(bridgeMap[question.representation]||'see');
     state.reviewQueue.push({
       id:`review:${question.id}`,
       skillId:question.skillId,
       representation:alternative,
-      dueQuestion:sessionQuestionIndex+3,
-      dueAt:now+1000*60*3,
+      phase:readiness?'readiness':'practice',
+      dueQuestion:sessionQuestionIndex+(readiness?1:3),
+      dueAt:now+(readiness?1000*20:1000*60*3),
       stage:'same-session'
     });
-  } else {
-    // Schedule retention checks only after evidence begins to form.
-    if(ev.attempts>=2 && ev.score>=.55){
-      const existing=state.reviewQueue.some(x=>x.skillId===question.skillId && x.stage==='next-day');
-      if(!existing) state.reviewQueue.push({
-        id:`retention:${question.skillId}:${now}`,
-        skillId:question.skillId,
-        representation:question.representation==='symbol'?'transfer':'symbol',
-        dueAt:now+1000*60*60*20,
-        stage:'next-day'
-      });
-    }
+  }
+
+  if(question.cycleFinal){
+    const existing=state.reviewQueue.some(x=>x.skillId===question.skillId && x.stage==='next-day');
+    if(!existing) state.reviewQueue.push({
+      id:`retention:${question.skillId}:${now}`,
+      skillId:question.skillId,
+      representation:question.representation==='symbol'?'transfer':'symbol',
+      phase:'retrieval',
+      dueAt:lc.retrievalDueAt,
+      stage:'next-day'
+    });
+  } else if(!phase && countsTowardEvidence && correct && ev.attempts>=2 && ev.score>=.55){
+    // Legacy skills keep the old retention rule until they are migrated to the learning-cycle contract.
+    const existing=state.reviewQueue.some(x=>x.skillId===question.skillId && x.stage==='next-day');
+    if(!existing) state.reviewQueue.push({
+      id:`retention:${question.skillId}:${now}`,
+      skillId:question.skillId,
+      representation:question.representation==='symbol'?'transfer':'symbol',
+      dueAt:now+1000*60*60*20,
+      stage:'next-day'
+    });
   }
   return ss;
 }
+
 
 export function consumeReview(state, reviewItem){
   if(!reviewItem) return;

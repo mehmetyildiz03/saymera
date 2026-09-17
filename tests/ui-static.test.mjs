@@ -11,7 +11,7 @@ const read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const html=read('index.html'), app=read('app.js'), css=read('styles.css'), sw=read('sw.js');
 const manifest=JSON.parse(read('manifest.webmanifest'));
 
-for(const id of ['homeScreen','atlasScreen','parentScreen','focusCard','lensGrid','homeInsightGrid','conceptPreviewRow','atlasSummary','domainTabs','skillMap','parentInsight','practiceOverlay','practiceContent','onboardingOverlay','cooldownOverlay','toast'])
+for(const id of ['homeScreen','atlasScreen','parentScreen','focusCard','homeInsightGrid','conceptPreviewRow','atlasSummary','domainTabs','skillMap','parentInsight','practiceOverlay','practiceContent','onboardingOverlay','cooldownOverlay','toast'])
   assert.match(html,new RegExp(`id=["']${id}["']`),`missing static DOM id ${id}`);
 
 for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
