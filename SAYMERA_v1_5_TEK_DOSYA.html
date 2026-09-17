@@ -1656,7 +1656,7 @@ function genAddSub100(rep,d,rng,concept){
   if(rep==='explain'){
     const answer=x.renaming?(x.op==='+'?'10 birlik oluştuğunda onları 1 onluk olarak yeniden gruplarım':'Birlik yetmediğinde 1 onluğu 10 birlik olarak yeniden gruplarım'):'Onlukları ve birlikleri kendi basamaklarında birleştirir veya azaltırım';
     return qBase('addSub100',rep,`${x.a} ${x.op} ${x.b} işleminde hangi düşünce doğrudur?`,answer,semanticChoices(answer,['Onluk ve birlik basamaklarını karıştırırım','Yalnız en soldaki rakamı işlerim','Basamak değerini önemsemem'],rng),{
-      taskKind:'reasoning-choice',taskLabel:'Algoritmanın nedenini açıkla',visual:{type:'column-operation',a:x.a,b:x.b,op:x.op},hint:'Standart algoritma basamak değerinin görsel bir kısaltmasıdır.',explain:answer+'.'
+      taskKind:'reasoning-choice',taskLabel:'İşlemin nedenini açıkla',visual:{type:'column-operation',a:x.a,b:x.b,op:x.op},hint:'Birlikleri birliklerle, onlukları onluklarla düşün.',explain:answer+'.'
     });
   }
   const y=c.transfer;
@@ -2783,7 +2783,7 @@ function genData1(rep,d,rng,concept){
   if(rep==='explain'){
     const answer=`${x.cats[x.maxIndex]} için en fazla sembol bulunduğu için`;
     return qBase('data1',rep,`${x.cats[x.maxIndex]} veride neden “en çok” kategorisidir?`,answer,semanticChoices(answer,['Soldaki ilk kategori olduğu için','Rengi daha belirgin olduğu için','Kategori adı daha uzun olduğu için'],rng),{
-      taskKind:'reasoning-choice',taskLabel:'Grafik sonucunu kanıtla gerekçelendir',visual:{type:'pictograph',cats:x.cats,vals:x.vals,orientation:'horizontal'},hint:'Kategori adından değil sembol sayısından kanıt bul.',explain:`${x.cats[x.maxIndex]} için ${x.max} sembol var ve bu en yüksek frekans.`
+      taskKind:'reasoning-choice',taskLabel:'Grafik sonucunu açıkla',visual:{type:'pictograph',cats:x.cats,vals:x.vals,orientation:'horizontal'},hint:'Kategori adından çok sembolleri say.',explain:`${x.cats[x.maxIndex]} için ${x.max} sembol var; en çok sembol bu kategoride.`
     });
   }
   const y=c.transfer;
