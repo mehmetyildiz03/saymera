@@ -31,3 +31,4 @@ jobs:
           git add -A
           git commit -m "Build curriculum-led lesson mode" || exit 0
           git push
+# rerun: P2-only curriculum lock
