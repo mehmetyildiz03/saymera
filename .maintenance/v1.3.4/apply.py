@@ -13,13 +13,13 @@ app=app_path.read_text(encoding='utf-8')
 old="""  session={
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
-    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], newStable:0, bridgeAdds:0, learningEvents:[]
+    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], learningEvents:[], newStable:0, bridgeAdds:0
   };"""
 new="""  session={
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
     requiresLearningCompletion:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
-    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], newStable:0, bridgeAdds:0, learningEvents:[]
+    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], learningEvents:[], newStable:0, bridgeAdds:0
   };"""
 if old not in app: raise SystemExit('session init anchor missing')
 app=app.replace(old,new,1)
