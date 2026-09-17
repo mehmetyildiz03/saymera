@@ -1,0 +1,45 @@
+# Trigger renderer repair after workflow registration.
+name: Fix Grade 2 solid symbol renderer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-solid-symbol.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Add renderer, test and clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app.js')
+          s=p.read_text()
+          needle="    case 'solid': return solidSvg(v.kind,Number(v.rotate||0));"
+          insert="    case 'symbol-card': return `<div class=\"sg-symbol-card\">${esc(v.text??'?')}</div>`;\n"+needle
+          if "case 'symbol-card':" not in s:
+              assert needle in s
+              s=s.replace(needle,insert,1)
+          p.write_text(s)
+          PY
+          node --check app.js
+          npm test
+          rm -f .github/workflows/fix-solid-symbol.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+          git config user.name "SAYMERA maintenance"
+          git config user.email "115743794+mehmetyildiz03@users.noreply.github.com"
+          git add -A
+          git commit -m "Render Grade 2 solid symbol tasks"
+          git push origin HEAD:main
