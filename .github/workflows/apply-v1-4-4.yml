@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.maintenance/v1.4.4/apply.py'
+      - '.maintenance/v1.4.4/fix.py'
       - '.github/workflows/apply-v1-4-4.yml'
 
 permissions:
@@ -17,6 +18,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Repair migration anchor
+        run: python .maintenance/v1.4.4/fix.py
       - name: Apply P2 measurement time money migration
         run: python .maintenance/v1.4.4/apply.py
       - name: Validate
