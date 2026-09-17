@@ -14,7 +14,7 @@ const manifest=JSON.parse(read('manifest.webmanifest'));
 for(const id of ['homeScreen','atlasScreen','parentScreen','focusCard','homeInsightGrid','conceptPreviewRow','atlasSummary','domainTabs','skillMap','parentInsight','practiceOverlay','practiceContent','onboardingOverlay','cooldownOverlay','toast'])
   assert.match(html,new RegExp(`id=["']${id}["']`),`missing static DOM id ${id}`);
 
-for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-base1000-builder','sg-parity-builder','sg-two-step-plan','sg-measure-builder','sg-duration-builder','sg-clock-minute-set','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
+for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-base1000-builder','sg-parity-builder','sg-two-step-plan','sg-measure-builder','sg-duration-builder','sg-clock-minute-set','p2-shape-pattern-builder','p2-solid-classify-builder','p2-scaled-graph-builder','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
   assert.ok(css.includes(`.${cls}`),`missing CSS class .${cls}`);
 
 assert.match(app,/const STORAGE_KEY='saymera\.math\.v2'/,'SAYMERA must preserve its isolated storage namespace');

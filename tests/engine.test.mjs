@@ -19,9 +19,10 @@ const P2_A2_SKILLS=['oddEven1000','wordAddSub2'];
 const P2_MULT_DIV_SKILLS=['times23510','divisionTables2','multDivFamilies2'];
 const P2_FRACTION_SKILLS=['fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'];
 const P2_MEASURE_TIME_MONEY_SKILLS=['lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'];
-const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_MULT_DIV_SKILLS,...P2_FRACTION_SKILLS,...P2_MEASURE_TIME_MONEY_SKILLS];
-assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'],'Primary 2 reference graph changed unexpectedly');
-for(const legacy of ['place100','add100','sub100','numberPattern2','word2','multiply5','divide20','fraction','lengthCm','time2','moneyTL']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
+const P2_GEOMETRY_DATA_SKILLS=['shapePatterns2','solids2','pictureGraphScale2'];
+const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_MULT_DIV_SKILLS,...P2_FRACTION_SKILLS,...P2_MEASURE_TIME_MONEY_SKILLS,...P2_GEOMETRY_DATA_SKILLS];
+assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2','shapePatterns2','solids2','pictureGraphScale2'],'Primary 2 reference graph changed unexpectedly');
+for(const legacy of ['place100','add100','sub100','numberPattern2','word2','multiply5','divide20','fraction','lengthCm','time2','moneyTL','shapes2','data2']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
 
 
 const fresh=defaultState();
@@ -299,7 +300,45 @@ const moneyTransfer2=generateQuestion('moneyP2','transfer',2,seeded,moneyConcept
 assert.match(moneyTransfer2.answer,/^\d+,\d{2} TL$/,'Turkish localisation must use TL/kuruş decimal comma while preserving Singapore money structure');
 
 
-// Grade 2 geometry reference gate: each evidence window must require a distinct cognitive action.
+
+// Singapore P2-D current geometry/data guards.
+const patternAttrs=new Set(), patternAttrCounts=new Set();
+for(let i=0;i<500;i++){
+  const p=createConceptInstance('shapePatterns2',2,seeded); p.anchor.attrs.forEach(a=>patternAttrs.add(a)); patternAttrCounts.add(p.anchor.attrs.length);
+}
+for(const attr of ['size','shape','colour','orientation']) assert.ok(patternAttrs.has(attr),`P2 shape patterns missing ${attr}`);
+assert.ok(patternAttrCounts.has(1)&&patternAttrCounts.has(2),'P2 shape patterns must use one or two attributes');
+const p2Pattern=createConceptInstance('shapePatterns2',2,seeded);
+assert.equal(generateQuestion('shapePatterns2','build',2,seeded,p2Pattern).response.interaction,'p2-shape-pattern');
+assert.match(generateQuestion('shapePatterns2','explain',2,seeded,p2Pattern).explain,/değiş|tekrar/i);
+
+const seenSolids=new Set();
+for(let i=0;i<500;i++){
+  const s=createConceptInstance('solids2',2,seeded); seenSolids.add(s.anchor.id); seenSolids.add(s.symbol.id); seenSolids.add(s.transfer.id);
+}
+assert.deepEqual([...seenSolids].sort(),['cone','cube','cuboid','cylinder','sphere'].sort(),'P2 solids must cover cube/cuboid/cone/cylinder/sphere');
+const coneConcept={version:2,skillId:'solids2',conceptKey:'p2-solid-identify-classify',difficulty:2,anchor:{id:'cone',name:'Koni',kind:'cone',classKey:'flat-curved',property:'1 dairesel düz yüzü, 1 eğri yüzeyi ve 1 köşesi vardır',scene:'cone',roll:'Eğri yüzeyi üzerinde yuvarlanabilir'},symbol:{id:'cube',name:'Küp',kind:'cube',classKey:'flat-only',property:'6 kare düz yüzü, 12 kenarı ve 8 köşesi vardır',scene:'dice',roll:'Kolay yuvarlanmaz'},transfer:{id:'sphere',name:'Küre',kind:'sphere',classKey:'curved-only',property:'Düz yüzü, kenarı ve köşesi yoktur; eğri yüzeyi vardır',scene:'ball',roll:'Her yönde yuvarlanabilir'}};
+const coneBuild=generateQuestion('solids2','build',2,seeded,coneConcept);
+assert.equal(coneBuild.response.interaction,'solid-classify');
+assert.equal(coneBuild.answer,'flat-curved');
+const coneSee=generateQuestion('solids2','see',2,seeded,coneConcept);
+assert.equal(coneSee.response.kind,'visual-choice');
+
+const graphScales=new Set();
+for(let i=0;i<400;i++) graphScales.add(createConceptInstance('pictureGraphScale2',2,seeded).anchor.scale);
+assert.ok(graphScales.has(2)&&graphScales.has(5),'P2 scaled picture graphs should exercise non-1 scales');
+const graphConcept=createConceptInstance('pictureGraphScale2',2,seeded);
+const graphBuild=generateQuestion('pictureGraphScale2','build',2,seeded,graphConcept);
+assert.equal(graphBuild.response.interaction,'scaled-pictograph-row');
+assert.ok(graphBuild.visual.scale>1,'P2 graph build must genuinely use a scale');
+const graphSymbol=generateQuestion('pictureGraphScale2','symbol',2,seeded,graphConcept);
+assert.equal(Number(graphSymbol.answer),graphConcept.symbol.icons[2]*graphConcept.symbol.scale);
+const graphTransfer=generateQuestion('pictureGraphScale2','transfer',2,seeded,graphConcept);
+assert.equal(graphTransfer.response.kind,'number-input');
+assert.ok(!JSON.stringify([graphBuild,graphSymbol,graphTransfer]).includes('bar-chart'),'P2 data core must not silently regress to bar charts');
+
+
+
 const shapes2Concept=createConceptInstance('shapes2',2,seeded);
 assert.equal(shapes2Concept.skillId,'shapes2');
 const shapes2Tasks=REPRESENTATIONS.map(rep=>generateQuestion('shapes2',rep,2,seeded,shapes2Concept));

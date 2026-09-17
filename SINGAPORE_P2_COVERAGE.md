@@ -191,3 +191,13 @@ Güncel **Oct 2025** P2 kapsamı yeniden doğrulandı ve önceki audit'teki iki 
 Legacy `lengthCm`, `time2`, `moneyTL` görünür haritadan çıkarıldı. Yerlerine altı P2-REFERENCE beceri geldi: `lengthMetre2`, `massMetric2`, `volumeLitre2`, `timeMinute2`, `timeDuration2`, `moneyP2`.
 
 Sıradaki katman P2-D: 2B şekil örüntüleri, beş P2 3B cismi ve ölçekli resimli grafik.
+
+
+## Uygulama ilerlemesi — v1.5.0 / P2-D Geometri ve Veri
+
+Güncel P2 geometri/veri çekirdeği tamamlandı:
+- `shapePatterns2`: boyut, şekil, renk ve yön özelliklerinden bir veya ikisini kullanarak örüntü kurma/tamamlama/açıklama
+- `solids2`: küp, dikdörtgen prizma, koni, silindir ve küreyi tanıma, adlandırma, betimleme ve sınıflandırma
+- `pictureGraphScale2`: ölçekli resimli grafikleri okuma/yorumlama ve grafikten tek adımlı problem çözme
+
+Legacy `shapes2` ve yanlış P2 çekirdeği olan `data2` görünür haritadan çıkarıldı. Böylece Singapore Primary 2 çekirdek kapsamındaki 22 atomik becerinin tamamı SAYMERA öğrenme döngüsü ve beş gerçek bilişsel görev ailesiyle P2-REFERENCE durumuna geldi.

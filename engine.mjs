@@ -26,7 +26,8 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
-  'lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'
+  'lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2',
+  'shapePatterns2','solids2','pictureGraphScale2'
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
@@ -94,8 +95,9 @@ export const SKILLS = [
   skill('timeMinute2','grade2','Dakikaya kadar saat okuma','Zaman','violet'),
   skill('timeDuration2','grade2','Saat ve dakika cinsinden süre','Zaman','violet',['timeMinute2']),
   skill('moneyP2','grade2','TL, kuruş ve ondalık para gösterimi','Para','teal'),
-  skill('shapes2','grade2','Şekil ve cisim ilişkileri','Geometri','rose'),
-  skill('data2','grade2','Sütun grafiğini yorumlama','Veri','amber',['number1000']),
+  skill('shapePatterns2','grade2','2B şekillerle örüntüler','Geometri','rose'),
+  skill('solids2','grade2','3B cisimleri tanıma ve sınıflandırma','Geometri','violet'),
+  skill('pictureGraphScale2','grade2','Ölçekli resimli grafikleri okuma','Veri','amber'),
 ];
 
 export function skillsFor(profile){ return SKILLS.filter(s => s.profile === profile); }
@@ -605,6 +607,44 @@ function measurementDenoms(unit){
   return [1];
 }
 
+
+function p2ShapePatternCases(){
+  const T=(shape,size='medium',colour='teal',orientation=0)=>`${shape}|${size}|${colour}|${orientation}`;
+  return [
+    {items:[T('triangle'),T('square'),T('triangle'),T('square')],next:T('triangle'),code:'ABAB',attrs:['shape'],rule:'Şekil üçgen ve kare olarak sırayla değişiyor'},
+    {items:[T('circle','small'),T('circle','large'),T('circle','small'),T('circle','large')],next:T('circle','small'),code:'ABAB',attrs:['size'],rule:'Boyut küçük ve büyük olarak sırayla değişiyor'},
+    {items:[T('square','medium','teal'),T('square','medium','amber'),T('square','medium','teal'),T('square','medium','amber')],next:T('square','medium','teal'),code:'ABAB',attrs:['colour'],rule:'Renk iki seçenek arasında sırayla değişiyor'},
+    {items:[T('triangle','medium','teal',0),T('triangle','medium','teal',180),T('triangle','medium','teal',0),T('triangle','medium','teal',180)],next:T('triangle','medium','teal',0),code:'ABAB',attrs:['orientation'],rule:'Yön yukarı ve aşağı olarak sırayla değişiyor'},
+    {items:[T('triangle','medium','teal'),T('square','medium','amber'),T('triangle','medium','teal'),T('square','medium','amber')],next:T('triangle','medium','teal'),code:'ABAB',attrs:['shape','colour'],rule:'Hem şekil hem renk iki durum arasında birlikte değişiyor'},
+    {items:[T('triangle','small','teal',0),T('triangle','large','teal',180),T('triangle','small','teal',0),T('triangle','large','teal',180)],next:T('triangle','small','teal',0),code:'ABAB',attrs:['size','orientation'],rule:'Boyut ve yön birlikte sırayla değişiyor'},
+    {items:[T('circle','small','blue'),T('square','large','blue'),T('circle','small','blue'),T('square','large','blue')],next:T('circle','small','blue'),code:'ABAB',attrs:['shape','size'],rule:'Şekil ve boyut birlikte iki durum arasında değişiyor'},
+    {items:[T('rect','medium','rose',0),T('rect','medium','blue',90),T('rect','medium','rose',0),T('rect','medium','blue',90)],next:T('rect','medium','rose',0),code:'ABAB',attrs:['colour','orientation'],rule:'Renk ve yön birlikte sırayla değişiyor'},
+    {items:[T('circle','medium','amber'),T('triangle','medium','teal'),T('square','medium','blue'),T('circle','medium','amber'),T('triangle','medium','teal')],next:T('square','medium','blue'),code:'ABCABC',attrs:['shape','colour'],rule:'Üç farklı şekil-renk çifti aynı sırayla tekrar ediyor'},
+    {items:[T('square','small','teal'),T('square','medium','teal'),T('square','large','teal'),T('square','small','teal'),T('square','medium','teal')],next:T('square','large','teal'),code:'ABCABC',attrs:['size'],rule:'Boyut küçük, orta, büyük sırasıyla tekrar ediyor'}
+  ];
+}
+function p2SolidCases(){
+  return [
+    {id:'cube',name:'Küp',kind:'cube',classKey:'flat-only',property:'6 kare düz yüzü, 12 kenarı ve 8 köşesi vardır',scene:'dice',roll:'Kolay yuvarlanmaz'},
+    {id:'cuboid',name:'Dikdörtgen prizma',kind:'cuboid',classKey:'flat-only',property:'6 dikdörtgensel düz yüzü, 12 kenarı ve 8 köşesi vardır',scene:'box',roll:'Kolay yuvarlanmaz'},
+    {id:'cone',name:'Koni',kind:'cone',classKey:'flat-curved',property:'1 dairesel düz yüzü, 1 eğri yüzeyi ve 1 köşesi vardır',scene:'cone',roll:'Eğri yüzeyi üzerinde yuvarlanabilir'},
+    {id:'cylinder',name:'Silindir',kind:'cylinder',classKey:'flat-curved',property:'2 dairesel düz yüzü ve 1 eğri yüzeyi vardır; köşesi yoktur',scene:'can',roll:'Eğri yüzeyi üzerinde yuvarlanabilir'},
+    {id:'sphere',name:'Küre',kind:'sphere',classKey:'curved-only',property:'Düz yüzü, kenarı ve köşesi yoktur; eğri yüzeyi vardır',scene:'ball',roll:'Her yönde yuvarlanabilir'}
+  ];
+}
+function scaledPictureGraphCases(){
+  return [
+    {cats:['Elma','Armut','Muz'],icons:[3,5,2],scale:2},
+    {cats:['Mavi','Yeşil','Sarı'],icons:[4,2,5],scale:2},
+    {cats:['Kitap','Top','Kalem'],icons:[2,4,3],scale:5},
+    {cats:['Kedi','Köpek','Kuş'],icons:[5,3,2],scale:2},
+    {cats:['Pzt','Sal','Çar'],icons:[3,5,4],scale:5},
+    {cats:['A','B','C'],icons:[2,5,3],scale:10},
+    {cats:['Çilek','Kiraz','Üzüm'],icons:[4,3,5],scale:2},
+    {cats:['Kırmızı','Mavi','Mor'],icons:[5,2,4],scale:5}
+  ].map(x=>({...x,vals:x.icons.map(n=>n*x.scale)}));
+}
+
 function fractionMeaning2Cases(maxDenom=12){
   return Array.from({length:Math.max(1,maxDenom-1)},(_,i)=>({denom:i+2,numerator:1}));
 }
@@ -696,6 +736,9 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='timeMinute2') return make('time-to-the-minute',timeMinute2Cases());
   if(skillId==='timeDuration2') return make('hours-minutes-duration-conversion',timeDuration2Cases());
   if(skillId==='moneyP2') return make('money-decimal-cents-conversion',moneyP2Cases());
+  if(skillId==='shapePatterns2') return make('p2-shape-pattern-attributes',p2ShapePatternCases());
+  if(skillId==='solids2') return make('p2-solid-identify-classify',p2SolidCases());
+  if(skillId==='pictureGraphScale2') return make('p2-scaled-picture-graphs',scaledPictureGraphCases());
   if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
 }
@@ -1966,6 +2009,106 @@ function genMoneyP2(rep,d,rng,concept){
   });
 }
 
+
+function patternOptionPool(x,rng=Math.random){
+  const all=p2ShapePatternCases(), pool=[x.next];
+  for(const z of shuffled(all,rng)){ if(!pool.includes(z.next)) pool.push(z.next); if(pool.length>=4)break; }
+  return pool;
+}
+function genShapePatterns2(rep,d,rng,concept){
+  const c=concept?.skillId==='shapePatterns2'?concept:createConceptInstance('shapePatterns2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('shapePatterns2',rep,'Örüntüyü incele ve sıradaki şekli seçerek devam ettir.',x.next,{kind:'manipulative',interaction:'p2-shape-pattern',expectedValue:x.next,checkLabel:'Örüntüyü kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'Bir veya iki özelliği izleyerek örüntüyü kur',visual:{type:'p2-shape-pattern-builder',items:x.items,options:patternOptionPool(x,rng)},hint:'Şekil, boyut, renk ve yön özelliklerinden hangilerinin düzenli değiştiğini izle.',explain:`Kural: ${x.rule}.`
+  });
+  if(rep==='see'){
+    const wrong=shuffled(p2ShapePatternCases().filter(z=>z.next!==x.next),rng).slice(0,2);
+    const opts=shuffled([x,...wrong].map((z,i)=>({value:z===x?'correct':`wrong-${i}`,visual:{type:'p2-shape-pattern',items:[...x.items,z.next]},ariaLabel:'tamamlanmış şekil örüntüsü'})),rng);
+    return qTask('shapePatterns2',rep,'Örüntüyü aynı kuralla doğru tamamlayan seçenek hangisi?','correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Örüntü kuralını tamamlanmış dizide ayırt et',visual:{type:'p2-shape-pattern',items:[...x.items,'?']},hint:'Her adımda hangi özelliklerin tekrar ettiğini karşılaştır.',explain:`Doğru tamamlamada ${x.rule.toLowerCase()}.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol, choices=['ABAB','ABCABC','AABB','ABBA'];
+    return qBase('shapePatterns2',rep,'Bu örüntünün tekrar yapısını harflerle nasıl gösterebiliriz?',y.code,semanticChoices(y.code,choices.filter(z=>z!==y.code),rng),{
+      taskKind:'symbol-entry',taskLabel:'Şekil örüntüsünü kısa bir tekrar koduyla göster',visual:{type:'p2-shape-pattern',items:y.items},hint:'Aynı özellik birleşimine aynı harfi ver; tekrar eden sırayı izle.',explain:`Örüntünün tekrar kodu ${y.code}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=x.rule;
+    return qBase('shapePatterns2',rep,'Örüntünün kuralını en iyi hangi açıklama anlatır?',answer,semanticChoices(answer,['Şekiller rastgele geliyor','Yalnız dizideki parça sayısı önemlidir','Her adımda bütün özellikler aynı kalır'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Bir veya iki özellikli örüntüyü gerekçelendir',visual:{type:'p2-shape-pattern',items:[...x.items,x.next]},hint:'Boyut, şekil, renk ve yönü tek tek kontrol et.',explain:`${answer}.`
+    });
+  }
+  const y=c.transfer;
+  return qBase('shapePatterns2',rep,'Bir sınıf panosundaki süs şeridi aynı kuralla devam ediyor. Sıradaki parça hangisi olmalı?',y.next,semanticChoices(y.next,patternOptionPool(y,rng).filter(z=>z!==y.next),rng),{
+    taskKind:'context-transfer',taskLabel:'Şekil örüntüsünü süsleme bağlamına taşı',visual:{type:'p2-tile-border',items:y.items},hint:'Süs şeridinde de aynı özellik sırası tekrar eder.',explain:`Sıradaki parça aynı kuralı sürdürür: ${y.rule}.`
+  });
+}
+
+function genSolids2(rep,d,rng,concept){
+  const c=concept?.skillId==='solids2'?concept:createConceptInstance('solids2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('solids2',rep,`${x.name} cismini yüzey türüne göre doğru gruba yerleştir.`,x.classKey,{kind:'manipulative',interaction:'solid-classify',expectedValue:x.classKey,checkLabel:'Sınıflandırmayı kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'3B cismi yüzeylerine göre sınıflandır',visual:{type:'p2-solid-classify-builder',kind:x.kind,name:x.name},hint:'Düz yüz ve eğri yüzey olup olmadığına bak.',explain:`${x.name}: ${x.property}.`
+  });
+  if(rep==='see'){
+    const others=shuffled(p2SolidCases().filter(z=>z.id!==x.id),rng).slice(0,2);
+    const opts=shuffled([x,...others].map((z,i)=>({value:z.id===x.id?'correct':`wrong-${i}`,visual:{type:'p2-solid',kind:z.kind},ariaLabel:z.name})),rng);
+    return qTask('solids2',rep,`${x.name} hangisidir?`,'correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'3B cismi görünüşünden ayırt et',visual:{type:'p2-solid-property-card',kind:x.kind,property:x.property},hint:'Düz yüzlerin sayısına, eğri yüzeye ve köşelere dikkat et.',explain:`Doğru cisim ${x.name}.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol, distractors=p2SolidCases().filter(z=>z.id!==y.id).map(z=>z.name);
+    return qBase('solids2',rep,'Gösterilen 3B cismin matematiksel adı nedir?',y.name,semanticChoices(y.name,distractors,rng),{
+      taskKind:'symbol-entry',taskLabel:'3B cismin matematiksel adını seç',visual:{type:'p2-solid',kind:y.kind},hint:'Cismin düz/eğri yüzeylerini ve köşelerini düşün.',explain:`Bu cisim ${y.name.toLowerCase()}dır.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=x.property;
+    return qBase('solids2',rep,`${x.name} için hangi açıklama doğrudur?`,answer,semanticChoices(answer,p2SolidCases().filter(z=>z.id!==x.id).map(z=>z.property),rng),{
+      taskKind:'reasoning-choice',taskLabel:'3B cismin özelliklerini kullanarak açıkla',visual:{type:'p2-solid',kind:x.kind},hint:'Yüz, kenar, köşe ve eğri yüzey özelliklerini kontrol et.',explain:`${x.name}: ${x.property}. ${x.roll}.`
+    });
+  }
+  const y=c.transfer, distractors=p2SolidCases().filter(z=>z.id!==y.id).map(z=>z.name);
+  return qBase('solids2',rep,'Günlük nesnenin temel biçimine en yakın 3B cisim hangisidir?',y.name,semanticChoices(y.name,distractors,rng),{
+    taskKind:'context-transfer',taskLabel:'3B cismi günlük nesnede tanı',visual:{type:'p2-solid-scene',kind:y.scene},hint:'Nesnenin ayrıntılarını değil temel geometrik biçimini düşün.',explain:`Bu nesnenin temel biçimi ${y.name.toLowerCase()} modeline yakındır.`
+  });
+}
+
+function graphRowValue(g,idx){ return g.icons[idx]*g.scale; }
+function genPictureGraphScale2(rep,d,rng,concept){
+  const c=concept?.skillId==='pictureGraphScale2'?concept:createConceptInstance('pictureGraphScale2',d,rng), x=c.anchor, idx=1;
+  if(rep==='build'){
+    const target=x.vals[idx], icons=x.icons[idx];
+    return qTask('pictureGraphScale2',rep,`Her resim ${x.scale} kişiyi gösteriyor. ${x.cats[idx]} için ${target} kişiyi gösterecek satırı kur.`,icons,{kind:'manipulative',interaction:'scaled-pictograph-row',expectedValue:String(icons),checkLabel:'Grafiği kontrol et'},{
+      taskKind:'manipulative-build',taskLabel:'Ölçeği kullanarak resimli grafik satırı kur',visual:{type:'scaled-pictograph-builder',category:x.cats[idx],target,scale:x.scale,maxIcons:6},hint:`Bir resim ${x.scale} kişiyse ${target} kişiyi göstermek için kaç resim gerekir?`,explain:`${icons} resim × ${x.scale} = ${target}.`
+    });
+  }
+  if(rep==='see'){
+    const actual=graphRowValue(x,idx), wrong=[actual-x.scale,actual+x.scale,actual+x.scale*2].filter(v=>v>=0);
+    const opts=shuffled([actual,...wrong].slice(0,3).map((v,i)=>({value:v===actual?'correct':`wrong-${i}`,visual:{type:'scaled-graph-answer-card',value:v,category:x.cats[idx]},ariaLabel:`${x.cats[idx]} için ${v}`})),rng);
+    return qTask('pictureGraphScale2',rep,`${x.cats[idx]} satırındaki ${x.icons[idx]} resim gerçekte kaç kişiyi gösterir?`,'correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Grafik ölçeğini kullanarak gerçek değeri gör',visual:{type:'scaled-picture-graph',cats:x.cats,icons:x.icons,scale:x.scale,highlight:idx},hint:`Her resim ${x.scale} kişiyi temsil ediyor.`,explain:`${x.icons[idx]} × ${x.scale} = ${actual}.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol, j=2, answer=graphRowValue(y,j);
+    return qTask('pictureGraphScale2',rep,`Grafiğe göre ${y.cats[j]} kaçtır?`,answer,{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Grafiği kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Ölçekli grafikten sayısal değeri yaz',visual:{type:'scaled-picture-graph',cats:y.cats,icons:y.icons,scale:y.scale,highlight:j},hint:`Resim sayısını ölçek olan ${y.scale} ile çarp.`,explain:`${y.icons[j]} resim × ${y.scale} = ${answer}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer='Bir resim birden fazla kişiyi temsil ettiği için daha büyük veriyi daha az sembolle gösterebiliriz';
+    return qBase('pictureGraphScale2',rep,`Bu grafikte neden “1 resim = ${x.scale} kişi” ölçeği kullanılmış olabilir?`,answer,semanticChoices(answer,['Her resim mutlaka yalnız 1 kişiyi göstermelidir','Ölçek kullanınca kategorilerin adı değişir','Resim sayısı ile gerçek sayı arasında ilişki kalmaz'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Resimli grafikte ölçeğin nedenini açıkla',visual:{type:'scaled-picture-graph',cats:x.cats,icons:x.icons,scale:x.scale},hint:'Veri büyüdükçe her kişi için tek resim çizmek zorlaşır.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer, a=0,b=1, va=graphRowValue(y,a),vb=graphRowValue(y,b), answer=Math.abs(va-vb);
+  return qTask('pictureGraphScale2',rep,`${y.cats[a]} ile ${y.cats[b]} arasında kaç fark vardır?`,answer,{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Problemi kontrol et'},{
+    taskKind:'context-transfer',taskLabel:'Ölçekli grafikten tek adımlı problem çöz',visual:{type:'scaled-picture-graph',cats:y.cats,icons:y.icons,scale:y.scale,highlight:-1},hint:'Önce iki kategorinin gerçek değerlerini ölçekle bul, sonra farkını hesapla.',explain:`${va} ile ${vb} arasındaki fark ${answer}.`
+  });
+}
+
 function genFractionMeaning2(rep,d,rng,concept){
   const c=concept?.skillId==='fractionMeaning2'?concept:createConceptInstance('fractionMeaning2',d,rng), x=c.anchor;
   if(rep==='build') return qTask('fractionMeaning2',rep,`Bütün ${x.denom} eş parçaya ayrıldı. Tam bir eş parçayı boya.`,1,{kind:'manipulative',interaction:'fraction-shade',expectedValue:'1',checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Bir eş parçayı modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:1},hint:'Yalnızca bir eş parçayı seç.',explain:`Bütün ${x.denom} eş parçaya ayrıldı ve bunlardan biri seçildi.`});
@@ -2331,6 +2474,7 @@ const GENERATORS={
   times23510:genTimes23510,divisionTables2:genDivisionTables2,multDivFamilies2:genMultDivFamilies2,
   fractionMeaning2:genFractionMeaning2,fractionNotation2:genFractionNotation2,fractionCompare2:genFractionCompare2,fractionAddSub2:genFractionAddSub2,
   lengthMetre2:genLengthMetre2,massMetric2:genMassMetric2,volumeLitre2:genVolumeLitre2,timeMinute2:genTimeMinute2,timeDuration2:genTimeDuration2,moneyP2:genMoneyP2,
+  shapePatterns2:genShapePatterns2,solids2:genSolids2,pictureGraphScale2:genPictureGraphScale2,
   place100:genPlace100,add100:genAdd100,sub100:genSub100,multiply5:genMultiply5,divide20:genDivide20,fraction:genFraction,word2:genWord2,numberPattern2:genNumberPattern2,shapes2:genShapes2,lengthCm:genLengthCm,time2:genTime2,moneyTL:genMoneyTL,data2:genData2
 };
 
@@ -2409,6 +2553,9 @@ const READINESS_SOURCE_OVERRIDES={
   volumeLitre2:['volume-foundation'],
   timeMinute2:['time1'],
   moneyP2:['money1'],
+  shapePatterns2:['shapes1'],
+  solids2:['shapes1'],
+  pictureGraphScale2:['data1'],
   fractionMeaning2:['partwhole5']
 };
 
@@ -2563,6 +2710,7 @@ const CONCEPT_KEYS={
   number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',oddEven1000:'odd-even-pairing-to-1000',addSub1000:'addition-subtraction-within-1000',wordAddSub2:'one-two-step-add-sub-problems',
   times23510:'tables-2-3-4-5-10',divisionTables2:'division-symbol-within-tables',multDivFamilies2:'multiplication-division-fact-families',
   lengthMetre2:'length-in-metres',massMetric2:'mass-grams-kilograms',volumeLitre2:'liquid-volume-litres',timeMinute2:'time-to-the-minute',timeDuration2:'hours-minutes-duration-conversion',moneyP2:'money-decimal-cents-conversion',
+  shapePatterns2:'p2-shape-pattern-attributes',solids2:'p2-solid-identify-classify',pictureGraphScale2:'p2-scaled-picture-graphs',
   fractionMeaning2:'fraction-equal-parts-whole',fractionNotation2:'fraction-notation-representation',fractionCompare2:'fraction-compare-unit-like',fractionAddSub2:'fraction-like-add-sub',
   shapes2:'solid-properties-and-invariance'
 };

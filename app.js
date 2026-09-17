@@ -667,6 +667,15 @@ function wireManipulator(q){
   if(interaction==='shape-pattern'){
     const root=$('.sg-shape-pattern-builder'); root?.querySelectorAll('.sg-shape-choice').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.querySelectorAll('.sg-shape-choice').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');updateManipulatorStatus(q)}));
   }
+  if(interaction==='p2-shape-pattern'){
+    const root=$('.p2-shape-pattern-builder'); root?.querySelectorAll('.p2-shape-choice').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.querySelectorAll('.p2-shape-choice').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');updateManipulatorStatus(q)}));
+  }
+  if(interaction==='solid-classify'){
+    const root=$('.p2-solid-classify-builder'); root?.querySelectorAll('.p2-solid-bin').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.querySelectorAll('.p2-solid-bin').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');updateManipulatorStatus(q)}));
+  }
+  if(interaction==='scaled-pictograph-row'){
+    const root=$('.p2-scaled-graph-builder'); root?.querySelectorAll('.p2-graph-icon-button').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;btn.classList.toggle('selected');updateManipulatorStatus(q)}));
+  }
   if(interaction==='three-add'){
     const root=$('.sg-three-add-builder'); root?.querySelectorAll('.sg-three-token').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;btn.classList.toggle('selected');updateManipulatorStatus(q)}));
   }
@@ -728,6 +737,9 @@ function readManipulatorValue(q){
     const h=$('.sg-clock-set .sg-hour-choice.selected')?.dataset.value, m=$('.sg-clock-set .sg-minute-choice.selected')?.dataset.value; return h!=null&&m!=null?`${h}|${m}`:null;
   }
   if(interaction==='shape-pattern') return $('.sg-shape-pattern-builder .sg-shape-choice.selected')?.dataset.value ?? null;
+  if(interaction==='p2-shape-pattern') return $('.p2-shape-pattern-builder .p2-shape-choice.selected')?.dataset.value ?? null;
+  if(interaction==='solid-classify') return $('.p2-solid-classify-builder .p2-solid-bin.selected')?.dataset.value ?? null;
+  if(interaction==='scaled-pictograph-row') return $$('.p2-scaled-graph-builder .p2-graph-icon-button.selected').length;
   if(interaction==='three-add') return $$('.sg-three-add-builder .sg-three-token.selected').length;
   return null;
 }
@@ -766,6 +778,9 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='unit-measure') node.textContent=`Kullandığın birim: ${value}`;
   else if(q.response?.interaction==='clock-set') node.textContent=value?`Ayarladığın: ${String(value).replace('|',':').replace(/:0$/,':00')}`:'Önce saati ve dakikayı seç';
   else if(q.response?.interaction==='shape-pattern') node.textContent=value?'Sıradaki şekli seçtin':'Örüntüyü tamamlayacak şekli seç';
+  else if(q.response?.interaction==='p2-shape-pattern') node.textContent=value?'Örüntüyü tamamlayacak parçayı seçtin':'Boyut, şekil, renk ve yön düzenini izle';
+  else if(q.response?.interaction==='solid-classify') node.textContent=value?'Sınıflandırma grubunu seçtin':'Cismin düz ve eğri yüzeylerini düşün';
+  else if(q.response?.interaction==='scaled-pictograph-row') node.textContent=`Grafiğe koyduğun resim: ${value}`;
   else if(q.response?.interaction==='three-add') node.textContent=`Toplam alana taşıdığın taş: ${value}`;
 }
 function showHint(){
@@ -812,7 +827,7 @@ function answerQuestion(value,button){
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust,.p2-shape-choice,.p2-solid-bin,.p2-graph-icon-button').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
@@ -1031,6 +1046,16 @@ function renderVisual(v,q){
     case 'duration-card': return durationCard(v);
     case 'money-decimal-card': return moneyDecimalCard(v.cents,v.label);
     case 'money-compare-decimal': return moneyCompareDecimal(v.values);
+    case 'p2-shape-pattern-builder': return p2ShapePatternBuilder(v.items,v.options);
+    case 'p2-shape-pattern': return p2ShapePatternVisual(v.items);
+    case 'p2-tile-border': return `<div class="p2-tile-border">${p2ShapePatternVisual(v.items)}</div>`;
+    case 'p2-solid': return p2SolidVisual(v.kind);
+    case 'p2-solid-classify-builder': return p2SolidClassifyBuilder(v.kind,v.name);
+    case 'p2-solid-property-card': return p2SolidPropertyCard(v.kind,v.property);
+    case 'p2-solid-scene': return p2SolidScene(v.kind);
+    case 'scaled-picture-graph': return scaledPictureGraph(v.cats,v.icons,v.scale,v.highlight);
+    case 'scaled-pictograph-builder': return scaledPictographBuilder(v.category,v.target,v.scale,v.maxIcons);
+    case 'scaled-graph-answer-card': return `<div class="p2-graph-answer-card"><small>${esc(v.category)}</small><b>${v.value}</b></div>`;
     case 'fraction-strip': return fractionStrip(v.numerator,v.denom);
     case 'fraction-shade-builder': return fractionShadeBuilder(v.denom,v.target);
     case 'fraction-pair-builder': return fractionPairBuilder(v.left,v.right);
@@ -1228,6 +1253,39 @@ function clockSetBuilder(){
 function cmRulerBuilder(target,max=15){
   const ticks=Array.from({length:max+1},(_,i)=>`<button type="button" class="sg-ruler-tick-button" data-value="${i}" aria-label="${i} santimetre işareti"><i></i><b>${i}</b></button>`).join('');
   return `<div class="sg-cm-ruler-builder" data-target="${target}"><div class="sg-target-pill">HEDEF <b>${target} cm</b></div><div class="sg-cm-ruler-scroll"><div class="sg-cm-ruler-track" style="--max:${max}"><div class="sg-cm-ruler-line" style="--end:0"></div>${ticks}</div></div><small>Çizginin başlangıcı 0'da. Bitiş noktasını seç.</small></div>`;
+}
+
+
+function p2ShapeParts(token){
+  const [shape='circle',size='medium',colour='teal',orientation='0']=String(token).split('|');
+  return {shape,size,colour,orientation:Number(orientation)||0};
+}
+function p2ShapeToken(token){
+  if(token==='?') return `<span class="p2-shape-gap">?</span>`;
+  const x=p2ShapeParts(token), cls=['triangle','square','rect','circle'].includes(x.shape)?x.shape:'circle';
+  return `<span class="p2-shape-token ${esc(cls)} ${esc(x.size)} tone-${esc(x.colour)}" style="--turn:${x.orientation}deg" aria-label="${esc(x.size)} ${esc(x.colour)} ${esc(x.shape)}"></span>`;
+}
+function p2ShapePatternVisual(items){ return `<div class="p2-shape-seq">${(items||[]).map(p2ShapeToken).join('')}</div>`; }
+function p2ShapePatternBuilder(items,options){ return `<div class="p2-shape-pattern-builder"><div class="p2-shape-seq">${(items||[]).map(p2ShapeToken).join('')}<span class="p2-shape-gap">?</span></div><div class="p2-shape-bank">${(options||[]).map(token=>`<button type="button" class="p2-shape-choice" data-value="${esc(token)}">${p2ShapeToken(token)}</button>`).join('')}</div></div>`; }
+
+function coneSolidSvg(){
+  return `<div class="solid-visual clear-solid"><svg viewBox="0 0 216 176" role="img" aria-label="koni"><ellipse cx="108" cy="132" rx="55" ry="17" class="solid-bottom"/><path d="M53 132 L108 24 L163 132" class="solid-cone-body"/><ellipse cx="108" cy="132" rx="55" ry="17" class="solid-guide"/></svg></div>`;
+}
+function p2SolidVisual(kind){ return kind==='cone'?coneSolidSvg():solidSvg(kind,0); }
+function p2SolidClassifyBuilder(kind,name){
+  return `<div class="p2-solid-classify-builder"><div class="p2-solid-target">${p2SolidVisual(kind)}<b>${esc(name)}</b></div><div class="p2-solid-bins"><button type="button" class="p2-solid-bin" data-value="flat-only">Yalnız düz yüzler</button><button type="button" class="p2-solid-bin" data-value="flat-curved">Düz + eğri yüzey</button><button type="button" class="p2-solid-bin" data-value="curved-only">Yalnız eğri yüzey</button></div></div>`;
+}
+function p2SolidPropertyCard(kind,property){ return `<div class="p2-solid-property-card">${p2SolidVisual(kind)}<small>${esc(property)}</small></div>`; }
+function p2SolidScene(kind){
+  if(kind==='cone') return `<div class="p2-solid-scene"><svg viewBox="0 0 216 176" role="img" aria-label="trafik konisi"><path d="M108 25 L65 132 H151 Z" class="scene-cone"/><rect x="48" y="130" width="120" height="20" rx="7" class="scene-cone-base"/><rect x="82" y="86" width="52" height="12" class="scene-cone-stripe"/></svg><small>trafik konisi</small></div>`;
+  return solidScene(kind);
+}
+
+function scaledPictureGraph(cats,icons,scale,highlight=-1){
+  return `<div class="p2-scaled-picture-graph"><div class="p2-graph-legend">★ = <b>${scale}</b></div>${(cats||[]).map((cat,i)=>`<div class="p2-graph-row ${Number(highlight)===i?'highlight':''}"><b>${esc(cat)}</b><span>${Array.from({length:Number(icons[i])||0},()=>'<i>★</i>').join('')}</span></div>`).join('')}</div>`;
+}
+function scaledPictographBuilder(category,target,scale,maxIcons=6){
+  return `<div class="p2-scaled-graph-builder"><div class="p2-graph-legend">★ = <b>${scale}</b></div><div class="p2-build-target"><b>${esc(category)}</b><small>HEDEF ${target}</small><div>${Array.from({length:Number(maxIcons)||6},(_,i)=>`<button type="button" class="p2-graph-icon-button" aria-label="${i+1}. resim">★</button>`).join('')}</div></div></div>`;
 }
 
 function measureTokenLabel(value,unit){ return `${value} ${unit}`; }
