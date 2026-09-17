@@ -28,9 +28,18 @@ jobs:
             .sourcepack/p00
             .sourcepack/p01
             .sourcepack/p02
-            .sourcepack/p03
-            .sourcepack/p04
-            .sourcepack/p05
+            .sourcepack/p030
+            .sourcepack/p031
+            .sourcepack/p032
+            .sourcepack/p033
+            .sourcepack/p040
+            .sourcepack/p041
+            .sourcepack/p042
+            .sourcepack/p043
+            .sourcepack/p050
+            .sourcepack/p051
+            .sourcepack/p052
+            .sourcepack/p053
             .sourcepack/p06
           )
 
