@@ -1,0 +1,47 @@
+name: Apply SAYMERA v1.2.2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-v1-2-2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify and apply v1.2.2 child UI bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(.maintenance/v1.2.2/part00 .maintenance/v1.2.2/part01 .maintenance/v1.2.2/part02 .maintenance/v1.2.2/part03)
+          for part in "${required[@]}"; do
+            test -f "$part" || { echo "Missing $part"; exit 1; }
+          done
+          cat "${required[@]}" > /tmp/saymera-v1.2.2-ui.tar.xz.b64
+          echo 'c23fa1e94c6629a872a32d1ab8209f3c1aa595280e8f1dab0e804aab87b92b20  /tmp/saymera-v1.2.2-ui.tar.xz.b64' | sha256sum -c -
+          base64 --decode /tmp/saymera-v1.2.2-ui.tar.xz.b64 > /tmp/saymera-v1.2.2-ui.tar.xz
+          echo 'e83ad29938b70b0b81603efc8762289a33a6bbeba6a856990d80dc7d36264b85  /tmp/saymera-v1.2.2-ui.tar.xz' | sha256sum -c -
+          xz -t /tmp/saymera-v1.2.2-ui.tar.xz
+          tar -xJf /tmp/saymera-v1.2.2-ui.tar.xz -C .
+          test "$(git hash-object app.js)" = '42091a51e5a53993c2ce134c4e137a4766e90279'
+          test "$(git hash-object index.html)" = 'db8206e566aaa4b3412bc58230fb7f7104bf36bb'
+          test "$(git hash-object package.json)" = '52633110932c414460951357eeeda388927687a1'
+          test "$(git hash-object sw.js)" = '719b3f3fa18606e8d939d656cfe093c716198be5'
+          test "$(git hash-object tests/ui-static.test.mjs)" = 'ba7a4ee81e69f647cde5aeb2cf1ac7f19c148cd5'
+          npm test
+          rm -rf .maintenance
+          rm -f .github/workflows/apply-v1-2-2.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+          git config user.name 'SAYMERA maintenance'
+          git config user.email '115743794+mehmetyildiz03@users.noreply.github.com'
+          git add -A
+          git commit -m 'Simplify child-facing learning UI for v1.2.2'
+          git push origin HEAD:main
