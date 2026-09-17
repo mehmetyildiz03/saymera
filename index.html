@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5F3EC" />
+  <meta name="description" content="SAYMERA — çocuklar için kavramsal matematik laboratuvarı." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>SAYMERA — Matematik Laboratuvarı</title>
+</head>
+<body>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="app-header">
+      <button class="brand" data-nav="home" aria-label="SAYMERA ana sayfa">
+        <span class="brand-prism" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="brand-word"><b>SAYMERA</b><small>Matematik Laboratuvarı</small></span>
+      </button>
+      <div class="header-actions">
+        <button class="level-chip" id="profileChip" aria-label="Seviye seçimi"><span class="level-dot"></span><span>1. sınıf</span><b>⌄</b></button>
+        <button class="adult-gate" id="adultButton" aria-label="Ebeveyn alanı için basılı tutun"><span></span><span></span><span></span></button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="screen active" id="homeScreen" aria-labelledby="homeTitle">
+        <div class="hero-layout">
+          <article class="hero-copy-card">
+            <div class="hero-label"><span></span> BUGÜNÜN LABORATUVARI</div>
+            <h1 id="homeTitle">Cevabı değil,<br><em>bağlantıyı</em> öğren.</h1>
+            <p class="hero-lead">Bir kavramı nesneyle kur, görselde fark et, sembolle yaz, nedenini anlat ve yeni bir duruma taşı.</p>
+            <div class="hero-actions">
+              <button class="primary-cta" id="startSessionButton">
+                <span class="cta-icon">▶</span>
+                <span><b id="startMainText">Keşfi başlat</b><small id="startMetaText">yaklaşık 5–7 dk</small></span>
+                <i>→</i>
+              </button>
+              <button class="secondary-link" data-nav="atlas">Kavram atlası <span>↗</span></button>
+            </div>
+            <div class="trust-row">
+              <span>Hız yarışı yok</span><i></i><span>ceza puanı yok</span><i></i><span>adaptif tempo</span>
+            </div>
+          </article>
+
+          <aside class="prism-card" id="focusCard" aria-live="polite"></aside>
+        </div>
+
+        <section class="today-lab" aria-labelledby="labTitle">
+          <div class="section-heading">
+            <div><span class="section-kicker">KAVRAYIŞ PRİZMASI</span><h2 id="labTitle">Aynı fikir, beş kanıt.</h2></div>
+            <p>Tek doğru cevap “öğrendi” demek için yeterli değil.</p>
+          </div>
+          <div class="evidence-rail" id="lensGrid"></div>
+        </section>
+
+        <section class="insight-grid" id="homeInsightGrid"></section>
+
+        <section class="concept-preview">
+          <div class="section-heading compact-heading">
+            <div><span class="section-kicker">KAVRAM ATLASI</span><h2>Ne çalıştığını değil, neyin sağlamlaştığını gör.</h2></div>
+            <button class="secondary-link" data-nav="atlas">Tüm harita <span>→</span></button>
+          </div>
+          <div class="concept-row" id="conceptPreviewRow"></div>
+        </section>
+      </section>
+
+      <section class="screen" id="atlasScreen" aria-labelledby="atlasTitle">
+        <div class="page-head">
+          <button class="back-button" data-nav="home" aria-label="Ana sayfaya dön">←</button>
+          <div><span class="section-kicker">KAVRAM ATLASI</span><h1 id="atlasTitle">Öğrenmenin yüzeyini değil, yapısını göster.</h1><p>Her kavramın beş kanıt penceresi ayrı izlenir. Bir sonraki etkinlik, kavramın en zayıf bağlantısını veya zamanı gelen hatırlamayı hedefler.</p></div>
+        </div>
+        <div class="atlas-summary" id="atlasSummary"></div>
+        <div class="domain-tabs" id="domainTabs" role="tablist"></div>
+        <div class="skill-map" id="skillMap"></div>
+      </section>
+
+      <section class="screen" id="parentScreen" aria-labelledby="parentTitle">
+        <div class="page-head">
+          <button class="back-button" data-nav="home" aria-label="Çocuk ekranına dön">←</button>
+          <div><span class="section-kicker">EBEVEYN / EĞİTMEN</span><h1 id="parentTitle">Doğru sayısından daha anlamlı bir öğrenme resmi.</h1><p>Bu alan hız veya puan değil; temsil çeşitliliği, gecikmeli hatırlama, ön koşullar ve destek ihtiyacını özetler.</p></div>
+        </div>
+        <div class="parent-layout">
+          <article class="panel-card" id="parentInsight"></article>
+          <article class="panel-card">
+            <div class="panel-title"><div><span>ÖĞRENME AYARLARI</span><h3>Çocuğa göre ayarla</h3></div><small>yalnızca bu cihaz</small></div>
+            <label class="setting-row"><span><b>Seviye</b><small>İçerik haritası</small></span><select id="profileSelect"><option value="preschool">Okul öncesi</option><option value="grade1">1. sınıf</option><option value="grade2">2. sınıf</option></select></label>
+            <label class="setting-row"><span><b>Sesli yönerge</b><small>Okuma yükünü azaltır</small></span><span class="switch"><input type="checkbox" id="voiceToggle"><i></i></span></label>
+            <label class="setting-row"><span><b>Sakin hareket</b><small>Animasyonları azaltır</small></span><span class="switch"><input type="checkbox" id="motionToggle"><i></i></span></label>
+            <label class="setting-row"><span><b>Mola süresi</b><small>Oturum sonrası ekran dışı ara</small></span><select id="cooldownSelect"><option value="auto">Akıllı</option><option value="5">5 dk</option><option value="10">10 dk</option><option value="30">30 dk</option><option value="60">60 dk</option></select></label>
+            <div class="settings-actions"><button class="soft-button" id="saveSettingsButton">Ayarları kaydet</button><button class="danger-link" id="resetButton">İlerlemeyi sıfırla</button></div>
+          </article>
+          <article class="panel-card method-card">
+            <div class="panel-title"><div><span>SAYMERA MOTORU</span><h3>Neyi farklı yapıyor?</h3></div></div>
+            <div class="method-list">
+              <div><b>01</b><p><strong>Tek kavramı derinleştirir.</strong> Oturumun çoğu aynı fikri farklı temsillerde işler.</p></div>
+              <div><b>02</b><p><strong>Yanlışı teşhis sinyali sayar.</strong> Aynı soruyu tekrarlatmak yerine temsili değiştirir.</p></div>
+              <div><b>03</b><p><strong>Hatırlamayı ayrı kanıt sayar.</strong> Şimdi yapabilmek ile sonra hatırlamak aynı şey değildir.</p></div>
+              <div><b>04</b><p><strong>İçeriği geniş tutar.</strong> Sayı ve işlemlerin yanında geometri, ölçme, örüntü ve veri de yer alır.</p></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Ana gezinme">
+      <button class="active" data-nav="home"><span>⌂</span><b>Ana</b></button>
+      <button class="lab-launch" id="bottomStart" aria-label="Keşfi başlat"><span>＋</span></button>
+      <button data-nav="atlas"><span>◇</span><b>Atlas</b></button>
+    </nav>
+  </div>
+
+  <div class="overlay onboarding" id="onboardingOverlay" aria-hidden="true">
+    <section class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+      <div class="onboarding-mark"><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="section-kicker">YENİ BİR MATEMATİK DENEYİMİ</span>
+      <h2 id="onboardingTitle">Önce doğru başlangıç noktasını seçelim.</h2>
+      <p>SAYMERA sınıfı bir etiket olarak değil, başlangıç içerik haritası olarak kullanır. Zorluk daha sonra performansa göre yavaşça uyarlanır.</p>
+      <div class="level-cards" id="onboardingLevels">
+        <button data-profile="preschool"><span>4–6</span><b>Okul öncesi</b><small>Sayı hissi · şekil · örüntü · sınıflama</small></button>
+        <button data-profile="grade1" class="selected"><span>6–7</span><b>1. sınıf</b><small>20 içinde sayı · işlemler · geometri · veri</small></button>
+        <button data-profile="grade2"><span>7–8</span><b>2. sınıf</b><small>100 içinde sayı · çarpma · ölçme · zaman</small></button>
+      </div>
+      <button class="primary-cta onboarding-next" id="onboardingContinue"><span class="cta-icon">✓</span><span><b>Laboratuvarı hazırla</b><small>başlamak için hazır</small></span><i>→</i></button>
+      <small class="privacy-note">Hesap, reklam, konum veya mikrofon kaydı yok. İlerleme bu cihazda saklanır.</small>
+    </section>
+  </div>
+
+  <div class="overlay practice-overlay" id="practiceOverlay" aria-hidden="true">
+    <section class="practice-shell" role="dialog" aria-modal="true" aria-labelledby="practiceTitle">
+      <header class="practice-header">
+        <button class="circle-button" id="closePractice" aria-label="Çalışmayı kapat">←</button>
+        <div class="practice-head-center">
+          <div class="practice-title-line"><span id="practiceLens">KUR</span><b id="practiceTitle">Kavram keşfi</b><em id="practiceCounter">1 / 5</em></div>
+          <div class="progress-track"><i id="practiceProgress"></i></div>
+        </div>
+        <button class="circle-button" id="speakButton" aria-label="Soruyu seslendir">♪</button>
+      </header>
+      <div class="practice-content" id="practiceContent"></div>
+    </section>
+  </div>
+
+  <div class="overlay cooldown-overlay" id="cooldownOverlay" aria-hidden="true">
+    <section class="cooldown-card" role="dialog" aria-modal="true" aria-labelledby="cooldownTitle">
+      <div class="rest-orbit" aria-hidden="true"><i></i><i></i><i></i><span>☼</span></div>
+      <span class="section-kicker">EKRAN DIŞI MOLA</span>
+      <h2 id="cooldownTitle">Matematik burada bitti; düşünme devam ediyor.</h2>
+      <p id="cooldownPrompt">Ayağa kalk, biraz hareket et ve uzağa bak.</p>
+      <div class="cooldown-time" id="cooldownTime">05:00</div>
+      <div class="rest-suggestions"><span>10 yavaş adım</span><span>omuzları çevir</span><span>uzağa bak</span></div>
+      <button class="soft-button" id="restHomeButton">Ana ekrana dön</button>
+      <button class="parent-skip" id="parentSkipCooldown">Ebeveyn: molayı bitir</button>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

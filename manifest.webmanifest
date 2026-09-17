@@ -1,0 +1,22 @@
+{
+  "name": "SAYMERA — Matematik Laboratuvarı",
+  "short_name": "SAYMERA",
+  "description": "Okul öncesi, 1. ve 2. sınıf için temsil ve muhakeme odaklı adaptif matematik öğrenme uygulaması.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F5F3EC",
+  "theme_color": "#F5F3EC",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
