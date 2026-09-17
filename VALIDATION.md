@@ -1,6 +1,6 @@
-# SAYMERA v1.2 — Doğrulama Raporu
+# SAYMERA v1.2.1 — Doğrulama Raporu
 
-Doğrulama tarihi: 2026-09-16
+Doğrulama tarihi: 2026-09-17
 
 ## Son durum
 
@@ -14,8 +14,38 @@ Doğrulama tarihi: 2026-09-16
 - `anchor`, `symbol`, `transfer` örnek ayrımı — PASS
 - Üretilen P1 visual type → UI renderer sözleşmesi — PASS
 - Üretilen P1 manipülatif interaction → UI handler sözleşmesi — PASS
+- **Grade 2 `shapes2`**: beş ayrı `taskKind`, gerçek `solid-properties` manipülatifi ve motor→UI render sözleşmesi — PASS
+- Çocuk yüzeylerinde yasaklanan ürün-motoru / puanlama / kanıt dili regresyon kapısı — PASS
 - Standalone inline JavaScript parse guard — PASS
-- Yerel HTTP smoke: `/`, kaynak JS/CSS, manifest, iki PWA ikonu ve standalone dosya → **HTTP 200** — PASS
+- Kalıcı GitHub Actions `SAYMERA CI` (`npm test`) — PASS
+- GitHub Pages build & deployment — PASS
+
+## v1.2.1 özel kalite kapıları
+
+### Çocuk yüzeyi
+
+Çocuk ekranlarında aşağıdaki türden ürün-içi açıklamaların yeniden görünmesi static testte başarısız olur:
+
+- “Burada puanlanan şey hız değil...”
+- “HATA DEĞİL · KANIT”
+- “kanıt profili kaydedildi”
+- “tamamlanmayan pencereler daha sonra yeniden gelir”
+- “Aynı fikir, beş kanıt.”
+- `KAVRAM ATLASI` gibi ürün mimarisini çocuğa açıklayan ifadeler
+
+Teknik öğrenme resmi ve motor açıklaması Ebeveyn / Eğitmen alanında tutulabilir.
+
+### Grade 2 `shapes2`
+
+- Kur → `manipulative-build` — PASS
+- Gör → `visual-discrimination` — PASS
+- Yaz → `symbol-entry` — PASS
+- Anlat → `reasoning-choice` — PASS
+- Taşı → `context-transfer` — PASS
+- `solid-properties` interaction handler — PASS
+- `solid-property-builder` renderer — PASS
+- `solid`, `solid-pair`, `solid-scene`, `symbol-card` renderer sözleşmesi — PASS
+- Döndürmeyle cismin biçimsel özelliğinin değişmediğini gerekçelendiren Anlat görevi — PASS
 
 ## Singapore P1 özel kalite kapıları
 
@@ -34,30 +64,32 @@ Doğrulama tarihi: 2026-09-16
 - Yarım/çeyrek dairenin yalnız bileşik figürde değil doğrudan `shapes1` tanıma/özellik görevlerinde üretimi — PASS
 - Bileşik figür oluşturma ve nokta ızgarada kopyalama — PASS
 
-## v1.2'de düzeltilen kök problemler
+## Düzeltilen kök problemler
 
-1. **Pencere etiketi ≠ farklı görev** problemi: kalite kapısı task family çeşitliliğini zorunlu yaptı.
-2. Singapur güncel P1 kapsamı eski sürümden dar alınmıştı; 1. sınıf 10 beceriden 22 atomik beceriye çıkarıldı.
-3. Uzunluk eski “paperclip/non-standard unit” prototipinden güncel P1 **cm** kapsamına geçirildi.
-4. Saat yalnız tam/yarım saatten **5 dakikalık aralık, ÖÖ/ÖS + a.m./p.m., h/min ve 30/60 dk süre** kapsamına geçirildi.
-5. Geometri yalnız dört temel şekilden çıkarılıp **yarım daire, çeyrek daire, bileşik figür, bileşen analizi ve ızgaraya kopyalama** kapsamına genişletildi.
-6. Bölme P1'de kavramsal paylaşma/gruplama üzerinden tutuldu; sembolik kanıtta eksik çarpan ilişkisi kullanıldı.
-7. Para görevleri birim-duyarlı hale getirildi; TL/kuruş aynı görevde karıştırılmıyor.
-8. Tek-dosya build için önceki siyah-ekran regresyonuna karşı inline JS parse testi korunuyor.
-9. UI testi artık motorun ürettiği her P1 görseli ve manipülatifi için renderer/handler bulunduğunu otomatik denetliyor.
-10. Günlük-nesne şekil transferi artık clip-path yaklaşımı yerine aynı kanonik şekil renderer'ını kullanıyor; yarım/çeyrek daire geometri tutarlılığı korunuyor.
+1. **Pencere etiketi ≠ farklı görev** problemi: P1 kalite kapısı task family çeşitliliğini zorunlu yaptı; Grade 2 `shapes2` aynı reference sözleşmesine taşındı.
+2. 2. sınıf geometrisindeki eski **KUR = cismi adlandır** davranışı kaldırıldı; Kur artık gerçekten özellik modeli kurduruyor.
+3. 2. sınıf geometrisindeki eski **ANLAT = doğru bilgi şıkkını bul** davranışı kaldırıldı; Anlat artık “neden aynı cisim?” gerekçesini ölçüyor.
+4. Belirsiz 3B cisim görseli yerine kanonik küp, dikdörtgen prizma, silindir ve küre renderer'ları kullanılıyor.
+5. Çocuk doğru/yanlış/oturum sonu ekranlarından ürün motoru, kanıt ve puanlama açıklamaları çıkarıldı.
+6. Çocuk ana sayfası ve konu alanından mastery yüzdeleri / zayıf pencere / motor seçimi açıklamaları kaldırıldı.
+7. `symbol-card` renderer eksikliği giderildi; Grade 2 Yaz görevi boş görsel üretmiyor.
+8. Service worker cache anahtarı `saymera-v1-2-1-child-ui` olarak yenilendi; eski kurulu PWA'ların yeni çocuk yüzeyini alması sağlandı.
+9. Kalıcı CI eklendi; `main` ve pull request değişikliklerinde `npm test` otomatik çalışır.
+10. Tek-dosya build için önceki siyah-ekran regresyonuna karşı inline JS parse testi korunuyor.
 
 ## Tarayıcı E2E sınırı
 
-Bu container'daki Chromium headless süreci sayfadan bağımsız olarak sonlanmadan askıda kaldığı için gerçek tıklama akışını otomatik PASS olarak işaretlemiyorum. Standalone parse, dosya bütünlüğü, motor invariantları ve motor→UI renderer/interaction sözleşmesi otomatik olarak doğrulandı.
+Bu çalışma ortamındaki Chromium headless süreci geçmiş denemelerde sayfadan bağımsız olarak sonlanmadan askıda kaldığı için gerçek tıklama akışını otomatik PASS olarak işaretlemiyorum. Standalone parse, dosya bütünlüğü, motor invariantları, çocuk-copy guard ve motor→UI renderer/interaction sözleşmesi otomatik olarak doğrulandı.
 
-Gerçek telefon/tarayıcı testinde özellikle şu noktalar kontrol edilmeli:
+Gerçek telefon/tablet testinde özellikle şu noktalar kontrol edilmeli:
 
+- Grade 2 `shapes2` Kur ekranında özellik kartlarının rahat dokunulması,
+- küp / dikdörtgen prizma / silindir / küre görsellerinin küçük ekranda açıkça ayırt edilmesi,
+- Yaz görevindeki `symbol-card` görselinin ve cevap seçeneklerinin birlikte dengeli yerleşimi,
 - 390–430 px ekranda cm cetvelinin yatay kaydırma ergonomisi,
-- 12 dakika butonunun (00–55) dokunma hedefleri,
+- saat dakika butonlarının dokunma hedefleri,
 - bileşik şekil parça bankasında çoklu seçim,
 - yarım/çeyrek daire görsellerinin küçük ekranda ayırt edilebilirliği,
-- 100 sayısı için 10 onluk çubuğunun düzeni,
 - köprü/review görevlerinin beklenen pencereye dönmesi.
 
 ## Pedagojik sınır
