@@ -1,0 +1,55 @@
+name: Apply SAYMERA v1.2.1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.maintenance/v1.2.1/**'
+      - '.github/workflows/apply-v1-2-1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify, patch and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(.maintenance/v1.2.1/part00 .maintenance/v1.2.1/part01 .maintenance/v1.2.1/part02 .maintenance/v1.2.1/part03)
+          for part in "${required[@]}"; do
+            test -f "$part" || { echo "Missing $part"; exit 1; }
+          done
+
+          cat "${required[@]}" > /tmp/saymera-v1.2.1.patch.xz.b64
+          echo "deed8cbdececd24da4b5ae2dd2f95901847ce72129c84fcd6ba574d2abce09eb  /tmp/saymera-v1.2.1.patch.xz.b64" | sha256sum -c -
+
+          base64 --decode /tmp/saymera-v1.2.1.patch.xz.b64 > /tmp/saymera-v1.2.1.patch.xz
+          echo "c1584426da87fd9010b5ea2049c54f83a82c90e66e40614818f97e31949b3380  /tmp/saymera-v1.2.1.patch.xz" | sha256sum -c -
+          xz -t /tmp/saymera-v1.2.1.patch.xz
+
+          xz -dc /tmp/saymera-v1.2.1.patch.xz > /tmp/saymera-v1.2.1.patch
+          echo "93817f8437be3832cf65d53c87ac4628ef909601c33b182fad5746cd8fe87ca3  /tmp/saymera-v1.2.1.patch" | sha256sum -c -
+
+          git apply --check /tmp/saymera-v1.2.1.patch
+          git apply /tmp/saymera-v1.2.1.patch
+
+          npm test
+
+          rm -rf .maintenance
+          rm -f .github/workflows/apply-v1-2-1.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+
+          git config user.name "SAYMERA maintenance"
+          git config user.email "115743794+mehmetyildiz03@users.noreply.github.com"
+          git add -A
+          git commit -m "Improve child UI and Grade 2 solid geometry"
+          git push origin HEAD:main
