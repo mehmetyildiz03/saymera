@@ -1,4 +1,4 @@
-name: Expand SAYMERA v1.2 source
+name: Import SAYMERA v1.2 source
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  expand-source:
+  import-source:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,20 +19,38 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Expand uploaded source archive
+      - name: Validate and import source pack
         shell: bash
         run: |
           set -euo pipefail
-          archive=".sourcepack/SAYMERA_v1_2_source.tar.xz"
-          if [ ! -f "$archive" ]; then
-            echo "Source pack already expanded; nothing to do."
-            exit 0
-          fi
 
-          xz -t "$archive"
+          required=(
+            .sourcepack/p00
+            .sourcepack/p01
+            .sourcepack/p02
+            .sourcepack/p03
+            .sourcepack/p04
+            .sourcepack/p05
+            .sourcepack/p06
+          )
+
+          for part in "${required[@]}"; do
+            if [ ! -f "$part" ]; then
+              echo "Waiting for all source-pack parts; missing: $part"
+              exit 0
+            fi
+          done
+
+          cat "${required[@]}" > /tmp/saymera-source.b64
+          echo "35fba8acdc34f758ba6c32e2dd72719e2def3de42726e7749b61f3d0b0b0256d  /tmp/saymera-source.b64" | sha256sum -c -
+
+          base64 --decode /tmp/saymera-source.b64 > /tmp/saymera-source.tar.xz
+          echo "e0084887207fc5073e34db557dc70df1daed82026f03157a87416dc65f6ab375  /tmp/saymera-source.tar.xz" | sha256sum -c -
+          xz -t /tmp/saymera-source.tar.xz
+
           rm -rf /tmp/saymera-source
           mkdir -p /tmp/saymera-source
-          tar -xJf "$archive" -C /tmp/saymera-source
+          tar -xJf /tmp/saymera-source.tar.xz -C /tmp/saymera-source
 
           source_root="/tmp/saymera-source"
           shopt -s nullglob dotglob
@@ -46,14 +64,14 @@ jobs:
           done
 
           rm -rf .bootstrap .sourcepack
+          rm -f .github/workflows/bootstrap-source.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
 
-          git config user.name "SAYMERA bootstrap"
+          npm test
+
+          git config user.name "SAYMERA import"
           git config user.email "115743794+mehmetyildiz03@users.noreply.github.com"
           git add -A
-          if git diff --cached --quiet; then
-            echo "No source changes to commit."
-            exit 0
-          fi
-
           git commit -m "Import SAYMERA v1.2 source"
           git push origin HEAD:main
