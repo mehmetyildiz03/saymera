@@ -1567,7 +1567,7 @@ export function buildLearningCyclePlan(skillState){
       {phase:'reasoning',representation:'explain',kind:'focus'},
       {phase:'context',representation:'transfer',kind:'focus',conceptScope:'fresh'},
       {phase:'practice',representation:'symbol',kind:'practice',conceptScope:'fresh',practiceIndex:0},
-      {phase:'practice',representation:'transfer',kind:'practice',conceptScope:'fresh',practiceIndex:1,cycleFinal:true}
+      {phase:'practice',representation:'transfer',kind:'practice',conceptScope:'fresh',practiceIndex:1,practiceCheckpoint:true}
     ];
   }
   const ranked=[...REPRESENTATIONS].sort((a,b)=>{
@@ -1576,15 +1576,32 @@ export function buildLearningCyclePlan(skillState){
     return unseenA-unseenB || (ea?.score||0)-(eb?.score||0);
   });
   const reps=[];
-  for(const r of [...ranked,'symbol','transfer',...REPRESENTATIONS]) if(!reps.includes(r) && reps.length<4) reps.push(r);
+  for(const r of [...ranked,'symbol','transfer',...REPRESENTATIONS]) if(!reps.includes(r) && reps.length<2) reps.push(r);
   return reps.map((representation,index)=>({
     phase:'practice',
     representation,
     kind:'practice',
     conceptScope:'fresh',
     practiceIndex:index,
-    cycleFinal:index===reps.length-1
+    practiceCheckpoint:index===reps.length-1
   }));
+}
+
+export function evaluatePracticeCheckpoint(previousEvents,currentEvent){
+  const events=[...(previousEvents||[]),currentEvent].filter(Boolean);
+  const scheduledPractice=events.filter(e=>e.phase==='practice'&&e.kind==='practice');
+  const meaningful=events.filter(e=>e.kind!=='bridge'&&e.phase);
+  const friction=meaningful.filter(e=>e.correct===false||e.usedHint===true).length;
+  const target=Math.min(4,2+(friction>=1?1:0)+(friction>=2?1:0));
+  const practiceCount=scheduledPractice.length;
+  const atCap=practiceCount>=4;
+  return {
+    target,
+    practiceCount,
+    friction,
+    atCap,
+    complete:currentEvent?.correct===true&&practiceCount>=target
+  };
 }
 
 const READINESS_SOURCE_OVERRIDES={
@@ -1807,7 +1824,7 @@ export function applyAnswer(state, question, {correct, usedHint=false, isDelayed
     const alreadyCompletionRecovery=!!question.completionRecovery;
     if(!alreadySupport && !alreadyCompletionRecovery){
       const completionRecovery=!!question.cycleFinal;
-      const immediate=readiness||completionRecovery;
+      const immediate=readiness||completionRecovery||!!phase;
       const alternative=readiness?'build':(bridgeMap[question.representation]||'see');
       state.reviewQueue.push({
         id:`review:${question.id}`,

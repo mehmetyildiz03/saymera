@@ -63,8 +63,9 @@ assert.equal(manifest.short_name,'SAYMERA');
 for(const asset of ['./','./index.html','./styles.css','./app.js','./engine.mjs','./manifest.webmanifest','./assets/icon-192.png','./assets/icon-512.png']) assert.ok(sw.includes(`'${asset}'`),`service worker missing ${asset}`);
 for(const f of ['assets/icon-192.png','assets/icon-512.png']) assert.ok(fs.existsSync(path.join(root,f)),`missing ${f}`);
 
-const standalone=path.join(root,'SAYMERA_v1_2_TEK_DOSYA.html');
-assert.ok(fs.existsSync(standalone),'v1.2 standalone build missing');
+const standalone=path.join(root,'SAYMERA_v1_3_TEK_DOSYA.html');
+assert.ok(fs.existsSync(standalone),'v1.3 standalone build missing');
+assert.ok(fs.existsSync(path.join(root,'SAYMERA_v1_2_TEK_DOSYA.html')),'legacy standalone alias missing');
 const one=fs.readFileSync(standalone,'utf8');
 assert.ok(one.includes('<style>') && one.includes('<script>'),'standalone must inline CSS and JS');
 assert.ok(!one.includes('src="app.js"') && !one.includes('href="styles.css"'),'standalone must not depend on neighboring JS/CSS');
@@ -72,9 +73,12 @@ assert.ok(one.includes('sg-base10-builder') && one.includes('createConceptInstan
 // Parse the inlined script without executing it. This permanently guards the black-screen packaging regression.
 const scripts=[...one.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 assert.ok(scripts.length>=1,'standalone inline script missing');
-for(const script of scripts) new vm.Script(script,{filename:'SAYMERA_v1_2_TEK_DOSYA.inline.js'});
+for(const script of scripts) new vm.Script(script,{filename:'SAYMERA_v1_3_TEK_DOSYA.inline.js'});
 
 console.log('ui/static tests: PASS (P1 task UI, cm ruler/shape composition/5-minute clock coverage, PWA assets, standalone parse guard)');
 
 assert.ok(app.includes('dueSameSessionReview(includeFuture=false)'));
 assert.ok(app.includes('completeCycleOnSuccess'));
+
+assert.ok(app.includes('appendAdaptivePractice'),'adaptive practice insertion missing');
+assert.ok(app.includes('evaluatePracticeCheckpoint'),'adaptive practice decision missing');

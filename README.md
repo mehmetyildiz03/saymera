@@ -8,7 +8,7 @@ v1.2'nin ana işi, 1. sınıf çekirdeğini Singapore Ministry of Education'ın 
 
 GitHub Pages: `https://mehmetyildiz03.github.io/saymera/`
 
-Tek dosyalık kullanım için `SAYMERA_v1_2_TEK_DOSYA.html` dosyasını açın. CSS ve JavaScript dosyanın içine gömülüdür; komşu dosyalara ihtiyaç duymaz.
+Tek dosyalık kullanım için `SAYMERA_v1_3_TEK_DOSYA.html` dosyasını açın. CSS ve JavaScript dosyanın içine gömülüdür; komşu dosyalara ihtiyaç duymaz.
 
 Kaynak proje için:
 

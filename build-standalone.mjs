@@ -16,5 +16,8 @@ html=html.replace(/\s*<link rel="manifest"[^>]*>\s*/g,'\n')
          .replace(/<link rel="stylesheet" href="styles\.css"\s*\/?>/,`<style>\n${css}\n</style>`)
          .replace(/<script type="module" src="app\.js"><\/script>/,()=>`<script>\n${engine}\n\n${app}\n</script>`);
 
-fs.writeFileSync(path.join(root,'SAYMERA_v1_2_TEK_DOSYA.html'),html);
-console.log('standalone built:',path.join(root,'SAYMERA_v1_2_TEK_DOSYA.html'));
+const currentStandalone=path.join(root,'SAYMERA_v1_3_TEK_DOSYA.html');
+const legacyStandalone=path.join(root,'SAYMERA_v1_2_TEK_DOSYA.html');
+fs.writeFileSync(currentStandalone,html);
+fs.writeFileSync(legacyStandalone,html);
+console.log('standalone built:',currentStandalone);

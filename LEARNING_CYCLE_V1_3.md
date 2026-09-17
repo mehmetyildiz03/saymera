@@ -44,3 +44,10 @@ P1 kök eşlemeleri: `number20 ← count10`, `lengthCompare1 ← compare10`, `sh
 Öğrenme döngüsü yalnızca son pekiştirme (veya onun doğrudan düzeltme görevi) başarılı olduğunda tamamlanır. Son pekiştirme yanlışsa gecikmeli geri çağırma planlanmaz; önce aynı oturumda temsil değiştiren bir düzeltme görevi çözülür. Oturumun sonunda sırada bekleyen aynı-oturum köprüsü varsa süre dolmuş olsa bile sessizce atlanmaz.
 
 Saat referans becerisinde ÖÖ/ÖS artık 24 saatlik iç hesap üzerinden taşınır; öğlen/gece 12 sınırları doğru çevrilir.
+
+
+## v1.3.3 — Adaptif pekiştirme
+
+İlk öğrenme artık “8 soru ve bitti” kuralı değildir. Readiness + model + temsil + sembol + gerekçe + bağlam sonrasında en az iki farklı yeni örnek gelir. Oturum içindeki hata/ipucu sinyallerine göre plan 2, 3 veya en fazla 4 planlı pekiştirme örneğine uzar. Böylece temiz ilk öğrenme 8 temel görevde tamamlanabilir; zorlanma varsa 9–10 planlı göreve uzar. Temsil köprüleri bu sayıya dahil değildir ve gerektiğinde hemen araya girer.
+
+Pekiştirme hedefi: sürtünme yoksa 2; bir hata/ipucu sinyali varsa 3; iki veya daha fazla sinyal varsa 4. Dördüncü planlı pekiştirme de yanlışsa, döngüyü tamamlayan kapı doğrudan temsil değiştiren recovery görevidir. Çocuk bu karar mantığını görmez.

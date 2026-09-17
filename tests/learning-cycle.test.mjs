@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   LEARNING_PHASES, defaultState, ensureSkillState, supportsLearningCycle, skillsFor,
   buildLearningCyclePlan, createConceptInstance, generateLearningQuestion, applyAnswer,
-  readinessSourcesFor, addClockMinutes
+  readinessSourcesFor, addClockMinutes, evaluatePracticeCheckpoint
 } from '../engine.mjs';
 
 const makeSeeded=(seed=246813579)=>()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
@@ -41,7 +41,8 @@ assert.deepEqual(plan.map(x=>x.phase),[
   'readiness','model','representation','symbol','reasoning','context','practice','practice'
 ]);
 assert.equal(plan[0].countsTowardEvidence,false);
-assert.equal(plan.at(-1).cycleFinal,true);
+assert.equal(plan.at(-1).practiceCheckpoint,true);
+assert.equal(!!plan.at(-1).cycleFinal,false);
 
 const readiness=generateLearningQuestion('time1','readiness','see',1,seeded,null);
 assert.equal(readiness.learningPhase,'readiness');
@@ -74,6 +75,33 @@ applyAnswer(bridgeState,support,{correct:false,now:6000,sessionQuestionIndex:2})
 assert.equal(bridgeState.reviewQueue.length,queueBefore,'a failed readiness scaffold must not recurse indefinitely');
 assert.equal(bridgeSS.learningCycle.readinessSupportUsed,true);
 
+
+// Adaptive practice: two clean varied tasks are enough; friction extends, never beyond four.
+const clean1={phase:'practice',kind:'practice',correct:true,usedHint:false};
+const clean2={phase:'practice',kind:'practice',correct:true,usedHint:false};
+let decision=evaluatePracticeCheckpoint([clean1],clean2);
+assert.deepEqual({target:decision.target,count:decision.practiceCount,complete:decision.complete},{target:2,count:2,complete:true});
+const hinted={phase:'practice',kind:'practice',correct:true,usedHint:true};
+decision=evaluatePracticeCheckpoint([clean1],hinted);
+assert.equal(decision.target,3);
+assert.equal(decision.complete,false);
+decision=evaluatePracticeCheckpoint([clean1,hinted],clean2);
+assert.equal(decision.target,3);
+assert.equal(decision.practiceCount,3);
+assert.equal(decision.complete,true);
+const coreMiss={phase:'reasoning',kind:'focus',correct:false,usedHint:false};
+const secondMiss={phase:'context',kind:'focus',correct:false,usedHint:false};
+decision=evaluatePracticeCheckpoint([coreMiss,secondMiss,clean1,clean2],{phase:'practice',kind:'practice',correct:true,usedHint:false});
+assert.equal(decision.target,4);
+assert.equal(decision.complete,false);
+decision=evaluatePracticeCheckpoint([coreMiss,secondMiss,clean1,clean2,{phase:'practice',kind:'practice',correct:true,usedHint:false}],{phase:'practice',kind:'practice',correct:true,usedHint:false});
+assert.equal(decision.target,4);
+assert.equal(decision.practiceCount,4);
+assert.equal(decision.complete,true);
+const cappedWrong=evaluatePracticeCheckpoint([clean1,clean2,{phase:'practice',kind:'practice',correct:true,usedHint:false}],{phase:'practice',kind:'practice',correct:false,usedHint:false});
+assert.equal(cappedWrong.atCap,true);
+assert.equal(cappedWrong.complete,false);
+
 // Clock arithmetic preserves the day period across noon and midnight.
 assert.deepEqual(addClockMinutes({hour:11,minute:30,period:'ÖÖ'},60),{hour:12,minute:30,label:'12:30',period:'ÖS',intl:'p.m.'});
 assert.deepEqual(addClockMinutes({hour:11,minute:45,period:'ÖS'},30),{hour:12,minute:15,label:'12:15',period:'ÖÖ',intl:'a.m.'});
@@ -101,7 +129,7 @@ let now=2000;
 for(const item of plan.slice(1)){
   const concept=createConceptInstance('time1',1,seeded);
   const q=generateLearningQuestion('time1',item.phase,item.representation,1,seeded,concept);
-  q.cycleFinal=!!item.cycleFinal;
+  if(item.practiceCheckpoint) q.cycleFinal=true; // perfect-path adaptive checkpoint
   applyAnswer(state,q,{correct:true,now:now+=1000,sessionQuestionIndex:2});
 }
 assert.ok(ss.learningCycle.firstCycleCompletedAt>0);
@@ -118,8 +146,8 @@ assert.equal(ss.learningCycle.retrievalSuccesses,1);
 assert.equal(ss.delayedSuccesses,1);
 
 const reinforcement=buildLearningCyclePlan(ss);
-assert.equal(reinforcement.length,4);
+assert.equal(reinforcement.length,2);
 assert.ok(reinforcement.every(x=>x.phase==='practice'));
-assert.equal(reinforcement.at(-1).cycleFinal,true);
+assert.equal(reinforcement.at(-1).practiceCheckpoint,true);
 
 console.log('learning-cycle tests: PASS (22 P1 prerequisite readiness contracts + immediate support)');

@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -352,13 +352,13 @@ function startSession(){
   session={
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
-    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], newStable:0, bridgeAdds:0
+    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], learningEvents:[], newStable:0, bridgeAdds:0
   };
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
   loadPlanItem();
 }
 function maybeInjectBridgeReview(force=false){
-  if(!session || session.bridgeAdds>=2) return;
+  if(!session || session.bridgeAdds>=4) return;
   const review=dueSameSessionReview(force); if(!review) return;
   const skill=skillsFor(state.profile).find(s=>s.id===review.skillId); if(!skill) return;
   const already=session.plan.slice(session.planIndex).some(x=>x.reviewItem?.id===review.id);
@@ -711,6 +711,33 @@ function showHint(){
   stage.insertAdjacentHTML('beforeend',`<div class="explain-box" id="liveHint"><strong>İpucu:</strong> ${esc(currentQuestion.hint)}</div>`);
   if(state.settings.voice) speak(currentQuestion.hint);
 }
+const ADAPTIVE_PRACTICE_REPRESENTATIONS=['symbol','transfer','see','explain'];
+function appendAdaptivePractice(decision){
+  if(!session||decision.practiceCount>=4) return;
+  const index=decision.practiceCount;
+  const representation=ADAPTIVE_PRACTICE_REPRESENTATIONS[index]||'transfer';
+  session.plan.splice(session.planIndex+1,0,{
+    skillId:session.focusSkillId,
+    representation,
+    phase:'practice',
+    reviewItem:null,
+    kind:'practice',
+    conceptScope:'fresh',
+    practiceIndex:index,
+    practiceCheckpoint:true
+  });
+}
+function currentLearningEvent(q,correct,hint){
+  return {
+    skillId:q.skillId,
+    phase:q.learningPhase||null,
+    kind:currentSelection?.kind||null,
+    taskKind:q.taskKind||null,
+    representation:q.representation,
+    correct:!!correct,
+    usedHint:!!hint
+  };
+}
 function answerQuestion(value,button){
   if(answered||!currentQuestion) return;
   answered=true;
@@ -724,8 +751,18 @@ function answerQuestion(value,button){
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
+  const event=currentLearningEvent(q,correct,usedHint);
+  let practiceDecision=null;
+  if(currentSelection?.practiceCheckpoint&&q.learningPhase==='practice'&&currentSelection.kind==='practice'){
+    practiceDecision=evaluatePracticeCheckpoint(session.learningEvents,event);
+    // Correct + enough varied practice closes the cycle. If four scheduled practice
+    // attempts are exhausted on an error, the immediate recovery becomes the gate.
+    if(practiceDecision.complete||(practiceDecision.atCap&&!correct)) q.cycleFinal=true;
+  }
   const delayed=currentSelection.reviewItem?.stage==='next-day';
   applyAnswer(state,q,{correct,usedHint,isDelayedReview:!!delayed,now:Date.now(),sessionQuestionIndex:session.questionIndex});
+  session.learningEvents.push(event);
+  if(practiceDecision&&!q.cycleFinal) appendAdaptivePractice(practiceDecision);
   if(currentSelection.reviewItem) consumeReview(state,currentSelection.reviewItem);
   const after=ensureSkillState(state,q.skillId).stable;
   if(!before&&after) session.newStable++;
