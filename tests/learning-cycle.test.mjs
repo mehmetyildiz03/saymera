@@ -33,9 +33,9 @@ for(const [i,skill] of p1.entries()){
   assert.ok(q.id,`${skill.id} readiness id missing`);
 }
 
-const p2A1=skillsFor('grade2').filter(s=>supportsLearningCycle(s.id));
-assert.deepEqual(p2A1.map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','addSub1000']);
-for(const [i,skill] of p2A1.entries()){
+const p2Reference=skillsFor('grade2').filter(s=>supportsLearningCycle(s.id));
+assert.deepEqual(p2Reference.map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2']);
+for(const [i,skill] of p2Reference.entries()){
   const sources=readinessSourcesFor(skill.id);
   assert.ok(sources.length>=1,`${skill.id} must have authentic P2 readiness provenance`);
   assert.ok(sources.every(id=>id!==skill.id));
@@ -48,6 +48,8 @@ for(const [i,skill] of p2A1.entries()){
 }
 assert.deepEqual(readinessSourcesFor('number1000'),['number100']);
 assert.deepEqual(readinessSourcesFor('addSub1000'),['addSub100']);
+assert.deepEqual(readinessSourcesFor('oddEven1000'),['pairing-foundation']);
+assert.deepEqual(readinessSourcesFor('wordAddSub2'),['word1']);
 
 const state=defaultState();
 const ss=ensureSkillState(state,'time1');

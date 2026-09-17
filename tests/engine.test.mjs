@@ -15,8 +15,10 @@ const P1_SKILLS=[
 ];
 assert.deepEqual(skillsFor('grade1').map(s=>s.id),P1_SKILLS,'Primary 1 coverage graph changed unexpectedly');
 const P2_A1_SKILLS=['number1000','compareOrder1000','numberPattern1000','addSub1000'];
-assert.deepEqual(skillsFor('grade2').slice(0,4).map(s=>s.id),P2_A1_SKILLS,'Primary 2 A1 foundation graph changed unexpectedly');
-for(const legacy of ['place100','add100','sub100','numberPattern2']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
+const P2_A2_SKILLS=['oddEven1000','wordAddSub2'];
+const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS];
+assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2'],'Primary 2 reference graph changed unexpectedly');
+for(const legacy of ['place100','add100','sub100','numberPattern2','word2']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
 
 
 const fresh=defaultState();
@@ -67,7 +69,7 @@ for(const skillId of P1_SKILLS){
 }
 
 // Singapore P2-A1 quality gate: new foundational skills use the same five genuine cognitive actions.
-for(const skillId of P2_A1_SKILLS){
+for(const skillId of P2_REFERENCE_SKILLS){
   const concept=createConceptInstance(skillId,2,seeded);
   assert.equal(concept.skillId,skillId);
   const tasks=REPRESENTATIONS.map(rep=>generateQuestion(skillId,rep,2,seeded,concept));
@@ -178,6 +180,18 @@ for(let i=0;i<1200;i++){
 assert.ok(seen1000.has(1000),'P2 whole numbers must include endpoint 1000');
 for(const step of [1,-1,10,-10,100,-100]) assert.ok(seenP2Steps.has(step),`P2 number pattern missing step ${step}`);
 assert.ok(seenP2Modes.has('mental')&&seenP2Modes.has('regroup'),'P2 add/sub must cover mental place-value work and regrouping');
+const seenParity=new Set(), seenWordPlans=new Set();
+for(let i=0;i<400;i++){
+  const o=createConceptInstance('oddEven1000',2,seeded); seenParity.add(o.anchor.parity);
+  const w=createConceptInstance('wordAddSub2',2,seeded); seenWordPlans.add(`${w.anchor.op1}|${w.anchor.op2}`);
+}
+assert.deepEqual([...seenParity].sort(),['Tek','Çift'].sort(),'P2 odd/even must cover both classes');
+for(const plan of ['+|−','−|+','+|+','−|−']) assert.ok(seenWordPlans.has(plan),`P2 two-step problem plan missing ${plan}`);
+const oddBuild=generateQuestion('oddEven1000','build',2,seeded,createConceptInstance('oddEven1000',2,seeded));
+assert.equal(oddBuild.response.interaction,'parity-pair');
+const wordBuild=generateQuestion('wordAddSub2','build',2,seeded,createConceptInstance('wordAddSub2',2,seeded));
+assert.equal(wordBuild.response.interaction,'two-step-plan');
+
 const p2NumberBuild=generateQuestion('number1000','build',2,seeded,createConceptInstance('number1000',2,seeded));
 assert.equal(p2NumberBuild.response.interaction,'base1000-build');
 assert.equal(p2NumberBuild.visual.type,'base1000-build-interactive');

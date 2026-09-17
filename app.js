@@ -581,6 +581,24 @@ function wireManipulator(q){
     const root=$('.sg-base1000-builder');
     root?.querySelectorAll('.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
   }
+  if(interaction==='parity-pair'){
+    const root=$('.sg-parity-builder');
+    root?.querySelector('.sg-pair-action')?.addEventListener('click',()=>{
+      if(answered)return;
+      const free=[...root.querySelectorAll('.sg-pair-token:not(.paired)')];
+      if(free.length>=2){ free[0].classList.add('paired'); free[1].classList.add('paired'); }
+      updateManipulatorStatus(q);
+    });
+  }
+  if(interaction==='two-step-plan'){
+    const root=$('.sg-two-step-plan');
+    root?.querySelectorAll('.sg-plan-op').forEach(btn=>btn.addEventListener('click',()=>{
+      if(answered)return;
+      const step=btn.dataset.step;
+      root.querySelectorAll(`.sg-plan-op[data-step="${step}"]`).forEach(x=>x.classList.remove('selected'));
+      btn.classList.add('selected'); updateManipulatorStatus(q);
+    }));
+  }
   if(interaction==='order-pair'){
     const root=$('.sg-order-builder');
     root?.querySelectorAll('.sg-order-card').forEach(btn=>btn.addEventListener('click',()=>{
@@ -661,6 +679,11 @@ function readManipulatorValue(q){
   if(interaction==='bond-fill') return $$('.sg-bond-builder .sg-bond-token.selected').length;
   if(interaction==='base10-build') return `${$$('.sg-base10-builder .sg-base10-ten.selected').length}|${$$('.sg-base10-builder .sg-base10-one.selected').length}`;
   if(interaction==='base1000-build') return `${$$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
+  if(interaction==='parity-pair') return $$('.sg-parity-builder .sg-pair-token:not(.paired)').length;
+  if(interaction==='two-step-plan'){
+    const a=$('.sg-two-step-plan .sg-plan-op.selected[data-step="1"]')?.dataset.value, b=$('.sg-two-step-plan .sg-plan-op.selected[data-step="2"]')?.dataset.value;
+    return a&&b?`${a}|${b}`:null;
+  }
   if(interaction==='order-pair'){
     const cards=[...$$('.sg-order-builder .sg-order-card[data-order]')].sort((a,b)=>Number(a.dataset.order)-Number(b.dataset.order)); return cards.length===2?cards.map(x=>x.dataset.value).join('|'):null;
   }
@@ -702,6 +725,8 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='bond-fill') node.textContent=`Eksik parçaya koyduğun taş: ${value}`;
   else if(q.response?.interaction==='base10-build') { const [t='0',o='0']=String(value).split('|'); node.textContent=`Modelin: ${t} onluk · ${o} birlik`; }
   else if(q.response?.interaction==='base1000-build') { const [h='0',t='0',o='0']=String(value).split('|'); node.textContent=`Modelin: ${h} yüzlük · ${t} onluk · ${o} birlik`; }
+  else if(q.response?.interaction==='parity-pair') node.textContent=`Eşsiz kalan birlik: ${value}`;
+  else if(q.response?.interaction==='two-step-plan') node.textContent=value?`Planın: ${String(value).replace('|',' → ')}`:'1. ve 2. işlem kartlarını seç';
   else if(q.response?.interaction==='order-pair') node.textContent=value?`Sıran: ${String(value).replace('|',' → ')}`:'Önce küçük, sonra büyük karta dokun';
   else if(q.response?.interaction==='ordinal-position') node.textContent=value?`Seçtiğin sıra: ${value}.`:'Bir sıra konumu seç';
   else if(q.response?.interaction==='equal-groups') node.textContent=value!=null?`Eşit gruplar hazır · toplam ${value}`:'Taşları bütün gruplara eşit dağıt';
@@ -758,7 +783,7 @@ function answerQuestion(value,button){
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
@@ -952,6 +977,11 @@ function renderVisual(v,q){
     case 'bar': { const total=v.op==='+'?v.a+v.b:v.a; const w1=Math.max(22,Math.round(v.a/Math.max(1,total)*100)), w2=Math.max(18,100-w1); return `<div class="bar-model"><span style="width:${w1}%">${v.a}</span><span style="width:${w2}%">${v.op==='+'?v.b:'− '+v.b}</span></div>`; }
     case 'story': return `<div class="story-visual"><div class="bag">${v.a}</div><span class="story-arrow">${v.kind==='gain'?'＋':'−'}</span><div class="bag" style="background:var(--blue-soft);border-color:#9fb3c4">${v.b}</div></div>`;
     case 'base10': return `<div class="base10"><div class="tens">${Array.from({length:v.tens},()=>'<i class="ten-rod"></i>').join('')}</div><div class="ones">${Array.from({length:v.ones},()=>'<i class="one-cube"></i>').join('')}</div></div>`;
+    case 'pairing-small': return pairingSmallVisual(v.n,v.leftover);
+    case 'parity-pair-builder': return parityPairBuilder(v.n,v.ones);
+    case 'parity-card': return parityCardVisual(v.n,v.ones,v.leftover);
+    case 'two-step-plan-builder': return twoStepPlanBuilder(v.a,v.b,v.c);
+    case 'two-step-model': return twoStepModelVisual(v.a,v.b,v.c,v.op1,v.op2);
     case 'base1000': return base1000Visual(v.hundreds,v.tens,v.ones);
     case 'base1000-build-interactive': return base1000BuildBuilder(v.target,v.maxHundreds,v.maxTens,v.maxOnes);
     case 'base1000-operation-build': return base1000OperationBuilder(v);
@@ -1078,6 +1108,24 @@ function base10BuildControls(maxTens=9,maxOnes=9){
   return `<div class="sg-base10-bank"><div><small>ONLUK</small>${Array.from({length:maxTens},(_,i)=>`<button class="sg-base10-ten" type="button" aria-label="${i+1}. onluk"></button>`).join('')}</div><div><small>BİRLİK</small>${Array.from({length:maxOnes},(_,i)=>`<button class="sg-base10-one" type="button" aria-label="${i+1}. birlik"></button>`).join('')}</div></div>`;
 }
 function base10BuildBuilder(target,maxTens,maxOnes){ return `<div class="sg-base10-builder"><div class="sg-target-pill">HEDEF <b>${target}</b></div>${base10BuildControls(maxTens,maxOnes)}</div>`; }
+function pairingSmallVisual(n,leftover){
+  const pairs=Math.floor(n/2);
+  return `<div class="sg-pairing-small">${Array.from({length:pairs},()=>'<span><i></i><i></i></span>').join('')}${leftover?'<b></b>':''}</div>`;
+}
+function parityPairBuilder(n,ones){
+  return `<div class="sg-parity-builder"><div class="sg-target-pill">SAYI <b>${n}</b></div><small>Birlikleri ikişerli eşleştir</small><div class="sg-pair-token-row">${Array.from({length:ones},()=>'<i class="sg-pair-token"></i>').join('')}</div><button type="button" class="sg-pair-action">Bir çift oluştur</button></div>`;
+}
+function parityCardVisual(n,ones,leftover){
+  const paired=Math.max(0,ones-Number(leftover||0));
+  return `<div class="sg-parity-card"><b>${n}</b><div>${Array.from({length:paired},(_,i)=>`<i class="${i%2?'pair-end':'pair-start'}"></i>`).join('')}${Array.from({length:Number(leftover)||0},()=>'<em></em>').join('')}</div></div>`;
+}
+function twoStepPlanBuilder(a,b,c){
+  const row=step=>`<div><small>${step}. ADIM</small><button type="button" class="sg-plan-op" data-step="${step}" data-value="+">＋</button><button type="button" class="sg-plan-op" data-step="${step}" data-value="−">−</button></div>`;
+  return `<div class="sg-two-step-plan"><div class="sg-plan-facts"><span>${a}</span><span>${b}</span><span>${c}</span></div>${row(1)}${row(2)}</div>`;
+}
+function twoStepModelVisual(a,b,c,op1,op2){
+  return `<div class="sg-two-step-model"><div><span>${a}</span><strong>${esc(op1)}</strong><span>${b}</span><i>→</i><b>?</b></div><div><b>?</b><strong>${esc(op2)}</strong><span>${c}</span><i>→</i><b>?</b></div></div>`;
+}
 function base1000BuildControls(maxHundreds=10,maxTens=9,maxOnes=9){
   return `<div class="sg-base1000-bank"><div><small>YÜZLÜK</small>${Array.from({length:maxHundreds},(_,i)=>`<button class="sg-base1000-hundred" type="button" aria-label="${i+1}. yüzlük"></button>`).join('')}</div><div><small>ONLUK</small>${Array.from({length:maxTens},(_,i)=>`<button class="sg-base1000-ten" type="button" aria-label="${i+1}. onluk"></button>`).join('')}</div><div><small>BİRLİK</small>${Array.from({length:maxOnes},(_,i)=>`<button class="sg-base1000-one" type="button" aria-label="${i+1}. birlik"></button>`).join('')}</div></div>`;
 }

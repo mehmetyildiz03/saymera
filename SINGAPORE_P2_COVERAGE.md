@@ -149,3 +149,15 @@ P2 geçişi kademeli yapılacaktır; LEGACY beceriler sırf etiketi değiştiril
 Eski `place100`, `add100`, `sub100` ve `numberPattern2` becerileri görünür P2 haritasından çıkarıldı. Yeni beceriler yeni kimliklerle oluşturuldu; böylece eski, daha kolay içeriğe ait yerel ilerleme yeni Singapore P2 içeriğine yanlışlıkla taşınmaz.
 
 Sıradaki P2-A2: tek/çift sayılar + 1–2 adımlı toplama/çıkarma problem yapıları.
+
+
+## Uygulama ilerlemesi — v1.4.1 / P2-A2
+
+P2 sayı ve toplama/çıkarma temel katmanı genişletildi:
+
+- `oddEven1000` — birliklerin ikişerli eşleşmesinden tek/çift genellemesine
+- `wordAddSub2` — dört farklı iki-adımlı işlem planı (`+−`, `−+`, `++`, `−−`) ve bağımlı ara sonuç mantığı
+
+Her iki beceri de gerçek ön-bilgi kontrolü, beş ayrı görev ailesi, adaptif pekiştirme ve gecikmeli geri çağırma sözleşmesine dahildir. Eski `word2` görünür içerik haritasından çıkarılmıştır.
+
+Sıradaki katman: P2-B — 2/3/4/5/10 çarpım tabloları, bölme ve kesirler.

@@ -14,7 +14,7 @@ const manifest=JSON.parse(read('manifest.webmanifest'));
 for(const id of ['homeScreen','atlasScreen','parentScreen','focusCard','homeInsightGrid','conceptPreviewRow','atlasSummary','domainTabs','skillMap','parentInsight','practiceOverlay','practiceContent','onboardingOverlay','cooldownOverlay','toast'])
   assert.match(html,new RegExp(`id=["']${id}["']`),`missing static DOM id ${id}`);
 
-for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-base1000-builder','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
+for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-base1000-builder','sg-parity-builder','sg-two-step-plan','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
   assert.ok(css.includes(`.${cls}`),`missing CSS class .${cls}`);
 
 assert.match(app,/const STORAGE_KEY='saymera\.math\.v2'/,'SAYMERA must preserve its isolated storage namespace');
@@ -36,9 +36,9 @@ assert.ok(!html.includes('SAYMERA sınıfı bir etiket olarak değil'),'onboardi
 assert.match(app,/focusRepresentations/);
 assert.match(app,/createConceptInstance/);
 assert.match(app,/renderResponse/);
-for(const marker of ['bond-fill','base10-build','base1000-build','order-pair','ordinal-position','equal-groups','share-equally','money-make','cm-ruler','shape-compose','unit-measure','clock-set','shape-pattern','solid-properties','three-add'])
+for(const marker of ['bond-fill','base10-build','base1000-build','parity-pair','two-step-plan','order-pair','ordinal-position','equal-groups','share-equally','money-make','cm-ruler','shape-compose','unit-measure','clock-set','shape-pattern','solid-properties','three-add'])
   assert.ok(app.includes(`interaction==='${marker}'`),`app missing interaction ${marker}`);
-for(const visual of ['addition-strategy','subtraction-strategy','fact-family','problem-structure','compare-base10','base1000','base1000-build-interactive','base1000-operation-build','compare-base1000','column-operation','money-shopping','cm-ruler-interactive','cm-ruler-model','shape-compose-interactive','composite-figure','dot-grid-figure','schedule-event','three-add-strategy','solid-property-builder','solid-pair','solid-scene'])
+for(const visual of ['addition-strategy','subtraction-strategy','fact-family','problem-structure','compare-base10','base1000','base1000-build-interactive','base1000-operation-build','compare-base1000','pairing-small','parity-pair-builder','parity-card','two-step-plan-builder','two-step-model','column-operation','money-shopping','cm-ruler-interactive','cm-ruler-model','shape-compose-interactive','composite-figure','dot-grid-figure','schedule-event','three-add-strategy','solid-property-builder','solid-pair','solid-scene'])
   assert.ok(app.includes(`case '${visual}'`),`app missing visual ${visual}`);
 
 
@@ -46,7 +46,7 @@ for(const visual of ['addition-strategy','subtraction-strategy','fact-family','p
 const generatedVisuals=new Set(), generatedInteractions=new Set();
 let seedValue=987654321;
 const rng=()=>((seedValue=(seedValue*1664525+1013904223)>>>0)/2**32);
-const renderAuditSkills=[...skillsFor('grade1'),...skillsFor('grade2').filter(s=>['number1000','compareOrder1000','numberPattern1000','addSub1000'].includes(s.id))];
+const renderAuditSkills=[...skillsFor('grade1'),...skillsFor('grade2').filter(s=>['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2'].includes(s.id))];
 for(const skill of renderAuditSkills){
   for(const rep of REPRESENTATIONS){
     for(let i=0;i<12;i++){

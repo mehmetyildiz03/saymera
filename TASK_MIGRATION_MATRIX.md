@@ -1,4 +1,4 @@
-# SAYMERA v1.4.0 — Görev Motoru Geçiş Matrisi
+# SAYMERA v1.4.1 — Görev Motoru Geçiş Matrisi
 
 Durum:
 
@@ -42,15 +42,16 @@ Durum:
 | 2. sınıf | `number1000` | 1000’e kadar sayı ve basamak | **P2-REFERENCE** |
 | 2. sınıf | `compareOrder1000` | 1000’e kadar karşılaştırma/sıralama | **P2-REFERENCE** |
 | 2. sınıf | `numberPattern1000` | 1/10/100 ile sayı örüntüleri | **P2-REFERENCE** |
+| 2. sınıf | `oddEven1000` | 1000’e kadar tek/çift sayılar | **P2-REFERENCE** |
 | 2. sınıf | `addSub1000` | 1000 içinde toplama/çıkarma | **P2-REFERENCE** |
+| 2. sınıf | `wordAddSub2` | 1–2 adımlı toplama/çıkarma problemleri | **P2-REFERENCE** |
 | 2. sınıf | `multiply5` | Gruplarla çarpma | LEGACY |
 | 2. sınıf | `divide20` | Paylaştırarak bölme | LEGACY |
 | 2. sınıf | `fraction` | Yarım ve çeyrek | LEGACY |
-| 2. sınıf | `word2` | İki ilişkili problem | LEGACY |
 | 2. sınıf | `shapes2` | Şekil/cisim ilişkileri | **REFERENCE** |
 | 2. sınıf | `lengthCm` | Santimetre | LEGACY |
 | 2. sınıf | `time2` | Saat | LEGACY |
 | 2. sınıf | `moneyTL` | Para | LEGACY |
 | 2. sınıf | `data2` | Sütun grafiği | LEGACY |
 
-Toplam: **43 beceri**. Bunun **22'si P1-REFERENCE**, **4'ü P2-REFERENCE**, **1'i Grade 2 REFERENCE** ve **16'sı LEGACY** durumundadır.
+Toplam: **44 beceri**. Bunun **22'si P1-REFERENCE**, **6'sı P2-REFERENCE**, **1'i Grade 2 REFERENCE** ve **15'i LEGACY** durumundadır.

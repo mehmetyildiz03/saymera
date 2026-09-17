@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'number1000','compareOrder1000','numberPattern1000','addSub1000'
+  'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2'
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
@@ -75,11 +75,12 @@ export const SKILLS = [
   skill('number1000','grade2','1000’e kadar sayı ve basamak','Sayılar','amber'),
   skill('compareOrder1000','grade2','1000’e kadar karşılaştırma ve sıralama','Sayılar','blue',['number1000']),
   skill('numberPattern1000','grade2','1, 10 ve 100 ile sayı örüntüleri','Örüntü','navy',['number1000']),
+  skill('oddEven1000','grade2','1000’e kadar tek ve çift sayılar','Sayılar','green',['number1000']),
   skill('addSub1000','grade2','1000 içinde toplama ve çıkarma','İşlemler','violet',['number1000']),
+  skill('wordAddSub2','grade2','1–2 adımlı toplama ve çıkarma problemleri','Problem çözme','teal',['addSub1000']),
   skill('multiply5','grade2','Gruplarla çarpma','Çarpma','green',['addSub1000']),
   skill('divide20','grade2','Paylaştırarak bölme','Bölme','teal',['multiply5']),
   skill('fraction','grade2','Yarım ve çeyrek','Kesir','rose'),
-  skill('word2','grade2','İki ilişkiyi birleştiren problem','Problem çözme','navy',['addSub1000']),
   skill('shapes2','grade2','Şekil ve cisim ilişkileri','Geometri','rose'),
   skill('lengthCm','grade2','Santimetre ile ölçme','Ölçme','green'),
   skill('time2','grade2','Saat ve yarım saat','Zaman','violet'),
@@ -447,6 +448,29 @@ function shapePatternCases(){
   ];
 }
 
+
+function oddEven1000Cases(){
+  const nums=[112,127,234,249,356,373,482,497,614,629,746,759,862,875,938,953];
+  return nums.map(n=>({n,ones:n%10,parity:n%2===0?'Çift':'Tek',leftover:n%2}));
+}
+function wordAddSub2Cases(){
+  const raw=[
+    [245,120,85,'+','−','Kütüphanede 245 kitap vardı. 120 yeni kitap geldi, sonra 85 kitap ödünç verildi.'],
+    [630,145,90,'−','+','Depoda 630 kutu vardı. 145 kutu gönderildi, sonra 90 kutu geldi.'],
+    [175,230,140,'+','+','Bir etkinliğe önce 175, sonra 230, ardından 140 kişi katıldı.'],
+    [820,135,210,'−','−','Bir depoda 820 ürün vardı. Önce 135, sonra 210 ürün gönderildi.'],
+    [318,126,74,'+','−','Okulda 318 kitap vardı. 126 kitap alındı, ardından 74 kitap başka sınıfa verildi.'],
+    [704,208,95,'−','+','Bir mağazada 704 ürün vardı. 208 ürün satıldı, sonra 95 ürün geldi.'],
+    [260,115,205,'+','+','Bir koleksiyonda 260 parça vardı. Önce 115, sonra 205 parça eklendi.'],
+    [910,240,125,'−','−','Bir kütüphanede 910 kitap vardı. 240 ve ardından 125 kitap ödünç verildi.']
+  ];
+  return raw.map(([a,b,c,op1,op2,story])=>{
+    const first=op1==='+'?a+b:a-b;
+    const ans=op2==='+'?first+c:first-c;
+    return {a,b,c,op1,op2,first,ans,story};
+  });
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -547,11 +571,13 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='number1000') return make('numbers-to-1000-place-value',number1000Cases());
   if(skillId==='compareOrder1000') return make('compare-order-to-1000',compare1000Cases());
   if(skillId==='numberPattern1000') return make('one-ten-hundred-patterns-to-1000',pattern1000Cases());
+  if(skillId==='oddEven1000') return make('odd-even-pairing-to-1000',oddEven1000Cases());
   if(skillId==='addSub1000'){
     const all=addSub1000Cases();
     const cases=d===1?all.filter(z=>z.mode==='mental'):d===2?all.filter(z=>z.mode!=='regroup'):d===3?all.filter(z=>z.mode!=='mental'):all.filter(z=>z.mode==='regroup');
     return make('addition-subtraction-within-1000',cases);
   }
+  if(skillId==='wordAddSub2') return make('one-two-step-add-sub-problems',wordAddSub2Cases());
   if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
 }
@@ -1277,6 +1303,69 @@ function genShapePattern1(rep,d,rng,concept){
   });
 }
 
+
+function genOddEven1000(rep,d,rng,concept){
+  const c=concept?.skillId==='oddEven1000'?concept:createConceptInstance('oddEven1000',d,rng);
+  const x=c.anchor;
+  if(rep==='build') return qTask('oddEven1000',rep,`${x.n} sayısının birliklerini ikişerli eşleştir. Kaç birlik eşsiz kalır?`,x.leftover,{kind:'manipulative',interaction:'parity-pair',expectedValue:String(x.leftover),checkLabel:'Eşleştirmeyi kontrol et'}, {
+    taskKind:'manipulative-build',taskLabel:'Birlikleri ikişerli eşleştir',visual:{type:'parity-pair-builder',n:x.n,ones:x.ones},hint:'Her dokunuşta iki birliği bir çift yap.',explain:x.leftover?`${x.n} için 1 birlik eşsiz kalır; sayı tektir.`:`${x.n} için eşsiz birlik kalmaz; sayı çifttir.`
+  });
+  if(rep==='see'){
+    const opts=shuffled([0,1,2].map((leftover,i)=>({value:leftover===x.leftover?'correct':`wrong-${i}`,visual:{type:'parity-card',n:x.n,ones:x.ones,leftover},ariaLabel:`${x.n} için ${leftover} eşsiz birlik modeli`})),rng);
+    return qTask('oddEven1000',rep,`${x.n} sayısının ikişerli eşleşmesini doğru gösteren model hangisi?`,'correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Eşleşme modelini ayırt et',visual:{type:'numbercard',n:x.n},hint:'Birlikleri ikişerli grupla; 0 ya da 1 birlik artabilir.',explain:`${x.n} ${x.parity.toLowerCase()} sayıdır.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qBase('oddEven1000',rep,`${y.n} sayısını sınıflandır.`,y.parity,semanticChoices(y.parity,[y.parity==='Çift'?'Tek':'Çift','Asal','Belirlenemez'],rng),{
+      taskKind:'symbol-entry',taskLabel:'Tek–çift sınıfını matematik diliyle yaz',visual:{type:'equation',text:String(y.n)},hint:'Birler basamağı 0,2,4,6,8 ise sayı çifttir.',explain:`${y.n} ${y.parity.toLowerCase()} sayıdır.`
+    });
+  }
+  if(rep==='explain'){
+    const answer='Yüzlük ve onluklar 10’un katıdır; tek–çift durumunu birlik basamağının ikişerli eşleşmesi belirler';
+    return qBase('oddEven1000',rep,`${x.n} sayısının tek mi çift mi olduğunu neden yalnız birlik basamağından anlayabiliriz?`,answer,semanticChoices(answer,['Yüzlük basamağı her zaman çifttir diye','Sayıdaki rakamların toplamı her zaman yeterlidir','En büyük rakam tekse sayı da tektir'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Tek–çift kuralını gerekçelendir',visual:{type:'parity-card',n:x.n,ones:x.ones,leftover:x.leftover},hint:'10’un kendisi ikişerli eşleşebilir.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer;
+  const answer=y.parity==='Çift'?'Hayır':'Evet';
+  return qBase('oddEven1000',rep,`${y.n} öğrenci ikişerli sıraya geçiyor. Bir öğrenci eşsiz kalır mı?`,answer,semanticChoices(answer,[answer==='Evet'?'Hayır':'Evet','İki öğrenci kalır','Sayıya bakmadan bilinemaz'],rng),{
+    taskKind:'context-transfer',taskLabel:'Tek–çifti eşli sıra bağlamına taşı',visual:{type:'parity-card',n:y.n,ones:y.ones,leftover:y.leftover},hint:'İkişerli eşleşmede 1 kişi artıyorsa sayı tektir.',explain:y.leftover?'Bir öğrenci eşsiz kalır; sayı tektir.':'Kimse eşsiz kalmaz; sayı çifttir.'
+  });
+}
+
+function genWordAddSub2(rep,d,rng,concept){
+  const c=concept?.skillId==='wordAddSub2'?concept:createConceptInstance('wordAddSub2',d,rng);
+  const x=c.anchor, plan=`${x.op1}|${x.op2}`;
+  if(rep==='build') return qTask('wordAddSub2',rep,`${x.story} Çözüm için iki işlem kartını doğru sıraya yerleştir.`,plan,{kind:'manipulative',interaction:'two-step-plan',expectedValue:plan,checkLabel:'Planımı kontrol et'}, {
+    taskKind:'manipulative-build',taskLabel:'İki adımlı çözüm planını kur',visual:{type:'two-step-plan-builder',a:x.a,b:x.b,c:x.c},hint:'Önce ilk değişimin miktarı artırıp azaltmasına, sonra ikinci değişime bak.',explain:`Plan: önce ${x.a} ${x.op1} ${x.b} = ${x.first}; sonra ${x.first} ${x.op2} ${x.c} = ${x.ans}.`
+  });
+  if(rep==='see'){
+    const variants=[[x.op1,x.op2],[x.op1==='+'?'−':'+',x.op2],[x.op1,x.op2==='+'?'−':'+']];
+    const opts=shuffled(variants.map(([op1,op2],i)=>({value:op1===x.op1&&op2===x.op2?'correct':`wrong-${i}`,visual:{type:'two-step-model',a:x.a,b:x.b,c:x.c,op1,op2},ariaLabel:`önce ${op1}, sonra ${op2}`})),rng);
+    return qTask('wordAddSub2',rep,`${x.story} Hikâyeye uyan iki adımlı model hangisi?`,'correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Hikâye ile iki adımlı modeli eşleştir',visual:{type:'two-step-model',a:x.a,b:x.b,c:x.c,op1:'?',op2:'?'},hint:'“Geldi/eklendi” artış; “gitti/verildi/satıldı” azalıştır.',explain:`Doğru model önce ${x.op1}, sonra ${x.op2} işlemini kullanır.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('wordAddSub2',rep,`${y.story} Sonuç kaçtır?`,y.ans,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Çözümümü kontrol et'}, {
+      taskKind:'symbol-entry',taskLabel:'İki adımlı problemi sayısal çöz',visual:{type:'two-step-model',a:y.a,b:y.b,c:y.c,op1:y.op1,op2:y.op2},hint:'İlk işlemin sonucunu ikinci işlemde kullan.',explain:`${y.a} ${y.op1} ${y.b} = ${y.first}; ${y.first} ${y.op2} ${y.c} = ${y.ans}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer='İkinci adım, birinci işlemin sonucunu başlangıç miktarı olarak kullanır';
+    return qBase('wordAddSub2',rep,'İki adımlı bir problemde neden ilk işlemin sonucunu bulmadan ikinci adıma geçemeyiz?',answer,semanticChoices(answer,['İkinci işlem her zaman toplama olduğu için','Sorudaki en büyük sayıyı kullanmak gerektiği için','İşlem sırası matematikte hiç önemli olmadığı için'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'İki adımlı bağımlılığı açıkla',visual:{type:'two-step-model',a:x.a,b:x.b,c:x.c,op1:x.op1,op2:x.op2},hint:'İkinci işlem hangi miktardan başlıyor?',explain:`İlk sonuç ${x.first}; ikinci adım bu yeni miktarı kullanır.`
+    });
+  }
+  const y=c.transfer;
+  return qTask('wordAddSub2',rep,`${y.story} Son durumda kaç tane vardır?`,y.ans,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Problemi kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'İki adımlı yapıyı yeni hikâyede kullan',visual:{type:'two-step-model',a:y.a,b:y.b,c:y.c,op1:y.op1,op2:y.op2},hint:'Hikâyeyi iki değişime ayır ve sırayla işle.',explain:`${y.a} ${y.op1} ${y.b} = ${y.first}; ${y.first} ${y.op2} ${y.c} = ${y.ans}.`
+  });
+}
+
 function genNumber1000(rep,d,rng,concept){
   const c=concept?.skillId==='number1000'?concept:createConceptInstance('number1000',d,rng);
   const x=c.anchor;
@@ -1731,7 +1820,7 @@ const GENERATORS={
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
   lengthCompare1:genLengthCompare1,lengthMeasure1:genLengthMeasure1,time1:genTime1,shapes1:genShapes1,shapePattern1:genShapePattern1,data1:genData1,
-  number1000:genNumber1000,compareOrder1000:genCompareOrder1000,numberPattern1000:genNumberPattern1000,addSub1000:genAddSub1000,
+  number1000:genNumber1000,compareOrder1000:genCompareOrder1000,numberPattern1000:genNumberPattern1000,oddEven1000:genOddEven1000,addSub1000:genAddSub1000,wordAddSub2:genWordAddSub2,
   place100:genPlace100,add100:genAdd100,sub100:genSub100,multiply5:genMultiply5,divide20:genDivide20,fraction:genFraction,word2:genWord2,numberPattern2:genNumberPattern2,shapes2:genShapes2,lengthCm:genLengthCm,time2:genTime2,moneyTL:genMoneyTL,data2:genData2
 };
 
@@ -1800,7 +1889,9 @@ const READINESS_SOURCE_OVERRIDES={
   time1:['time-foundation'],
   shapes1:['shapesBasic'],
   number1000:['number100'],
-  addSub1000:['addSub100']
+  oddEven1000:['pairing-foundation'],
+  addSub1000:['addSub100'],
+  wordAddSub2:['word1']
 };
 
 export function readinessSourcesFor(skillId){
@@ -1827,6 +1918,20 @@ function relabelReadinessQuestion(q,targetSkillId,sourceSkillId,{support=false,r
   q.feedbackTitle=support?'Birlikte temelini kurduk.':(q.feedbackTitle||'Başlangıç sorusunu tamamladın.');
   q.id=`${targetSkillId}:readiness:${sourceSkillId}:${Date.now()}:${Math.floor(rng()*1e6)}`;
   return q;
+}
+
+
+function generateParityReadinessQuestion(difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
+  const source=sourceSkillId||'pairing-foundation';
+  const n=randInt(4,9,rng), leftover=n%2, answer=leftover?'Kalır':'Kalmaz';
+  const q=qBase('oddEven1000','see',support?'Nesneleri ikişerli eşleşmiş halde incele. Eşsiz nesne kalır mı?':'Bu nesneleri ikişerli eşleştirirsen eşsiz nesne kalır mı?',answer,semanticChoices(answer,[answer==='Kalır'?'Kalmaz':'Kalır','İki tane kalır','Bilinemez'],rng),{
+    taskKind:support?'readiness-support':'readiness-check',
+    visual:support?{type:'pairing-small',n,leftover}:{type:'objects',n},
+    hint:'Nesneleri iki iki düşün.',
+    explain:leftover?'Bir nesne eşsiz kalır.':'Bütün nesneler ikişerli eşleşir.',
+    countsTowardEvidence:false
+  });
+  return relabelReadinessQuestion(q,'oddEven1000',source,{support,rng});
 }
 
 function generateTimeReadinessQuestion(difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
@@ -1859,6 +1964,7 @@ function generateTimeReadinessQuestion(difficulty=1,rng=Math.random,{support=fal
 
 function generateReadinessQuestion(skillId,difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
   if(skillId==='time1') return generateTimeReadinessQuestion(difficulty,rng,{support,sourceSkillId});
+  if(skillId==='oddEven1000') return generateParityReadinessQuestion(difficulty,rng,{support,sourceSkillId});
 
   const source=sourceSkillId||readinessSourceFor(skillId,rng);
   if(!source) throw new Error(`No authentic readiness source for ${skillId}`);
@@ -1918,7 +2024,7 @@ const CONCEPT_KEYS={
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
   lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data',
-  number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',addSub1000:'addition-subtraction-within-1000',
+  number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',oddEven1000:'odd-even-pairing-to-1000',addSub1000:'addition-subtraction-within-1000',wordAddSub2:'one-two-step-add-sub-problems',
   shapes2:'solid-properties-and-invariance'
 };
 
