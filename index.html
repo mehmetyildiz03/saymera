@@ -33,19 +33,19 @@
       <section class="screen active" id="homeScreen" aria-labelledby="homeTitle">
         <div class="hero-layout">
           <article class="hero-copy-card">
-            <div class="hero-label"><span></span> BUGÜNÜN LABORATUVARI</div>
-            <h1 id="homeTitle">Cevabı değil,<br><em>bağlantıyı</em> öğren.</h1>
-            <p class="hero-lead">Bir kavramı nesneyle kur, görselde fark et, sembolle yaz, nedenini anlat ve yeni bir duruma taşı.</p>
+            <div class="hero-label"><span></span> BUGÜNÜN KEŞFİ</div>
+            <h1 id="homeTitle">Bugün biraz<br><em>matematik</em> keşfet.</h1>
+            <p class="hero-lead">Hazırsan başlayalım. Soruları kendi hızında çözebilirsin.</p>
             <div class="hero-actions">
               <button class="primary-cta" id="startSessionButton">
                 <span class="cta-icon">▶</span>
                 <span><b id="startMainText">Keşfi başlat</b><small id="startMetaText">yaklaşık 5–7 dk</small></span>
                 <i>→</i>
               </button>
-              <button class="secondary-link" data-nav="atlas">Kavram atlası <span>↗</span></button>
+              <button class="secondary-link" data-nav="atlas">Konular <span>↗</span></button>
             </div>
             <div class="trust-row">
-              <span>Hız yarışı yok</span><i></i><span>ceza puanı yok</span><i></i><span>adaptif tempo</span>
+              <span>Düşün</span><i></i><span>Dene</span><i></i><span>Keşfet</span>
             </div>
           </article>
 
@@ -54,8 +54,8 @@
 
         <section class="today-lab" aria-labelledby="labTitle">
           <div class="section-heading">
-            <div><span class="section-kicker">KAVRAYIŞ PRİZMASI</span><h2 id="labTitle">Aynı fikir, beş kanıt.</h2></div>
-            <p>Tek doğru cevap “öğrendi” demek için yeterli değil.</p>
+            <div><span class="section-kicker">BUGÜNKÜ ADIMLAR</span><h2 id="labTitle">Beş kısa görev.</h2></div>
+            <p>Her görevde senden biraz farklı bir şey istenecek.</p>
           </div>
           <div class="evidence-rail" id="lensGrid"></div>
         </section>
@@ -64,8 +64,8 @@
 
         <section class="concept-preview">
           <div class="section-heading compact-heading">
-            <div><span class="section-kicker">KAVRAM ATLASI</span><h2>Ne çalıştığını değil, neyin sağlamlaştığını gör.</h2></div>
-            <button class="secondary-link" data-nav="atlas">Tüm harita <span>→</span></button>
+            <div><span class="section-kicker">KONULAR</span><h2>Sırada neler var?</h2></div>
+            <button class="secondary-link" data-nav="atlas">Tüm konular <span>→</span></button>
           </div>
           <div class="concept-row" id="conceptPreviewRow"></div>
         </section>
@@ -74,7 +74,7 @@
       <section class="screen" id="atlasScreen" aria-labelledby="atlasTitle">
         <div class="page-head">
           <button class="back-button" data-nav="home" aria-label="Ana sayfaya dön">←</button>
-          <div><span class="section-kicker">KAVRAM ATLASI</span><h1 id="atlasTitle">Öğrenmenin yüzeyini değil, yapısını göster.</h1><p>Her kavramın beş kanıt penceresi ayrı izlenir. Bir sonraki etkinlik, kavramın en zayıf bağlantısını veya zamanı gelen hatırlamayı hedefler.</p></div>
+          <div><span class="section-kicker">KONULAR</span><h1 id="atlasTitle">Neler öğreniyoruz?</h1><p>İstersen konulara göz atabilir ve ilerlediklerini görebilirsin.</p></div>
         </div>
         <div class="atlas-summary" id="atlasSummary"></div>
         <div class="domain-tabs" id="domainTabs" role="tablist"></div>
@@ -112,22 +112,22 @@
     <nav class="bottom-nav" aria-label="Ana gezinme">
       <button class="active" data-nav="home"><span>⌂</span><b>Ana</b></button>
       <button class="lab-launch" id="bottomStart" aria-label="Keşfi başlat"><span>＋</span></button>
-      <button data-nav="atlas"><span>◇</span><b>Atlas</b></button>
+      <button data-nav="atlas"><span>◇</span><b>Konular</b></button>
     </nav>
   </div>
 
   <div class="overlay onboarding" id="onboardingOverlay" aria-hidden="true">
     <section class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
       <div class="onboarding-mark"><span></span><span></span><span></span><span></span><span></span></div>
-      <span class="section-kicker">YENİ BİR MATEMATİK DENEYİMİ</span>
-      <h2 id="onboardingTitle">Önce doğru başlangıç noktasını seçelim.</h2>
-      <p>SAYMERA sınıfı bir etiket olarak değil, başlangıç içerik haritası olarak kullanır. Zorluk daha sonra performansa göre yavaşça uyarlanır.</p>
+      <span class="section-kicker">BAŞLANGIÇ</span>
+      <h2 id="onboardingTitle">Başlangıç seviyesini seçelim.</h2>
+      <p>Hangi düzeyden başlamak istiyorsun? Bunu daha sonra değiştirebilirsin.</p>
       <div class="level-cards" id="onboardingLevels">
         <button data-profile="preschool"><span>4–6</span><b>Okul öncesi</b><small>Sayı hissi · şekil · örüntü · sınıflama</small></button>
         <button data-profile="grade1" class="selected"><span>6–7</span><b>1. sınıf</b><small>20 içinde sayı · işlemler · geometri · veri</small></button>
         <button data-profile="grade2"><span>7–8</span><b>2. sınıf</b><small>100 içinde sayı · çarpma · ölçme · zaman</small></button>
       </div>
-      <button class="primary-cta onboarding-next" id="onboardingContinue"><span class="cta-icon">✓</span><span><b>Laboratuvarı hazırla</b><small>başlamak için hazır</small></span><i>→</i></button>
+      <button class="primary-cta onboarding-next" id="onboardingContinue"><span class="cta-icon">✓</span><span><b>Başlayalım</b><small>matematik keşfi hazır</small></span><i>→</i></button>
       <small class="privacy-note">Hesap, reklam, konum veya mikrofon kaydı yok. İlerleme bu cihazda saklanır.</small>
     </section>
   </div>
