@@ -1,9 +1,10 @@
-# SAYMERA v1.2 — Görev Motoru Geçiş Matrisi
+# SAYMERA v1.2.1 — Görev Motoru Geçiş Matrisi
 
 Durum:
 
 - **P1-REFERENCE:** Singapur P1 coverage matrix'ine bağlı, beş ayrı task family ve otomatik kalite kapısı var.
-- **LEGACY:** Çalışır; v1.2 P1 kalite kapısına henüz taşınmadı.
+- **REFERENCE:** Kur · Gör · Yaz · Anlat · Taşı görevleri gerçekten farklı bilişsel eylemler olarak yeniden tasarlandı ve otomatik kalite/render kapısına alındı.
+- **LEGACY:** Çalışır; reference görev mimarisine henüz taşınmadı.
 
 | Profil | ID | Beceri | Durum |
 |---|---|---|---|
@@ -45,10 +46,10 @@ Durum:
 | 2. sınıf | `fraction` | Yarım ve çeyrek | LEGACY |
 | 2. sınıf | `word2` | İki ilişkili problem | LEGACY |
 | 2. sınıf | `numberPattern2` | Sayı örüntüsü | LEGACY |
-| 2. sınıf | `shapes2` | Şekil/cisim ilişkileri | REFERENCE |
+| 2. sınıf | `shapes2` | Şekil/cisim ilişkileri | **REFERENCE** |
 | 2. sınıf | `lengthCm` | Santimetre | LEGACY |
 | 2. sınıf | `time2` | Saat | LEGACY |
 | 2. sınıf | `moneyTL` | Para | LEGACY |
 | 2. sınıf | `data2` | Sütun grafiği | LEGACY |
 
-Toplam: **43 beceri**. Bunun **22'si P1-REFERENCE**, 21'i legacy kapsamdadır.
+Toplam: **43 beceri**. Bunun **22'si P1-REFERENCE**, **1'i Grade 2 REFERENCE** ve **20'si LEGACY** durumundadır.
