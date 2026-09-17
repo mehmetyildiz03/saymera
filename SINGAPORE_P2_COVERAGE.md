@@ -62,8 +62,7 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 ### Geometry
 - 2B şekillerle boyut, şekil, renk ve yön özelliklerinden bir veya ikisine göre örüntü kurma/tamamlama
 - küp, dikdörtgen prizma (cuboid), koni, silindir ve küreyi tanıma, adlandırma, betimleme ve sınıflandırma
-- yarım/çeyrek daire, bileşik 2B figür ve ızgarada kopyalama P1'de başlar; P2 geometri öğrenme deneyimlerinde de temel şekilleri bileşik figürde ayırt etme/oluşturma ve kopyalama bağlantısı korunur
-- 3B cisimlerle (küre hariç) bir veya iki özellikli örüntü kurma/tamamlama P2 öğrenme deneyimine dahildir
+- yarım/çeyrek daire, bileşik 2B figür ve ızgarada kopyalama P1 kapsamıdır; P2'ye tekrar çekirdek hedef olarak yazılmaz
 
 ### Data
 - **ölçekli resimli grafikleri** okuma ve yorumlama
@@ -119,11 +118,9 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 19. `moneyP2` — TL/kuruş, ondalık gösterim ve karşılaştırma
 
 ### P2-D — Geometry + Data
-20. `shapes2D2` — temel 2B parçaları birleşik figürde ayırt etme/oluşturma ve kareli alanda kopyalama
-21. `shapePatterns2` — 2B şekillerde boyut/şekil/renk/yön ile örüntü
-22. `solids2` — küp/dikdörtgen prizma/koni/silindir/küre ve sınıflandırma
-23. `solidPatterns2` — küre hariç 3B cisimlerde bir/iki özellikli örüntü
-24. `pictureGraphScale2` — ölçekli resimli grafik okuma/yorumlama
+20. `shapePatterns2` — 2B şekillerde boyut/şekil/renk/yön ile örüntü
+21. `solids2` — küp/dikdörtgen prizma/koni/silindir/küre ve sınıflandırma
+22. `pictureGraphScale2` — ölçekli resimli grafik okuma/yorumlama
 
 ## Kalite kapısı
 
@@ -206,6 +203,6 @@ Güncel P2 geometri/veri çekirdeği tamamlandı:
 Legacy `shapes2` ve yanlış P2 çekirdeği olan `data2` görünür haritadan çıkarıldı. Böylece Singapore Primary 2 çekirdek kapsamındaki 22 atomik becerinin tamamı SAYMERA öğrenme döngüsü ve beş gerçek bilişsel görev ailesiyle P2-REFERENCE durumuna geldi.
 
 
-## Uygulama ilerlemesi — v1.5.1 / P2 geometri tamamlama
+## Kapsam doğruluğu notu — v1.5.2
 
-P2 geometri auditi derinleştirildi. `shapes2D2` ile bileşik 2B figür ve gerçek kareli-alan kopyalama, `solidPatterns2` ile küre hariç 3B cisim örüntüleri eklendi. P2 render auditi artık yalnız ilk sayı becerilerini değil bütün P2 becerilerini kapsar.
+P2 beceri kartları yalnız Updated Oct 2025 resmî content objectives üzerinden sayılır. 2B bileşik figür ve grid-copy P1 hedefi olarak kalır; P1 grid-copy artık gerçek etkileşimli kopyalamadır. Learning experiences, ayrı content objective olmadıkça yeni P2 mastery kartına dönüştürülmez.

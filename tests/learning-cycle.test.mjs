@@ -34,7 +34,7 @@ for(const [i,skill] of p1.entries()){
 }
 
 const p2Reference=skillsFor('grade2').filter(s=>supportsLearningCycle(s.id));
-assert.deepEqual(p2Reference.map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2','shapes2D2','shapePatterns2','solids2','solidPatterns2','pictureGraphScale2']);
+assert.deepEqual(p2Reference.map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2','shapePatterns2','solids2','pictureGraphScale2']);
 for(const [i,skill] of p2Reference.entries()){
   const sources=readinessSourcesFor(skill.id);
   assert.ok(sources.length>=1,`${skill.id} must have authentic P2 readiness provenance`);
@@ -63,10 +63,8 @@ assert.deepEqual(readinessSourcesFor('volumeLitre2'),['volume-foundation']);
 assert.deepEqual(readinessSourcesFor('timeMinute2'),['time1']);
 assert.deepEqual(readinessSourcesFor('timeDuration2'),['timeMinute2']);
 assert.deepEqual(readinessSourcesFor('moneyP2'),['money1']);
-assert.deepEqual(readinessSourcesFor('shapes2D2'),['shapes1']);
-assert.deepEqual(readinessSourcesFor('shapePatterns2'),['shapes2D2']);
+assert.deepEqual(readinessSourcesFor('shapePatterns2'),['shapes1']);
 assert.deepEqual(readinessSourcesFor('solids2'),['shapes1']);
-assert.deepEqual(readinessSourcesFor('solidPatterns2'),['solids2']);
 assert.deepEqual(readinessSourcesFor('pictureGraphScale2'),['data1']);
 
 const state=defaultState();

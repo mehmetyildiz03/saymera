@@ -27,7 +27,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
   'lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2',
-  'shapes2D2','shapePatterns2','solids2','solidPatterns2','pictureGraphScale2'
+  'shapePatterns2','solids2','pictureGraphScale2'
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
@@ -95,10 +95,8 @@ export const SKILLS = [
   skill('timeMinute2','grade2','Dakikaya kadar saat okuma','Zaman','violet'),
   skill('timeDuration2','grade2','Saat ve dakika cinsinden süre','Zaman','violet',['timeMinute2']),
   skill('moneyP2','grade2','TL, kuruş ve ondalık para gösterimi','Para','teal'),
-  skill('shapes2D2','grade2','2B şekilleri oluşturma ve ızgarada kopyalama','Geometri','teal'),
-  skill('shapePatterns2','grade2','2B şekillerle örüntüler','Geometri','rose',['shapes2D2']),
+  skill('shapePatterns2','grade2','2B şekillerle örüntüler','Geometri','rose'),
   skill('solids2','grade2','3B cisimleri tanıma ve sınıflandırma','Geometri','violet'),
-  skill('solidPatterns2','grade2','3B cisimlerle örüntüler','Geometri','blue',['solids2']),
   skill('pictureGraphScale2','grade2','Ölçekli resimli grafikleri okuma','Veri','amber'),
 ];
 
@@ -449,6 +447,19 @@ export function addClockMinutes(z,delta){
   const hour=h24%12||12;
   return {hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`,period,intl};
 }
+
+function p1GridCellsForFigure(figure){
+  const maps={
+    house:['2,0','1,1','2,1','3,1','1,2','2,2','3,2','1,3','2,3','3,3'],
+    mushroom:['1,0','2,0','3,0','0,1','1,1','2,1','3,1','4,1','2,2','2,3'],
+    kite:['2,0','1,1','2,1','3,1','2,2','2,3','1,4','3,4'],
+    arch:['1,0','2,0','3,0','0,1','1,1','3,1','4,1','0,2','1,2','3,2','4,2','0,3','1,3','3,3','4,3'],
+    boat:['2,0','2,1','3,1','1,2','2,2','3,2','0,3','1,3','2,3','3,3','4,3'],
+    window:['0,0','1,0','3,0','4,0','0,1','1,1','3,1','4,1','0,3','1,3','3,3','4,3','0,4','1,4','3,4','4,4']
+  };
+  return maps[figure]||maps.house;
+}
+
 function shapePatternCases(){
   // Internal skill id retained for storage compatibility; content now covers the
   // official P1 forming / decomposing / copying of 2D figures.
@@ -610,32 +621,6 @@ function measurementDenoms(unit){
 }
 
 
-
-function p2GridCellsForFigure(figure){
-  const maps={
-    house:['2,0','1,1','2,1','3,1','1,2','2,2','3,2','1,3','2,3','3,3'],
-    mushroom:['1,0','2,0','3,0','0,1','1,1','2,1','3,1','4,1','2,2','2,3'],
-    kite:['2,0','1,1','2,1','3,1','2,2','2,3','1,4','3,4'],
-    arch:['1,0','2,0','3,0','0,1','1,1','3,1','4,1','0,2','1,2','3,2','4,2','0,3','1,3','3,3','4,3'],
-    boat:['2,0','2,1','3,1','1,2','2,2','3,2','0,3','1,3','2,3','3,3','4,3'],
-    window:['0,0','1,0','3,0','4,0','0,1','1,1','3,1','4,1','0,3','1,3','3,3','4,3','0,4','1,4','3,4','4,4']
-  };
-  return maps[figure]||maps.house;
-}
-function p2SolidPatternCases(){
-  const T=(kind,size='medium',colour='teal',orientation=0)=>`${kind}|${size}|${colour}|${orientation}`;
-  return [
-    {items:[T('cube'),T('cylinder'),T('cube'),T('cylinder')],next:T('cube'),code:'ABAB',attrs:['shape'],rule:'Küp ve silindir sırayla tekrar ediyor'},
-    {items:[T('cone','small'),T('cone','large'),T('cone','small'),T('cone','large')],next:T('cone','small'),code:'ABAB',attrs:['size'],rule:'Koni küçük ve büyük olarak sırayla değişiyor'},
-    {items:[T('cuboid','medium','amber'),T('cuboid','medium','blue'),T('cuboid','medium','amber'),T('cuboid','medium','blue')],next:T('cuboid','medium','amber'),code:'ABAB',attrs:['colour'],rule:'Dikdörtgen prizmanın rengi iki renk arasında sırayla değişiyor'},
-    {items:[T('cone','medium','teal',0),T('cone','medium','teal',180),T('cone','medium','teal',0),T('cone','medium','teal',180)],next:T('cone','medium','teal',0),code:'ABAB',attrs:['orientation'],rule:'Koninin yönü yukarı ve aşağı olarak sırayla değişiyor'},
-    {items:[T('cube','medium','teal'),T('cylinder','medium','amber'),T('cube','medium','teal'),T('cylinder','medium','amber')],next:T('cube','medium','teal'),code:'ABAB',attrs:['shape','colour'],rule:'Cisim türü ve renk birlikte iki durum arasında değişiyor'},
-    {items:[T('cuboid','small','blue',0),T('cuboid','large','blue',90),T('cuboid','small','blue',0),T('cuboid','large','blue',90)],next:T('cuboid','small','blue',0),code:'ABAB',attrs:['size','orientation'],rule:'Boyut ve yön birlikte sırayla değişiyor'},
-    {items:[T('cone','small','rose'),T('cube','large','rose'),T('cone','small','rose'),T('cube','large','rose')],next:T('cone','small','rose'),code:'ABAB',attrs:['shape','size'],rule:'Cisim türü ve boyut birlikte iki durum arasında değişiyor'},
-    {items:[T('cube','medium','teal'),T('cone','medium','amber'),T('cylinder','medium','blue'),T('cube','medium','teal'),T('cone','medium','amber')],next:T('cylinder','medium','blue'),code:'ABCABC',attrs:['shape','colour'],rule:'Üç farklı cisim-renk çifti aynı sırayla tekrar ediyor'}
-  ];
-}
-
 function p2ShapePatternCases(){
   const T=(shape,size='medium',colour='teal',orientation=0)=>`${shape}|${size}|${colour}|${orientation}`;
   return [
@@ -764,10 +749,8 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='timeMinute2') return make('time-to-the-minute',timeMinute2Cases());
   if(skillId==='timeDuration2') return make('hours-minutes-duration-conversion',timeDuration2Cases());
   if(skillId==='moneyP2') return make('money-decimal-cents-conversion',moneyP2Cases());
-  if(skillId==='shapes2D2') return make('p2-2d-compose-copy',shapePatternCases());
   if(skillId==='shapePatterns2') return make('p2-shape-pattern-attributes',p2ShapePatternCases());
   if(skillId==='solids2') return make('p2-solid-identify-classify',p2SolidCases());
-  if(skillId==='solidPatterns2') return make('p2-solid-pattern-attributes',p2SolidPatternCases());
   if(skillId==='pictureGraphScale2') return make('p2-scaled-picture-graphs',scaledPictureGraphCases());
   if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
@@ -1486,11 +1469,9 @@ function genShapePattern1(rep,d,rng,concept){
       taskKind:'reasoning-choice',taskLabel:'Bütün–parça geometri ilişkisini açıkla',visual:{type:'composite-figure',figure:x.id,pieces:x.pieces},hint:'Bir figürü oluşturan parçaları görmek, aynı figürü yeniden kurmayı kolaylaştırır.',explain:answer+'.'
     });
   }
-  const y=c.transfer;
-  const cases=shapePatternCases(), distractors=shuffled(cases.filter(z=>z.copy!==y.copy),rng).slice(0,2);
-  const opts=shuffled([y,...distractors].map(z=>({value:z.copy,visual:{type:'dot-grid-figure',figure:z.copy},ariaLabel:`nokta ızgarada ${z.name}`})),rng);
-  return qTask('shapePattern1',rep,'Örnekteki figürü nokta ızgarada aynı düzenle kopyalayan çalışma hangisi?',y.copy,{kind:'visual-choice',options:opts}, {
-    taskKind:'context-transfer',taskLabel:'Şekil düzenini ızgaraya kopyala',visual:{type:'composite-figure',figure:y.id,pieces:y.pieces},hint:'Parçaların yalnız adını değil, göreli konumlarını ve yönlerini de koru.',explain:`Doğru kopya ${y.name} figürünün parça düzenini korur.`
+  const y=c.transfer, cells=p1GridCellsForFigure(y.copy), expected=[...cells].sort().join('|');
+  return qTask('shapePattern1',rep,`Örnekteki ${y.name} figürünü kareli alana aynı düzenle kopyala.`,expected,{kind:'manipulative',interaction:'square-grid-copy',expectedValue:expected,checkLabel:'Kopyamı kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'Şekil düzenini kareli alana gerçekten kopyala',visual:{type:'square-grid-copy-interactive',size:5,cells,figure:y.copy},hint:'Hedefi satır satır incele; dolu hücreleri boş alanda aynı konuma getir.',explain:`Kopyada ${y.name} figürünün dolu hücreleri hedefle aynı satır ve sütunlarda olmalı.`
   });
 }
 
@@ -2040,75 +2021,6 @@ function genMoneyP2(rep,d,rng,concept){
 }
 
 
-
-function genShapes2D2(rep,d,rng,concept){
-  const c=concept?.skillId==='shapes2D2'?concept:createConceptInstance('shapes2D2',d,rng), x=c.anchor;
-  const key=z=>[...z.pieces].sort().join('+');
-  const names={square:'Kare',triangle:'Üçgen',rect:'Dikdörtgen',halfCircle:'Yarım daire',quarterCircle:'Çeyrek daire',circle:'Daire'};
-  if(rep==='build') return qTask('shapes2D2',rep,'Hedef figürü oluşturan temel şekillerin hepsini seç.',key(x),{kind:'manipulative',interaction:'shape-compose',expectedValue:key(x),checkLabel:'Parçaları kontrol et'},{
-    taskKind:'manipulative-build',taskLabel:'Temel 2B şekillerden birleşik figür oluştur',visual:{type:'shape-compose-interactive',figure:x.figure,pieces:x.pieces},hint:'Figürün sınırlarına bak; hangi temel parçaların birleştiğini tek tek bul.',explain:`Bu figür ${x.pieces.map(p=>names[p]||p).join(', ')} parçalarından oluşuyor.`
-  });
-  if(rep==='see'){
-    const all=shapePatternCases(), wrong=shuffled(all.filter(z=>key(z)!==key(x)),rng).slice(0,2);
-    const opts=shuffled([x,...wrong].map((z,i)=>({value:z===x?'correct':`wrong-${i}`,visual:{type:'shape-piece-list',pieces:z.pieces},ariaLabel:'temel şekil parçaları'})),rng);
-    return qTask('shapes2D2',rep,'Gösterilen birleşik figürü oluşturan temel şekiller hangi seçenekte?','correct',{kind:'visual-choice',options:opts},{
-      taskKind:'visual-discrimination',taskLabel:'Birleşik figürdeki temel şekilleri ayırt et',visual:{type:'composite-figure',figure:x.figure},hint:'Bütünü zihninde parçalara ayır ve düz/eğri sınırları izle.',explain:`Doğru parça kümesi ${x.pieces.map(p=>names[p]||p).join(', ')}.`
-    });
-  }
-  if(rep==='symbol'){
-    const y=c.symbol, focus=choice(y.pieces,rng), answer=names[focus]||focus;
-    return qBase('shapes2D2',rep,'Gösterilen temel 2B şeklin matematiksel adı nedir?',answer,semanticChoices(answer,Object.values(names).filter(n=>n!==answer),rng),{
-      taskKind:'symbol-entry',taskLabel:'2B şekli matematiksel adıyla ifade et',visual:{type:'shape-piece-list',pieces:[focus]},hint:'Düz kenar ve eğri sınır sayısını düşün.',explain:`Bu şeklin adı ${answer.toLowerCase()}.`
-    });
-  }
-  if(rep==='explain'){
-    const answer='Birleşik figürü oluşturan temel şekilleri ortak sınırlarından ayırarak incelerim';
-    return qBase('shapes2D2',rep,'Birleşik bir figürün hangi temel şekillerden oluştuğunu nasıl anlarsın?',answer,semanticChoices(answer,['Yalnız figürün rengine bakarım','Parçaları saymadan rastgele adlandırırım','Figür büyüdükçe şekil adları değişir'],rng),{
-      taskKind:'reasoning-choice',taskLabel:'Bileşik şekli parçalara ayırma düşüncesini açıkla',visual:{type:'composite-figure',figure:x.figure},hint:'Bütün figürdeki iç sınırlar sana parçaları gösterebilir.',explain:answer+'.'
-    });
-  }
-  const y=c.transfer, cells=p2GridCellsForFigure(y.figure), expected=[...cells].sort().join('|');
-  return qTask('shapes2D2',rep,'Mozaikteki şekli boş kareli alana aynen kopyala.',expected,{kind:'manipulative',interaction:'square-grid-copy',expectedValue:expected,checkLabel:'Kopyamı kontrol et'},{
-    taskKind:'context-transfer',taskLabel:'2B figürü kareli alana kopyala',visual:{type:'square-grid-copy-interactive',size:5,cells,figure:y.figure},hint:'Satır satır ilerle; hedefte dolu olan hücreleri aynı konuma taşı.',explain:'Kopyada her dolu hücre hedeftekiyle aynı satır ve sütunda olmalı.'
-  });
-}
-
-function solidPatternOptionPool(x,rng=Math.random){
-  const pool=[x.next];
-  for(const z of shuffled(p2SolidPatternCases(),rng)){ if(!pool.includes(z.next)) pool.push(z.next); if(pool.length>=4)break; }
-  return pool;
-}
-function genSolidPatterns2(rep,d,rng,concept){
-  const c=concept?.skillId==='solidPatterns2'?concept:createConceptInstance('solidPatterns2',d,rng), x=c.anchor;
-  if(rep==='build') return qTask('solidPatterns2',rep,'3B cisim örüntüsünü incele ve sıradaki cismi seç.',x.next,{kind:'manipulative',interaction:'p2-solid-pattern',expectedValue:x.next,checkLabel:'Örüntüyü kontrol et'},{
-    taskKind:'manipulative-build',taskLabel:'3B cisim örüntüsünü kur',visual:{type:'p2-solid-pattern-builder',items:x.items,options:solidPatternOptionPool(x,rng)},hint:'Cisim türü, boyut, renk ve yön özelliklerinden hangilerinin düzenli değiştiğini izle.',explain:`Kural: ${x.rule}.`
-  });
-  if(rep==='see'){
-    const wrong=shuffled(p2SolidPatternCases().filter(z=>z.next!==x.next),rng).slice(0,2);
-    const opts=shuffled([x,...wrong].map((z,i)=>({value:z===x?'correct':`wrong-${i}`,visual:{type:'p2-solid-pattern',items:[...x.items,z.next]},ariaLabel:'tamamlanmış 3B cisim örüntüsü'})),rng);
-    return qTask('solidPatterns2',rep,'Aynı kuralı sürdüren tamamlanmış 3B örüntü hangisi?','correct',{kind:'visual-choice',options:opts},{
-      taskKind:'visual-discrimination',taskLabel:'3B örüntü kuralını görselde ayırt et',visual:{type:'p2-solid-pattern',items:[...x.items,'?']},hint:'Her adımda değişen bir ya da iki özelliği karşılaştır.',explain:`Doğru seçenek: ${x.rule}.`
-    });
-  }
-  if(rep==='symbol'){
-    const y=c.symbol;
-    return qBase('solidPatterns2',rep,'Bu 3B örüntünün tekrar yapısını harflerle nasıl gösterebiliriz?',y.code,semanticChoices(y.code,['ABAB','ABCABC','AABB','ABBA'].filter(z=>z!==y.code),rng),{
-      taskKind:'symbol-entry',taskLabel:'3B örüntüyü kısa tekrar koduyla ifade et',visual:{type:'p2-solid-pattern',items:y.items},hint:'Aynı özellik birleşimine aynı harfi ver ve tekrar sırasını izle.',explain:`Tekrar kodu ${y.code}.`
-    });
-  }
-  if(rep==='explain'){
-    const answer=x.rule;
-    return qBase('solidPatterns2',rep,'Bu 3B cisim örüntüsünün kuralını hangi açıklama doğru anlatır?',answer,semanticChoices(answer,['Cisimler rastgele yerleştirilmiş','Küre her örüntüde olmak zorundadır','Yalnız cisimlerin sayısı önemlidir'],rng),{
-      taskKind:'reasoning-choice',taskLabel:'3B örüntünün değişen özelliklerini gerekçelendir',visual:{type:'p2-solid-pattern',items:[...x.items,x.next]},hint:'Şekil, boyut, renk ve yönü ayrı ayrı kontrol et.',explain:answer+'.'
-    });
-  }
-  const y=c.transfer, correct=y.next, alternatives=solidPatternOptionPool(y,rng).filter(z=>z!==correct).slice(0,3);
-  const opts=shuffled([{value:'correct',visual:{type:'p2-solid-token',token:correct},ariaLabel:'doğru sıradaki cisim'},...alternatives.map((token,i)=>({value:`wrong-${i}`,visual:{type:'p2-solid-token',token},ariaLabel:'başka cisim'}))],rng);
-  return qTask('solidPatterns2',rep,'Bir paketleme bandındaki kutular aynı örüntüyle diziliyor. Sıradaki paket hangisi olmalı?','correct',{kind:'visual-choice',options:opts},{
-    taskKind:'context-transfer',taskLabel:'3B cisim örüntüsünü günlük düzene taşı',visual:{type:'p2-solid-border',items:y.items},hint:'Paketlerde de aynı özellik sırası devam eder.',explain:`Sıradaki paket aynı kuralı sürdürür: ${y.rule}.`
-  });
-}
-
 function patternOptionPool(x,rng=Math.random){
   const all=p2ShapePatternCases(), pool=[x.next];
   for(const z of shuffled(all,rng)){ if(!pool.includes(z.next)) pool.push(z.next); if(pool.length>=4)break; }
@@ -2573,7 +2485,7 @@ const GENERATORS={
   times23510:genTimes23510,divisionTables2:genDivisionTables2,multDivFamilies2:genMultDivFamilies2,
   fractionMeaning2:genFractionMeaning2,fractionNotation2:genFractionNotation2,fractionCompare2:genFractionCompare2,fractionAddSub2:genFractionAddSub2,
   lengthMetre2:genLengthMetre2,massMetric2:genMassMetric2,volumeLitre2:genVolumeLitre2,timeMinute2:genTimeMinute2,timeDuration2:genTimeDuration2,moneyP2:genMoneyP2,
-  shapes2D2:genShapes2D2,shapePatterns2:genShapePatterns2,solids2:genSolids2,solidPatterns2:genSolidPatterns2,pictureGraphScale2:genPictureGraphScale2,
+  shapePatterns2:genShapePatterns2,solids2:genSolids2,pictureGraphScale2:genPictureGraphScale2,
   place100:genPlace100,add100:genAdd100,sub100:genSub100,multiply5:genMultiply5,divide20:genDivide20,fraction:genFraction,word2:genWord2,numberPattern2:genNumberPattern2,shapes2:genShapes2,lengthCm:genLengthCm,time2:genTime2,moneyTL:genMoneyTL,data2:genData2
 };
 
@@ -2652,10 +2564,8 @@ const READINESS_SOURCE_OVERRIDES={
   volumeLitre2:['volume-foundation'],
   timeMinute2:['time1'],
   moneyP2:['money1'],
-  shapes2D2:['shapes1'],
-  shapePatterns2:['shapes2D2'],
+  shapePatterns2:['shapes1'],
   solids2:['shapes1'],
-  solidPatterns2:['solids2'],
   pictureGraphScale2:['data1'],
   fractionMeaning2:['partwhole5']
 };
@@ -2811,7 +2721,7 @@ const CONCEPT_KEYS={
   number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',oddEven1000:'odd-even-pairing-to-1000',addSub1000:'addition-subtraction-within-1000',wordAddSub2:'one-two-step-add-sub-problems',
   times23510:'tables-2-3-4-5-10',divisionTables2:'division-symbol-within-tables',multDivFamilies2:'multiplication-division-fact-families',
   lengthMetre2:'length-in-metres',massMetric2:'mass-grams-kilograms',volumeLitre2:'liquid-volume-litres',timeMinute2:'time-to-the-minute',timeDuration2:'hours-minutes-duration-conversion',moneyP2:'money-decimal-cents-conversion',
-  shapes2D2:'p2-2d-compose-copy',shapePatterns2:'p2-shape-pattern-attributes',solids2:'p2-solid-identify-classify',solidPatterns2:'p2-solid-pattern-attributes',pictureGraphScale2:'p2-scaled-picture-graphs',
+  shapePatterns2:'p2-shape-pattern-attributes',solids2:'p2-solid-identify-classify',pictureGraphScale2:'p2-scaled-picture-graphs',
   fractionMeaning2:'fraction-equal-parts-whole',fractionNotation2:'fraction-notation-representation',fractionCompare2:'fraction-compare-unit-like',fractionAddSub2:'fraction-like-add-sub',
   shapes2:'solid-properties-and-invariance'
 };

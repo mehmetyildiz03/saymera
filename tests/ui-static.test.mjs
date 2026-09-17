@@ -14,7 +14,7 @@ const manifest=JSON.parse(read('manifest.webmanifest'));
 for(const id of ['homeScreen','atlasScreen','parentScreen','focusCard','homeInsightGrid','conceptPreviewRow','atlasSummary','domainTabs','skillMap','parentInsight','practiceOverlay','practiceContent','onboardingOverlay','cooldownOverlay','toast'])
   assert.match(html,new RegExp(`id=["']${id}["']`),`missing static DOM id ${id}`);
 
-for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-base1000-builder','sg-parity-builder','sg-two-step-plan','sg-measure-builder','sg-duration-builder','sg-clock-minute-set','p2-shape-pattern-builder','p2-square-grid-copy','p2-solid-pattern-builder','p2-solid-classify-builder','p2-scaled-graph-builder','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
+for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-base1000-builder','sg-parity-builder','sg-two-step-plan','sg-measure-builder','sg-duration-builder','sg-clock-minute-set','p2-shape-pattern-builder','p2-solid-classify-builder','p2-scaled-graph-builder','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-square-grid-copy','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
   assert.ok(css.includes(`.${cls}`),`missing CSS class .${cls}`);
 
 assert.match(app,/const STORAGE_KEY='saymera\.math\.v2'/,'SAYMERA must preserve its isolated storage namespace');
@@ -36,7 +36,7 @@ assert.ok(!html.includes('SAYMERA sınıfı bir etiket olarak değil'),'onboardi
 assert.match(app,/focusRepresentations/);
 assert.match(app,/createConceptInstance/);
 assert.match(app,/renderResponse/);
-for(const marker of ['bond-fill','base10-build','base1000-build','parity-pair','two-step-plan','order-pair','ordinal-position','equal-groups','share-equally','money-make','cm-ruler','shape-compose','unit-measure','clock-set','shape-pattern','solid-properties','three-add','p2-shape-pattern','square-grid-copy','p2-solid-pattern','solid-classify','scaled-pictograph-row'])
+for(const marker of ['bond-fill','base10-build','base1000-build','parity-pair','two-step-plan','order-pair','ordinal-position','equal-groups','share-equally','money-make','cm-ruler','shape-compose','square-grid-copy','unit-measure','clock-set','shape-pattern','solid-properties','three-add'])
   assert.ok(app.includes(`interaction==='${marker}'`),`app missing interaction ${marker}`);
 for(const visual of ['addition-strategy','subtraction-strategy','fact-family','problem-structure','compare-base10','base1000','base1000-build-interactive','base1000-operation-build','compare-base1000','pairing-small','parity-pair-builder','parity-card','two-step-plan-builder','two-step-model','column-operation','money-shopping','cm-ruler-interactive','cm-ruler-model','shape-compose-interactive','composite-figure','dot-grid-figure','schedule-event','three-add-strategy','solid-property-builder','solid-pair','solid-scene'])
   assert.ok(app.includes(`case '${visual}'`),`app missing visual ${visual}`);
@@ -75,7 +75,7 @@ const scripts=[...one.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 assert.ok(scripts.length>=1,'standalone inline script missing');
 for(const script of scripts) new vm.Script(script,{filename:'SAYMERA_v1_5_TEK_DOSYA.inline.js'});
 
-console.log('ui/static tests: PASS (P1/P2 task UI, complete render/interaction audit, PWA assets, v1.5 standalone parse guard)');
+console.log('ui/static tests: PASS (P1/P2 task UI, all-skill render audit, PWA assets, v1.5 standalone parse guard)');
 
 assert.ok(app.includes('dueSameSessionReview(includeFuture=false)'));
 assert.ok(app.includes('completeCycleOnSuccess'));

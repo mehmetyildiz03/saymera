@@ -656,6 +656,10 @@ function wireManipulator(q){
       if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q);
     }));
   }
+  if(interaction==='square-grid-copy'){
+    const root=$('.sg-square-grid-copy');
+    root?.querySelectorAll('.sg-grid-copy-cell').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; btn.classList.toggle('selected'); updateManipulatorStatus(q); }));
+  }
   if(interaction==='unit-measure'){
     const root=$('.sg-unit-builder'); root?.querySelectorAll('.sg-unit-cell').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;btn.classList.toggle('selected');updateManipulatorStatus(q)}));
   }
@@ -669,12 +673,6 @@ function wireManipulator(q){
   }
   if(interaction==='p2-shape-pattern'){
     const root=$('.p2-shape-pattern-builder'); root?.querySelectorAll('.p2-shape-choice').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.querySelectorAll('.p2-shape-choice').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');updateManipulatorStatus(q)}));
-  }
-  if(interaction==='square-grid-copy'){
-    const root=$('.p2-square-grid-copy'); root?.querySelectorAll('.p2-grid-cell').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;btn.classList.toggle('selected');updateManipulatorStatus(q)}));
-  }
-  if(interaction==='p2-solid-pattern'){
-    const root=$('.p2-solid-pattern-builder'); root?.querySelectorAll('.p2-solid-pattern-choice').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.querySelectorAll('.p2-solid-pattern-choice').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');updateManipulatorStatus(q)}));
   }
   if(interaction==='solid-classify'){
     const root=$('.p2-solid-classify-builder'); root?.querySelectorAll('.p2-solid-bin').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.querySelectorAll('.p2-solid-bin').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');updateManipulatorStatus(q)}));
@@ -738,14 +736,13 @@ function readManipulatorValue(q){
     const values=[...$$('.sg-shape-compose-builder .sg-compose-piece.selected')].map(b=>b.dataset.value).sort();
     return values.length?values.join('+'):null;
   }
+  if(interaction==='square-grid-copy'){ const cells=[...$$('.sg-square-grid-copy .sg-grid-copy-cell.selected')].map(b=>b.dataset.cell).sort(); return cells.length?cells.join('|'):null; }
   if(interaction==='unit-measure') return $$('.sg-unit-builder .sg-unit-cell.selected').length;
   if(interaction==='clock-set'){
     const h=$('.sg-clock-set .sg-hour-choice.selected')?.dataset.value, m=$('.sg-clock-set .sg-minute-choice.selected')?.dataset.value; return h!=null&&m!=null?`${h}|${m}`:null;
   }
   if(interaction==='shape-pattern') return $('.sg-shape-pattern-builder .sg-shape-choice.selected')?.dataset.value ?? null;
   if(interaction==='p2-shape-pattern') return $('.p2-shape-pattern-builder .p2-shape-choice.selected')?.dataset.value ?? null;
-  if(interaction==='square-grid-copy'){ const cells=[...$$('.p2-square-grid-copy .p2-grid-cell.selected')].map(b=>b.dataset.cell).sort(); return cells.length?cells.join('|'):null; }
-  if(interaction==='p2-solid-pattern') return $('.p2-solid-pattern-builder .p2-solid-pattern-choice.selected')?.dataset.value ?? null;
   if(interaction==='solid-classify') return $('.p2-solid-classify-builder .p2-solid-bin.selected')?.dataset.value ?? null;
   if(interaction==='scaled-pictograph-row') return $$('.p2-scaled-graph-builder .p2-graph-icon-button.selected').length;
   if(interaction==='three-add') return $$('.sg-three-add-builder .sg-three-token.selected').length;
@@ -783,12 +780,11 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='clock-minute-set') node.textContent=value?`Ayarladığın: ${String(value).replace('|',':').replace(/:(\d)$/,':0$1')}`:'Önce saati seç, sonra dakikayı ayarla';
   else if(q.response?.interaction==='cm-ruler') node.textContent=value?`Seçtiğin bitiş: ${value} cm`:'Cetvelde bitiş çizgisini seç';
   else if(q.response?.interaction==='shape-compose') node.textContent=value?`Seçtiğin parçalar: ${String(value).split('+').length}`:'Figürü oluşturan bütün parçaları seç';
+  else if(q.response?.interaction==='square-grid-copy') node.textContent=value?`Kopyanda ${String(value).split('|').length} dolu hücre var`:'Hedefteki dolu hücreleri aynı konuma kopyala';
   else if(q.response?.interaction==='unit-measure') node.textContent=`Kullandığın birim: ${value}`;
   else if(q.response?.interaction==='clock-set') node.textContent=value?`Ayarladığın: ${String(value).replace('|',':').replace(/:0$/,':00')}`:'Önce saati ve dakikayı seç';
   else if(q.response?.interaction==='shape-pattern') node.textContent=value?'Sıradaki şekli seçtin':'Örüntüyü tamamlayacak şekli seç';
   else if(q.response?.interaction==='p2-shape-pattern') node.textContent=value?'Örüntüyü tamamlayacak parçayı seçtin':'Boyut, şekil, renk ve yön düzenini izle';
-  else if(q.response?.interaction==='square-grid-copy') node.textContent=value?`Kopyanda ${String(value).split('|').length} dolu hücre var`:'Hedefteki dolu hücreleri aynı konuma kopyala';
-  else if(q.response?.interaction==='p2-solid-pattern') node.textContent=value?'Sıradaki 3B cismi seçtin':'Cisim türü, boyut, renk ve yön düzenini izle';
   else if(q.response?.interaction==='solid-classify') node.textContent=value?'Sınıflandırma grubunu seçtin':'Cismin düz ve eğri yüzeylerini düşün';
   else if(q.response?.interaction==='scaled-pictograph-row') node.textContent=`Grafiğe koyduğun resim: ${value}`;
   else if(q.response?.interaction==='three-add') node.textContent=`Toplam alana taşıdığın taş: ${value}`;
@@ -837,7 +833,7 @@ function answerQuestion(value,button){
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust,.p2-shape-choice,.p2-grid-cell,.p2-solid-pattern-choice,.p2-solid-bin,.p2-graph-icon-button').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-grid-copy-cell,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust,.p2-shape-choice,.p2-solid-bin,.p2-graph-icon-button').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
@@ -1056,14 +1052,9 @@ function renderVisual(v,q){
     case 'duration-card': return durationCard(v);
     case 'money-decimal-card': return moneyDecimalCard(v.cents,v.label);
     case 'money-compare-decimal': return moneyCompareDecimal(v.values);
-    case 'square-grid-copy-interactive': return squareGridCopyBuilder(v.size||5,v.cells||[],v.figure);
     case 'p2-shape-pattern-builder': return p2ShapePatternBuilder(v.items,v.options);
     case 'p2-shape-pattern': return p2ShapePatternVisual(v.items);
     case 'p2-tile-border': return `<div class="p2-tile-border">${p2ShapePatternVisual(v.items)}</div>`;
-    case 'p2-solid-pattern-builder': return p2SolidPatternBuilder(v.items,v.options);
-    case 'p2-solid-pattern': return p2SolidPatternVisual(v.items);
-    case 'p2-solid-token': return p2SolidPatternToken(v.token);
-    case 'p2-solid-border': return `<div class="p2-solid-border">${p2SolidPatternVisual(v.items)}</div>`;
     case 'p2-solid': return p2SolidVisual(v.kind);
     case 'p2-solid-classify-builder': return p2SolidClassifyBuilder(v.kind,v.name);
     case 'p2-solid-property-card': return p2SolidPropertyCard(v.kind,v.property);
@@ -1135,6 +1126,7 @@ function renderVisual(v,q){
     case 'time-label': return `<div class="sg-symbol-card time">${esc(v.label)}</div>`;
     case 'schedule-event': return `<div class="sg-schedule"><small>GÜNLÜK PROGRAM</small><b>${esc(v.label)}</b><span>${esc(v.event||'etkinlik')}</span></div>`;
     case 'shape-compose-interactive': return shapeComposeBuilder(v.figure,v.pieces);
+    case 'square-grid-copy-interactive': return squareGridCopyBuilder(v.size||5,v.cells||[],v.figure);
     case 'composite-figure': return compositeFigure(v.figure);
     case 'shape-piece-list': return shapePieceList(v.pieces);
     case 'dot-grid-figure': return dotGridFigure(v.figure);
@@ -1283,34 +1275,6 @@ function p2ShapeToken(token){
 function p2ShapePatternVisual(items){ return `<div class="p2-shape-seq">${(items||[]).map(p2ShapeToken).join('')}</div>`; }
 function p2ShapePatternBuilder(items,options){ return `<div class="p2-shape-pattern-builder"><div class="p2-shape-seq">${(items||[]).map(p2ShapeToken).join('')}<span class="p2-shape-gap">?</span></div><div class="p2-shape-bank">${(options||[]).map(token=>`<button type="button" class="p2-shape-choice" data-value="${esc(token)}">${p2ShapeToken(token)}</button>`).join('')}</div></div>`; }
 
-
-function squareGridCopyBuilder(size,cells,figure){
-  const target=new Set((cells||[]).map(String));
-  const tile=(r,c,interactive=false)=>{
-    const key=`${c},${r}`, on=target.has(key);
-    return interactive?`<button type="button" class="p2-grid-cell" data-cell="${key}" aria-label="${r+1}. satır ${c+1}. sütun"></button>`:`<i class="p2-grid-target-cell ${on?'filled':''}"></i>`;
-  };
-  const targetCells=Array.from({length:size*size},(_,i)=>tile(Math.floor(i/size),i%size,false)).join('');
-  const copyCells=Array.from({length:size*size},(_,i)=>tile(Math.floor(i/size),i%size,true)).join('');
-  return `<div class="p2-square-grid-copy" style="--grid-size:${size}"><div><small>HEDEF</small><div class="p2-grid target">${targetCells}</div></div><span>→</span><div><small>KOPYAN</small><div class="p2-grid copy">${copyCells}</div></div></div>`;
-}
-function p2MiniSolidSvg(kind){
-  if(kind==='cube') return `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 20 31 11 50 20 50 43 31 53 14 43Z" fill="currentColor" opacity=".82"/><path d="M14 20 31 30 50 20M31 30V53" fill="none" stroke="currentColor" stroke-width="3"/></svg>`;
-  if(kind==='cuboid') return `<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M10 22 27 13 61 18 61 43 44 52 10 46Z" fill="currentColor" opacity=".82"/><path d="M10 22 44 27 61 18M44 27V52" fill="none" stroke="currentColor" stroke-width="3"/></svg>`;
-  if(kind==='cone') return `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8 12 48H52Z" fill="currentColor" opacity=".82"/><ellipse cx="32" cy="48" rx="20" ry="6" fill="currentColor"/></svg>`;
-  return `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="14" y="15" width="36" height="34" fill="currentColor" opacity=".82"/><ellipse cx="32" cy="15" rx="18" ry="6" fill="currentColor"/><ellipse cx="32" cy="49" rx="18" ry="6" fill="currentColor"/></svg>`;
-}
-function p2SolidPatternToken(token){
-  if(token==='?') return `<span class="p2-solid-pattern-gap">?</span>`;
-  const [kind='cube',size='medium',colour='teal',orientation='0']=String(token).split('|');
-  const palette={teal:'#2f9987',amber:'#d69b2d',blue:'#4e8cc8',rose:'#d96f64',violet:'#8270ca'};
-  const scale=size==='small'?.78:size==='large'?1.16:1;
-  const angle=Number(orientation)||0;
-  return `<span class="p2-solid-pattern-token" style="--solid-token-color:${palette[colour]||palette.teal};--solid-token-scale:${scale};--solid-token-rot:${angle}deg">${p2MiniSolidSvg(kind)}</span>`;
-}
-function p2SolidPatternVisual(items){ return `<div class="p2-solid-pattern-seq">${(items||[]).map(p2SolidPatternToken).join('')}</div>`; }
-function p2SolidPatternBuilder(items,options){ return `<div class="p2-solid-pattern-builder">${p2SolidPatternVisual([...(items||[]),'?'])}<div class="p2-solid-pattern-bank">${(options||[]).map(token=>`<button type="button" class="p2-solid-pattern-choice" data-value="${esc(token)}">${p2SolidPatternToken(token)}</button>`).join('')}</div></div>`; }
-
 function coneSolidSvg(){
   return `<div class="solid-visual clear-solid"><svg viewBox="0 0 216 176" role="img" aria-label="koni"><ellipse cx="108" cy="132" rx="55" ry="17" class="solid-bottom"/><path d="M53 132 L108 24 L163 132" class="solid-cone-body"/><ellipse cx="108" cy="132" rx="55" ry="17" class="solid-guide"/></svg></div>`;
 }
@@ -1379,6 +1343,16 @@ function cmRulerModel(end,start=0,max=15){
   const ticks=Array.from({length:max+1},(_,i)=>`<span class="sg-ruler-static-tick ${i===safeStart?'start':''} ${i===safeEnd?'end':''}"><i></i><b>${i}</b></span>`).join('');
   return `<div class="sg-cm-ruler-model"><div class="sg-cm-ruler-scroll"><div class="sg-cm-ruler-track static" style="--max:${max};--start:${safeStart};--end:${safeEnd}"><div class="sg-cm-ruler-line" style="width:${(safeEnd-safeStart)*40}px;margin-left:${safeStart*40}px"></div>${ticks}</div></div><small>cm</small></div>`;
 }
+
+function squareGridCopyBuilder(size,cells,figure){
+  const target=new Set((cells||[]).map(String));
+  const staticCell=(r,c)=>`<i class="sg-grid-target-cell ${target.has(`${c},${r}`)?'filled':''}"></i>`;
+  const copyCell=(r,c)=>`<button type="button" class="sg-grid-copy-cell" data-cell="${c},${r}" aria-label="${r+1}. satır ${c+1}. sütun"></button>`;
+  const targetCells=Array.from({length:size*size},(_,i)=>staticCell(Math.floor(i/size),i%size)).join('');
+  const copyCells=Array.from({length:size*size},(_,i)=>copyCell(Math.floor(i/size),i%size)).join('');
+  return `<div class="sg-square-grid-copy" style="--grid-size:${size}"><div><small>HEDEF</small><div class="sg-copy-grid target">${targetCells}</div></div><span>→</span><div><small>KOPYAN</small><div class="sg-copy-grid copy">${copyCells}</div></div></div>`;
+}
+
 function shapePieceSvg(id){
   const shapes={
     square:'<rect x="18" y="18" width="64" height="64" rx="5"/>',
