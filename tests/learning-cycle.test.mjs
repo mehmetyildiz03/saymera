@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   LEARNING_PHASES, defaultState, ensureSkillState, supportsLearningCycle, skillsFor,
   buildLearningCyclePlan, createConceptInstance, generateLearningQuestion, applyAnswer,
-  readinessSourcesFor
+  readinessSourcesFor, addClockMinutes
 } from '../engine.mjs';
 
 const makeSeeded=(seed=246813579)=>()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
@@ -73,6 +73,29 @@ const queueBefore=bridgeState.reviewQueue.length;
 applyAnswer(bridgeState,support,{correct:false,now:6000,sessionQuestionIndex:2});
 assert.equal(bridgeState.reviewQueue.length,queueBefore,'a failed readiness scaffold must not recurse indefinitely');
 assert.equal(bridgeSS.learningCycle.readinessSupportUsed,true);
+
+// Clock arithmetic preserves the day period across noon and midnight.
+assert.deepEqual(addClockMinutes({hour:11,minute:30,period:'ÖÖ'},60),{hour:12,minute:30,label:'12:30',period:'ÖS',intl:'p.m.'});
+assert.deepEqual(addClockMinutes({hour:11,minute:45,period:'ÖS'},30),{hour:12,minute:15,label:'12:15',period:'ÖÖ',intl:'a.m.'});
+assert.deepEqual(addClockMinutes({hour:12,minute:30,period:'ÖS'},60),{hour:1,minute:30,label:'1:30',period:'ÖS',intl:'p.m.'});
+
+// A failed final practice does not close the learning cycle or schedule retention.
+const finalFailState=defaultState();
+const finalFailSS=ensureSkillState(finalFailState,'time1');
+const finalFailQ=generateLearningQuestion('time1','practice','transfer',1,makeSeeded(9001),createConceptInstance('time1',1,makeSeeded(9002)));
+finalFailQ.cycleFinal=true;
+applyAnswer(finalFailState,finalFailQ,{correct:false,now:7000,sessionQuestionIndex:8});
+assert.equal(finalFailSS.learningCycle.firstCycleCompletedAt,0);
+assert.equal(finalFailState.reviewQueue.some(x=>x.stage==='next-day'),false);
+const completionBridge=finalFailState.reviewQueue.find(x=>x.completeCycleOnSuccess);
+assert.ok(completionBridge,'failed final practice must schedule immediate completion recovery');
+assert.equal(completionBridge.dueQuestion,8);
+const recoveryQ=generateLearningQuestion('time1','practice',completionBridge.representation,1,makeSeeded(9003),createConceptInstance('time1',1,makeSeeded(9004)));
+recoveryQ.completionRecovery=true;
+recoveryQ.cycleFinal=true;
+applyAnswer(finalFailState,recoveryQ,{correct:true,now:8000,sessionQuestionIndex:9});
+assert.ok(finalFailSS.learningCycle.firstCycleCompletedAt>0);
+assert.ok(finalFailState.reviewQueue.some(x=>x.stage==='next-day'&&x.phase==='retrieval'));
 
 let now=2000;
 for(const item of plan.slice(1)){

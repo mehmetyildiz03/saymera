@@ -37,3 +37,10 @@ v1.3'te sözleşme P1 referans kalitesine taşınmış 22 beceride aktiftir. Leg
 Ön-bilgi yanlışı olduğunda SAYMERA normal öğrenme akışına hemen geçmez. Aynı önkoşulun daha somut `build` görevi bir sonraki ekrana adaptif destek olarak eklenir. Bu destek de hedef mastery skoruna yazılmaz ve başarısız olursa sonsuz destek döngüsü oluşturmaz.
 
 P1 kök eşlemeleri: `number20 ← count10`, `lengthCompare1 ← compare10`, `shapes1 ← shapesBasic`, `time1 ← 5’er sayma / tam saat temeli`. Diğer P1 becerilerinin readiness kaynakları kendi prerequisite alanlarından türetilir.
+
+
+## v1.3.2 — Başarılı pekiştirme kapısı
+
+Öğrenme döngüsü yalnızca son pekiştirme (veya onun doğrudan düzeltme görevi) başarılı olduğunda tamamlanır. Son pekiştirme yanlışsa gecikmeli geri çağırma planlanmaz; önce aynı oturumda temsil değiştiren bir düzeltme görevi çözülür. Oturumun sonunda sırada bekleyen aynı-oturum köprüsü varsa süre dolmuş olsa bile sessizce atlanmaz.
+
+Saat referans becerisinde ÖÖ/ÖS artık 24 saatlik iç hesap üzerinden taşınır; öğlen/gece 12 sınırları doğru çevrilir.

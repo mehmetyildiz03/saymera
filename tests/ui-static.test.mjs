@@ -75,3 +75,6 @@ assert.ok(scripts.length>=1,'standalone inline script missing');
 for(const script of scripts) new vm.Script(script,{filename:'SAYMERA_v1_2_TEK_DOSYA.inline.js'});
 
 console.log('ui/static tests: PASS (P1 task UI, cm ruler/shape composition/5-minute clock coverage, PWA assets, standalone parse guard)');
+
+assert.ok(app.includes('dueSameSessionReview(includeFuture=false)'));
+assert.ok(app.includes('completeCycleOnSuccess'));

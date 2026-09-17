@@ -221,7 +221,8 @@ function renderHome(){
   const main=$('#startSessionButton');
   main.disabled=!!locked;
   $('#startMainText').textContent=locked?'Mola sürüyor':'Keşfi başlat';
-  $('#startMetaText').textContent=locked?'ekran dışı ara':`yaklaşık ${state.profile==='grade2'?'6–8':'5–7'} dk`;
+  const firstCycle=!!(focus&&supportsLearningCycle(focus.skill.id)&&!ss?.learningCycle?.firstCycleCompletedAt);
+  $('#startMetaText').textContent=locked?'ekran dışı ara':`yaklaşık ${firstCycle?'7–10':state.profile==='grade2'?'6–8':'5–7'} dk`;
   $('#bottomStart').disabled=!!locked;
 }
 
@@ -292,10 +293,12 @@ function dueReviewItems(){
   const now=Date.now();
   return state.reviewQueue.filter(x=>allowed.has(x.skillId) && x.dueAt<=now && x.stage==='next-day').sort((a,b)=>a.dueAt-b.dueAt);
 }
-function dueSameSessionReview(){
+function dueSameSessionReview(includeFuture=false){
   if(!session) return null;
   const allowed=new Set(skillsFor(state.profile).map(s=>s.id));
-  return state.reviewQueue.filter(x=>allowed.has(x.skillId)&&x.stage==='same-session'&&x.dueQuestion!=null&&x.dueQuestion<=session.questionIndex).sort((a,b)=>a.dueQuestion-b.dueQuestion)[0]||null;
+  return state.reviewQueue
+    .filter(x=>allowed.has(x.skillId)&&x.stage==='same-session'&&x.dueQuestion!=null&&(includeFuture||x.dueQuestion<=session.questionIndex))
+    .sort((a,b)=>a.dueQuestion-b.dueQuestion)[0]||null;
 }
 function focusRepresentations(skillState){
   // İlk keşif tüm kanıt pencerelerini tanıtır. Sonraki oturumlar beşli bir checklist değildir;
@@ -354,9 +357,9 @@ function startSession(){
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
   loadPlanItem();
 }
-function maybeInjectBridgeReview(){
+function maybeInjectBridgeReview(force=false){
   if(!session || session.bridgeAdds>=2) return;
-  const review=dueSameSessionReview(); if(!review) return;
+  const review=dueSameSessionReview(force); if(!review) return;
   const skill=skillsFor(state.profile).find(s=>s.id===review.skillId); if(!skill) return;
   const already=session.plan.slice(session.planIndex).some(x=>x.reviewItem?.id===review.id);
   if(!already){
@@ -374,7 +377,8 @@ function maybeInjectBridgeReview(){
 }
 function loadPlanItem(){
   if(!session) return;
-  maybeInjectBridgeReview();
+  const atPlanEnd=session.planIndex>=session.plan.length;
+  maybeInjectBridgeReview(atPlanEnd);
   if(session.planIndex>=session.plan.length){ finishSession(); return; }
   currentSelection=session.plan[session.planIndex];
   const skill=skillsFor(state.profile).find(s=>s.id===currentSelection.skillId);
@@ -399,7 +403,8 @@ function loadPlanItem(){
     if(currentSelection.phase) currentQuestion.learningPhase=currentSelection.phase;
   }
   if(currentSelection.countsTowardEvidence===false) currentQuestion.countsTowardEvidence=false;
-  currentQuestion.cycleFinal=!!currentSelection.cycleFinal;
+  currentQuestion.completionRecovery=!!currentSelection.reviewItem?.completeCycleOnSuccess;
+  currentQuestion.cycleFinal=!!currentSelection.cycleFinal||currentQuestion.completionRecovery;
 
   session.questionIndex++;
   session.recentSkillIds.push(skill.id);

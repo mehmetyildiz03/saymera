@@ -774,13 +774,25 @@ function time1Cases(){
   const minutes=[0,5,10,15,20,25,30,35,40,45,50,55];
   for(let hour=1;hour<=12;hour++){
     for(const minute of minutes){
-      const period=((hour+minute/5)%2===0)?'ÖÖ':'ÖS';
-      const intl=period==='ÖÖ'?'a.m.':'p.m.';
-      const duration=((hour+minute/5)%3===0)?60:30;
-      out.push({hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`,period,intl,duration});
+      for(const period of ['ÖÖ','ÖS']){
+        const intl=period==='ÖÖ'?'a.m.':'p.m.';
+        const duration=((hour+minute/5)%3===0)?60:30;
+        out.push({hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`,period,intl,duration});
+      }
     }
   }
   return out;
+}
+function addClockMinutes(z,delta){
+  let hour24=z.hour%12;
+  if(z.period==='ÖS') hour24+=12;
+  const start=hour24*60+z.minute;
+  const total=((start+delta)%(24*60)+(24*60))%(24*60);
+  const h24=Math.floor(total/60), minute=total%60;
+  const period=h24<12?'ÖÖ':'ÖS';
+  const intl=period==='ÖÖ'?'a.m.':'p.m.';
+  const hour=h24%12||12;
+  return {hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`,period,intl};
 }
 function shapePatternCases(){
   // Internal skill id retained for storage compatibility; content now covers the
@@ -1500,11 +1512,6 @@ function genLengthMeasure1(rep,d,rng,concept){
 function genTime1(rep,d,rng,concept){
   const c=concept?.skillId==='time1'?concept:createConceptInstance('time1',d,rng);
   const x=c.anchor;
-  const addMinutes=(z,delta)=>{
-    const total=((z.hour%12)*60+z.minute+delta)%(12*60);
-    const hour=(Math.floor(total/60)||12), minute=total%60;
-    return {hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`};
-  };
   if(rep==='build') return qTask('time1',rep,`Saati ${x.label} gösterecek şekilde ayarla.`,`${x.hour}|${x.minute}`,{kind:'manipulative',interaction:'clock-set',expectedValue:`${x.hour}|${x.minute}`,checkLabel:'Saati kontrol et'}, {
     taskKind:'manipulative-build',taskLabel:'Akrep ve yelkovanı 5 dakikalık aralıklarla ayarla',visual:{type:'clock-set-interactive',hour:x.hour,minute:x.minute},hint:`Yelkovanda her sayı aralığı 5 dakikadır. ${x.minute} dakika için ${x.minute/5} aralık ilerle.`,explain:`Saat ${x.label}. Yelkovan ${x.minute===0?'12':x.minute/5}. sayı konumundadır.`
   });
@@ -1532,9 +1539,16 @@ function genTime1(rep,d,rng,concept){
       taskKind:'reasoning-choice',taskLabel:'5 dakikalık saat okuma kuralını gerekçelendir',visual:{type:'clock',hour:x.hour,minute:x.minute},hint:'Analog saatte bir tam tur 60 dakika ve 12 eşit sayı aralığı vardır.',explain:`60 ÷ 12 = 5; bu yüzden her sayı aralığı 5 dakikadır. Süre yazımında h saat, min dakika kısaltmasıdır. ${x.period}, uluslararası gösterimde ${x.intl} dönemine karşılık gelir.`
     });
   }
-  const y=c.transfer, end=addMinutes(y,y.duration);
-  return qBase('time1',rep,`Bir etkinlik ${y.label} ${y.period} (${y.intl}) başlıyor ve ${y.duration===60?'1 saat (1 h)':'yarım saat (30 min)'} sürüyor. Bitiş saati hangisidir?`,end.label,semanticChoices(end.label,[addMinutes(y,y.duration-5).label,addMinutes(y,y.duration+5).label,addMinutes(y,y.duration===60?30:60).label],rng), {
-    taskKind:'context-transfer',taskLabel:'Saati süre ve günlük programa taşı',visual:{type:'schedule-event',label:`${y.label} ${y.period}`,event:y.duration===60?'1 saatlik etkinlik':'yarım saatlik etkinlik'},hint:`Başlangıç zamanına ${y.duration} dakika ekle.`,explain:`${y.label} + ${y.duration} dakika = ${end.label}. ${y.period}, ${y.intl} anlamına gelir.`
+  const y=c.transfer, end=addClockMinutes(y,y.duration);
+  const fmt=z=>`${z.label} ${z.period}`;
+  const answer=fmt(end);
+  const distractors=[
+    addClockMinutes(y,y.duration-5),
+    addClockMinutes(y,y.duration+5),
+    addClockMinutes(y,y.duration===60?30:60)
+  ].map(fmt);
+  return qBase('time1',rep,`Bir etkinlik ${y.label} ${y.period} (${y.intl}) başlıyor ve ${y.duration===60?'1 saat (1 h)':'yarım saat (30 min)'} sürüyor. Bitiş zamanı hangisidir?`,answer,semanticChoices(answer,distractors,rng), {
+    taskKind:'context-transfer',taskLabel:'Saati süre ve günlük programa taşı',visual:{type:'schedule-event',label:`${y.label} ${y.period}`,event:y.duration===60?'1 saatlik etkinlik':'yarım saatlik etkinlik'},hint:`Başlangıç zamanına ${y.duration} dakika ekle; 12 sınırını geçersen ÖÖ/ÖS değişimini de kontrol et.`,explain:`${y.label} ${y.period} + ${y.duration} dakika = ${answer}.`
   });
 }
 function genShapePattern1(rep,d,rng,concept){
@@ -2125,7 +2139,7 @@ function applyAnswer(state, question, {correct, usedHint=false, isDelayedReview=
   }
 
   if(phase){
-    if(question.cycleFinal){
+    if(question.cycleFinal && correct){
       lc.firstCycleCompletedAt ||= now;
       lc.lastCycleAt=now;
       lc.status='consolidating';
@@ -2153,7 +2167,10 @@ function applyAnswer(state, question, {correct, usedHint=false, isDelayedReview=
     const bridgeMap={build:'see',see:'build',symbol:'see',explain:'see',transfer:'build'};
     const readiness=phase==='readiness';
     const alreadySupport=readiness && question.taskKind==='readiness-support';
-    if(!alreadySupport){
+    const alreadyCompletionRecovery=!!question.completionRecovery;
+    if(!alreadySupport && !alreadyCompletionRecovery){
+      const completionRecovery=!!question.cycleFinal;
+      const immediate=readiness||completionRecovery;
       const alternative=readiness?'build':(bridgeMap[question.representation]||'see');
       state.reviewQueue.push({
         id:`review:${question.id}`,
@@ -2162,14 +2179,15 @@ function applyAnswer(state, question, {correct, usedHint=false, isDelayedReview=
         phase:readiness?'readiness':'practice',
         readinessSourceSkillId:readiness?(question.readinessSourceSkillId||null):null,
         support:readiness,
-        dueQuestion:readiness?sessionQuestionIndex:sessionQuestionIndex+3,
-        dueAt:readiness?now:now+1000*60*3,
+        completeCycleOnSuccess:completionRecovery,
+        dueQuestion:immediate?sessionQuestionIndex:sessionQuestionIndex+3,
+        dueAt:immediate?now:now+1000*60*3,
         stage:'same-session'
       });
     }
   }
 
-  if(question.cycleFinal){
+  if(question.cycleFinal && correct){
     const existing=state.reviewQueue.some(x=>x.skillId===question.skillId && x.stage==='next-day');
     if(!existing) state.reviewQueue.push({
       id:`retention:${question.skillId}:${now}`,
@@ -2432,7 +2450,8 @@ function renderHome(){
   const main=$('#startSessionButton');
   main.disabled=!!locked;
   $('#startMainText').textContent=locked?'Mola sürüyor':'Keşfi başlat';
-  $('#startMetaText').textContent=locked?'ekran dışı ara':`yaklaşık ${state.profile==='grade2'?'6–8':'5–7'} dk`;
+  const firstCycle=!!(focus&&supportsLearningCycle(focus.skill.id)&&!ss?.learningCycle?.firstCycleCompletedAt);
+  $('#startMetaText').textContent=locked?'ekran dışı ara':`yaklaşık ${firstCycle?'7–10':state.profile==='grade2'?'6–8':'5–7'} dk`;
   $('#bottomStart').disabled=!!locked;
 }
 
@@ -2503,10 +2522,12 @@ function dueReviewItems(){
   const now=Date.now();
   return state.reviewQueue.filter(x=>allowed.has(x.skillId) && x.dueAt<=now && x.stage==='next-day').sort((a,b)=>a.dueAt-b.dueAt);
 }
-function dueSameSessionReview(){
+function dueSameSessionReview(includeFuture=false){
   if(!session) return null;
   const allowed=new Set(skillsFor(state.profile).map(s=>s.id));
-  return state.reviewQueue.filter(x=>allowed.has(x.skillId)&&x.stage==='same-session'&&x.dueQuestion!=null&&x.dueQuestion<=session.questionIndex).sort((a,b)=>a.dueQuestion-b.dueQuestion)[0]||null;
+  return state.reviewQueue
+    .filter(x=>allowed.has(x.skillId)&&x.stage==='same-session'&&x.dueQuestion!=null&&(includeFuture||x.dueQuestion<=session.questionIndex))
+    .sort((a,b)=>a.dueQuestion-b.dueQuestion)[0]||null;
 }
 function focusRepresentations(skillState){
   // İlk keşif tüm kanıt pencerelerini tanıtır. Sonraki oturumlar beşli bir checklist değildir;
@@ -2565,9 +2586,9 @@ function startSession(){
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
   loadPlanItem();
 }
-function maybeInjectBridgeReview(){
+function maybeInjectBridgeReview(force=false){
   if(!session || session.bridgeAdds>=2) return;
-  const review=dueSameSessionReview(); if(!review) return;
+  const review=dueSameSessionReview(force); if(!review) return;
   const skill=skillsFor(state.profile).find(s=>s.id===review.skillId); if(!skill) return;
   const already=session.plan.slice(session.planIndex).some(x=>x.reviewItem?.id===review.id);
   if(!already){
@@ -2585,7 +2606,8 @@ function maybeInjectBridgeReview(){
 }
 function loadPlanItem(){
   if(!session) return;
-  maybeInjectBridgeReview();
+  const atPlanEnd=session.planIndex>=session.plan.length;
+  maybeInjectBridgeReview(atPlanEnd);
   if(session.planIndex>=session.plan.length){ finishSession(); return; }
   currentSelection=session.plan[session.planIndex];
   const skill=skillsFor(state.profile).find(s=>s.id===currentSelection.skillId);
@@ -2610,7 +2632,8 @@ function loadPlanItem(){
     if(currentSelection.phase) currentQuestion.learningPhase=currentSelection.phase;
   }
   if(currentSelection.countsTowardEvidence===false) currentQuestion.countsTowardEvidence=false;
-  currentQuestion.cycleFinal=!!currentSelection.cycleFinal;
+  currentQuestion.completionRecovery=!!currentSelection.reviewItem?.completeCycleOnSuccess;
+  currentQuestion.cycleFinal=!!currentSelection.cycleFinal||currentQuestion.completionRecovery;
 
   session.questionIndex++;
   session.recentSkillIds.push(skill.id);

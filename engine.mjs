@@ -411,13 +411,25 @@ function time1Cases(){
   const minutes=[0,5,10,15,20,25,30,35,40,45,50,55];
   for(let hour=1;hour<=12;hour++){
     for(const minute of minutes){
-      const period=((hour+minute/5)%2===0)?'ÖÖ':'ÖS';
-      const intl=period==='ÖÖ'?'a.m.':'p.m.';
-      const duration=((hour+minute/5)%3===0)?60:30;
-      out.push({hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`,period,intl,duration});
+      for(const period of ['ÖÖ','ÖS']){
+        const intl=period==='ÖÖ'?'a.m.':'p.m.';
+        const duration=((hour+minute/5)%3===0)?60:30;
+        out.push({hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`,period,intl,duration});
+      }
     }
   }
   return out;
+}
+export function addClockMinutes(z,delta){
+  let hour24=z.hour%12;
+  if(z.period==='ÖS') hour24+=12;
+  const start=hour24*60+z.minute;
+  const total=((start+delta)%(24*60)+(24*60))%(24*60);
+  const h24=Math.floor(total/60), minute=total%60;
+  const period=h24<12?'ÖÖ':'ÖS';
+  const intl=period==='ÖÖ'?'a.m.':'p.m.';
+  const hour=h24%12||12;
+  return {hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`,period,intl};
 }
 function shapePatternCases(){
   // Internal skill id retained for storage compatibility; content now covers the
@@ -1137,11 +1149,6 @@ function genLengthMeasure1(rep,d,rng,concept){
 function genTime1(rep,d,rng,concept){
   const c=concept?.skillId==='time1'?concept:createConceptInstance('time1',d,rng);
   const x=c.anchor;
-  const addMinutes=(z,delta)=>{
-    const total=((z.hour%12)*60+z.minute+delta)%(12*60);
-    const hour=(Math.floor(total/60)||12), minute=total%60;
-    return {hour,minute,label:`${hour}:${String(minute).padStart(2,'0')}`};
-  };
   if(rep==='build') return qTask('time1',rep,`Saati ${x.label} gösterecek şekilde ayarla.`,`${x.hour}|${x.minute}`,{kind:'manipulative',interaction:'clock-set',expectedValue:`${x.hour}|${x.minute}`,checkLabel:'Saati kontrol et'}, {
     taskKind:'manipulative-build',taskLabel:'Akrep ve yelkovanı 5 dakikalık aralıklarla ayarla',visual:{type:'clock-set-interactive',hour:x.hour,minute:x.minute},hint:`Yelkovanda her sayı aralığı 5 dakikadır. ${x.minute} dakika için ${x.minute/5} aralık ilerle.`,explain:`Saat ${x.label}. Yelkovan ${x.minute===0?'12':x.minute/5}. sayı konumundadır.`
   });
@@ -1169,9 +1176,16 @@ function genTime1(rep,d,rng,concept){
       taskKind:'reasoning-choice',taskLabel:'5 dakikalık saat okuma kuralını gerekçelendir',visual:{type:'clock',hour:x.hour,minute:x.minute},hint:'Analog saatte bir tam tur 60 dakika ve 12 eşit sayı aralığı vardır.',explain:`60 ÷ 12 = 5; bu yüzden her sayı aralığı 5 dakikadır. Süre yazımında h saat, min dakika kısaltmasıdır. ${x.period}, uluslararası gösterimde ${x.intl} dönemine karşılık gelir.`
     });
   }
-  const y=c.transfer, end=addMinutes(y,y.duration);
-  return qBase('time1',rep,`Bir etkinlik ${y.label} ${y.period} (${y.intl}) başlıyor ve ${y.duration===60?'1 saat (1 h)':'yarım saat (30 min)'} sürüyor. Bitiş saati hangisidir?`,end.label,semanticChoices(end.label,[addMinutes(y,y.duration-5).label,addMinutes(y,y.duration+5).label,addMinutes(y,y.duration===60?30:60).label],rng), {
-    taskKind:'context-transfer',taskLabel:'Saati süre ve günlük programa taşı',visual:{type:'schedule-event',label:`${y.label} ${y.period}`,event:y.duration===60?'1 saatlik etkinlik':'yarım saatlik etkinlik'},hint:`Başlangıç zamanına ${y.duration} dakika ekle.`,explain:`${y.label} + ${y.duration} dakika = ${end.label}. ${y.period}, ${y.intl} anlamına gelir.`
+  const y=c.transfer, end=addClockMinutes(y,y.duration);
+  const fmt=z=>`${z.label} ${z.period}`;
+  const answer=fmt(end);
+  const distractors=[
+    addClockMinutes(y,y.duration-5),
+    addClockMinutes(y,y.duration+5),
+    addClockMinutes(y,y.duration===60?30:60)
+  ].map(fmt);
+  return qBase('time1',rep,`Bir etkinlik ${y.label} ${y.period} (${y.intl}) başlıyor ve ${y.duration===60?'1 saat (1 h)':'yarım saat (30 min)'} sürüyor. Bitiş zamanı hangisidir?`,answer,semanticChoices(answer,distractors,rng), {
+    taskKind:'context-transfer',taskLabel:'Saati süre ve günlük programa taşı',visual:{type:'schedule-event',label:`${y.label} ${y.period}`,event:y.duration===60?'1 saatlik etkinlik':'yarım saatlik etkinlik'},hint:`Başlangıç zamanına ${y.duration} dakika ekle; 12 sınırını geçersen ÖÖ/ÖS değişimini de kontrol et.`,explain:`${y.label} ${y.period} + ${y.duration} dakika = ${answer}.`
   });
 }
 function genShapePattern1(rep,d,rng,concept){
@@ -1762,7 +1776,7 @@ export function applyAnswer(state, question, {correct, usedHint=false, isDelayed
   }
 
   if(phase){
-    if(question.cycleFinal){
+    if(question.cycleFinal && correct){
       lc.firstCycleCompletedAt ||= now;
       lc.lastCycleAt=now;
       lc.status='consolidating';
@@ -1790,7 +1804,10 @@ export function applyAnswer(state, question, {correct, usedHint=false, isDelayed
     const bridgeMap={build:'see',see:'build',symbol:'see',explain:'see',transfer:'build'};
     const readiness=phase==='readiness';
     const alreadySupport=readiness && question.taskKind==='readiness-support';
-    if(!alreadySupport){
+    const alreadyCompletionRecovery=!!question.completionRecovery;
+    if(!alreadySupport && !alreadyCompletionRecovery){
+      const completionRecovery=!!question.cycleFinal;
+      const immediate=readiness||completionRecovery;
       const alternative=readiness?'build':(bridgeMap[question.representation]||'see');
       state.reviewQueue.push({
         id:`review:${question.id}`,
@@ -1799,14 +1816,15 @@ export function applyAnswer(state, question, {correct, usedHint=false, isDelayed
         phase:readiness?'readiness':'practice',
         readinessSourceSkillId:readiness?(question.readinessSourceSkillId||null):null,
         support:readiness,
-        dueQuestion:readiness?sessionQuestionIndex:sessionQuestionIndex+3,
-        dueAt:readiness?now:now+1000*60*3,
+        completeCycleOnSuccess:completionRecovery,
+        dueQuestion:immediate?sessionQuestionIndex:sessionQuestionIndex+3,
+        dueAt:immediate?now:now+1000*60*3,
         stage:'same-session'
       });
     }
   }
 
-  if(question.cycleFinal){
+  if(question.cycleFinal && correct){
     const existing=state.reviewQueue.some(x=>x.skillId===question.skillId && x.stage==='next-day');
     if(!existing) state.reviewQueue.push({
       id:`retention:${question.skillId}:${now}`,
