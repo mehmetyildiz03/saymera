@@ -1,0 +1,35 @@
+name: Apply SAYMERA v1.3
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.maintenance/v1.3/**'
+      - '.github/workflows/apply-v1-3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply learning-cycle migration
+        run: python .maintenance/v1.3/apply.py
+      - name: Validate
+        run: npm test
+      - name: Commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .maintenance/v1.3
+          rmdir .maintenance 2>/dev/null || true
+          rm -f .github/workflows/apply-v1-3.yml
+          git config user.name 'SAYMERA maintenance'
+          git config user.email '115743794+mehmetyildiz03@users.noreply.github.com'
+          git add -A
+          git commit -m 'Establish Singapore-first learning cycle foundation'
+          git push origin HEAD:main
