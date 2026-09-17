@@ -627,6 +627,18 @@ function wireManipulator(q){
   if(interaction==='money-make'){
     const root=$('.sg-money-builder'); root?.querySelectorAll('.sg-money-token').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;btn.classList.toggle('selected');updateManipulatorStatus(q)}));
   }
+  if(interaction==='measure-make'){
+    const root=$('.sg-measure-builder'); root?.querySelectorAll('.sg-measure-token').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;btn.classList.toggle('selected');updateManipulatorStatus(q)}));
+  }
+  if(interaction==='duration-compose'){
+    const root=$('.sg-duration-builder'); root?.querySelectorAll('.sg-duration-token').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;btn.classList.toggle('selected');updateManipulatorStatus(q)}));
+  }
+  if(interaction==='clock-minute-set'){
+    const root=$('.sg-clock-minute-set');
+    const redraw=()=>{ const h=Number(root?.querySelector('.sg-hour-choice.selected')?.dataset.value||12), m=Number(root?.dataset.minute||0); const label=root?.querySelector('.sg-minute-live'); if(label)label.textContent=`:${String(m).padStart(2,'0')}`; const preview=root?.querySelector('.sg-clock-minute-preview'); if(preview)preview.innerHTML=renderClock(h,m); updateManipulatorStatus(q); };
+    root?.querySelectorAll('.sg-hour-choice').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.querySelectorAll('.sg-hour-choice').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');redraw()}));
+    root?.querySelectorAll('.sg-minute-adjust').forEach(btn=>btn.addEventListener('click',()=>{if(answered)return;root.dataset.minute=String((Number(root.dataset.minute||0)+Number(btn.dataset.delta||0)+60)%60);redraw()}));
+  }
   if(interaction==='cm-ruler'){
     const root=$('.sg-cm-ruler-builder');
     root?.querySelectorAll('.sg-ruler-tick-button').forEach(btn=>btn.addEventListener('click',()=>{
@@ -703,6 +715,9 @@ function readManipulatorValue(q){
     return interaction==='equal-groups'?total:counts[0];
   }
   if(interaction==='money-make') return [...$$('.sg-money-builder .sg-money-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='measure-make') return [...$$('.sg-measure-builder .sg-measure-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='duration-compose') return [...$$('.sg-duration-builder .sg-duration-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='clock-minute-set'){ const root=$('.sg-clock-minute-set'); const h=root?.querySelector('.sg-hour-choice.selected')?.dataset.value; return h!=null?`${h}|${Number(root.dataset.minute||0)}`:null; }
   if(interaction==='cm-ruler') return $('.sg-cm-ruler-builder .sg-ruler-tick-button.selected')?.dataset.value ?? null;
   if(interaction==='shape-compose'){
     const values=[...$$('.sg-shape-compose-builder .sg-compose-piece.selected')].map(b=>b.dataset.value).sort();
@@ -743,6 +758,9 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='equal-groups') node.textContent=value!=null?`Eşit gruplar hazır · toplam ${value}`:'Taşları bütün gruplara eşit dağıt';
   else if(q.response?.interaction==='share-equally') node.textContent=value!=null?`Eşit paylaşım hazır · grupta ${value}`:'Bütün taşları eşit paylaş';
   else if(q.response?.interaction==='money-make') node.textContent=`Seçtiğin toplam: ${value} ${q.response?.unit==='kr'?'kuruş':'TL'}`;
+  else if(q.response?.interaction==='measure-make') node.textContent=`Kurduğun ölçü: ${value} ${q.response?.unit||''}`;
+  else if(q.response?.interaction==='duration-compose') { const total=Number(value)||0; node.textContent=`Kurduğun süre: ${Math.floor(total/60)} sa ${total%60} dk`; }
+  else if(q.response?.interaction==='clock-minute-set') node.textContent=value?`Ayarladığın: ${String(value).replace('|',':').replace(/:(\d)$/,':0$1')}`:'Önce saati seç, sonra dakikayı ayarla';
   else if(q.response?.interaction==='cm-ruler') node.textContent=value?`Seçtiğin bitiş: ${value} cm`:'Cetvelde bitiş çizgisini seç';
   else if(q.response?.interaction==='shape-compose') node.textContent=value?`Seçtiğin parçalar: ${String(value).split('+').length}`:'Figürü oluşturan bütün parçaları seç';
   else if(q.response?.interaction==='unit-measure') node.textContent=`Kullandığın birim: ${value}`;
@@ -794,7 +812,7 @@ function answerQuestion(value,button){
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
@@ -1000,6 +1018,19 @@ function renderVisual(v,q){
     case 'bar-add': return `<div class="bar-model"><span style="width:58%">${v.a}</span><span style="width:42%">+ ${v.b}</span></div>`;
     case 'groups': return `<div class="group-wrap">${Array.from({length:v.groups},()=>`<div class="group">${Array.from({length:v.each},()=>'<i></i>').join('')}</div>`).join('')}</div>`;
     case 'share': { const each=v.total/v.divisor; return `<div class="share-wrap">${Array.from({length:v.divisor},()=>`<div class="share-person">${Array.from({length:each},()=>'<i></i>').join('')}</div>`).join('')}</div>`; }
+    case 'measure-compose-interactive': return measureComposeBuilder(v.target,v.unit,v.denoms||[1]);
+    case 'measure-amount': return measureAmountVisual(v.kind,v.amount,v.unit,v.denoms||[1],v.showLabel!==false);
+    case 'measure-compare': return measureCompareVisual(v.kind,v.left,v.right,v.unit);
+    case 'measure-triple': return measureTripleVisual(v.kind,v.values,v.unit);
+    case 'unit-context-card': return unitContextCard(v.object,v.unit);
+    case 'mass-foundation': return massFoundationVisual(v.left,v.right);
+    case 'volume-foundation': return volumeFoundationVisual(v.left,v.right);
+    case 'volume-compare': return measureCompareVisual('volume',v.left,v.right,'L');
+    case 'clock-minute-set-interactive': return clockMinuteSetBuilder(v.targetHour,v.targetMinute);
+    case 'duration-compose-interactive': return durationComposeBuilder(v.target);
+    case 'duration-card': return durationCard(v);
+    case 'money-decimal-card': return moneyDecimalCard(v.cents,v.label);
+    case 'money-compare-decimal': return moneyCompareDecimal(v.values);
     case 'fraction-strip': return fractionStrip(v.numerator,v.denom);
     case 'fraction-shade-builder': return fractionShadeBuilder(v.denom,v.target);
     case 'fraction-pair-builder': return fractionPairBuilder(v.left,v.right);
@@ -1198,6 +1229,50 @@ function cmRulerBuilder(target,max=15){
   const ticks=Array.from({length:max+1},(_,i)=>`<button type="button" class="sg-ruler-tick-button" data-value="${i}" aria-label="${i} santimetre işareti"><i></i><b>${i}</b></button>`).join('');
   return `<div class="sg-cm-ruler-builder" data-target="${target}"><div class="sg-target-pill">HEDEF <b>${target} cm</b></div><div class="sg-cm-ruler-scroll"><div class="sg-cm-ruler-track" style="--max:${max}"><div class="sg-cm-ruler-line" style="--end:0"></div>${ticks}</div></div><small>Çizginin başlangıcı 0'da. Bitiş noktasını seç.</small></div>`;
 }
+
+function measureTokenLabel(value,unit){ return `${value} ${unit}`; }
+function measureComposeBuilder(target,unit,denoms=[1]){
+  const buttons=[];
+  for(const value of denoms){
+    const copies=value===1?Math.min(12,Math.max(4,Math.ceil(Number(target)/value))):Math.min(5,Math.max(3,Math.ceil(Number(target)/value)+1));
+    for(let i=0;i<copies;i++) buttons.push(`<button type="button" class="sg-money-token sg-measure-token" data-value="${value}" aria-label="${measureTokenLabel(value,unit)} ölçü parçası">${value}<small>${esc(unit)}</small></button>`);
+  }
+  return `<div class="sg-money-builder sg-measure-builder"><div class="sg-target-pill">HEDEF <b>${target} ${esc(unit)}</b></div><div class="sg-money-bank">${buttons.join('')}</div><small class="pool-caption">Standart parçaları seçerek hedef ölçüyü oluştur.</small></div>`;
+}
+function measureAmountVisual(kind,amount,unit,denoms=[1],showLabel=true){
+  let remain=Number(amount)||0, pieces=[];
+  for(const d of [...denoms].sort((a,b)=>b-a)) while(remain>=d && pieces.length<14){ pieces.push(d); remain-=d; }
+  if(remain>0) pieces.push(remain);
+  const icon=kind==='length'?'▭':kind==='mass'?'◆':'▰';
+  return `<div class="sg-money-builder"><div class="sg-money-bank">${pieces.map(v=>`<span class="sg-money-token selected" aria-hidden="true">${icon}<small>${v} ${esc(unit)}</small></span>`).join('')}</div>${showLabel?`<div class="sg-target-pill"><b>${amount} ${esc(unit)}</b></div>`:''}</div>`;
+}
+function measureCompareVisual(kind,left,right,unit){
+  return `<div class="sg-shopping"><div><small>SOL</small><b>${left} ${esc(unit)}</b></div><span>↔</span><div><small>SAĞ</small><b>${right} ${esc(unit)}</b></div></div>`;
+}
+function measureTripleVisual(kind,values,unit){ return `<div class="sg-money-compare">${values.map(v=>`<div><span class="money-note">${v}<small>${esc(unit)}</small></span></div>`).join('')}</div>`; }
+function unitContextCard(object,unit){ return `<div class="sg-symbol-card"><small>${esc(object)}</small><b>${esc(unit)}</b></div>`; }
+function massFoundationVisual(left,right){ return `<div class="sg-shopping"><div><small>SOL YÜK</small><b>${'●'.repeat(Number(left)||0)}</b></div><span>⚖</span><div><small>SAĞ YÜK</small><b>${'●'.repeat(Number(right)||0)}</b></div></div>`; }
+function volumeFoundationVisual(left,right){
+  const cup=(level,label)=>`<div style="display:grid;gap:8px;justify-items:center"><div style="width:72px;height:100px;border:3px solid var(--line);border-radius:8px;display:flex;align-items:flex-end;overflow:hidden"><i style="display:block;width:100%;height:${Math.min(90,20+Number(level)*14)}%;background:var(--blue-soft)"></i></div><b>${label}</b></div>`;
+  return `<div style="display:flex;justify-content:center;gap:48px;align-items:end">${cup(left,'SOL')}${cup(right,'SAĞ')}</div>`;
+}
+function clockMinuteSetBuilder(targetHour,targetMinute){
+  const hours=Array.from({length:12},(_,i)=>`<button type="button" class="sg-hour-choice" data-value="${i+1}">${i+1}</button>`).join('');
+  return `<div class="sg-clock-set sg-clock-minute-set" data-minute="0"><div class="sg-clock-minute-preview">${renderClock(12,0)}</div><div class="sg-clock-controls"><small>SAAT</small><div>${hours}</div><small>DAKİKA · 1 dakikaya kadar</small><div><button type="button" class="sg-minute-choice sg-minute-adjust" data-delta="-5">−5</button><button type="button" class="sg-minute-choice sg-minute-adjust" data-delta="-1">−1</button><b class="sg-minute-live">:00</b><button type="button" class="sg-minute-choice sg-minute-adjust" data-delta="1">+1</button><button type="button" class="sg-minute-choice sg-minute-adjust" data-delta="5">+5</button></div></div></div>`;
+}
+function durationComposeBuilder(target){
+  const spec=[[60,'1 sa',2],[30,'30 dk',2],[10,'10 dk',4],[5,'5 dk',2],[1,'1 dk',5]], buttons=[];
+  for(const [value,label,count] of spec) for(let i=0;i<count;i++) buttons.push(`<button type="button" class="sg-money-token sg-duration-token" data-value="${value}">${label}</button>`);
+  return `<div class="sg-money-builder sg-duration-builder"><div class="sg-target-pill">HEDEF SÜRE <b>${Math.floor(target/60)} sa ${target%60} dk</b></div><div class="sg-money-bank">${buttons.join('')}</div><small class="pool-caption">Saat ve dakika parçalarını seçerek aynı süreyi kur.</small></div>`;
+}
+function durationCard(v){
+  const left=v.hours!=null||v.minutes!=null?`${Number(v.hours)||0} sa ${Number(v.minutes)||0} dk`:'';
+  const right=v.total!=null?`${v.total} dk`:'';
+  return `<div class="sg-shopping"><div><small>SAAT + DAKİKA</small><b>${left||'?'}</b></div><span>=</span><div><small>TOPLAM DAKİKA</small><b>${right||'?'}</b></div></div>`;
+}
+function moneyDecimalCard(cents,label){ return `<div class="sg-shopping"><div><small>KURUŞ</small><b>${cents==null?'?':cents+' kr'}</b></div><span>=</span><div><small>TL GÖSTERİMİ</small><b>${esc(label||'?')}</b></div></div>`; }
+function moneyCompareDecimal(values){ return `<div class="sg-money-compare">${(values||[]).map(v=>`<div><span class="money-note">${esc(v)}</span></div>`).join('')}</div>`; }
+
 function cmRulerModel(end,start=0,max=15){
   const safeStart=Math.max(0,Math.min(max,Number(start)||0)), safeEnd=Math.max(safeStart,Math.min(max,Number(end)||0));
   const ticks=Array.from({length:max+1},(_,i)=>`<span class="sg-ruler-static-tick ${i===safeStart?'start':''} ${i===safeEnd?'end':''}"><i></i><b>${i}</b></span>`).join('');

@@ -39,39 +39,34 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 - paydası 12'yi aşmayan eş paydalı kesirlerle bir bütün içinde toplama/çıkarma
 
 ### Measurement
-- uzunluk: cm ve m
-- kütle: g ve kg
-- sıvı hacmi: l
-- uygun birimi seçme, tahmin etme, ölçme, karşılaştırma ve problem çözme
-- verilen uzunlukta doğru parçası çizme/ölçme
+- uzunluk: metre (m)
+- kütle: gram (g) ve kilogram (kg)
+- sıvı hacmi: litre (L)
+- uygun standart birimi seçme
+- aynı tür ölçüleri karşılaştırma ve sıralama
+- **P2'de m↔cm, kg↔g veya L↔mL dönüşümü çekirdek hedef değildir; bileşik birim dönüşümleri P3'e bırakılır.** P1'de santimetre zaten öğrenilmiştir.
 
 ### Time
-- 5 dakikalık aralıklarla saat okuma/yazma
-- a.m./p.m. karşılığı olarak ÖÖ/ÖS
-- h ve min
-- saat kollarını verilen zamana ayarlama
-- 1 saat ve yarım saat süre
+- analog/dijital zamanı **dakikaya kadar** okuma
+- süreyi saat ve dakika cinsinden ölçme/ifade etme
+- `saat + dakika ↔ yalnız dakika` dönüşümü
+- P1'deki 5 dakikalık saat ve ÖÖ/ÖS bilgisi ön bilgidir; P2'nin yeni hedefi dakikaya hassasiyet ve süre dönüşümüdür.
 
 ### Money
-- banknot ve madeni paralarla miktar oluşturma
-- ana para birimi + alt birim ve ondalık gösterim
-- miktarları karşılaştırma
-- ondalık gösterim ↔ yalnız alt birim dönüşümü
-- aynı birim içinde para problemleri
-- Türkiye yerelleştirmesi: TL/kuruş; matematiksel yapı korunur
+- lira/kuruş miktarını sayma ve oluşturma
+- para miktarını ondalık gösterimle okuma/yazma
+- iki veya üç para miktarını karşılaştırma
+- `ondalık TL ↔ yalnız kuruş` dönüşümü
+- Türkiye yerelleştirmesi: TL/kuruş ve ondalık virgül; Singapore'daki dollar/cent matematiksel yapısı korunur
 
 ### Geometry
-- yarım daire ve çeyrek daire dahil 2B şekiller
-- bileşik 2B figürleri çözümleme/oluşturma
-- nokta/kare ızgarada kopyalama
-- küp, dikdörtgen prizma, koni, silindir, küre
-- yüz/kenar/köşe ve düz/eğri yüzey özellikleri
-- 2B ve 3B şekil örüntüleri
+- 2B şekillerle boyut, şekil, renk ve yön özelliklerinden bir veya ikisine göre örüntü kurma/tamamlama
+- küp, dikdörtgen prizma (cuboid), koni, silindir ve küreyi tanıma, adlandırma, betimleme ve sınıflandırma
+- yarım/çeyrek daire, bileşik 2B figür ve ızgarada kopyalama P1 kapsamıdır; P2'ye tekrar çekirdek hedef olarak yazılmaz
 
 ### Data
-- ölçekli resimli grafik oluşturma
-- yatay/dikey ölçekli resimli grafik okuma ve yorumlama
-- grafikten 1 adımlı problem çözme
+- **ölçekli resimli grafikleri** okuma ve yorumlama
+- P2 çekirdeği sütun grafiği değildir; sütun grafiği P3'e aittir
 
 ## Mevcut SAYMERA P2 denetimi
 
@@ -87,9 +82,12 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 | `word2` | tek tip iki adımlı problem | **Dar** — parça-bütün/karşılaştırma model çeşitliliği gerekli |
 | `numberPattern2` | genel örüntü | **Yeniden tasarlanmalı** — 1000'e kadar örüntü ve 1/10/100 ilişkisi |
 | `shapes2` | 3B cisim ilişkileri | **Kısmi referans** — koni ve daha geniş P2 özellik seti eklenecek |
-| `lengthCm` | yalnız cm | **Yetersiz** — m/cm + g/kg + l gerekli |
-| `time2` | tam/yarım saat | **Yetersiz** — 5 dakika, ÖÖ/ÖS, süre gerekli |
-| `moneyTL` | yalnız tam TL | **Yetersiz** — TL/kuruş ve ondalık gösterim gerekli |
+| `lengthMetre2` | metre ile ölçme/karşılaştırma | **P2-REFERENCE** |
+| `massMetric2` | gram/kilogram ve uygun birim | **P2-REFERENCE** |
+| `volumeLitre2` | litre ve sıvı hacmi | **P2-REFERENCE** |
+| `timeMinute2` | dakikaya kadar saat okuma | **P2-REFERENCE** |
+| `timeDuration2` | saat+dakika ↔ dakika dönüşümü | **P2-REFERENCE** |
+| `moneyP2` | TL/kuruş ve ondalık gösterim | **P2-REFERENCE** |
 | `data2` | sütun grafiği | **Yanlış çekirdek** — P2 çekirdeği ölçekli resimli grafiktir |
 
 ## Geçiş sırası
@@ -112,17 +110,17 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 13. `fractionAddSub2` — eş paydalı kesirlerde toplama/çıkarma
 
 ### P2-C — Measurement + Time + Money
-14. `lengthMetric2` — cm/m
-15. `massMetric2` — g/kg
-16. `volumeLitre2` — litre
-17. `timeP2` — 5 dakika, ÖÖ/ÖS, h/min ve süre
-18. `moneyP2` — TL/kuruş, ondalık gösterim, karşılaştırma ve problem
+14. `lengthMetre2` — metre ile ölçme, karşılaştırma ve uygun uzunluk birimi
+15. `massMetric2` — g/kg ile kütle, uygun birim, karşılaştırma/sıralama
+16. `volumeLitre2` — litre ile sıvı hacmi, karşılaştırma/sıralama
+17. `timeMinute2` — dakikaya kadar analog/dijital saat
+18. `timeDuration2` — saat+dakika ↔ yalnız dakika
+19. `moneyP2` — TL/kuruş, ondalık gösterim ve karşılaştırma
 
 ### P2-D — Geometry + Data
-19. `shapes2D2` — yarım/çeyrek daire, bileşik figür ve ızgara
-20. `solids2` — küp/prizma/koni/silindir/küre ve özellikleri
-21. `shapePatterns2` — 2B/3B şekil örüntüleri
-22. `pictureGraphScale2` — ölçekli resimli grafik
+20. `shapePatterns2` — 2B şekillerde boyut/şekil/renk/yön ile örüntü
+21. `solids2` — küp/dikdörtgen prizma/koni/silindir/küre ve sınıflandırma
+22. `pictureGraphScale2` — ölçekli resimli grafik okuma/yorumlama
 
 ## Kalite kapısı
 
@@ -182,3 +180,14 @@ Legacy `multiply5` ve `divide20` görünür haritadan çıkarıldı. Yerlerine:
 eklendi. Üçü de gerçek ön-bilgi kaynağı, beş farklı görev ailesi, adaptif pekiştirme ve gecikmeli geri çağırma sözleşmesine dahildir.
 
 Sıradaki katman: P2-C — ölçme (m/cm, kg/g, litre), zaman ve para.
+
+
+## Uygulama ilerlemesi — v1.4.4 / P2-C Ölçme, Zaman ve Para
+
+Güncel **Oct 2025** P2 kapsamı yeniden doğrulandı ve önceki audit'teki iki eski varsayım düzeltildi:
+- P2 zamanı 5 dakikalık aralık değil, **dakikaya kadar** okumadır; ayrıca saat+dakika ↔ dakika dönüşümü vardır.
+- P2 ölçme çekirdeğinde yeni uzunluk birimi **metre**, kütle **g/kg**, sıvı hacmi **litre**dir. Bileşik birim dönüşümleri P3'e bırakılır; cm zaten P1'de vardır.
+
+Legacy `lengthCm`, `time2`, `moneyTL` görünür haritadan çıkarıldı. Yerlerine altı P2-REFERENCE beceri geldi: `lengthMetre2`, `massMetric2`, `volumeLitre2`, `timeMinute2`, `timeDuration2`, `moneyP2`.
+
+Sıradaki katman P2-D: 2B şekil örüntüleri, beş P2 3B cismi ve ölçekli resimli grafik.

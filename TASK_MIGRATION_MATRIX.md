@@ -52,10 +52,13 @@ Durum:
 | 2. sınıf | `fractionNotation2` | Kesirleri okuma ve yazma | **P2-REFERENCE** |
 | 2. sınıf | `fractionCompare2` | Kesirleri karşılaştırma/sıralama | **P2-REFERENCE** |
 | 2. sınıf | `fractionAddSub2` | Eş paydalı kesirlerde toplama/çıkarma | **P2-REFERENCE** |
+| 2. sınıf | `lengthMetre2` | Metre ile uzunluk | **P2-REFERENCE** |
+| 2. sınıf | `massMetric2` | Gram/kilogram ile kütle | **P2-REFERENCE** |
+| 2. sınıf | `volumeLitre2` | Litre ile sıvı hacmi | **P2-REFERENCE** |
+| 2. sınıf | `timeMinute2` | Dakikaya kadar saat okuma | **P2-REFERENCE** |
+| 2. sınıf | `timeDuration2` | Saat ve dakika cinsinden süre | **P2-REFERENCE** |
+| 2. sınıf | `moneyP2` | TL/kuruş ve ondalık para gösterimi | **P2-REFERENCE** |
 | 2. sınıf | `shapes2` | Şekil/cisim ilişkileri | **REFERENCE** |
-| 2. sınıf | `lengthCm` | Santimetre | LEGACY |
-| 2. sınıf | `time2` | Saat | LEGACY |
-| 2. sınıf | `moneyTL` | Para | LEGACY |
 | 2. sınıf | `data2` | Sütun grafiği | LEGACY |
 
-Toplam: **48 beceri**. Bunun **22'si P1-REFERENCE**, **13'ü P2-REFERENCE**, **1'i Grade 2 REFERENCE** ve **12'si LEGACY** durumundadır.
+Toplam: **51 beceri**. Bunun **22'si P1-REFERENCE**, **19'u P2-REFERENCE**, **1'i Grade 2 REFERENCE** ve **9'u LEGACY** durumundadır.

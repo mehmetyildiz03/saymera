@@ -25,7 +25,8 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
-  'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'
+  'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
+  'lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
@@ -87,10 +88,13 @@ export const SKILLS = [
   skill('fractionNotation2','grade2','Kesirleri okuma ve yazma','Kesir','rose',['fractionMeaning2']),
   skill('fractionCompare2','grade2','Kesirleri karşılaştırma ve sıralama','Kesir','violet',['fractionNotation2']),
   skill('fractionAddSub2','grade2','Eş paydalı kesirlerde toplama ve çıkarma','Kesir','teal',['fractionCompare2']),
+  skill('lengthMetre2','grade2','Metre ile uzunluk','Ölçme','green'),
+  skill('massMetric2','grade2','Gram ve kilogram ile kütle','Ölçme','amber'),
+  skill('volumeLitre2','grade2','Litre ile sıvı hacmi','Ölçme','blue'),
+  skill('timeMinute2','grade2','Dakikaya kadar saat okuma','Zaman','violet'),
+  skill('timeDuration2','grade2','Saat ve dakika cinsinden süre','Zaman','violet',['timeMinute2']),
+  skill('moneyP2','grade2','TL, kuruş ve ondalık para gösterimi','Para','teal'),
   skill('shapes2','grade2','Şekil ve cisim ilişkileri','Geometri','rose'),
-  skill('lengthCm','grade2','Santimetre ile ölçme','Ölçme','green'),
-  skill('time2','grade2','Saat ve yarım saat','Zaman','violet'),
-  skill('moneyTL','grade2','Lira ile para problemleri','Para','teal',['addSub1000']),
   skill('data2','grade2','Sütun grafiğini yorumlama','Veri','amber',['number1000']),
 ];
 
@@ -570,6 +574,37 @@ function makeP2Concept(skillId,conceptKey,d,rng,all,anchorFilter=()=>true){
   return {version:2,skillId,conceptKey,difficulty:d,anchor,symbol,transfer};
 }
 
+
+function lengthMetre2Cases(){ return [2,3,4,5,6,7,8,9,10,11,12].map(m=>({m})); }
+function massMetric2Cases(){
+  return [
+    {amount:50,unit:'g',object:'silgi'},{amount:100,unit:'g',object:'elma'},{amount:200,unit:'g',object:'küçük kitap'},
+    {amount:300,unit:'g',object:'kalem kutusu'},{amount:500,unit:'g',object:'küçük paket'},{amount:700,unit:'g',object:'paket'},
+    {amount:1,unit:'kg',object:'pirinç paketi'},{amount:2,unit:'kg',object:'karpuz'},{amount:3,unit:'kg',object:'sırt çantası'},
+    {amount:4,unit:'kg',object:'alışveriş torbası'},{amount:5,unit:'kg',object:'un paketi'},{amount:6,unit:'kg',object:'kutu'}
+  ];
+}
+function volumeLitre2Cases(){ return [1,2,3,4,5,6,7,8].map(litres=>({litres})); }
+function timeMinute2Cases(){
+  const minutes=[2,7,13,18,23,29,34,41,47,52,58], out=[];
+  for(let i=0;i<minutes.length;i++) out.push({hour:(i%11)+1,minute:minutes[i],label:`${(i%11)+1}:${String(minutes[i]).padStart(2,'0')}`});
+  out.push({hour:12,minute:1,label:'12:01'},{hour:6,minute:36,label:'6:36'},{hour:9,minute:54,label:'9:54'});
+  return out;
+}
+function timeDuration2Cases(){
+  return [65,73,85,95,110,125,140,155,167].map(totalMinutes=>({totalMinutes,hours:Math.floor(totalMinutes/60),minutes:totalMinutes%60}));
+}
+function moneyP2Cases(){
+  return [125,145,175,220,245,275,300,345,375,425,550,675].map(cents=>({
+    cents,lira:Math.floor(cents/100),kurus:cents%100,decimal:`${Math.floor(cents/100)},${String(cents%100).padStart(2,'0')} TL`
+  }));
+}
+function measurementDenoms(unit){
+  if(unit==='g') return [500,200,100,50];
+  if(unit==='kg') return [5,2,1];
+  return [1];
+}
+
 function fractionMeaning2Cases(maxDenom=12){
   return Array.from({length:Math.max(1,maxDenom-1)},(_,i)=>({denom:i+2,numerator:1}));
 }
@@ -655,6 +690,12 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='fractionNotation2') return make('fraction-notation-representation',fractionPoolForDifficulty('notation',d));
   if(skillId==='fractionCompare2') return make('fraction-compare-unit-like',fractionPoolForDifficulty('compare',d));
   if(skillId==='fractionAddSub2') return make('fraction-like-add-sub',fractionPoolForDifficulty('addsub',d));
+  if(skillId==='lengthMetre2') return make('length-in-metres',lengthMetre2Cases());
+  if(skillId==='massMetric2') return make('mass-grams-kilograms',massMetric2Cases());
+  if(skillId==='volumeLitre2') return make('liquid-volume-litres',volumeLitre2Cases());
+  if(skillId==='timeMinute2') return make('time-to-the-minute',timeMinute2Cases());
+  if(skillId==='timeDuration2') return make('hours-minutes-duration-conversion',timeDuration2Cases());
+  if(skillId==='moneyP2') return make('money-decimal-cents-conversion',moneyP2Cases());
   if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
 }
@@ -1736,6 +1777,195 @@ function genMultDivFamilies2(rep,d,rng,concept){
   });
 }
 
+
+function genLengthMetre2(rep,d,rng,concept){
+  const c=concept?.skillId==='lengthMetre2'?concept:createConceptInstance('lengthMetre2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('lengthMetre2',rep,`${x.m} metre uzunluğu 1 metrelik parçalarla kur.`,x.m,{kind:'manipulative',interaction:'measure-make',expectedValue:String(x.m),unit:'m',checkLabel:'Uzunluğu kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'Metreyi standart birimlerle kur',visual:{type:'measure-compose-interactive',target:x.m,unit:'m',denoms:[1]},hint:`Her parça 1 m. Toplam ${x.m} m olana kadar seç.`,explain:`${x.m} tane 1 metrelik parça toplam ${x.m} m eder.`
+  });
+  if(rep==='see'){
+    const vals=[x.m,Math.max(1,x.m-1),x.m+1];
+    const options=shuffled(vals.map((v,i)=>({value:i===0?'correct':`wrong-${i}`,visual:{type:'measure-amount',kind:'length',amount:v,unit:'m',denoms:[1],showLabel:false},ariaLabel:`${v} adet bir metrelik parça`})),rng);
+    return qTask('lengthMetre2',rep,`Hangi model ${x.m} m uzunluğu gösteriyor?`,'correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Metre modelini görselde ayırt et',visual:{type:'unit-context-card',object:'uzun bir koridor',unit:'m'},hint:'Her küçük çubuk 1 metreyi temsil ediyor.',explain:`Doğru modelde ${x.m} tane 1 m birimi var.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('lengthMetre2',rep,'1 metrelik parçaları say. Toplam uzunluk kaç metredir?',y.m,{kind:'number-input',placeholder:'?',maxLength:2,checkLabel:'Ölçümü kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Metre modelini sayısal ölçüme çevir',visual:{type:'measure-amount',kind:'length',amount:y.m,unit:'m',denoms:[1],showLabel:false},hint:'Her parça 1 m; parçaları say.',explain:`Toplam uzunluk ${y.m} m.`
+    });
+  }
+  if(rep==='explain'){
+    const answer='Koridor gibi uzun bir nesne için metre daha uygun bir birimdir';
+    return qBase('lengthMetre2',rep,'Bir sınıf koridorunun uzunluğunu neden metreyle ölçmek uygundur?',answer,semanticChoices(answer,['Metre yalnız küçük nesnelerde kullanılır','Uzunluk birimi seçmek önemli değildir','Metre bir kütle birimidir'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Uygun uzunluk birimini gerekçelendir',visual:{type:'unit-context-card',object:'sınıf koridoru',unit:'m'},hint:'Nesnenin büyüklüğüne uygun standart birim seç.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer, other=Math.max(1,y.m-2), answer=`${y.m} m`;
+  return qBase('lengthMetre2',rep,`Bir ip ${y.m} m, başka bir ip ${other} m. Hangisi daha uzundur?`,answer,semanticChoices(answer,[`${other} m`,'İkisi eşit','Metreyle karşılaştırılamaz'],rng),{
+    taskKind:'context-transfer',taskLabel:'Metre ölçüsünü karşılaştırma bağlamına taşı',visual:{type:'measure-compare',kind:'length',left:y.m,right:other,unit:'m'},hint:'Birimler aynıysa sayısal değerleri karşılaştır.',explain:`${y.m} > ${other}; ${y.m} m olan ip daha uzundur.`
+  });
+}
+
+function genMassMetric2(rep,d,rng,concept){
+  const c=concept?.skillId==='massMetric2'?concept:createConceptInstance('massMetric2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('massMetric2',rep,`${x.amount} ${x.unit} kütleyi standart ağırlık parçalarıyla oluştur.`,x.amount,{kind:'manipulative',interaction:'measure-make',expectedValue:String(x.amount),unit:x.unit,checkLabel:'Kütleyi kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'Kütleyi standart birim parçalarıyla kur',visual:{type:'measure-compose-interactive',target:x.amount,unit:x.unit,denoms:measurementDenoms(x.unit)},hint:`Seçtiğin parçaların toplamı ${x.amount} ${x.unit} olmalı.`,explain:`Parçaların toplam kütlesi ${x.amount} ${x.unit}.`
+  });
+  if(rep==='see'){
+    const answer=x.unit, options=shuffled(['g','kg','m','L'].map((unit,i)=>({value:unit===answer?'correct':`wrong-${i}`,visual:{type:'unit-context-card',object:x.object,unit},ariaLabel:`${x.object} için ${unit} birimi`})),rng);
+    return qTask('massMetric2',rep,`${x.object} gibi bir nesnenin kütlesini yazmak için hangi birim daha uygundur?`,'correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Kütle için uygun birimi ayırt et',visual:{type:'mass-foundation',left:1,right:3},hint:'Kütle için gram (g) veya kilogram (kg) kullanılır; nesnenin büyüklüğünü düşün.',explain:`Bu örnek için ${answer} uygun birimdir.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('massMetric2',rep,`Ağırlık parçalarının toplamı kaç ${y.unit}?`,y.amount,{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Kütleyi kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Kütle modelini sayı ve birimle ifade et',visual:{type:'measure-amount',kind:'mass',amount:y.amount,unit:y.unit,denoms:measurementDenoms(y.unit),showLabel:false},hint:'Parçaların üzerindeki aynı birimli değerleri topla.',explain:`Toplam ${y.amount} ${y.unit}.`
+    });
+  }
+  if(rep==='explain'){
+    const delta=x.unit==='g'?50:1, bigger=x.amount+delta;
+    const answer=`${bigger} ${x.unit} daha büyüktür çünkü iki ölçüm de aynı birimdedir`;
+    return qBase('massMetric2',rep,`${x.amount} ${x.unit} ile ${bigger} ${x.unit} kütleyi nasıl karşılaştırırsın?`,answer,semanticChoices(answer,[`${x.amount} ${x.unit} daha büyüktür çünkü ilk yazılmıştır`,'Birimler aynı olsa da karşılaştırılamaz','Kütlede sayısal değer önemli değildir'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Aynı birimli kütleleri gerekçeli karşılaştır',visual:{type:'measure-compare',kind:'mass',left:x.amount,right:bigger,unit:x.unit},hint:'Aynı birimde oldukları için sayılara bakabilirsin.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer, delta=y.unit==='g'?100:1, values=[y.amount,y.amount+delta,y.amount+2*delta], answer=values.map(v=>`${v} ${y.unit}`).join(' < ');
+  return qBase('massMetric2',rep,'Üç paketi en hafiften en ağıra sırala.',answer,semanticChoices(answer,[values.slice().reverse().map(v=>`${v} ${y.unit}`).join(' < '),`${values[1]} ${y.unit} < ${values[0]} ${y.unit} < ${values[2]} ${y.unit}`,'Birimler aynı olsa da sıralanamaz'],rng),{
+    taskKind:'context-transfer',taskLabel:'Kütleyi sıralama bağlamına taşı',visual:{type:'measure-triple',kind:'mass',values,unit:y.unit},hint:'Birimler aynı; küçük sayı daha hafiftir.',explain:`Doğru sıra ${answer}.`
+  });
+}
+
+function genVolumeLitre2(rep,d,rng,concept){
+  const c=concept?.skillId==='volumeLitre2'?concept:createConceptInstance('volumeLitre2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('volumeLitre2',rep,`${x.litres} L sıvı hacmini 1 litrelik kaplarla oluştur.`,x.litres,{kind:'manipulative',interaction:'measure-make',expectedValue:String(x.litres),unit:'L',checkLabel:'Hacmi kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'Litreyi standart kaplarla kur',visual:{type:'measure-compose-interactive',target:x.litres,unit:'L',denoms:[1]},hint:`Her kap 1 L; toplam ${x.litres} L olmalı.`,explain:`${x.litres} tane 1 L kap toplam ${x.litres} L sıvı hacmini gösterir.`
+  });
+  if(rep==='see'){
+    const options=shuffled(['L','kg','g','m'].map((unit,i)=>({value:unit==='L'?'correct':`wrong-${i}`,visual:{type:'unit-context-card',object:'sürahideki sıvı',unit},ariaLabel:`sıvı için ${unit} birimi`})),rng);
+    return qTask('volumeLitre2',rep,'Bir sürahideki sıvı miktarını yazmak için hangi birim uygundur?','correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Sıvı hacmi için litreyi ayırt et',visual:{type:'volume-foundation',left:2,right:4},hint:'Bu sınıf düzeyinde sıvı hacmini litre (L) ile ölçüyoruz.',explain:'Sıvı hacmi için uygun birim litredir (L).'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('volumeLitre2',rep,'1 litrelik kapları say. Toplam sıvı hacmi kaç litredir?',y.litres,{kind:'number-input',placeholder:'?',maxLength:2,checkLabel:'Hacmi kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Litre modelini sayı ile ifade et',visual:{type:'measure-amount',kind:'volume',amount:y.litres,unit:'L',denoms:[1],showLabel:false},hint:'Her kap 1 L.',explain:`Toplam ${y.litres} L.`
+    });
+  }
+  if(rep==='explain'){
+    const other=x.litres+2, answer=`${other} L daha fazladır çünkü iki hacim de litre cinsindedir`;
+    return qBase('volumeLitre2',rep,`${x.litres} L ile ${other} L sıvıyı nasıl karşılaştırırsın?`,answer,semanticChoices(answer,[`${x.litres} L daha fazladır`,'Litre değerleri karşılaştırılamaz','Kabın şekli büyük görünüyorsa sayı önemli değildir'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Litre ölçülerini gerekçeli karşılaştır',visual:{type:'measure-compare',kind:'volume',left:x.litres,right:other,unit:'L'},hint:'Aynı birimdeki sayıları karşılaştır.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer, other=Math.max(0,y.litres-1), answer=`${y.litres} L`;
+  return qBase('volumeLitre2',rep,`Bir sulama kabında ${y.litres} L, diğerinde ${other} L su var. Hangisinde daha çok su vardır?`,answer,semanticChoices(answer,[`${other} L`,'İkisinde eşit','Litreyle karar verilemez'],rng),{
+    taskKind:'context-transfer',taskLabel:'Litreyi günlük karşılaştırmaya taşı',visual:{type:'volume-compare',left:y.litres,right:other},hint:'İki ölçüm de litre cinsinde.',explain:`${y.litres} > ${other}; ${y.litres} L olan kapta daha çok sıvı vardır.`
+  });
+}
+
+function genTimeMinute2(rep,d,rng,concept){
+  const c=concept?.skillId==='timeMinute2'?concept:createConceptInstance('timeMinute2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('timeMinute2',rep,`Saati ${x.label} olacak biçimde ayarla.`,`${x.hour}|${x.minute}`,{kind:'manipulative',interaction:'clock-minute-set',expectedValue:`${x.hour}|${x.minute}`,checkLabel:'Saati kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'Analog saati dakikaya kadar ayarla',visual:{type:'clock-minute-set-interactive',targetHour:x.hour,targetMinute:x.minute},hint:'Önce saati seç; sonra dakikayı 1 ve 5 dakikalık adımlarla ayarla.',explain:`Ayarlanan zaman ${x.label}.`
+  });
+  if(rep==='see'){
+    const mk=(hour,minute,value)=>({value,visual:{type:'clock',hour,minute},ariaLabel:`${hour}:${String(minute).padStart(2,'0')} analog saat`});
+    const options=shuffled([mk(x.hour,x.minute,'correct'),mk(x.hour,(x.minute+5)%60,'wrong-5'),mk(x.hour,(x.minute+1)%60,'wrong-1')],rng);
+    return qTask('timeMinute2',rep,`${x.label} zamanını gösteren analog saat hangisi?`,'correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Dakika çizgilerini analog saatte ayırt et',teachingNote:'Yelkovanın tam turu 60 dakikadır. Saat çevresindeki küçük dakika çizgileri 1 dakikalık ilerlemeyi gösterir.',visual:{type:'time-label',label:x.label},hint:'Yelkovanın küçük dakika çizgilerine dikkat et.',explain:`Doğru saat ${x.label} zamanını gösterir.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol, distractors=timeMinute2Cases().filter(z=>z.label!==y.label).slice(0,3).map(z=>z.label);
+    return qBase('timeMinute2',rep,'Analog saatin sayısal yazımı hangisidir?',y.label,semanticChoices(y.label,distractors,rng),{
+      taskKind:'symbol-entry',taskLabel:'Analog saati saat:dakika biçiminde yaz',visual:{type:'clock',hour:y.hour,minute:y.minute},hint:'Akrepten saati, yelkovandan dakikayı oku.',explain:`Saat ${y.label}.`
+    });
+  }
+  if(rep==='explain'){
+    const answer='Dakikalar ilerledikçe akrep de bir sonraki saate doğru yavaşça ilerler';
+    return qBase('timeMinute2',rep,`${x.label} zamanında akrep neden iki saat sayısı arasında olabilir?`,answer,semanticChoices(answer,['Akrep yalnız tam saatlerde görünür','Yelkovan akrebi rastgele iter','Dakikalar akrebin konumunu hiç etkilemez'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Analog saat kollarının ilişkisini açıkla',visual:{type:'clock',hour:x.hour,minute:x.minute},hint:'Bir saat boyunca akrep sabit kalmaz.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer;
+  return qBase('timeMinute2',rep,`Günlük programda etkinlik bu analog saatte başlıyor. Başlangıç zamanı hangisidir?`,y.label,semanticChoices(y.label,[`${y.hour}:${String((y.minute+1)%60).padStart(2,'0')}`,`${y.hour}:${String((y.minute+5)%60).padStart(2,'0')}`,`${(y.hour%12)+1}:${String(y.minute).padStart(2,'0')}`],rng),{
+    taskKind:'context-transfer',taskLabel:'Dakikaya kadar saati günlük programa taşı',visual:{type:'clock',hour:y.hour,minute:y.minute},hint:'Saat ve dakika kollarını ayrı ayrı oku.',explain:`Etkinlik ${y.label} zamanında başlar.`
+  });
+}
+
+function durationLabel(hours,minutes){ return `${hours} sa ${minutes} dk`; }
+function genTimeDuration2(rep,d,rng,concept){
+  const c=concept?.skillId==='timeDuration2'?concept:createConceptInstance('timeDuration2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('timeDuration2',rep,`${durationLabel(x.hours,x.minutes)} süreyi zaman parçalarıyla oluştur.`,x.totalMinutes,{kind:'manipulative',interaction:'duration-compose',expectedValue:String(x.totalMinutes),checkLabel:'Süreyi kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'Saat ve dakikayı aynı süre modelinde kur',visual:{type:'duration-compose-interactive',target:x.totalMinutes},hint:'1 saatlik parça 60 dakika eder; kalan dakikaları ekle.',explain:`${durationLabel(x.hours,x.minutes)} toplam ${x.totalMinutes} dakikadır.`
+  });
+  if(rep==='see'){
+    const options=shuffled([
+      {value:'correct',visual:{type:'duration-card',hours:x.hours,minutes:x.minutes,total:x.totalMinutes},ariaLabel:`${durationLabel(x.hours,x.minutes)} eşittir ${x.totalMinutes} dakika`},
+      {value:'wrong-60',visual:{type:'duration-card',hours:x.hours,minutes:x.minutes,total:x.totalMinutes-60},ariaLabel:'bir saat eksik dönüşüm'},
+      {value:'wrong-min',visual:{type:'duration-card',hours:x.hours,minutes:x.minutes,total:x.totalMinutes+10},ariaLabel:'dakika toplamı yanlış dönüşüm'}
+    ],rng);
+    return qTask('timeDuration2',rep,'Hangi kart aynı süreyi iki farklı biçimde doğru gösteriyor?','correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Saat+dakika ile toplam dakikayı eşleştir',teachingNote:'1 saat = 60 dakikadır. Saatleri önce 60’ar dakikaya çevirip kalan dakikaları ekleyebilirsin.',visual:{type:'duration-card',hours:1,minutes:0,total:60},hint:'Her saat için 60 dakika say.',explain:`${durationLabel(x.hours,x.minutes)} = ${x.totalMinutes} dk.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('timeDuration2',rep,`${durationLabel(y.hours,y.minutes)} toplam kaç dakikadır?`,y.totalMinutes,{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Dönüşümü kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Saat ve dakikayı yalnız dakikaya çevir',visual:{type:'duration-card',hours:y.hours,minutes:y.minutes},hint:`${y.hours} saat = ${y.hours*60} dakika; sonra ${y.minutes} dakikayı ekle.`,explain:`${y.hours*60} + ${y.minutes} = ${y.totalMinutes} dakika.`
+    });
+  }
+  if(rep==='explain'){
+    const answer=`${x.hours} saat ${x.hours*60} dakika ettiği için kalan ${x.minutes} dakika buna eklenir`;
+    return qBase('timeDuration2',rep,`${durationLabel(x.hours,x.minutes)} neden ${x.totalMinutes} dakikadır?`,answer,semanticChoices(answer,['Bir saat 100 dakika olduğu için','Saat ve dakika sayıları yan yana yazıldığı için','Dakikaları toplamak yerine yalnız saat sayılır'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Süre dönüşümünü gerekçelendir',visual:{type:'duration-card',hours:x.hours,minutes:x.minutes,total:x.totalMinutes},hint:'1 saat = 60 dakika bilgisini kullan.',explain:answer+'.'
+    });
+  }
+  const y=c.transfer, answer=durationLabel(y.hours,y.minutes);
+  return qBase('timeDuration2',rep,`Bir etkinlik ${y.totalMinutes} dakika sürüyor. Bu süre saat ve dakika olarak hangisidir?`,answer,semanticChoices(answer,[durationLabel(Math.max(0,y.hours-1),y.minutes),durationLabel(y.hours,Math.min(59,y.minutes+10)),`${y.totalMinutes} sa 0 dk`],rng),{
+    taskKind:'context-transfer',taskLabel:'Dakikayı saat+dakika biçimine geri taşı',visual:{type:'duration-card',total:y.totalMinutes},hint:'60 dakikalık grupları saat olarak ayır; kalanı dakika bırak.',explain:`${y.totalMinutes} dk = ${answer}.`
+  });
+}
+
+function moneyDecimalLabel(cents){ return `${Math.floor(cents/100)},${String(cents%100).padStart(2,'0')} TL`; }
+function genMoneyP2(rep,d,rng,concept){
+  const c=concept?.skillId==='moneyP2'?concept:createConceptInstance('moneyP2',d,rng), x=c.anchor;
+  if(rep==='build') return qTask('moneyP2',rep,`${x.cents} kuruş değerini oyun paralarıyla oluştur.`,x.cents,{kind:'manipulative',interaction:'money-make',expectedValue:String(x.cents),unit:'kr',checkLabel:'Parayı kontrol et'},{
+    taskKind:'manipulative-build',taskLabel:'Kuruş miktarını para parçalarıyla kur',visual:{type:'money-make-interactive',target:x.cents,denoms:[100,50,25,10,5],unit:'kr'},hint:'Seçtiğin para parçalarının kuruş değerlerini topla.',explain:`Seçilen paraların toplamı ${x.cents} kuruş.`
+  });
+  if(rep==='see'){
+    const wrongA=moneyDecimalLabel(x.cents+10), wrongB=moneyDecimalLabel(Math.max(0,x.cents-5));
+    const options=shuffled([
+      {value:'correct',visual:{type:'money-decimal-card',cents:x.cents,label:x.decimal},ariaLabel:`${x.cents} kuruş eşittir ${x.decimal}`},
+      {value:'wrong-a',visual:{type:'money-decimal-card',cents:x.cents,label:wrongA},ariaLabel:'ondalık para etiketi yanlış'},
+      {value:'wrong-b',visual:{type:'money-decimal-card',cents:x.cents,label:wrongB},ariaLabel:'ondalık para etiketi yanlış'}
+    ],rng);
+    return qTask('moneyP2',rep,`${x.cents} kuruşu doğru TL ondalık gösterimiyle eşleştiren kart hangisi?`,'correct',{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',taskLabel:'Kuruş ile ondalık TL gösterimini eşleştir',teachingNote:'100 kuruş = 1,00 TL. Virgülün solu lirayı, iki basamaklı sağı kuruşu gösterir.',visual:{type:'money-decimal-card',cents:100,label:'1,00 TL'},hint:'Her 100 kuruş 1 liradır; kalan kuruş iki basamakla yazılır.',explain:`${x.cents} kuruş = ${x.decimal}.`
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('moneyP2',rep,`${y.decimal} kaç kuruştur?`,y.cents,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Dönüşümü kontrol et'},{
+      taskKind:'symbol-entry',taskLabel:'Ondalık TL gösterimini yalnız kuruşa çevir',visual:{type:'money-decimal-card',cents:null,label:y.decimal},hint:'Her 1 TL = 100 kuruş; virgülden sonraki iki basamak kuruştur.',explain:`${y.decimal} = ${y.cents} kuruş.`
+    });
+  }
+  if(rep==='explain'){
+    const vals=[x.cents,x.cents+25,x.cents+50], labels=vals.map(moneyDecimalLabel), answer=labels[2];
+    return qBase('moneyP2',rep,`${labels.join(', ')} miktarlarından hangisi en büyüktür ve neden?`,answer,semanticChoices(answer,[labels[0],labels[1],'Virgüllü para miktarları karşılaştırılamaz'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Ondalık para miktarlarını karşılaştır',visual:{type:'money-compare-decimal',values:labels},hint:'Önce lira kısmını, eşitse kuruş kısmını karşılaştır.',explain:`En büyük miktar ${answer}.`
+    });
+  }
+  const y=c.transfer, answer=y.decimal;
+  return qBase('moneyP2',rep,`Bir ürünün etiketi ${y.cents} kuruş. Aynı fiyat TL ile nasıl yazılır?`,answer,semanticChoices(answer,[moneyDecimalLabel(y.cents+10),moneyDecimalLabel(Math.max(0,y.cents-10)),`${y.cents},00 TL`],rng),{
+    taskKind:'context-transfer',taskLabel:'Kuruş fiyatını ondalık TL etiketine taşı',visual:{type:'price-tag',price:y.cents,unit:'kr'},hint:'100 kuruşu 1 TL olarak ayır; kalan kuruşu virgülden sonra iki basamakla yaz.',explain:`${y.cents} kuruş = ${answer}.`
+  });
+}
+
 function genFractionMeaning2(rep,d,rng,concept){
   const c=concept?.skillId==='fractionMeaning2'?concept:createConceptInstance('fractionMeaning2',d,rng), x=c.anchor;
   if(rep==='build') return qTask('fractionMeaning2',rep,`Bütün ${x.denom} eş parçaya ayrıldı. Tam bir eş parçayı boya.`,1,{kind:'manipulative',interaction:'fraction-shade',expectedValue:'1',checkLabel:'Modeli kontrol et'},{taskKind:'manipulative-build',taskLabel:'Bir eş parçayı modelle',visual:{type:'fraction-shade-builder',denom:x.denom,target:1},hint:'Yalnızca bir eş parçayı seç.',explain:`Bütün ${x.denom} eş parçaya ayrıldı ve bunlardan biri seçildi.`});
@@ -2100,6 +2330,7 @@ const GENERATORS={
   number1000:genNumber1000,compareOrder1000:genCompareOrder1000,numberPattern1000:genNumberPattern1000,oddEven1000:genOddEven1000,addSub1000:genAddSub1000,wordAddSub2:genWordAddSub2,
   times23510:genTimes23510,divisionTables2:genDivisionTables2,multDivFamilies2:genMultDivFamilies2,
   fractionMeaning2:genFractionMeaning2,fractionNotation2:genFractionNotation2,fractionCompare2:genFractionCompare2,fractionAddSub2:genFractionAddSub2,
+  lengthMetre2:genLengthMetre2,massMetric2:genMassMetric2,volumeLitre2:genVolumeLitre2,timeMinute2:genTimeMinute2,timeDuration2:genTimeDuration2,moneyP2:genMoneyP2,
   place100:genPlace100,add100:genAdd100,sub100:genSub100,multiply5:genMultiply5,divide20:genDivide20,fraction:genFraction,word2:genWord2,numberPattern2:genNumberPattern2,shapes2:genShapes2,lengthCm:genLengthCm,time2:genTime2,moneyTL:genMoneyTL,data2:genData2
 };
 
@@ -2173,6 +2404,11 @@ const READINESS_SOURCE_OVERRIDES={
   wordAddSub2:['word1'],
   times23510:['multiply40'],
   divisionTables2:['divide20g1'],
+  lengthMetre2:['lengthMeasure1'],
+  massMetric2:['mass-foundation'],
+  volumeLitre2:['volume-foundation'],
+  timeMinute2:['time1'],
+  moneyP2:['money1'],
   fractionMeaning2:['partwhole5']
 };
 
@@ -2244,9 +2480,27 @@ function generateTimeReadinessQuestion(difficulty=1,rng=Math.random,{support=fal
   return relabelReadinessQuestion(q,'time1',source,{support,rng});
 }
 
+
+function generateMassReadinessQuestion(difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
+  const source=sourceSkillId||'mass-foundation', left=support?1:randInt(1,3,rng), right=left+randInt(1,2,rng), answer='Sağ';
+  const q=qBase('massMetric2','see',support?'Daha çok aynı ağırlık parçası olan taraf daha ağırdır. Hangi taraf daha ağır?':'Aynı tür parçalardan oluşan iki yükten hangisi daha ağır?',answer,semanticChoices(answer,['Sol','Eşit','Bilinemez'],rng),{
+    taskKind:support?'readiness-support':'readiness-check',visual:{type:'mass-foundation',left,right},hint:'Parçalar aynı türde; daha çok parça olan tarafın kütlesi daha büyüktür.',explain:'Sağ tarafta daha çok aynı ağırlık parçası var.',countsTowardEvidence:false
+  });
+  return relabelReadinessQuestion(q,'massMetric2',source,{support,rng});
+}
+function generateVolumeReadinessQuestion(difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
+  const source=sourceSkillId||'volume-foundation', left=support?2:randInt(2,4,rng), right=left+randInt(1,2,rng), answer='Sağ';
+  const q=qBase('volumeLitre2','see',support?'Aynı kaplarda sıvı seviyesi daha yüksek olan tarafta daha çok sıvı vardır. Hangisi?':'Aynı büyüklükteki kaplardan hangisinde daha çok sıvı var?',answer,semanticChoices(answer,['Sol','Eşit','Bilinemez'],rng),{
+    taskKind:support?'readiness-support':'readiness-check',visual:{type:'volume-foundation',left,right},hint:'Kaplar aynı; sıvı seviyelerini karşılaştır.',explain:'Sağ kaptaki sıvı seviyesi daha yüksektir.',countsTowardEvidence:false
+  });
+  return relabelReadinessQuestion(q,'volumeLitre2',source,{support,rng});
+}
+
 function generateReadinessQuestion(skillId,difficulty=1,rng=Math.random,{support=false,sourceSkillId=null}={}){
   if(skillId==='time1') return generateTimeReadinessQuestion(difficulty,rng,{support,sourceSkillId});
   if(skillId==='oddEven1000') return generateParityReadinessQuestion(difficulty,rng,{support,sourceSkillId});
+  if(skillId==='massMetric2') return generateMassReadinessQuestion(difficulty,rng,{support,sourceSkillId});
+  if(skillId==='volumeLitre2') return generateVolumeReadinessQuestion(difficulty,rng,{support,sourceSkillId});
 
   const source=sourceSkillId||readinessSourceFor(skillId,rng);
   if(!source) throw new Error(`No authentic readiness source for ${skillId}`);
@@ -2308,6 +2562,7 @@ const CONCEPT_KEYS={
   lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data',
   number1000:'numbers-to-1000-place-value',compareOrder1000:'compare-order-to-1000',numberPattern1000:'one-ten-hundred-patterns-to-1000',oddEven1000:'odd-even-pairing-to-1000',addSub1000:'addition-subtraction-within-1000',wordAddSub2:'one-two-step-add-sub-problems',
   times23510:'tables-2-3-4-5-10',divisionTables2:'division-symbol-within-tables',multDivFamilies2:'multiplication-division-fact-families',
+  lengthMetre2:'length-in-metres',massMetric2:'mass-grams-kilograms',volumeLitre2:'liquid-volume-litres',timeMinute2:'time-to-the-minute',timeDuration2:'hours-minutes-duration-conversion',moneyP2:'money-decimal-cents-conversion',
   fractionMeaning2:'fraction-equal-parts-whole',fractionNotation2:'fraction-notation-representation',fractionCompare2:'fraction-compare-unit-like',fractionAddSub2:'fraction-like-add-sub',
   shapes2:'solid-properties-and-invariance'
 };

@@ -18,9 +18,10 @@ const P2_A1_SKILLS=['number1000','compareOrder1000','numberPattern1000','addSub1
 const P2_A2_SKILLS=['oddEven1000','wordAddSub2'];
 const P2_MULT_DIV_SKILLS=['times23510','divisionTables2','multDivFamilies2'];
 const P2_FRACTION_SKILLS=['fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'];
-const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_MULT_DIV_SKILLS,...P2_FRACTION_SKILLS];
-assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'],'Primary 2 reference graph changed unexpectedly');
-for(const legacy of ['place100','add100','sub100','numberPattern2','word2','multiply5','divide20','fraction']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
+const P2_MEASURE_TIME_MONEY_SKILLS=['lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'];
+const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_MULT_DIV_SKILLS,...P2_FRACTION_SKILLS,...P2_MEASURE_TIME_MONEY_SKILLS];
+assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'],'Primary 2 reference graph changed unexpectedly');
+for(const legacy of ['place100','add100','sub100','numberPattern2','word2','multiply5','divide20','fraction','lengthCm','time2','moneyTL']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
 
 
 const fresh=defaultState();
@@ -253,6 +254,50 @@ const compareBuild=generateQuestion('fractionCompare2','build',2,seeded,createCo
 assert.equal(compareBuild.response.interaction,'fraction-pair-build');
 const addSubBuild=generateQuestion('fractionAddSub2','build',2,seeded,createConceptInstance('fractionAddSub2',2,seeded));
 assert.equal(addSubBuild.response.interaction,'fraction-operation-build');
+
+
+// Singapore P2 current (Oct 2025) measurement/time/money guards.
+const lengthBuild2=generateQuestion('lengthMetre2','build',2,seeded,createConceptInstance('lengthMetre2',2,seeded));
+assert.equal(lengthBuild2.response.interaction,'measure-make');
+assert.equal(lengthBuild2.response.unit,'m');
+const massUnits=new Set();
+for(let i=0;i<300;i++) massUnits.add(createConceptInstance('massMetric2',2,seeded).anchor.unit);
+assert.deepEqual([...massUnits].sort(),['g','kg'],'P2 mass must cover grams and kilograms without forcing conversion between them');
+const massBuild2=generateQuestion('massMetric2','build',2,seeded,createConceptInstance('massMetric2',2,seeded));
+assert.equal(massBuild2.response.interaction,'measure-make');
+const volumeBuild2=generateQuestion('volumeLitre2','build',2,seeded,createConceptInstance('volumeLitre2',2,seeded));
+assert.equal(volumeBuild2.response.unit,'L');
+assert.equal(volumeBuild2.response.interaction,'measure-make');
+
+const seenP2Minutes=new Set();
+for(let i=0;i<500;i++) seenP2Minutes.add(createConceptInstance('timeMinute2',2,seeded).anchor.minute);
+assert.ok([...seenP2Minutes].some(m=>m%5!==0),'P2 current syllabus must progress from P1 five-minute time to telling time to the minute');
+const minuteConcept=createConceptInstance('timeMinute2',2,seeded);
+const minuteBuild=generateQuestion('timeMinute2','build',2,seeded,minuteConcept);
+assert.equal(minuteBuild.response.interaction,'clock-minute-set');
+const minuteSee=generateQuestion('timeMinute2','see',2,seeded,minuteConcept);
+assert.match(minuteSee.teachingNote,/1 dakikalık/);
+const durationConcept=createConceptInstance('timeDuration2',2,seeded);
+const durationSee=generateQuestion('timeDuration2','see',2,seeded,durationConcept);
+assert.match(durationSee.teachingNote,/1 saat = 60 dakika/);
+const durationSymbol=generateQuestion('timeDuration2','symbol',2,seeded,durationConcept);
+assert.equal(durationSymbol.response.kind,'number-input');
+assert.equal(Number(durationSymbol.answer),durationConcept.symbol.totalMinutes);
+const durationTransfer=generateQuestion('timeDuration2','transfer',2,seeded,durationConcept);
+assert.match(durationTransfer.answer,/sa .*dk/,'P2 duration transfer must convert minutes back to hours+minutes');
+
+const moneyConcept2=createConceptInstance('moneyP2',2,seeded);
+const moneyBuild2=generateQuestion('moneyP2','build',2,seeded,moneyConcept2);
+assert.equal(moneyBuild2.response.interaction,'money-make');
+assert.equal(moneyBuild2.response.unit,'kr');
+assert.ok(!moneyBuild2.prompt.includes(','),'money model phase must not assume decimal TL notation before it is introduced');
+const moneySee2=generateQuestion('moneyP2','see',2,seeded,moneyConcept2);
+assert.match(moneySee2.teachingNote,/100 kuruş = 1,00 TL/);
+const moneySymbol2=generateQuestion('moneyP2','symbol',2,seeded,moneyConcept2);
+assert.equal(Number(moneySymbol2.answer),moneyConcept2.symbol.cents);
+const moneyTransfer2=generateQuestion('moneyP2','transfer',2,seeded,moneyConcept2);
+assert.match(moneyTransfer2.answer,/^\d+,\d{2} TL$/,'Turkish localisation must use TL/kuruş decimal comma while preserving Singapore money structure');
+
 
 // Grade 2 geometry reference gate: each evidence window must require a distinct cognitive action.
 const shapes2Concept=createConceptInstance('shapes2',2,seeded);
