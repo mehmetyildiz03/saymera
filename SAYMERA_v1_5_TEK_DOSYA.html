@@ -3653,7 +3653,7 @@ function startSession(){
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
     requiresLearningCompletion:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
-    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], learningEvents:[], newStable:0, bridgeAdds:0
+    questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], recentQuestionSignatures:[], learningEvents:[], newStable:0, bridgeAdds:0
   };
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
   loadPlanItem();
@@ -3680,6 +3680,17 @@ function maybeInjectBridgeReview(force=false){
     if(!critical) session.bridgeAdds++;
   }
 }
+function questionRepeatSignature(q){
+  const visual=q?.visual?JSON.stringify(q.visual):'';
+  const options=q?.response?.options?JSON.stringify(q.response.options.map(o=>({value:o.value,visual:o.visual||null}))):'';
+  return [q?.skillId||'',q?.representation||'',q?.prompt||'',String(q?.answer??''),q?.taskKind||'',q?.response?.kind||'',visual,options].join('¦');
+}
+function rememberQuestionSignature(q){
+  if(!session||!q) return;
+  session.recentQuestionSignatures ||= [];
+  session.recentQuestionSignatures.push(questionRepeatSignature(q));
+  if(session.recentQuestionSignatures.length>14) session.recentQuestionSignatures=session.recentQuestionSignatures.slice(-14);
+}
 function loadPlanItem(){
   if(!session) return;
   const atPlanEnd=session.planIndex>=session.plan.length;
@@ -3692,19 +3703,31 @@ function loadPlanItem(){
   currentSelection.skill=skill;
   const fresh=currentSelection.conceptScope==='fresh';
   const reuseFocusConcept=skill.id===session.focusSkillId && !fresh && (currentSelection.kind==='focus'||currentSelection.kind==='bridge');
-  const concept=reuseFocusConcept?session.focusConcept:createConceptInstance(skill.id,ss.difficulty||1,Math.random);
+  let concept=reuseFocusConcept?session.focusConcept:createConceptInstance(skill.id,ss.difficulty||1,Math.random);
 
   if(currentSelection.phase && supportsLearningCycle(skill.id)){
     const learningOptions=currentSelection.phase==='readiness'?{
       support:currentSelection.kind==='bridge'||currentSelection.reviewItem?.support===true,
       sourceSkillId:currentSelection.reviewItem?.readinessSourceSkillId||null
     }:{};
-    currentQuestion=generateLearningQuestion(
+    const makeLearningQuestion=()=>generateLearningQuestion(
       skill.id,currentSelection.phase,currentSelection.representation,
       ss.difficulty||1,Math.random,concept,learningOptions
     );
+    currentQuestion=makeLearningQuestion();
+    if(!reuseFocusConcept){
+      let signature=questionRepeatSignature(currentQuestion), retries=0;
+      while(session.recentQuestionSignatures?.includes(signature) && retries<8){
+        concept=createConceptInstance(skill.id,ss.difficulty||1,Math.random);
+        currentQuestion=makeLearningQuestion();
+        signature=questionRepeatSignature(currentQuestion);
+        retries++;
+      }
+    }
+    rememberQuestionSignature(currentQuestion);
   } else {
     currentQuestion=generateQuestion(skill.id,currentSelection.representation,ss.difficulty||1,Math.random,concept);
+    rememberQuestionSignature(currentQuestion);
     if(currentSelection.phase) currentQuestion.learningPhase=currentSelection.phase;
   }
   if(currentSelection.countsTowardEvidence===false) currentQuestion.countsTowardEvidence=false;

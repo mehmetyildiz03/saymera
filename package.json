@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node build-standalone.mjs && node tests/engine.test.mjs && node tests/learning-cycle.test.mjs && node tests/ui-static.test.mjs",
+    "test": "node build-standalone.mjs && node tests/engine.test.mjs && node tests/learning-cycle.test.mjs && node tests/p2-pedagogy-audit.test.mjs && node tests/ui-static.test.mjs",
     "serve": "python3 -m http.server 4173",
     "build:standalone": "node build-standalone.mjs"
   }
