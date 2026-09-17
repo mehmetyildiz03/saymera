@@ -5,6 +5,7 @@ on:
     paths:
       - '.maintenance/v1.4.4/apply.py'
       - '.maintenance/v1.4.4/fix.py'
+      - '.maintenance/v1.4.4/fix_ui.py'
       - '.github/workflows/apply-v1-4-4.yml'
 
 permissions:
@@ -22,6 +23,8 @@ jobs:
         run: python .maintenance/v1.4.4/fix.py
       - name: Apply P2 measurement time money migration
         run: python .maintenance/v1.4.4/apply.py
+      - name: Add P2-C component styles
+        run: python .maintenance/v1.4.4/fix_ui.py
       - name: Validate
         run: npm test
       - name: Commit
