@@ -31,6 +31,30 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
 ]);
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
+const CURRICULUM_SEQUENCED_PROFILES = new Set(['grade2']);
+export function curriculumSequenceFor(profile){
+  if(!CURRICULUM_SEQUENCED_PROFILES.has(profile)) return [];
+  return skillsFor(profile).filter(s=>supportsLearningCycle(s.id));
+}
+export function currentCurriculumSkill(state){
+  const sequence=curriculumSequenceFor(state?.profile);
+  for(const skillObj of sequence){
+    const ss=ensureSkillState(state,skillObj.id);
+    if(!(ss.learningCycle?.firstCycleCompletedAt||0)) return skillObj;
+  }
+  return null;
+}
+export function curriculumSkillUnlocked(state,skillId){
+  const sequence=curriculumSequenceFor(state?.profile);
+  if(!sequence.length) return true;
+  const targetIndex=sequence.findIndex(s=>s.id===skillId);
+  if(targetIndex<0) return true;
+  const current=currentCurriculumSkill(state);
+  if(!current) return true;
+  const currentIndex=sequence.findIndex(s=>s.id===current.id);
+  return targetIndex<=currentIndex;
+}
+
 export const PROFILE_META = {
   preschool: { label: 'Okul öncesi', age: '4–6 yaş', effortBudget: 5.5, cooldownMinutes: 5 },
   grade1: { label: '1. sınıf', age: '6–7 yaş', effortBudget: 6.5, cooldownMinutes: 5 },
@@ -2740,7 +2764,12 @@ export function selectNextSkill(state, session, now=Date.now(), rng=Math.random)
     .sort((a,b)=>(a.dueAt||0)-(b.dueAt||0))[0];
   if(due){
     const s=candidates.find(x=>x.id===due.skillId);
-    if(s) return {skill:s, representation:due.representation || recommendedRepresentation(ensureSkillState(state,s.id)), reviewItem:due};
+    if(s && curriculumSkillUnlocked(state,s.id)) return {skill:s, representation:due.representation || recommendedRepresentation(ensureSkillState(state,s.id)), reviewItem:due};
+  }
+  const curriculumCurrent=currentCurriculumSkill(state);
+  if(curriculumCurrent){
+    const ss=ensureSkillState(state,curriculumCurrent.id);
+    return {skill:curriculumCurrent,representation:recommendedRepresentation(ss),reviewItem:null};
   }
   const ready=candidates.filter(s=>prerequisitesReady(state,s));
   const ranked=ready.map(s=>{

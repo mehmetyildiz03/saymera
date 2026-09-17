@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -23,6 +23,38 @@ const repReasons={
   explain:'Doğru işlemin nedenini açıklama kanıtı eksik.',
   transfer:'Kavramı yeni bir duruma taşıma kanıtı eksik.'
 };
+const P2_LESSON_BLUEPRINTS={
+  number1000:{headline:'Sayıları basamaklarına ayıralım.',lead:'Bir rakamın değeri bulunduğu yere göre değişir. Yüzlük, onluk ve birlikleri birlikte kuracağız.',model:[['3','yüzlük','300'],['4','onluk','40'],['7','birlik','7']],takeaway:'347 = 300 + 40 + 7'},
+  compareOrder1000:{headline:'Büyük sayıları soldan karşılaştır.',lead:'Önce yüzlüklere bak. Eşitse onlukları, onlar da eşitse birlikleri karşılaştır.',takeaway:'En büyük basamak farkı kararı verir.'},
+  numberPattern1000:{headline:'Değişimin hangi basamakta olduğunu gör.',lead:'1 eklemek birlikleri, 10 eklemek onlukları, 100 eklemek yüzlükleri değiştirir.',takeaway:'Örüntünün adımını bul, sonra aynı değişimi sürdür.'},
+  oddEven1000:{headline:'İkişerli eşleştir ve son basamağa bak.',lead:'Bir sayı ikişerli gruplara artıksız ayrılıyorsa çifttir. Bunu birlikler basamağından anlayabiliriz.',takeaway:'0, 2, 4, 6, 8 ile biten sayılar çifttir.'},
+  addSub1000:{headline:'Basamak değerini koruyarak işlem yap.',lead:'Birlikleri birliklerle, onlukları onluklarla, yüzlükleri yüzlüklerle birleştirir veya ayırırız.',takeaway:'10 birlik 1 onluk; 10 onluk 1 yüzlük olarak yeniden gruplanabilir.'},
+  wordAddSub2:{headline:'Önce hikâyeyi modele dönüştür.',lead:'Problemde neyin başlangıç, değişim ve sonuç olduğunu ayır. Sonra hangi işlemlerin gerektiğini sırala.',takeaway:'İşlemi metindeki kelimeye değil, miktarlar arasındaki ilişkiye göre seç.'},
+  times23510:{headline:'Çarpma eşit grupları hızlı sayar.',lead:'Aynı büyüklükte grupları tekrar tekrar toplamak yerine çarpma kullanabiliriz.',takeaway:'4 grup 3 nesne = 3 + 3 + 3 + 3 = 4 × 3.'},
+  divisionTables2:{headline:'Bölme eşit paylaşma veya eşit gruplamadır.',lead:'Bir miktarı eşit paylaştırabilir ya da kaç eşit grup oluştuğunu bulabiliriz.',takeaway:'÷ işareti eşit paylaşma ve gruplama düşüncesini sembolleştirir.'},
+  multDivFamilies2:{headline:'Çarpma ve bölme birbirini geri alır.',lead:'Aynı üç sayı iki çarpma ve iki bölme cümlesi oluşturabilir.',takeaway:'3 × 4 = 12 ise 12 ÷ 4 = 3 ve 12 ÷ 3 = 4.'},
+  fractionMeaning2:{headline:'Kesirden önce eş parçayı kur.',lead:'Bir bütün ancak eş büyüklükte parçalara ayrıldığında bu parçaları kesir olarak anlamlandırabiliriz.',takeaway:'Önce bütün ve eş parçalar; sembol daha sonra.'},
+  fractionNotation2:{headline:'Kesir sembolündeki iki sayı farklı şey anlatır.',lead:'Alttaki sayı bütünün kaç eş parçaya ayrıldığını, üstteki sayı kaç parçanın seçildiğini gösterir.',takeaway:'4 eş parçadan 2’si = 2/4.'},
+  fractionCompare2:{headline:'Aynı büyüklükteki parçaları karşılaştır.',lead:'Paydalar aynıysa parçaların büyüklüğü aynıdır; daha çok parça seçilen kesir daha büyüktür. Birim kesirlerde bütün daha çok parçaya ayrıldıkça tek parça küçülür.',takeaway:'Önce parçaların gerçekten karşılaştırılabilir olduğundan emin ol.'},
+  fractionAddSub2:{headline:'Eş büyüklükte parçaları birleştir veya ayır.',lead:'Paydalar aynıysa parça büyüklüğü değişmez; seçilen parça sayısı değişir.',takeaway:'2/7 + 3/7 = 5/7.'},
+  lengthMetre2:{headline:'Uzun mesafeler için metreyi kullan.',lead:'Nesnenin veya mesafenin büyüklüğüne uygun ölçü birimini seçmek ölçmenin bir parçasıdır.',takeaway:'Önce uygun birimi seç, sonra ölçüleri karşılaştır.'},
+  massMetric2:{headline:'Kütleyi gram ve kilogramla düşün.',lead:'Hafif nesnelerde gram, daha ağır nesnelerde kilogram uygun olabilir.',takeaway:'Sayı kadar kullanılan birim de anlam taşır.'},
+  volumeLitre2:{headline:'Kabın ne kadar sıvı alabileceğini düşün.',lead:'Sıvı hacmini litre ile ölçebilir, miktarları karşılaştırıp sıralayabiliriz.',takeaway:'Karşılaştırırken aynı tür ölçüye ve birime bak.'},
+  timeMinute2:{headline:'Saatte iki ibre iki farklı işi yapar.',lead:'Kısa ibre saati, uzun ibre dakikayı gösterir. Dakikayı tam olarak okumayı öğreneceğiz.',takeaway:'Dakika ibresinin her küçük adımı 1 dakikadır.'},
+  timeDuration2:{headline:'Saat kaç ile ne kadar sürdü farklı sorulardır.',lead:'Başlangıç ve bitiş arasındaki süreyi saat ve dakika olarak bulabiliriz.',takeaway:'1 saat = 60 dakika ilişkisi süreyi dönüştürmemize yardım eder.'},
+  moneyP2:{headline:'Para miktarını TL ve kuruşla kur.',lead:'Aynı para miktarı TL–kuruş biçiminde veya ondalık gösterimle ifade edilebilir.',takeaway:'1 TL = 100 kuruş.'},
+  shapePatterns2:{headline:'Örüntüde değişen özelliği bul.',lead:'Şekil, renk, boyut veya yön belli bir kurala göre tekrar edebilir.',takeaway:'Kuralı söyleyebiliyorsan sıradaki şekli de kurabilirsin.'},
+  solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
+  pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
+};
+function lessonBlueprintFor(skill){
+  return P2_LESSON_BLUEPRINTS[skill.id]||{
+    headline:`${skill.label} konusunu birlikte keşfedelim.`,
+    lead:'Önce modeli inceleyecek, sonra birlikte deneyecek ve en son kendi başına uygulayacaksın.',
+    takeaway:'Amaç yalnız doğru cevabı bulmak değil, nedenini görebilmek.'
+  };
+}
+
 const accentTint={amber:'#fff2c9',blue:'#e6f2fa',violet:'#eee9fa',green:'#e6f4ef',rose:'#fbe9e5',teal:'#e2f3ef',navy:'#e6edf1'};
 const accentRing={amber:'#d9a12f',blue:'#4e8cc8',violet:'#8270ca',green:'#2f9987',rose:'#df7564',teal:'#2f9987',navy:'#19364b'};
 
@@ -166,6 +198,8 @@ function renderHeader(){
 }
 
 function pickFocus(){
+  const curriculumCurrent=currentCurriculumSkill(state);
+  if(curriculumCurrent) return {skill:curriculumCurrent,state:ensureSkillState(state,curriculumCurrent.id)};
   const all=skillsFor(state.profile).map(skill=>({skill,state:ensureSkillState(state,skill.id)}));
   const ready=all.filter(x=>prerequisitesReady(state,x.skill));
   const scored=(ready.length?ready:all).map((x,index)=>{
@@ -210,7 +244,7 @@ function renderHome(){
     <article class="insight-card"><span class="mini-kicker">KISA TEKRAR</span><div class="insight-number">${due}<small>hazır</small></div><p>${due?'Tekrar etmek için hazır.':'Şimdilik tekrar yok.'}</p></article>
     <article class="insight-card"><span class="mini-kicker">TAMAMLANAN</span><div class="insight-number">${summary.stable}<small>/ ${summary.total}</small></div><p>${worked} konuyla çalıştın.</p></article>`;
 
-  const preview=skillsFor(state.profile).map(skill=>({skill,ss:ensureSkillState(state,skill.id),ready:prerequisitesReady(state,skill)})).sort((a,b)=>Number(b.ready)-Number(a.ready)||masteryPercent(a.ss)-masteryPercent(b.ss)).slice(0,4);
+  const preview=skillsFor(state.profile).map(skill=>({skill,ss:ensureSkillState(state,skill.id),ready:prerequisitesReady(state,skill)&&curriculumSkillUnlocked(state,skill.id)})).sort((a,b)=>Number(b.ready)-Number(a.ready)||masteryPercent(a.ss)-masteryPercent(b.ss)).slice(0,4);
   $('#conceptPreviewRow').innerHTML=preview.map(({skill,ss,ready})=>`
     <article class="concept-mini" style="--tint:${accentTint[skill.accent]||'#eef0ef'}">
       <span>${esc(skill.family.toUpperCase())}</span><h3>${esc(skill.label)}</h3>
@@ -244,7 +278,7 @@ function renderAtlas(){
 
   const filtered=activeDomain==='Tümü'?list:list.filter(s=>s.family===activeDomain);
   $('#skillMap').innerHTML=filtered.map(skill=>{
-    const ss=ensureSkillState(state,skill.id), pct=masteryPercent(ss), ready=prerequisitesReady(state,skill);
+    const ss=ensureSkillState(state,skill.id), pct=masteryPercent(ss), ready=prerequisitesReady(state,skill)&&curriculumSkillUnlocked(state,skill.id);
     const status=!ready?'Daha sonra':ss.stable?'Tamamlandı':ss.totalAttempts?'Devam ediyor':'Başlamadı';
     const mark=ss.stable?'✓':ss.totalAttempts?'→':'○';
     return `<article class="skill-card ${ready?'':'locked'}">
@@ -329,6 +363,18 @@ function buildSessionPlan(focus){
   }
 
   if(supportsLearningCycle(focus.skill.id)){
+    if(!focus.state.learningCycle?.firstCycleCompletedAt){
+      plan.push({
+        skillId:focus.skill.id,
+        representation:null,
+        phase:null,
+        reviewItem:null,
+        kind:'lesson-intro',
+        activityMode:'teach',
+        conceptScope:'fresh',
+        countsTowardEvidence:false
+      });
+    }
     buildLearningCyclePlan(focus.state).forEach(item=>plan.push({
       skillId:focus.skill.id,
       reviewItem:null,
@@ -401,6 +447,11 @@ function loadPlanItem(){
   if(!skill){ session.planIndex++; loadPlanItem(); return; }
   const ss=ensureSkillState(state,skill.id);
   currentSelection.skill=skill;
+  if(currentSelection.kind==='lesson-intro'){
+    answered=false; usedHint=false;
+    renderLessonIntro(skill);
+    return;
+  }
   const fresh=currentSelection.conceptScope==='fresh';
   const reuseFocusConcept=skill.id===session.focusSkillId && !fresh && (currentSelection.kind==='focus'||currentSelection.kind==='bridge');
   let concept=reuseFocusConcept?session.focusConcept:createConceptInstance(skill.id,ss.difficulty||1,Math.random);
@@ -441,13 +492,45 @@ function loadPlanItem(){
   answered=false; usedHint=false;
   renderQuestion();
 }
-function renderQuestion(){
-  const q=currentQuestion, s=currentSelection.skill, rep=q.representation;
-  const total=session.plan.length;
-  $('#practiceLens').textContent=s.family.toUpperCase();
-  $('#practiceTitle').textContent=s.label;
+function practiceActivityMeta(selection=currentSelection){
+  if(selection?.kind==='lesson-intro') return {label:'KONUYA GİRİŞ',mode:'teach'};
+  if(selection?.phase==='readiness') return {label:'ÖN BİLGİ',mode:'check'};
+  if(['model','representation','symbol','reasoning'].includes(selection?.phase)) return {label:'BİRLİKTE DENE',mode:'guided'};
+  if(selection?.phase==='retrieval'||selection?.kind==='retention') return {label:'KISA TEKRAR',mode:'review'};
+  return {label:'KENDİN DENE',mode:'check'};
+}
+function renderPracticeHeader(skill){
+  const total=session?.plan?.length||1;
+  const activity=practiceActivityMeta();
+  $('#practiceLens').textContent=`${PROFILE_META[state.profile].label.toUpperCase()} • ${skill.family.toUpperCase()}`;
+  $('#practiceTitle').textContent=skill.label;
+  $('#practiceMode').textContent=activity.label;
+  $('#practiceMode').dataset.mode=activity.mode;
   $('#practiceCounter').textContent=`${Math.min(session.planIndex+1,total)} / ${total}`;
   $('#practiceProgress').style.width=`${Math.round(session.planIndex/Math.max(1,total)*100)}%`;
+}
+function renderLessonIntro(skill){
+  currentQuestion=null;
+  renderPracticeHeader(skill);
+  const bp=lessonBlueprintFor(skill);
+  const model=bp.model?.length?`<div class="lesson-model-row">${bp.model.map(([n,label,value])=>`<div class="lesson-model-card"><strong>${esc(n)}</strong><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join('')}</div>`:'';
+  $('#practiceContent').innerHTML=`
+    <div class="lesson-intro-stage">
+      <span class="lesson-kicker">BUGÜNKÜ FİKİR</span>
+      <h2>${esc(bp.headline)}</h2>
+      <p>${esc(bp.lead)}</p>
+      ${model}
+      <div class="lesson-takeaway"><span>AKLINDA KALSIN</span><strong>${esc(bp.takeaway)}</strong></div>
+      <button class="response-submit lesson-start-button" id="beginLessonActivity">Birlikte deneyelim <b>→</b></button>
+    </div>`;
+  $('#beginLessonActivity')?.addEventListener('click',()=>{
+    session.planIndex++;
+    loadPlanItem();
+  });
+}
+function renderQuestion(){
+  const q=currentQuestion, s=currentSelection.skill, rep=q.representation;
+  renderPracticeHeader(s);
   $('#practiceContent').innerHTML=`
     <div class="question-stage">
       <h2>${esc(q.prompt)}</h2>
