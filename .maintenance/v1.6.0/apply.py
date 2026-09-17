@@ -22,7 +22,7 @@ replace_once(
     "export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }\n\nexport const PROFILE_META",
     '''export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
-const CURRICULUM_SEQUENCED_PROFILES = new Set(['grade1','grade2']);
+const CURRICULUM_SEQUENCED_PROFILES = new Set(['grade2']);
 export function curriculumSequenceFor(profile){
   if(!CURRICULUM_SEQUENCED_PROFILES.has(profile)) return [];
   return skillsFor(profile).filter(s=>supportsLearningCycle(s.id));
@@ -348,7 +348,7 @@ doc = r'''# SAYMERA v1.6 — Curriculum-led Lesson Mode
 
 ## Product rule
 
-For Primary 1 and Primary 2, **new learning follows the curriculum sequence**. Adaptation may change support, representation, difficulty and review timing, but it may not jump to a later new topic.
+For Primary 2, **new learning follows the curriculum sequence**. Adaptation may change support, representation, difficulty and review timing, but it may not jump to a later new topic.
 
 A previously learned topic may reappear as a delayed review. This does not unlock a later topic early.
 
