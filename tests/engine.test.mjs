@@ -19,9 +19,9 @@ const P2_A2_SKILLS=['oddEven1000','wordAddSub2'];
 const P2_MULT_DIV_SKILLS=['times23510','divisionTables2','multDivFamilies2'];
 const P2_FRACTION_SKILLS=['fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'];
 const P2_MEASURE_TIME_MONEY_SKILLS=['lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'];
-const P2_GEOMETRY_DATA_SKILLS=['shapePatterns2','solids2','pictureGraphScale2'];
+const P2_GEOMETRY_DATA_SKILLS=['shapes2D2','shapePatterns2','solids2','solidPatterns2','pictureGraphScale2'];
 const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_MULT_DIV_SKILLS,...P2_FRACTION_SKILLS,...P2_MEASURE_TIME_MONEY_SKILLS,...P2_GEOMETRY_DATA_SKILLS];
-assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2','shapePatterns2','solids2','pictureGraphScale2'],'Primary 2 reference graph changed unexpectedly');
+assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2','shapes2D2','shapePatterns2','solids2','solidPatterns2','pictureGraphScale2'],'Primary 2 reference graph changed unexpectedly');
 for(const legacy of ['place100','add100','sub100','numberPattern2','word2','multiply5','divide20','fraction','lengthCm','time2','moneyTL','shapes2','data2']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
 
 
@@ -338,6 +338,37 @@ assert.equal(graphTransfer.response.kind,'number-input');
 assert.ok(!JSON.stringify([graphBuild,graphSymbol,graphTransfer]).includes('bar-chart'),'P2 data core must not silently regress to bar charts');
 
 
+
+
+
+// P2 2D composition/copying remains explicit at the P2 evidence layer even though related ideas start in P1.
+const p2Pieces=new Set();
+for(let i=0;i<700;i++){
+  const c=createConceptInstance('shapes2D2',2,seeded);
+  for(const z of [c.anchor,c.symbol,c.transfer]) for(const p of z.pieces) p2Pieces.add(p);
+}
+for(const piece of ['square','rect','triangle','halfCircle','quarterCircle']) assert.ok(p2Pieces.has(piece),`P2 2D composition missing ${piece}`);
+const p2Shape2D=createConceptInstance('shapes2D2',2,seeded);
+const p2ShapeBuild=generateQuestion('shapes2D2','build',2,seeded,p2Shape2D);
+assert.equal(p2ShapeBuild.response.interaction,'shape-compose');
+const p2ShapeTransfer=generateQuestion('shapes2D2','transfer',2,seeded,p2Shape2D);
+assert.equal(p2ShapeTransfer.response.interaction,'square-grid-copy');
+assert.equal(p2ShapeTransfer.visual.type,'square-grid-copy-interactive');
+assert.match(String(p2ShapeTransfer.answer),/\d,\d\|/,'P2 grid copy must encode multiple target cells');
+
+const solidPatternAttrs=new Set(), solidPatternAttrCounts=new Set(), solidPatternKinds=new Set();
+for(let i=0;i<700;i++){
+  const p=createConceptInstance('solidPatterns2',2,seeded);
+  p.anchor.attrs.forEach(a=>solidPatternAttrs.add(a)); solidPatternAttrCounts.add(p.anchor.attrs.length);
+  for(const token of [...p.anchor.items,p.anchor.next]) solidPatternKinds.add(String(token).split('|')[0]);
+}
+for(const attr of ['size','shape','colour','orientation']) assert.ok(solidPatternAttrs.has(attr),`P2 3D patterns missing ${attr}`);
+assert.ok(solidPatternAttrCounts.has(1)&&solidPatternAttrCounts.has(2),'P2 3D patterns must use one or two attributes');
+assert.ok(!solidPatternKinds.has('sphere'),'Singapore P2 3D pattern activity excludes sphere');
+for(const kind of ['cube','cuboid','cone','cylinder']) assert.ok(solidPatternKinds.has(kind),`P2 3D patterns missing ${kind}`);
+const solidPatternConcept=createConceptInstance('solidPatterns2',2,seeded);
+assert.equal(generateQuestion('solidPatterns2','build',2,seeded,solidPatternConcept).response.interaction,'p2-solid-pattern');
+assert.equal(generateQuestion('solidPatterns2','transfer',2,seeded,solidPatternConcept).response.kind,'visual-choice');
 
 const shapes2Concept=createConceptInstance('shapes2',2,seeded);
 assert.equal(shapes2Concept.skillId,'shapes2');

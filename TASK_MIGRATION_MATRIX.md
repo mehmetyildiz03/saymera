@@ -58,8 +58,10 @@ Durum:
 | 2. sınıf | `timeMinute2` | Dakikaya kadar saat okuma | **P2-REFERENCE** |
 | 2. sınıf | `timeDuration2` | Saat ve dakika cinsinden süre | **P2-REFERENCE** |
 | 2. sınıf | `moneyP2` | TL/kuruş ve ondalık para gösterimi | **P2-REFERENCE** |
+| 2. sınıf | `shapes2D2` | Bileşik 2B figür, temel parçalar ve kareli alanda kopyalama | **P2-REFERENCE** |
 | 2. sınıf | `shapePatterns2` | 2B şekillerle bir/iki özellikli örüntüler | **P2-REFERENCE** |
 | 2. sınıf | `solids2` | Küp/dikdörtgen prizma/koni/silindir/küre | **P2-REFERENCE** |
+| 2. sınıf | `solidPatterns2` | 3B cisimlerle bir/iki özellikli örüntüler | **P2-REFERENCE** |
 | 2. sınıf | `pictureGraphScale2` | Ölçekli resimli grafik | **P2-REFERENCE** |
 
-Toplam: **52 beceri**. Bunun **22'si P1-REFERENCE**, **22'si P2-REFERENCE** ve **8'i okul öncesi LEGACY** durumundadır. Singapore P1 ve P2 çekirdek kapsamı artık referans kalite kapısından geçmektedir.
+Toplam: **54 beceri**. Bunun **22'si P1-REFERENCE**, **24'ü P2-REFERENCE** ve **8'i okul öncesi LEGACY** durumundadır. Singapore P1 ve P2 çekirdek kapsamı, geometri öğrenme deneyimleri dahil, referans kalite kapısından geçmektedir.
