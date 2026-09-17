@@ -153,6 +153,19 @@ for(let i=0;i<100;i++){
   if(c.anchor.renaming) assert.match(q.explain,/yeniden grupl/i);
 }
 
+// Grade 2 geometry reference gate: each evidence window must require a distinct cognitive action.
+const shapes2Concept=createConceptInstance('shapes2',2,seeded);
+assert.equal(shapes2Concept.skillId,'shapes2');
+const shapes2Tasks=REPRESENTATIONS.map(rep=>generateQuestion('shapes2',rep,2,seeded,shapes2Concept));
+assert.deepEqual(shapes2Tasks.map(q=>q.taskKind),['manipulative-build','visual-discrimination','symbol-entry','reasoning-choice','context-transfer']);
+assert.equal(shapes2Tasks[0].response.interaction,'solid-properties');
+assert.equal(shapes2Tasks[0].visual.type,'solid-property-builder');
+assert.equal(shapes2Tasks[1].response.kind,'visual-choice');
+assert.equal(shapes2Tasks[3].visual.type,'solid-pair');
+assert.match(shapes2Tasks[3].answer,/Yönü değişse de biçimsel özellikleri değişmez/);
+assert.equal(shapes2Tasks[4].visual.type,'solid-scene');
+assert.equal(new Set(shapes2Tasks.map(q=>q.taskKind)).size,5);
+
 let ss=ensureSkillState(state,'add20');
 const q=generateQuestion('add20','symbol',1,seeded);
 applyAnswer(state,q,{correct:true,sessionQuestionIndex:1,now:1000});

@@ -369,6 +369,16 @@ function shapePatternCases(){
     {id:'window',name:'pencere',pieces:['square','square','square','square'],copy:'window',description:'dört kare'}
   ];
 }
+function shapes2Cases(){
+  return [
+    {id:'cube',name:'Küp',kind:'cube',flat:'6',curved:'0',face:'square',fact:'6 düz yüzünün tamamı karedir',scene:'dice'},
+    {id:'cuboid',name:'Dikdörtgen prizma',kind:'cuboid',flat:'6',curved:'0',face:'rectangle',fact:'6 düz yüzü vardır; yüzleri dikdörtgen biçimindedir',scene:'box'},
+    {id:'cylinder',name:'Silindir',kind:'cylinder',flat:'2',curved:'1',face:'circle',fact:'2 dairesel düz yüzü ve 1 eğri yüzeyi vardır',scene:'can'},
+    {id:'sphere',name:'Küre',kind:'sphere',flat:'0',curved:'1',face:'none',fact:'düz yüzü yoktur; tek parça eğri yüzeyi vardır',scene:'ball'}
+  ];
+}
+function solidSignature(x){ return `${x.flat}|${x.curved}|${x.face}`; }
+
 function shapeTokenParts(token){
   const [shape='circle',size='medium',orientation='0']=String(token).split('|');
   return {shape,size,orientation:Number(orientation)||0};
@@ -415,6 +425,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='shapes1') return make('shape-properties',shapes1Cases());
   if(skillId==='shapePattern1') return make('shape-composition-and-copying',shapePatternCases());
   if(skillId==='data1') return make('pictograph-data',data1Cases());
+  if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
 }
 
@@ -1362,11 +1373,68 @@ function genNumberPattern2(rep,d,rng){
   return qBase('numberPattern2',rep,`${seq.join(', ')}, ?  Sıradaki sayı?`,ans,numericChoices(ans,Math.max(4,step),rng),{visual:{type:'sequence',items:seq.concat('?')},hint:'Kuralı bul ve bir kez daha uygula.',explain:`Sıradaki sayı ${ans}.`});
 }
 
-function genShapes2(rep,d,rng){
-  const items=[{name:'Küp',kind:'cube',fact:'6 kare yüzü vardır'},{name:'Küre',kind:'sphere',fact:'düz yüzü yoktur'},{name:'Silindir',kind:'cylinder',fact:'iki dairesel düz yüzü vardır'},{name:'Dikdörtgen prizma',kind:'cuboid',fact:'dikdörtgensel yüzleri vardır'}]; const t=choice(items,rng);
-  if(rep==='transfer') return qBase('shapes2',rep,'Bir konserve kutusuna en çok benzeyen geometrik cisim hangisidir?','Silindir',semanticChoices('Silindir',['Küp','Küre','Dikdörtgen prizma'],rng),{visual:{type:'solid-scene',kind:'can'},hint:'Kutunun taban ve üst yüzünü düşün.',explain:'Konserve kutusu silindire benzer: iki dairesel düz yüzü vardır.'});
-  if(rep==='explain') return qBase('shapes2',rep,`${t.name} için hangi ifade doğrudur?`,t.fact,semanticChoices(t.fact,['Yönü değişince adı değişir','Her yüzü dairedir','Hiçbir biçimsel özelliği yoktur'],rng),{visual:{type:'solid',kind:t.kind},hint:'Yüzlerin biçimini düşün.',explain:`${t.name}: ${t.fact}.`});
-  return qBase('shapes2',rep,'Gösterilen cisim hangisidir?',t.name,semanticChoices(t.name,items.filter(x=>x.name!==t.name).map(x=>x.name),rng),{visual:{type:'solid',kind:t.kind},hint:'Düz ve eğri yüzleri ayırt et.',explain:`Bu cisim ${t.name.toLowerCase()}.`});
+function genShapes2(rep,d,rng,concept){
+  const c=concept?.skillId==='shapes2'?concept:createConceptInstance('shapes2',d,rng);
+  const x=c.anchor;
+  const all=shapes2Cases();
+  if(rep==='build'){
+    const flat=[['0','0'],['2','2'],['6','6']];
+    const curved=[['0','Yok'],['1','1']];
+    const face=[['square','Kare'],['rectangle','Dikdörtgen'],['circle','Daire'],['none','Düz yüz yok']];
+    return qTask('shapes2',rep,`${x.name} için özellik modelini kur. Her satırdan doğru kartı seç.`,solidSignature(x),{
+      kind:'manipulative',interaction:'solid-properties',expectedValue:solidSignature(x),checkLabel:'Modeli kontrol et'
+    },{
+      taskKind:'manipulative-build',
+      visual:{type:'solid-property-builder',name:x.name,options:{flat,curved,face}},
+      hint:'Düz yüz sayısını, eğri yüzeyi ve düz yüzlerin biçimini ayrı ayrı düşün.',
+      explain:`${x.name}: ${x.fact}.`,
+      feedbackTitle:'Özellikleri doğru bir araya getirdin.'
+    });
+  }
+  if(rep==='see'){
+    const distractors=shuffled(all.filter(z=>z.id!==x.id),rng).slice(0,2);
+    const options=shuffled([x,...distractors].map(z=>({value:z.id,visual:{type:'solid',kind:z.kind,rotate:randInt(-18,18,rng)},ariaLabel:z.name})),rng);
+    return qTask('shapes2',rep,`${x.name} hangisidir?`,x.id,{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',
+      hint:'Cismin yönüne değil, düz ve eğri yüzlerine bak.',
+      explain:`Doğru cisim ${x.name.toLowerCase()}.`,
+      feedbackTitle:'Cismi doğru tanıdın.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    const answer=y.name;
+    const distractors=all.filter(z=>z.id!==y.id).map(z=>z.name);
+    return qBase('shapes2',rep,`${y.fact[0].toUpperCase()+y.fact.slice(1)}. Bu cismin matematiksel adı nedir?`,answer,semanticChoices(answer,distractors,rng),{
+      taskKind:'symbol-entry',
+      visual:{type:'symbol-card',text:'?'},
+      hint:'İpucundaki düz yüz ve eğri yüzey özelliklerini kullan.',
+      explain:`Bu özellikler ${y.name.toLowerCase()} cismini tanımlar.`,
+      feedbackTitle:'Doğru matematiksel adı seçtin.'
+    });
+  }
+  if(rep==='explain'){
+    const answer='Yönü değişse de biçimsel özellikleri değişmez';
+    return qBase('shapes2',rep,`${x.name} çevrilip başka yönde gösterildiğinde neden yine ${x.name.toLowerCase()} olarak kalır?`,answer,semanticChoices(answer,[
+      'Rengi aynı kaldığı için',
+      'Ekranda aynı yerde durduğu için',
+      'Sadece daha büyük göründüğü için'
+    ],rng),{
+      taskKind:'reasoning-choice',
+      visual:{type:'solid-pair',kind:x.kind,rotate:32},
+      hint:'Cismin yönü değiştiğinde düz ve eğri yüzlerinin yapısı değişiyor mu?',
+      explain:`${x.name} döndürülse de onu tanımlayan biçimsel özellikler aynı kalır.`,
+      feedbackTitle:'Nedenini doğru açıkladın.'
+    });
+  }
+  const y=c.transfer;
+  return qBase('shapes2',rep,'Bu günlük nesne hangi geometrik cisme en çok benziyor?',y.name,semanticChoices(y.name,all.filter(z=>z.id!==y.id).map(z=>z.name),rng),{
+    taskKind:'context-transfer',
+    visual:{type:'solid-scene',kind:y.scene},
+    hint:'Nesnenin rengine değil, genel biçimine ve yüzlerine bak.',
+    explain:`Bu nesnenin biçimi ${y.name.toLowerCase()} ile eşleşir.`,
+    feedbackTitle:'Günlük nesne ile geometrik cismi eşleştirdin.'
+  });
 }
 
 function genLengthCm(rep,d,rng){
@@ -1442,7 +1510,8 @@ const CONCEPT_KEYS={
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
-  lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data'
+  lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data',
+  shapes2:'solid-properties-and-invariance'
 };
 
 export function generateQuestion(skillId, representation, difficulty=1, rng=Math.random, conceptInstance=null){

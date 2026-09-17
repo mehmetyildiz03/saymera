@@ -207,6 +207,17 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .shape-scene.has-shape .shape-visual.rect{transform:scale(.46)}
 @media(max-width:520px){.shape-scene.has-shape .shape-visual{transform:scale(.44)}.shape-scene.has-shape .shape-visual.triangle{transform:scale(.4)}.shape-scene.has-shape .shape-visual.rect{transform:scale(.39)}}
 
+
+/* v1.2.1 — child-first solid geometry */
+.solid-visual.clear-solid{width:min(260px,78vw);height:auto;display:grid;place-items:center;transform:rotate(var(--solid-rot,0deg));transition:transform .18s ease}
+.solid-visual.clear-solid svg,.solid-scene-visual svg{width:100%;height:auto;overflow:visible;filter:drop-shadow(0 12px 18px rgba(25,54,75,.09))}
+.solid-top{fill:#83c3e9;stroke:#24455f;stroke-width:2.5;stroke-linejoin:round}.solid-left{fill:#5e9fd0;stroke:#24455f;stroke-width:2.5;stroke-linejoin:round}.solid-right{fill:#3976aa;stroke:#24455f;stroke-width:2.5;stroke-linejoin:round}
+.solid-cylinder-body{fill:#f1c85a;stroke:#6f5a20;stroke-width:2.5}.solid-bottom{fill:#e0b342;stroke:#6f5a20;stroke-width:2.5}.solid-sphere-body{fill:#ef8f7d;stroke:#693f38;stroke-width:2.5}.solid-guide{fill:none;stroke:#9c564b;stroke-width:2;stroke-dasharray:4 4}
+.solid-pair{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap}.solid-pair .solid-visual{width:min(210px,42vw)}
+.solid-scene-visual{width:min(280px,80vw);margin:auto}.scene-metal{fill:#e6ecef;stroke:#677780;stroke-width:2}.scene-can{fill:#ccd7dc;stroke:#677780;stroke-width:2}.scene-label{fill:#ef8f7d}.scene-ball{fill:#f3c85d;stroke:#775d1e;stroke-width:2.5}.scene-line{fill:none;stroke:#9f7c25;stroke-width:2}.scene-dice-top{fill:#fafafa;stroke:#34495a;stroke-width:2.5}.scene-dice-left{fill:#e5edf2;stroke:#34495a;stroke-width:2.5}.scene-dice-right{fill:#cad8e1;stroke:#34495a;stroke-width:2.5}.scene-dot{fill:#19364b}.scene-box-top{fill:#e7b474;stroke:#76522f;stroke-width:2.5}.scene-box-left{fill:#cc8f50;stroke:#76522f;stroke-width:2.5}.scene-box-right{fill:#b7783e;stroke:#76522f;stroke-width:2.5}.scene-box-label{fill:#fff3d4}
+.solid-property-builder{position:relative;z-index:1;width:min(100%,640px);display:grid;gap:14px;margin:auto}.solid-builder-name{padding:16px 18px;border:1px solid var(--line);border-radius:18px;background:var(--paper);text-align:center}.solid-builder-name small{display:block;font-size:9px;letter-spacing:.13em;color:var(--muted);font-weight:950}.solid-builder-name b{font-size:25px}.solid-property-bank{display:grid;gap:10px}.solid-property-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center}.solid-property-row>span{font-size:9px;font-weight:950;letter-spacing:.08em;color:var(--muted)}.solid-property-row>div{display:flex;gap:7px;flex-wrap:wrap}.solid-property-chip{flex:1 1 90px;min-height:48px;padding:9px 10px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-weight:900;color:var(--ink)}.solid-property-chip.selected{background:var(--green-soft);border-color:var(--green);outline:2px solid var(--green);transform:translateY(-2px)}
+@media(max-width:520px){.solid-property-row{grid-template-columns:1fr}.solid-property-row>span{text-align:left}.solid-property-chip{min-height:44px;font-size:13px}.solid-pair{gap:8px}}
+
 </style>
   <title>SAYMERA — Matematik Laboratuvarı</title>
 </head>
@@ -729,6 +740,16 @@ function shapePatternCases(){
     {id:'window',name:'pencere',pieces:['square','square','square','square'],copy:'window',description:'dört kare'}
   ];
 }
+function shapes2Cases(){
+  return [
+    {id:'cube',name:'Küp',kind:'cube',flat:'6',curved:'0',face:'square',fact:'6 düz yüzünün tamamı karedir',scene:'dice'},
+    {id:'cuboid',name:'Dikdörtgen prizma',kind:'cuboid',flat:'6',curved:'0',face:'rectangle',fact:'6 düz yüzü vardır; yüzleri dikdörtgen biçimindedir',scene:'box'},
+    {id:'cylinder',name:'Silindir',kind:'cylinder',flat:'2',curved:'1',face:'circle',fact:'2 dairesel düz yüzü ve 1 eğri yüzeyi vardır',scene:'can'},
+    {id:'sphere',name:'Küre',kind:'sphere',flat:'0',curved:'1',face:'none',fact:'düz yüzü yoktur; tek parça eğri yüzeyi vardır',scene:'ball'}
+  ];
+}
+function solidSignature(x){ return `${x.flat}|${x.curved}|${x.face}`; }
+
 function shapeTokenParts(token){
   const [shape='circle',size='medium',orientation='0']=String(token).split('|');
   return {shape,size,orientation:Number(orientation)||0};
@@ -775,6 +796,7 @@ function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='shapes1') return make('shape-properties',shapes1Cases());
   if(skillId==='shapePattern1') return make('shape-composition-and-copying',shapePatternCases());
   if(skillId==='data1') return make('pictograph-data',data1Cases());
+  if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
 }
 
@@ -1722,11 +1744,68 @@ function genNumberPattern2(rep,d,rng){
   return qBase('numberPattern2',rep,`${seq.join(', ')}, ?  Sıradaki sayı?`,ans,numericChoices(ans,Math.max(4,step),rng),{visual:{type:'sequence',items:seq.concat('?')},hint:'Kuralı bul ve bir kez daha uygula.',explain:`Sıradaki sayı ${ans}.`});
 }
 
-function genShapes2(rep,d,rng){
-  const items=[{name:'Küp',kind:'cube',fact:'6 kare yüzü vardır'},{name:'Küre',kind:'sphere',fact:'düz yüzü yoktur'},{name:'Silindir',kind:'cylinder',fact:'iki dairesel düz yüzü vardır'},{name:'Dikdörtgen prizma',kind:'cuboid',fact:'dikdörtgensel yüzleri vardır'}]; const t=choice(items,rng);
-  if(rep==='transfer') return qBase('shapes2',rep,'Bir konserve kutusuna en çok benzeyen geometrik cisim hangisidir?','Silindir',semanticChoices('Silindir',['Küp','Küre','Dikdörtgen prizma'],rng),{visual:{type:'solid-scene',kind:'can'},hint:'Kutunun taban ve üst yüzünü düşün.',explain:'Konserve kutusu silindire benzer: iki dairesel düz yüzü vardır.'});
-  if(rep==='explain') return qBase('shapes2',rep,`${t.name} için hangi ifade doğrudur?`,t.fact,semanticChoices(t.fact,['Yönü değişince adı değişir','Her yüzü dairedir','Hiçbir biçimsel özelliği yoktur'],rng),{visual:{type:'solid',kind:t.kind},hint:'Yüzlerin biçimini düşün.',explain:`${t.name}: ${t.fact}.`});
-  return qBase('shapes2',rep,'Gösterilen cisim hangisidir?',t.name,semanticChoices(t.name,items.filter(x=>x.name!==t.name).map(x=>x.name),rng),{visual:{type:'solid',kind:t.kind},hint:'Düz ve eğri yüzleri ayırt et.',explain:`Bu cisim ${t.name.toLowerCase()}.`});
+function genShapes2(rep,d,rng,concept){
+  const c=concept?.skillId==='shapes2'?concept:createConceptInstance('shapes2',d,rng);
+  const x=c.anchor;
+  const all=shapes2Cases();
+  if(rep==='build'){
+    const flat=[['0','0'],['2','2'],['6','6']];
+    const curved=[['0','Yok'],['1','1']];
+    const face=[['square','Kare'],['rectangle','Dikdörtgen'],['circle','Daire'],['none','Düz yüz yok']];
+    return qTask('shapes2',rep,`${x.name} için özellik modelini kur. Her satırdan doğru kartı seç.`,solidSignature(x),{
+      kind:'manipulative',interaction:'solid-properties',expectedValue:solidSignature(x),checkLabel:'Modeli kontrol et'
+    },{
+      taskKind:'manipulative-build',
+      visual:{type:'solid-property-builder',name:x.name,options:{flat,curved,face}},
+      hint:'Düz yüz sayısını, eğri yüzeyi ve düz yüzlerin biçimini ayrı ayrı düşün.',
+      explain:`${x.name}: ${x.fact}.`,
+      feedbackTitle:'Özellikleri doğru bir araya getirdin.'
+    });
+  }
+  if(rep==='see'){
+    const distractors=shuffled(all.filter(z=>z.id!==x.id),rng).slice(0,2);
+    const options=shuffled([x,...distractors].map(z=>({value:z.id,visual:{type:'solid',kind:z.kind,rotate:randInt(-18,18,rng)},ariaLabel:z.name})),rng);
+    return qTask('shapes2',rep,`${x.name} hangisidir?`,x.id,{kind:'visual-choice',options},{
+      taskKind:'visual-discrimination',
+      hint:'Cismin yönüne değil, düz ve eğri yüzlerine bak.',
+      explain:`Doğru cisim ${x.name.toLowerCase()}.`,
+      feedbackTitle:'Cismi doğru tanıdın.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    const answer=y.name;
+    const distractors=all.filter(z=>z.id!==y.id).map(z=>z.name);
+    return qBase('shapes2',rep,`${y.fact[0].toUpperCase()+y.fact.slice(1)}. Bu cismin matematiksel adı nedir?`,answer,semanticChoices(answer,distractors,rng),{
+      taskKind:'symbol-entry',
+      visual:{type:'symbol-card',text:'?'},
+      hint:'İpucundaki düz yüz ve eğri yüzey özelliklerini kullan.',
+      explain:`Bu özellikler ${y.name.toLowerCase()} cismini tanımlar.`,
+      feedbackTitle:'Doğru matematiksel adı seçtin.'
+    });
+  }
+  if(rep==='explain'){
+    const answer='Yönü değişse de biçimsel özellikleri değişmez';
+    return qBase('shapes2',rep,`${x.name} çevrilip başka yönde gösterildiğinde neden yine ${x.name.toLowerCase()} olarak kalır?`,answer,semanticChoices(answer,[
+      'Rengi aynı kaldığı için',
+      'Ekranda aynı yerde durduğu için',
+      'Sadece daha büyük göründüğü için'
+    ],rng),{
+      taskKind:'reasoning-choice',
+      visual:{type:'solid-pair',kind:x.kind,rotate:32},
+      hint:'Cismin yönü değiştiğinde düz ve eğri yüzlerinin yapısı değişiyor mu?',
+      explain:`${x.name} döndürülse de onu tanımlayan biçimsel özellikler aynı kalır.`,
+      feedbackTitle:'Nedenini doğru açıkladın.'
+    });
+  }
+  const y=c.transfer;
+  return qBase('shapes2',rep,'Bu günlük nesne hangi geometrik cisme en çok benziyor?',y.name,semanticChoices(y.name,all.filter(z=>z.id!==y.id).map(z=>z.name),rng),{
+    taskKind:'context-transfer',
+    visual:{type:'solid-scene',kind:y.scene},
+    hint:'Nesnenin rengine değil, genel biçimine ve yüzlerine bak.',
+    explain:`Bu nesnenin biçimi ${y.name.toLowerCase()} ile eşleşir.`,
+    feedbackTitle:'Günlük nesne ile geometrik cismi eşleştirdin.'
+  });
 }
 
 function genLengthCm(rep,d,rng){
@@ -1802,7 +1881,8 @@ const CONCEPT_KEYS={
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
-  lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data'
+  lengthCompare1:'centimetre-length-comparison',lengthMeasure1:'centimetre-length-measurement',time1:'time-five-minutes-period-duration',shapes1:'shape-properties',shapePattern1:'shape-composition-and-copying',data1:'pictograph-data',
+  shapes2:'solid-properties-and-invariance'
 };
 
 function generateQuestion(skillId, representation, difficulty=1, rng=Math.random, conceptInstance=null){
@@ -2263,11 +2343,8 @@ function renderQuestion(){
   $('#practiceTitle').textContent=s.label;
   $('#practiceCounter').textContent=`${Math.min(session.planIndex+1,total)} / ${total}`;
   $('#practiceProgress').style.width=`${Math.round(session.planIndex/Math.max(1,total)*100)}%`;
-  const kindCopy=currentSelection.kind==='retention'?'Gecikmeli hatırlama':currentSelection.kind==='bridge'?'Köprü görevi':(q.taskLabel||repDescriptions[rep]);
   $('#practiceContent').innerHTML=`
     <div class="question-stage">
-      <div class="question-meta"><span class="rep-chip">${REPRESENTATION_META[rep].icon} ${REPRESENTATION_META[rep].label}</span><span class="skill-chip">${esc(kindCopy)}</span></div>
-      <div class="task-intent">${esc(repDescriptions[rep])}</div>
       <h2>${esc(q.prompt)}</h2>
       <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''}" id="visualStage">${renderVisual(q.visual,q)}</div>
       ${renderResponse(q)}
@@ -2389,6 +2466,16 @@ function wireManipulator(q){
       if(answered)return; const group=btn.dataset.group; root.querySelectorAll(`.property-chip[data-group="${group}"]`).forEach(x=>x.classList.remove('selected')); btn.classList.add('selected'); updateManipulatorStatus(q);
     }));
   }
+  if(interaction==='solid-properties'){
+    const root=$('.solid-property-builder');
+    root?.querySelectorAll('.solid-property-chip').forEach(btn=>btn.addEventListener('click',()=>{
+      if(answered)return;
+      const group=btn.dataset.group;
+      root.querySelectorAll(`.solid-property-chip[data-group="${group}"]`).forEach(x=>x.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateManipulatorStatus(q);
+    }));
+  }
   if(interaction==='length-align'){
     const root=$('.length-align-builder');
     root?.querySelector('.align-lengths')?.addEventListener('click',()=>{ if(answered)return; root.classList.add('aligned'); updateManipulatorStatus(q); });
@@ -2477,6 +2564,11 @@ function readManipulatorValue(q){
   if(interaction==='shape-properties'){
     const root=$('.shape-property-builder'); if(!root)return null; const selected=['straight','curves','structure'].map(group=>root.querySelector(`.property-chip.selected[data-group="${group}"]`)?.dataset.value); return selected.every(v=>v!=null)?selected.join('|'):null;
   }
+  if(interaction==='solid-properties'){
+    const root=$('.solid-property-builder'); if(!root)return null;
+    const selected=['flat','curved','face'].map(group=>root.querySelector(`.solid-property-chip.selected[data-group="${group}"]`)?.dataset.value);
+    return selected.every(v=>v!=null)?selected.join('|'):null;
+  }
   if(interaction==='length-align'){
     const root=$('.length-align-builder'); if(!root?.classList.contains('aligned'))return null; const selected=root.querySelector('.length-choice.selected')?.dataset.value; return selected?`aligned|${selected}`:null;
   }
@@ -2518,6 +2610,7 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='story-add') node.textContent=`Hikâyeye eklediğin: ${value}`;
   else if(q.response?.interaction==='pattern-step') node.textContent=value?`Seçtiğin adım: ${Number(value)>0?'+':''}${value}`:'Örüntü adımını seç';
   else if(q.response?.interaction==='shape-properties') node.textContent=value?'Üç özellik seçildi':'Her satırdan bir özellik seç';
+  else if(q.response?.interaction==='solid-properties') node.textContent=value?'Özellik modeli hazır':'Her satırdan bir özellik seç';
   else if(q.response?.interaction==='length-align') node.textContent=value?'Hizalama ve karşılaştırma hazır':'Önce hizala, sonra karşılaştır';
   else if(q.response?.interaction==='pictograph-row') node.textContent=`Grafiğe koyduğun sembol: ${value}`;
   else if(q.response?.interaction==='remove-counters') node.textContent=`Ayırdığın taş: ${value}`;
@@ -2552,7 +2645,7 @@ function answerQuestion(value,button){
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.sg-three-token').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
@@ -2568,40 +2661,29 @@ function answerQuestion(value,button){
 }
 function renderCorrectFeedback(){
   const q=currentQuestion;
-  const messages={
-    build:['MODEL KURULDU','Matematiksel ilişkiyi hareketle kurdun.'],
-    see:['MODELİ YAKALADIN','Aynı ilişkiyi görsel biçimde tanıdın.'],
-    symbol:['SEMBOL BAĞI KURULDU','Modeli sayı ve işaret diline çevirdin.'],
-    explain:['NEDENİ BULUNDUN','Sadece sonucu değil, çözüm yolunu da ayırt ettin.'],
-    transfer:['FİKİR TAŞINDI','Aynı matematiksel ilişki yeni bağlamda da çalıştı.']
-  };
-  const [kicker,lead]=messages[q.representation]||['BAĞLANTI BULUNDU','Bu görevdeki ilişkiyi yakaladın.'];
+  const lead=q.feedbackTitle||'Harika, doğru cevabı buldun.';
   $('#practiceContent').innerHTML=`<section class="feedback-card">
-    <div class="feedback-mark">✓</div><span class="section-kicker">${esc(kicker)}</span><h2>${esc(lead)}</h2>
-    <p>Burada puanlanan şey hız değil; kavramla temsil arasındaki bağlantı.</p>
+    <div class="feedback-mark">✓</div><span class="section-kicker">DOĞRU</span><h2>${esc(lead)}</h2>
     <div class="explain-box">${esc(q.explain)}</div>
-    <button class="primary-cta" id="continueButton"><span class="cta-icon">→</span><span><b>Sonraki göreve geç</b><small>${nextLensLabel()}</small></span><i>→</i></button>
+    <button class="primary-cta" id="continueButton"><span class="cta-icon">→</span><span><b>Sonraki göreve geç</b><small>${nextTaskLabel()}</small></span><i>→</i></button>
   </section>`;
   $('#continueButton').addEventListener('click',nextQuestion);
   if(state.settings.voice) speak(`${lead} ${q.explain}`);
 }
 function renderBridgeFeedback(){
   const q=currentQuestion;
-  const next=session?.plan[session.planIndex+1];
-  const bridgeName=next?.representation?REPRESENTATION_META[next.representation]?.label:'başka';
   $('#practiceContent').innerHTML=`<section class="bridge-card">
-    <div class="bridge-mark"><i></i><i></i><i></i></div><span class="section-kicker">HATA DEĞİL · KANIT</span><h2>Bu bağlantı henüz net değil.</h2>
-    <p>Aynı soruyu yeniden ezberletmek yerine motor birkaç adım sonra kavramı <strong>${esc(bridgeName||'başka')}</strong> biçiminde yeniden gösterecek.</p>
+    <div class="bridge-mark"><i></i><i></i><i></i></div><span class="section-kicker">BİRLİKTE BAKALIM</span><h2>Bu kez olmadı; ipucuyla devam edelim.</h2>
     <div class="bridge-visual">${renderVisual(q.visual,q)}</div>
-    <div class="explain-box"><strong>Köprü:</strong> ${esc(q.hint)}<br><span>${esc(q.explain)}</span></div>
-    <button class="primary-cta" id="bridgeContinue"><span class="cta-icon">↗</span><span><b>Başka yoldan devam et</b><small>yanlış puanı yok</small></span><i>→</i></button>
+    <div class="explain-box"><strong>İpucu:</strong> ${esc(q.hint)}<br><span>${esc(q.explain)}</span></div>
+    <button class="primary-cta" id="bridgeContinue"><span class="cta-icon">↗</span><span><b>Devam et</b><small>${nextTaskLabel()}</small></span><i>→</i></button>
   </section>`;
   $('#bridgeContinue').addEventListener('click',nextQuestion);
-  if(state.settings.voice) speak(`Başka bir temsil kullanacağız. ${q.hint}`);
+  if(state.settings.voice) speak(`İpucuna bakalım. ${q.hint}`);
 }
-function nextLensLabel(){
+function nextTaskLabel(){
   const next=session?.plan[session.planIndex+1];
-  return next?`${REPRESENTATION_META[next.representation]?.label||'Yeni'} penceresi`:'oturumu tamamla';
+  return next?'sıradaki soru':'oturumu tamamla';
 }
 function nextQuestion(){
   if(!session) return;
@@ -2739,8 +2821,10 @@ function renderVisual(v,q){
     case 'clock': return renderClock(v.hour,v.minute);
     case 'money': { const unit=v.unit==='kr'?'kr':'TL'; return `<div class="money-wrap">${v.values.map(n=>`<div class="money-note">${n}<small>${unit}</small></div>`).join('')}${v.price!=null?`<div class="price-tag">Fiyat ${v.price} ${unit}</div>`:''}</div>`; }
     case 'bar-chart': { const max=Math.max(...v.vals,1); return `<div class="bar-chart">${v.cats.map((cat,i)=>`<div class="bar-col ${v.highlight===i?'highlight':''}" style="height:${Math.max(12,Math.round(v.vals[i]/max*100))}%"><b>${esc(cat)}</b></div>`).join('')}</div>`; }
-    case 'solid': return `<div class="solid-visual"><div class="solid-${esc(v.kind)}"></div></div>`;
-    case 'solid-scene': return `<div class="solid-visual"><div class="${v.kind==='can'?'can-scene':'solid-cylinder'}"></div></div>`;
+    case 'solid': return solidSvg(v.kind,Number(v.rotate||0));
+    case 'solid-pair': return `<div class="solid-pair">${solidSvg(v.kind,0)}${solidSvg(v.kind,Number(v.rotate||28))}</div>`;
+    case 'solid-scene': return solidScene(v.kind);
+    case 'solid-property-builder': return solidPropertyBuilder(v.name,v.options||{});
     case 'addition-strategy': return additionStrategyVisual(v);
     case 'subtraction-strategy': return subtractionStrategyVisual(v);
     case 'fact-family': return factFamilyVisual(v);
@@ -2956,6 +3040,44 @@ function shapePropertyBuilder(shape,name){
   const row=(group,label,arr)=>`<div class="property-row"><span>${label}</span><div class="property-chip-wrap">${arr.map(([v,l])=>`<button type="button" class="property-chip" data-group="${group}" data-value="${esc(v)}">${esc(l)}</button>`).join('')}</div></div>`;
   return `<div class="shape-property-builder"><div class="shape-builder-target"><div class="shape-visual ${esc(shape)}"></div><b>${esc(name)}</b></div><div class="property-bank">${row('straight','DÜZ',straightOptions)}${row('curves','EĞRİ',curveOptions)}${row('structure','YAPI',structureOptions)}</div></div>`;
 }
+
+function solidSvg(kind,rotate=0){
+  const label={cube:'küp',cuboid:'dikdörtgen prizma',sphere:'küre',cylinder:'silindir'}[kind]||'geometrik cisim';
+  let body='';
+  if(kind==='cube'){
+    body=`<polygon points="54,42 112,16 166,48 108,76" class="solid-top"/><polygon points="54,42 108,76 108,142 54,108" class="solid-left"/><polygon points="108,76 166,48 166,114 108,142" class="solid-right"/>`;
+  }else if(kind==='cuboid'){
+    body=`<polygon points="32,54 114,20 184,56 102,90" class="solid-top"/><polygon points="32,54 102,90 102,140 32,104" class="solid-left"/><polygon points="102,90 184,56 184,106 102,140" class="solid-right"/>`;
+  }else if(kind==='cylinder'){
+    body=`<ellipse cx="108" cy="39" rx="51" ry="18" class="solid-top"/><path d="M57 39v88c0 10 23 18 51 18s51-8 51-18V39" class="solid-cylinder-body"/><ellipse cx="108" cy="127" rx="51" ry="18" class="solid-bottom"/><ellipse cx="108" cy="39" rx="51" ry="18" class="solid-top"/>`;
+  }else{
+    body=`<circle cx="108" cy="88" r="61" class="solid-sphere-body"/><ellipse cx="108" cy="88" rx="61" ry="20" class="solid-guide"/><path d="M108 27c-22 16-34 37-34 61s12 45 34 61M108 27c22 16 34 37 34 61s-12 45-34 61" class="solid-guide"/>`;
+  }
+  return `<div class="solid-visual clear-solid" style="--solid-rot:${Number(rotate)||0}deg"><svg viewBox="0 0 216 176" role="img" aria-label="${esc(label)}">${body}</svg></div>`;
+}
+function solidScene(kind){
+  const label={can:'konserve kutusu',ball:'top',dice:'zar',box:'kutu'}[kind]||'günlük nesne';
+  let body='';
+  if(kind==='can'){
+    body=`<ellipse cx="108" cy="35" rx="48" ry="15" class="scene-metal"/><path d="M60 35v94c0 9 22 17 48 17s48-8 48-17V35" class="scene-can"/><ellipse cx="108" cy="129" rx="48" ry="17" class="scene-metal"/><rect x="68" y="66" width="80" height="42" rx="7" class="scene-label"/>`;
+  }else if(kind==='ball'){
+    body=`<circle cx="108" cy="88" r="61" class="scene-ball"/><path d="M52 88h112M108 27c-18 18-28 39-28 61s10 43 28 61M108 27c18 18 28 39 28 61s-10 43-28 61" class="scene-line"/>`;
+  }else if(kind==='dice'){
+    body=`<polygon points="54,42 112,16 166,48 108,76" class="scene-dice-top"/><polygon points="54,42 108,76 108,142 54,108" class="scene-dice-left"/><polygon points="108,76 166,48 166,114 108,142" class="scene-dice-right"/><circle cx="83" cy="71" r="5" class="scene-dot"/><circle cx="137" cy="74" r="5" class="scene-dot"/><circle cx="137" cy="102" r="5" class="scene-dot"/><circle cx="80" cy="96" r="5" class="scene-dot"/>`;
+  }else{
+    body=`<polygon points="28,58 112,22 188,60 104,96" class="scene-box-top"/><polygon points="28,58 104,96 104,145 28,107" class="scene-box-left"/><polygon points="104,96 188,60 188,109 104,145" class="scene-box-right"/><rect x="120" y="83" width="48" height="25" rx="4" class="scene-box-label"/>`;
+  }
+  return `<div class="solid-scene-visual"><svg viewBox="0 0 216 176" role="img" aria-label="${esc(label)}">${body}</svg></div>`;
+}
+function solidPropertyBuilder(name,options){
+  const rows=[
+    ['flat','DÜZ YÜZ',options.flat||[['0','0'],['2','2'],['6','6']],'Düz yüz sayısı'],
+    ['curved','EĞRİ YÜZEY',options.curved||[['0','Yok'],['1','1']],'Eğri yüzey'],
+    ['face','YÜZ BİÇİMİ',options.face||[['square','Kare'],['rectangle','Dikdörtgen'],['circle','Daire'],['none','Düz yüz yok']],'Düz yüzlerin biçimi']
+  ];
+  return `<div class="solid-property-builder"><div class="solid-builder-name"><small>HEDEF CİSİM</small><b>${esc(name)}</b></div><div class="solid-property-bank">${rows.map(([group,label,items,aria])=>`<div class="solid-property-row"><span>${label}</span><div>${items.map(([value,text])=>`<button type="button" class="solid-property-chip" data-group="${group}" data-value="${esc(value)}" aria-label="${esc(aria)}: ${esc(text)}">${esc(text)}</button>`).join('')}</div></div>`).join('')}</div></div>`;
+}
+
 function lengthAlignBuilder(a,b){
   return `<div class="length-align-builder"><div class="align-canvas"><div class="align-bar blue" style="--len:${a}"></div><div class="align-bar orange" style="--len:${b}"></div><div class="align-origin"></div></div><button type="button" class="align-lengths">Başlangıçları hizala</button><div class="length-choice-row"><button type="button" class="length-choice" data-value="Mavi">Mavi daha uzun</button><button type="button" class="length-choice" data-value="Turuncu">Turuncu daha uzun</button><button type="button" class="length-choice" data-value="Eşit">Eşit</button></div></div>`;
 }

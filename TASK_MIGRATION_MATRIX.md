@@ -45,7 +45,7 @@ Durum:
 | 2. sınıf | `fraction` | Yarım ve çeyrek | LEGACY |
 | 2. sınıf | `word2` | İki ilişkili problem | LEGACY |
 | 2. sınıf | `numberPattern2` | Sayı örüntüsü | LEGACY |
-| 2. sınıf | `shapes2` | Şekil/cisim ilişkileri | LEGACY |
+| 2. sınıf | `shapes2` | Şekil/cisim ilişkileri | REFERENCE |
 | 2. sınıf | `lengthCm` | Santimetre | LEGACY |
 | 2. sınıf | `time2` | Saat | LEGACY |
 | 2. sınıf | `moneyTL` | Para | LEGACY |

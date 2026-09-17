@@ -14,16 +14,20 @@ const manifest=JSON.parse(read('manifest.webmanifest'));
 for(const id of ['homeScreen','atlasScreen','parentScreen','focusCard','lensGrid','homeInsightGrid','conceptPreviewRow','atlasSummary','domainTabs','skillMap','parentInsight','practiceOverlay','practiceContent','onboardingOverlay','cooldownOverlay','toast'])
   assert.match(html,new RegExp(`id=["']${id}["']`),`missing static DOM id ${id}`);
 
-for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder'])
+for(const cls of ['prism-card','question-stage','visual-choice-grid','number-keypad','interactive-twentyframe','sg-bond-builder','sg-base10-builder','sg-order-builder','sg-ordinal-builder','sg-equal-groups-builder','sg-share-builder','sg-money-builder','sg-cm-ruler-builder','sg-shape-compose-builder','sg-unit-builder','sg-clock-set','sg-shape-pattern-builder','solid-property-builder','solid-property-chip','clear-solid'])
   assert.ok(css.includes(`.${cls}`),`missing CSS class .${cls}`);
 
 assert.match(app,/const STORAGE_KEY='saymera\.math\.v2'/,'SAYMERA must preserve its isolated storage namespace');
+assert.ok(!app.includes('Burada puanlanan şey hız değil'),'child feedback must not expose product scoring logic');
+assert.ok(!app.includes('HATA DEĞİL · KANIT'),'child feedback must not expose evidence-engine terminology');
+assert.ok(!app.includes('motor birkaç adım sonra'),'child feedback must not explain internal remediation logic');
+assert.ok(!app.includes('task-intent'),'practice screen must not repeat representation-engine instructions to the child');
 assert.match(app,/focusRepresentations/);
 assert.match(app,/createConceptInstance/);
 assert.match(app,/renderResponse/);
-for(const marker of ['bond-fill','base10-build','order-pair','ordinal-position','equal-groups','share-equally','money-make','cm-ruler','shape-compose','unit-measure','clock-set','shape-pattern','three-add'])
+for(const marker of ['bond-fill','base10-build','order-pair','ordinal-position','equal-groups','share-equally','money-make','cm-ruler','shape-compose','unit-measure','clock-set','shape-pattern','solid-properties','three-add'])
   assert.ok(app.includes(`interaction==='${marker}'`),`app missing interaction ${marker}`);
-for(const visual of ['addition-strategy','subtraction-strategy','fact-family','problem-structure','compare-base10','column-operation','money-shopping','cm-ruler-interactive','cm-ruler-model','shape-compose-interactive','composite-figure','dot-grid-figure','schedule-event','three-add-strategy'])
+for(const visual of ['addition-strategy','subtraction-strategy','fact-family','problem-structure','compare-base10','column-operation','money-shopping','cm-ruler-interactive','cm-ruler-model','shape-compose-interactive','composite-figure','dot-grid-figure','schedule-event','three-add-strategy','solid-property-builder','solid-pair','solid-scene'])
   assert.ok(app.includes(`case '${visual}'`),`app missing visual ${visual}`);
 
 
