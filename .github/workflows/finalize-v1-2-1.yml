@@ -1,3 +1,4 @@
+# Triggered after staged patch verification.
 name: Finalize SAYMERA v1.2.1
 
 on:
