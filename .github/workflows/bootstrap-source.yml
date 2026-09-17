@@ -1,0 +1,71 @@
+name: Expand SAYMERA v1.2 source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.bootstrap/**'
+      - '.github/workflows/bootstrap-source.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  expand-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Expand uploaded source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f .bootstrap/xz-00 ]; then
+            echo "Bootstrap payload already removed; nothing to do."
+            exit 0
+          fi
+
+          cat \
+            .bootstrap/xz-00 \
+            .bootstrap/xz-01 \
+            .bootstrap/xz-02 \
+            .bootstrap/xz-03 \
+            .bootstrap/xz-04 \
+            .bootstrap/xz-05 \
+            .bootstrap/xz-06a \
+            .bootstrap/xz-06b \
+            .bootstrap/xz-06c \
+            > /tmp/saymera-source.b64
+
+          base64 --decode /tmp/saymera-source.b64 > /tmp/saymera-source.tar.xz
+          xz -t /tmp/saymera-source.tar.xz
+
+          rm -rf /tmp/saymera-source
+          mkdir -p /tmp/saymera-source
+          tar -xJf /tmp/saymera-source.tar.xz -C /tmp/saymera-source
+
+          source_root="/tmp/saymera-source"
+          top_dirs=(/tmp/saymera-source/*)
+          if [ "${#top_dirs[@]}" -eq 1 ] && [ -d "${top_dirs[0]}" ]; then
+            source_root="${top_dirs[0]}"
+          fi
+
+          shopt -s dotglob nullglob
+          for entry in "$source_root"/*; do
+            cp -a "$entry" ./
+          done
+
+          rm -rf .bootstrap
+
+          git config user.name "SAYMERA bootstrap"
+          git config user.email "115743794+mehmetyildiz03@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No source changes to commit."
+            exit 0
+          fi
+          git commit -m "Import SAYMERA v1.2 source"
+          git push origin HEAD:main
