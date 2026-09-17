@@ -18,24 +18,32 @@ for(const cls of ['prism-card','question-stage','visual-choice-grid','number-key
   assert.ok(css.includes(`.${cls}`),`missing CSS class .${cls}`);
 
 assert.match(app,/const STORAGE_KEY='saymera\.math\.v2'/,'SAYMERA must preserve its isolated storage namespace');
-assert.ok(!app.includes('Burada puanlanan şey hız değil'),'child feedback must not expose product scoring logic');
-assert.ok(!app.includes('HATA DEĞİL · KANIT'),'child feedback must not expose evidence-engine terminology');
-assert.ok(!app.includes('motor birkaç adım sonra'),'child feedback must not explain internal remediation logic');
+
+// Child surfaces must not explain internal scoring/evidence/remediation mechanics.
+for(const phrase of [
+  'adaptif tempo','Aynı fikir, beş kanıt.','Tek doğru cevap “öğrendi” demek için yeterli değil.',
+  'Her kavramın beş kanıt penceresi ayrı izlenir','KAVRAM ATLASI'
+]) assert.ok(!html.includes(phrase),`child HTML exposes internal product language: ${phrase}`);
+for(const phrase of [
+  'Burada puanlanan şey hız değil','HATA DEĞİL · KANIT','motor birkaç adım sonra',
+  'Hız puanlanmadı','kanıt profili kaydedildi','tamamlanmayan pencereler daha sonra yeniden gelir'
+]) assert.ok(!app.includes(phrase),`child runtime exposes internal product language: ${phrase}`);
 assert.ok(!app.includes('task-intent'),'practice screen must not repeat representation-engine instructions to the child');
+
 assert.match(app,/focusRepresentations/);
 assert.match(app,/createConceptInstance/);
 assert.match(app,/renderResponse/);
 for(const marker of ['bond-fill','base10-build','order-pair','ordinal-position','equal-groups','share-equally','money-make','cm-ruler','shape-compose','unit-measure','clock-set','shape-pattern','solid-properties','three-add'])
   assert.ok(app.includes(`interaction==='${marker}'`),`app missing interaction ${marker}`);
-for(const visual of ['addition-strategy','subtraction-strategy','fact-family','problem-structure','compare-base10','column-operation','money-shopping','cm-ruler-interactive','cm-ruler-model','shape-compose-interactive','composite-figure','dot-grid-figure','schedule-event','three-add-strategy','solid-property-builder','solid-pair','solid-scene'])
+for(const visual of ['addition-strategy','subtraction-strategy','fact-family','problem-structure','compare-base10','column-operation','money-shopping','cm-ruler-interactive','cm-ruler-model','shape-compose-interactive','composite-figure','dot-grid-figure','schedule-event','three-add-strategy','solid-property-builder','solid-pair','solid-scene','symbol-card'])
   assert.ok(app.includes(`case '${visual}'`),`app missing visual ${visual}`);
 
-
-// Render-contract audit: generated P1 tasks may not reference an unsupported visual or interaction.
+// Render-contract audit: all P1 reference tasks plus the upgraded Grade 2 solids task may not reference unsupported UI.
 const generatedVisuals=new Set(), generatedInteractions=new Set();
 let seedValue=987654321;
 const rng=()=>((seedValue=(seedValue*1664525+1013904223)>>>0)/2**32);
-for(const skill of skillsFor('grade1')){
+const auditedSkills=[...skillsFor('grade1'),...skillsFor('grade2').filter(s=>s.id==='shapes2')];
+for(const skill of auditedSkills){
   for(const rep of REPRESENTATIONS){
     for(let i=0;i<12;i++){
       const q=generateQuestion(skill.id,rep,1+(i%4),rng);
@@ -45,8 +53,8 @@ for(const skill of skillsFor('grade1')){
     }
   }
 }
-for(const type of generatedVisuals) assert.ok(app.includes(`case '${type}'`),`generated P1 visual has no renderer: ${type}`);
-for(const interaction of generatedInteractions) assert.ok(app.includes(`interaction==='${interaction}'`),`generated P1 manipulative has no interaction handler: ${interaction}`);
+for(const type of generatedVisuals) assert.ok(app.includes(`case '${type}'`),`generated audited visual has no renderer: ${type}`);
+for(const interaction of generatedInteractions) assert.ok(app.includes(`interaction==='${interaction}'`),`generated audited manipulative has no interaction handler: ${interaction}`);
 
 assert.equal(manifest.short_name,'SAYMERA');
 for(const asset of ['./','./index.html','./styles.css','./app.js','./engine.mjs','./manifest.webmanifest','./assets/icon-192.png','./assets/icon-512.png']) assert.ok(sw.includes(`'${asset}'`),`service worker missing ${asset}`);
@@ -63,4 +71,4 @@ const scripts=[...one.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 assert.ok(scripts.length>=1,'standalone inline script missing');
 for(const script of scripts) new vm.Script(script,{filename:'SAYMERA_v1_2_TEK_DOSYA.inline.js'});
 
-console.log('ui/static tests: PASS (P1 task UI, cm ruler/shape composition/5-minute clock coverage, PWA assets, standalone parse guard)');
+console.log('ui/static tests: PASS (child-copy guard; P1 + Grade 2 solids render contract; PWA assets; standalone parse guard)');
