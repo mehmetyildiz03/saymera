@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { P2_MOE_SKILL_SEQUENCE,P2_MOE_NUMBER1000_OBJECTIVES,curriculumSequenceFor,defaultState,ensureSkillState,skillsFor } from '../engine.mjs';
+assert.deepEqual(curriculumSequenceFor('grade2').map(s=>s.id),P2_MOE_SKILL_SEQUENCE);
+assert.ok(P2_MOE_SKILL_SEQUENCE.indexOf('moneyP2') < P2_MOE_SKILL_SEQUENCE.indexOf('lengthMetre2'));
+assert.deepEqual(P2_MOE_NUMBER1000_OBJECTIVES.map(x=>x.code),['1.1','1.2','1.3','1.4','1.5','1.6']);
+const state=defaultState(); state.profile='grade2'; skillsFor('grade2').forEach(s=>ensureSkillState(state,s.id)); const lc=ensureSkillState(state,'number1000').learningCycle;
+assert.equal(lc.lessonStepIndex,0); assert.equal(lc.lessonTaughtAt,0);
+const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8'); const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
+for(const id of ['ten-bundle','hundred-bundle','thousand-bundle','place-value','same-digit','read-write']) assert.ok(app.includes("id:'"+id+"'"),'missing '+id);
+for(const copy of ['10 birlik = 1 onluk','10 onluk = 1 yüzlük','10 yüzlük = 1000','347 = 300 + 40 + 7','347 ↔ üç yüz kırk yedi']) assert.ok(app.includes(copy),'missing '+copy);
+assert.ok(app.includes("const readiness=learningPlan.find(item=>item.phase==='readiness')")); assert.ok(app.includes('lessonTaughtAt'));
+assert.match(css,/\.lesson-step-stage/); assert.match(css,/\.lesson-bundle-demo/); assert.match(css,/\.lesson-place-grid/);
+console.log('MOE P2 number1000 teaching tests: PASS (1.1 → 1.2 → 1.3 + canonical sequence)');

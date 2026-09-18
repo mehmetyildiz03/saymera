@@ -47,6 +47,47 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
+const NUMBER1000_LESSON_STEPS=[
+  {id:'ten-bundle',moe:'1.1',kind:'bundle',unit:'one',title:'10 birlik, 1 onluk olur.',body:'Birlikleri tek tek sayabiliriz. 10 birlik olduğunda onları bir araya getirip 1 onluk olarak düşünürüz.',equation:'10 birlik = 1 onluk',resultValue:'10',resultLabel:'1 onluk'},
+  {id:'hundred-bundle',moe:'1.1',kind:'bundle',unit:'ten',title:'10 onluk, 1 yüzlük olur.',body:'Onlukları da gruplarız. 10 tane onluk bir araya geldiğinde 100 eder; yani 1 yüzlük oluşur.',equation:'10 onluk = 1 yüzlük',resultValue:'100',resultLabel:'1 yüzlük'},
+  {id:'thousand-bundle',moe:'1.1',kind:'bundle',unit:'hundred',title:'10 yüzlük, 1000 eder.',body:'Aynı yapı bir kez daha büyür. 10 yüzlük bir araya geldiğinde 1000 olur.',equation:'10 yüzlük = 1000',resultValue:'1000',resultLabel:'1000'},
+  {id:'place-value',moe:'1.2',kind:'place',title:'Yüzlük, onluk ve birliği aynı sayıda görelim.',body:'347 sayısındaki her rakam bulunduğu basamağa göre farklı bir değer taşır.',number:'347',values:[['3','Yüzlük','300'],['4','Onluk','40'],['7','Birlik','7']],equation:'347 = 300 + 40 + 7'},
+  {id:'same-digit',moe:'1.2',kind:'place',title:'Aynı rakam, farklı yerde farklı değer taşır.',body:'444 sayısında üç tane 4 görürüz; ama üçü aynı değerde değildir.',number:'444',values:[['4','Yüzlük','400'],['4','Onluk','40'],['4','Birlik','4']],equation:'444 = 400 + 40 + 4'},
+  {id:'read-write',moe:'1.3',kind:'read-write',title:'Sayıyı hem rakamla hem sözcükle okuyabiliriz.',body:'Basamakları soldan sağa okuyunca sayı sözcükleri oluşur.',number:'347',words:'üç yüz kırk yedi',equation:'347 ↔ üç yüz kırk yedi'}
+];
+function number1000LessonStepVisual(step){
+  if(step.kind==='bundle'){
+    const cls=step.unit==='one'?'lesson-unit-one':step.unit==='ten'?'lesson-unit-ten':'lesson-unit-hundred';
+    const tokens=Array.from({length:10},()=>'<i class="'+cls+'" aria-hidden="true"></i>').join('');
+    return '<div class="lesson-bundle-demo" data-unit="'+esc(step.unit)+'"><div class="lesson-bundle-source">'+tokens+'</div><div class="lesson-bundle-arrow" aria-hidden="true">→</div><div class="lesson-bundle-result" id="lessonBundleResult"><span>?</span><b>'+esc(step.resultLabel)+'</b></div></div>';
+  }
+  if(step.kind==='place') return '<div class="lesson-place-demo"><div class="lesson-big-number">'+esc(step.number)+'</div><div class="lesson-place-grid">'+step.values.map(([digit,label,value],i)=>'<button type="button" class="lesson-place-card" data-place-index="'+i+'" data-place-value="'+esc(value)+'"><strong>'+esc(digit)+'</strong><span>'+esc(label)+'</span><b>dokun</b></button>').join('')+'</div><div class="lesson-place-explain" id="lessonPlaceExplain">Her rakama dokunup değerini gör.</div></div>';
+  return '<div class="lesson-read-demo"><strong>'+esc(step.number)+'</strong><div class="lesson-read-arrow" aria-hidden="true">↔</div><span id="lessonWords">?</span></div>';
+}
+function completeNumber1000LessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  if(next>=NUMBER1000_LESSON_STEPS.length){ lc.lessonTaughtAt=Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
+  saveState(); session.lessonStepIndex=next; renderNumber1000LessonStep(skill,next);
+}
+function renderNumber1000LessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(NUMBER1000_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?saved:index, step=NUMBER1000_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=(at+1)+' / '+NUMBER1000_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/NUMBER1000_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">SINGAPUR P2 · '+esc(step.moe)+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-takeaway"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div><div class="lesson-step-actions"><button type="button" class="soft-button lesson-action-button" id="lessonStepAction">'+(step.kind==='bundle'?'Birleştir':step.kind==='read-write'?'Okunuşunu göster':'Değerleri keşfet')+'</button><button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte deneyelim':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const next=$('#lessonStepNext'), action=$('#lessonStepAction');
+  if(step.kind==='bundle') action?.addEventListener('click',()=>{ $('.lesson-bundle-demo')?.classList.add('bundled'); $('#lessonBundleResult span').textContent=step.resultValue; action.disabled=true; action.textContent='Birleştirildi ✓'; next.disabled=false; });
+  else if(step.kind==='place'){
+    const seen=new Set();
+    $('.lesson-place-card').forEach(btn=>btn.addEventListener('click',()=>{ const i=Number(btn.dataset.placeIndex); seen.add(i); btn.classList.add('revealed'); btn.querySelector('b').textContent=btn.dataset.placeValue; const [digit,label,value]=step.values[i]; $('#lessonPlaceExplain').textContent=digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir.'; action.disabled=true; action.textContent='Kartlara dokun'; if(seen.size===step.values.length) next.disabled=false; }));
+    action?.addEventListener('click',()=>showToast('Üç rakamın da üzerine dokun'));
+  } else action?.addEventListener('click',()=>{ $('#lessonWords').textContent=step.words; $('.lesson-read-demo')?.classList.add('revealed'); action.disabled=true; action.textContent='Gösterildi ✓'; next.disabled=false; });
+  next?.addEventListener('click',()=>completeNumber1000LessonStep(skill,at));
+}
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -363,23 +404,13 @@ function buildSessionPlan(focus){
   }
 
   if(supportsLearningCycle(focus.skill.id)){
+    const learningPlan=buildLearningCyclePlan(focus.state);
     if(!focus.state.learningCycle?.firstCycleCompletedAt){
-      plan.push({
-        skillId:focus.skill.id,
-        representation:null,
-        phase:null,
-        reviewItem:null,
-        kind:'lesson-intro',
-        activityMode:'teach',
-        conceptScope:'fresh',
-        countsTowardEvidence:false
-      });
-    }
-    buildLearningCyclePlan(focus.state).forEach(item=>plan.push({
-      skillId:focus.skill.id,
-      reviewItem:null,
-      ...item
-    }));
+      const readiness=learningPlan.find(item=>item.phase==='readiness');
+      if(readiness) plan.push({skillId:focus.skill.id,reviewItem:null,...readiness});
+      if(!focus.state.learningCycle?.lessonTaughtAt) plan.push({skillId:focus.skill.id,representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false});
+      learningPlan.filter(item=>item.phase!=='readiness').forEach(item=>plan.push({skillId:focus.skill.id,reviewItem:null,...item}));
+    }else learningPlan.forEach(item=>plan.push({skillId:focus.skill.id,reviewItem:null,...item}));
     return plan;
   }
 
@@ -399,6 +430,7 @@ function startSession(){
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
     requiresLearningCompletion:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
+    lessonStepIndex:focus.state.learningCycle?.lessonStepIndex||0,
     questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], recentQuestionSignatures:[], learningEvents:[], newStable:0, bridgeAdds:0
   };
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -493,7 +525,7 @@ function loadPlanItem(){
   renderQuestion();
 }
 function practiceActivityMeta(selection=currentSelection){
-  if(selection?.kind==='lesson-intro') return {label:'KONUYA GİRİŞ',mode:'teach'};
+  if(selection?.kind==='lesson-intro') return {label:'KONU ANLATIMI',mode:'teach'};
   if(selection?.phase==='readiness') return {label:'ÖN BİLGİ',mode:'check'};
   if(['model','representation','symbol','reasoning'].includes(selection?.phase)) return {label:'BİRLİKTE DENE',mode:'guided'};
   if(selection?.phase==='retrieval'||selection?.kind==='retention') return {label:'KISA TEKRAR',mode:'review'};
@@ -510,6 +542,7 @@ function renderPracticeHeader(skill){
   $('#practiceProgress').style.width=`${Math.round(session.planIndex/Math.max(1,total)*100)}%`;
 }
 function renderLessonIntro(skill){
+  if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   currentQuestion=null;
   renderPracticeHeader(skill);
   const bp=lessonBlueprintFor(skill);
@@ -524,8 +557,8 @@ function renderLessonIntro(skill){
       <button class="response-submit lesson-start-button" id="beginLessonActivity">Birlikte deneyelim <b>→</b></button>
     </div>`;
   $('#beginLessonActivity')?.addEventListener('click',()=>{
-    session.planIndex++;
-    loadPlanItem();
+    const ss=ensureSkillState(state,skill.id); ss.learningCycle.lessonTaughtAt=Date.now(); ss.learningCycle.lessonStepIndex=Math.max(1,ss.learningCycle.lessonStepIndex||0); saveState();
+    session.planIndex++; loadPlanItem();
   });
 }
 function renderQuestion(){

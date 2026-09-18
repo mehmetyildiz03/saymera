@@ -37,3 +37,8 @@ The child should never need to infer what topic is being learned from the questi
 At tablet widths (`>=700px`) the active lesson shell is bound to `100dvh` and does not use vertical page scrolling. The central visual/task area flexes to the remaining height; dense number-input controls use a compact two-column layout.
 
 Phones may scroll when necessary. Browser/device runtime verification remains separate from the static contract.
+
+
+## v1.6.1 — First complete P2 teaching sequence
+
+After prerequisite readiness, `number1000` teaches MOE 1.1 (10 birlik→1 onluk, 10 onluk→1 yüzlük, 10 yüzlük→1000), then MOE 1.2 (347 place value, 444 same-digit place value), then MOE 1.3 (347↔üç yüz kırk yedi). Every teaching screen requires a child action. `lessonStepIndex` persists resume position and `lessonTaughtAt` prevents replay after completion.
