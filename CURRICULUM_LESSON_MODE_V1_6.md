@@ -51,3 +51,16 @@ The first P2 reference lesson no longer opens with a multiple-choice readiness q
 The child now enters the six-step teaching sequence directly. Guided and independent application still collect evidence afterwards, but correct/wrong feedback stays in the same task context instead of replacing the whole screen with a `DOĞRU → Sonraki göreve geç` card.
 
 Place-value teaching has no ambiguous “Değerleri keşfet” button: the three digit cards are the interaction, and the next step unlocks after all three values are revealed.
+
+
+## v1.6.3 — Stage navigation and lesson revisioning
+
+The first reference lesson is versioned. An unfinished local-state record from the earlier quiz-first implementation cannot silently skip the revised teaching sequence; it is reset once to the beginning of the current lesson version.
+
+For `number1000`, the child-facing header no longer presents one global task counter. It communicates the instructional stage:
+
+- **KONU ANLATIMI**
+- **BİRLİKTE UYGULA**
+- **KENDİN DENE**
+
+Within guided and independent work, any counter is stage-local rather than a “question 3 of 9” session counter.

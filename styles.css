@@ -341,3 +341,9 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .lesson-flow-feedback>div{min-width:0;display:grid;gap:2px}.lesson-flow-feedback span{font-size:8px;font-weight:950;letter-spacing:.11em;color:var(--teal)}.lesson-flow-feedback strong{font-size:13px}.lesson-flow-feedback p,.lesson-flow-feedback small{margin:0;color:var(--muted);font-size:11px;line-height:1.35;font-weight:750}.lesson-flow-feedback.is-support span{color:#9a7026}.lesson-flow-feedback.is-support{background:var(--sun-soft);border-color:#ead79e}
 .lesson-flow-feedback button{min-height:44px;padding:0 16px;border-radius:14px;background:var(--navy);color:white;font-weight:900;white-space:nowrap}.lesson-flow-feedback button b{margin-left:5px}
 @media(max-width:699px){.lesson-flow-feedback{grid-template-columns:1fr}.lesson-flow-feedback button{width:100%}.lesson-place-prompt{width:100%}}
+
+
+/* v1.6.3 — stage-based lesson navigation */
+.practice-counter{white-space:nowrap}
+.lesson-step-stage[data-lesson-step] .lesson-kicker{letter-spacing:.1em}
+@media(min-width:700px){.lesson-flow-feedback{max-height:120px}}

@@ -48,6 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
 const LESSON_FIRST_SKILLS=new Set(['number1000']);
+const NUMBER1000_LESSON_VERSION=3;
 const NUMBER1000_LESSON_STEPS=[
   {id:'ten-bundle',moe:'1.1',kind:'bundle',unit:'one',title:'10 birlik, 1 onluk olur.',body:'Birlikleri tek tek sayabiliriz. 10 birlik olduğunda onları bir araya getirip 1 onluk olarak düşünürüz.',equation:'10 birlik = 1 onluk',resultValue:'10',resultLabel:'1 onluk'},
   {id:'hundred-bundle',moe:'1.1',kind:'bundle',unit:'ten',title:'10 onluk, 1 yüzlük olur.',body:'Onlukları da gruplarız. 10 tane onluk bir araya geldiğinde 100 eder; yani 1 yüzlük oluşur.',equation:'10 onluk = 1 yüzlük',resultValue:'100',resultLabel:'1 yüzlük'},
@@ -68,6 +69,7 @@ function number1000LessonStepVisual(step){
 function completeNumber1000LessonStep(skill,index){
   const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
   lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=NUMBER1000_LESSON_VERSION;
   if(next>=NUMBER1000_LESSON_STEPS.length){ lc.lessonTaughtAt=Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
   saveState(); session.lessonStepIndex=next; renderNumber1000LessonStep(skill,next);
 }
@@ -82,7 +84,7 @@ function renderNumber1000LessonStep(skill,index=null){
   const lessonAction=step.kind==='place'
     ? '<div class="lesson-place-prompt">Üç rakamın her birine dokun ve değerini gör.</div>'
     : '<button type="button" class="soft-button lesson-action-button" id="lessonStepAction">'+(step.kind==='bundle'?'Birleştir':'Okunuşunu göster')+'</button>';
-  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">KONU ANLATIMI · '+(at+1)+'/'+NUMBER1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-takeaway"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div><div class="lesson-step-actions">'+lessonAction+'<button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte deneyelim':'Sonraki adım')+' <b>→</b></button></div></div>';
+  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">ADIM '+(at+1)+' / '+NUMBER1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-takeaway"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div><div class="lesson-step-actions">'+lessonAction+'<button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte uygulamaya geç':'Sonraki adım')+' <b>→</b></button></div></div>';
   const next=$('#lessonStepNext'), action=$('#lessonStepAction');
   if(step.kind==='bundle') action?.addEventListener('click',()=>{ $('.lesson-bundle-demo')?.classList.add('bundled'); $('#lessonBundleResult span').textContent=step.resultValue; action.disabled=true; action.textContent='Birleştirildi ✓'; next.disabled=false; });
   else if(step.kind==='place'){
@@ -427,6 +429,12 @@ function startSession(){
   if(state.cooldownUntil && state.cooldownUntil>Date.now()){ showCooldown(false); return; }
   if(!state.onboarded){ openOnboarding(); return; }
   const focus=pickFocus(); if(!focus){ showToast('Bu seviye için içerik bulunamadı'); return; }
+  if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=NUMBER1000_LESSON_VERSION;
+    saveState();
+  }
   const focusDifficulty=focus.state.difficulty||1;
   const focusConcept=createConceptInstance(focus.skill.id,focusDifficulty,Math.random);
   const plan=buildSessionPlan(focus);
@@ -531,7 +539,7 @@ function loadPlanItem(){
 function practiceActivityMeta(selection=currentSelection){
   if(selection?.kind==='lesson-intro') return {label:'KONU ANLATIMI',mode:'teach'};
   if(selection?.phase==='readiness') return {label:'ÖN BİLGİ',mode:'check'};
-  if(['model','representation','symbol','reasoning'].includes(selection?.phase)) return {label:'BİRLİKTE DENE',mode:'guided'};
+  if(['model','representation','symbol','reasoning'].includes(selection?.phase)) return {label:'BİRLİKTE UYGULA',mode:'guided'};
   if(selection?.phase==='retrieval'||selection?.kind==='retention') return {label:'KISA TEKRAR',mode:'review'};
   return {label:'KENDİN DENE',mode:'check'};
 }
@@ -542,6 +550,31 @@ function renderPracticeHeader(skill){
   $('#practiceTitle').textContent=skill.label;
   $('#practiceMode').textContent=activity.label;
   $('#practiceMode').dataset.mode=activity.mode;
+
+  if(skill.id==='number1000'&&currentSelection?.kind!=='retention'){
+    const guidedPhases=['model','representation','symbol','reasoning'];
+    const independentPhases=['context','practice'];
+    if(currentSelection?.kind==='lesson-intro'){
+      $('#practiceCounter').textContent='KONU ANLATIMI';
+      $('#practiceProgress').style.width='8%';
+      return;
+    }
+    if(guidedPhases.includes(currentSelection?.phase)){
+      const guided=session.plan.filter(x=>guidedPhases.includes(x.phase)&&x.skillId===skill.id);
+      const at=Math.max(0,guided.indexOf(currentSelection));
+      $('#practiceCounter').textContent=`BİRLİKTE ${at+1} / ${Math.max(1,guided.length)}`;
+      $('#practiceProgress').style.width=`${35+Math.round((at+1)/Math.max(1,guided.length)*30)}%`;
+      return;
+    }
+    if(independentPhases.includes(currentSelection?.phase)){
+      const independent=session.plan.filter(x=>independentPhases.includes(x.phase)&&x.skillId===skill.id);
+      const at=Math.max(0,independent.indexOf(currentSelection));
+      $('#practiceCounter').textContent=`KENDİN DENE ${at+1} / ${Math.max(1,independent.length)}`;
+      $('#practiceProgress').style.width=`${66+Math.round((at+1)/Math.max(1,independent.length)*30)}%`;
+      return;
+    }
+  }
+
   $('#practiceCounter').textContent=`${Math.min(session.planIndex+1,total)} / ${total}`;
   $('#practiceProgress').style.width=`${Math.round(session.planIndex/Math.max(1,total)*100)}%`;
 }

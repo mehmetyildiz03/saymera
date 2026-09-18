@@ -167,6 +167,7 @@ function defaultLearningCycle(){
     readinessSupportUsed:false,
     lessonStepIndex:0,
     lessonTaughtAt:0,
+    lessonVersion:0,
     phases:Object.fromEntries(LEARNING_PHASES.map(p=>[p,{attempts:0,correct:0,lastSeen:0}]))
   };
 }
@@ -186,6 +187,7 @@ export function ensureLearningCycleState(skillState){
   lc.readinessSupportUsed=!!lc.readinessSupportUsed;
   lc.lessonStepIndex=Math.max(0,Number(lc.lessonStepIndex)||0);
   lc.lessonTaughtAt=Number(lc.lessonTaughtAt)||0;
+  lc.lessonVersion=Math.max(0,Number(lc.lessonVersion)||0);
   lc.phases ||= {};
   for(const p of LEARNING_PHASES) lc.phases[p] ||= {attempts:0,correct:0,lastSeen:0};
   return lc;

@@ -17,3 +17,9 @@ assert.ok(app.includes("renderLessonFlowFeedback"),'number1000 application must 
 assert.ok(app.includes("return next?'sonraki adım':'oturumu tamamla';"),'lesson navigation must not call every step a question');
 assert.match(css,/\.lesson-step-stage/); assert.match(css,/\.lesson-bundle-demo/); assert.match(css,/\.lesson-place-grid/);
 console.log('MOE P2 number1000 teaching tests: PASS (1.1 → 1.2 → 1.3 + canonical sequence)');
+
+assert.ok(app.includes('const NUMBER1000_LESSON_VERSION=3'),'lesson revision must invalidate stale unfinished local lesson state');
+assert.ok(app.includes("lessonVersion!==NUMBER1000_LESSON_VERSION"),'stale lesson progress must be replayed in the new lesson structure');
+assert.ok(app.includes("BİRLİKTE UYGULA"),'guided work must be framed as application, not another quiz');
+assert.ok(app.includes("KENDİN DENE"),'independent check stage must remain explicit');
+assert.ok(app.includes("$('#practiceCounter').textContent=`BİRLİKTE ${at+1} / ${Math.max(1,guided.length)}`"),'header must use stage progress rather than global question count');
