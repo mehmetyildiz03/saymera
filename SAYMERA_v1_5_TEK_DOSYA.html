@@ -330,6 +330,20 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .lesson-model-row{grid-template-columns:repeat(3,1fr);gap:7px}.lesson-model-card{min-height:88px;border-radius:18px}.lesson-model-card strong{font-size:28px}
 }
 
+
+/* v1.6.1 — MOE P2 1.1–1.3 step teaching */
+.lesson-step-stage{width:min(900px,100%);height:100%;min-height:0;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:clamp(8px,1.5vh,15px);align-content:stretch}
+.lesson-step-copy{text-align:center;display:grid;gap:7px;justify-items:center}.lesson-step-copy h2{margin:0;font-size:clamp(27px,4.5vh,44px);line-height:1.03;letter-spacing:-.04em}.lesson-step-copy p{margin:0;max-width:720px;color:var(--muted);font-size:clamp(11px,1.6vh,14px);line-height:1.45}
+.lesson-step-visual{min-height:0;display:grid;place-items:center;border:1px solid var(--line);border-radius:28px;background:var(--paper);box-shadow:var(--shadow-soft);padding:clamp(10px,1.8vh,22px);overflow:hidden}
+.lesson-step-takeaway{justify-self:center;width:min(640px,100%);padding:10px 14px;border-radius:16px;background:var(--sun-soft);border:1px solid #ead79e;text-align:center;display:grid;gap:3px}.lesson-step-takeaway span{font-size:8px;font-weight:950;letter-spacing:.12em;color:#8a6c28}.lesson-step-takeaway strong{font-size:13px}
+.lesson-step-actions{display:flex;justify-content:center;gap:10px;align-items:center}.lesson-action-button{min-width:150px}.lesson-next-button{min-width:190px;min-height:46px}.lesson-next-button:disabled{opacity:.4;box-shadow:none}
+.lesson-bundle-demo{display:grid;grid-template-columns:minmax(220px,1fr) 45px minmax(150px,.65fr);align-items:center;gap:14px;width:min(720px,100%)}.lesson-bundle-source{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:7px;padding:16px;border-radius:22px;background:var(--paper-2);min-height:150px}.lesson-bundle-arrow{font-size:34px;color:var(--muted);text-align:center}.lesson-bundle-result{min-height:150px;border-radius:22px;background:var(--navy-soft);display:grid;place-items:center;align-content:center;gap:5px;border:2px dashed #b7cbd8;transition:.22s}.lesson-bundle-result span{font-size:32px;font-weight:950;color:var(--navy)}.lesson-bundle-result b{font-size:13px}.lesson-bundle-demo.bundled .lesson-bundle-result{background:var(--teal-soft);border-style:solid;border-color:#8bc8ba;transform:scale(1.02)}
+.lesson-unit-one{width:25px;height:25px;border-radius:6px;background:var(--sun);border:1px solid #c89737}.lesson-unit-ten{width:17px;height:92px;border-radius:6px;background:repeating-linear-gradient(to bottom,var(--blue),var(--blue) 7px,#cae3f5 7px,#cae3f5 9px);border:1px solid #3f79a8}.lesson-unit-hundred{width:58px;height:58px;border-radius:8px;background:repeating-linear-gradient(0deg,transparent 0 9px,rgba(255,255,255,.55) 9px 10px),repeating-linear-gradient(90deg,var(--teal) 0 9px,rgba(255,255,255,.55) 9px 10px);border:1px solid #23786a}
+.lesson-place-demo{display:grid;gap:12px;justify-items:center;width:min(700px,100%)}.lesson-big-number{font-size:clamp(42px,8vh,72px);font-weight:950;letter-spacing:.04em;color:var(--navy)}.lesson-place-grid{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:10px;width:100%}.lesson-place-card{min-height:100px;padding:10px;border-radius:20px;background:var(--paper-2);border:1px solid var(--line);display:grid;place-items:center;align-content:center;gap:4px;box-shadow:0 4px 0 #e7e2d7}.lesson-place-card strong{font-size:29px}.lesson-place-card span{font-size:10px;color:var(--muted);font-weight:900}.lesson-place-card b{font-size:11px;color:var(--teal)}.lesson-place-card.revealed{background:var(--teal-soft);border-color:#94cbbf;box-shadow:0 4px 0 #afd9cf}.lesson-place-explain{min-height:34px;text-align:center;font-size:12px;font-weight:850;color:var(--ink-2)}
+.lesson-read-demo{display:grid;grid-template-columns:auto 54px minmax(220px,1fr);align-items:center;gap:12px;width:min(650px,100%)}.lesson-read-demo strong{font-size:clamp(45px,8vh,78px);color:var(--navy)}.lesson-read-arrow{font-size:30px;text-align:center;color:var(--muted)}.lesson-read-demo span{min-height:82px;border-radius:22px;background:var(--paper-2);border:2px dashed var(--line-strong);display:grid;place-items:center;text-align:center;padding:12px;font-size:clamp(18px,3vh,28px);font-weight:900}.lesson-read-demo.revealed span{background:var(--teal-soft);border-style:solid;border-color:#8bc8ba}
+@media (min-width:700px) and (max-height:850px){.lesson-step-stage{gap:7px}.lesson-step-copy h2{font-size:29px}.lesson-step-visual{padding:9px}.lesson-bundle-source,.lesson-bundle-result{min-height:118px}.lesson-place-card{min-height:78px}.lesson-big-number{font-size:43px}.lesson-read-demo span{min-height:64px}}
+@media(max-width:699px){.lesson-step-stage{height:auto;min-height:calc(100dvh - 100px);display:flex;flex-direction:column}.lesson-step-visual{min-height:260px}.lesson-bundle-demo{grid-template-columns:1fr;gap:8px}.lesson-bundle-arrow{transform:rotate(90deg)}.lesson-bundle-source,.lesson-bundle-result{min-height:110px}.lesson-place-grid{grid-template-columns:repeat(3,1fr)}.lesson-place-card{min-width:0;min-height:90px}.lesson-step-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.lesson-read-demo{grid-template-columns:1fr}.lesson-read-arrow{transform:rotate(90deg)}}
+
 </style>
   <title>SAYMERA — Matematik Laboratuvarı</title>
 </head>
@@ -510,9 +524,32 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
 function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
 const CURRICULUM_SEQUENCED_PROFILES = new Set(['grade2']);
+
+// Canonical new-learning order from Singapore MOE Primary 2.
+// Adaptation may revisit earlier learning, but it must not open a later new topic.
+const P2_MOE_SKILL_SEQUENCE = [
+  'number1000','compareOrder1000','numberPattern1000','oddEven1000',
+  'addSub1000','wordAddSub2',
+  'times23510','divisionTables2','multDivFamilies2',
+  'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
+  'moneyP2',
+  'lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2',
+  'shapePatterns2','solids2','pictureGraphScale2'
+];
+
+const P2_MOE_NUMBER1000_OBJECTIVES = [
+  {code:'1.1',label:'Onluklar ve yüzlükler hâlinde sayma'},
+  {code:'1.2',label:'Sayı gösterimi, temsilleri ve basamak değeri'},
+  {code:'1.3',label:'Sayıları rakamla ve sözcükle okuma-yazma'},
+  {code:'1.4',label:'Sayıları karşılaştırma ve sıralama',skillId:'compareOrder1000'},
+  {code:'1.5',label:'Sayı dizilerinde örüntüler',skillId:'numberPattern1000'},
+  {code:'1.6',label:'Tek ve çift sayılar',skillId:'oddEven1000'}
+];
+
 function curriculumSequenceFor(profile){
   if(!CURRICULUM_SEQUENCED_PROFILES.has(profile)) return [];
-  return skillsFor(profile).filter(s=>supportsLearningCycle(s.id));
+  const byId=new Map(skillsFor(profile).map(s=>[s.id,s]));
+  return P2_MOE_SKILL_SEQUENCE.map(id=>byId.get(id)).filter(Boolean);
 }
 function currentCurriculumSkill(state){
   const sequence=curriculumSequenceFor(state?.profile);
@@ -591,12 +628,12 @@ const SKILLS = [
   skill('fractionNotation2','grade2','Kesirleri okuma ve yazma','Kesir','rose',['fractionMeaning2']),
   skill('fractionCompare2','grade2','Kesirleri karşılaştırma ve sıralama','Kesir','violet',['fractionNotation2']),
   skill('fractionAddSub2','grade2','Eş paydalı kesirlerde toplama ve çıkarma','Kesir','teal',['fractionCompare2']),
+  skill('moneyP2','grade2','TL, kuruş ve ondalık para gösterimi','Para','teal'),
   skill('lengthMetre2','grade2','Metre ile uzunluk','Ölçme','green'),
   skill('massMetric2','grade2','Gram ve kilogram ile kütle','Ölçme','amber'),
   skill('volumeLitre2','grade2','Litre ile sıvı hacmi','Ölçme','blue'),
   skill('timeMinute2','grade2','Dakikaya kadar saat okuma','Zaman','violet'),
   skill('timeDuration2','grade2','Saat ve dakika cinsinden süre','Zaman','violet',['timeMinute2']),
-  skill('moneyP2','grade2','TL, kuruş ve ondalık para gösterimi','Para','teal'),
   skill('shapePatterns2','grade2','2B şekillerle örüntüler','Geometri','rose'),
   skill('solids2','grade2','3B cisimleri tanıma ve sınıflandırma','Geometri','violet'),
   skill('pictureGraphScale2','grade2','Ölçekli resimli grafikleri okuma','Veri','amber'),
@@ -620,6 +657,8 @@ function defaultLearningCycle(){
     practiceCorrect:0,
     readinessNeedsSupport:false,
     readinessSupportUsed:false,
+    lessonStepIndex:0,
+    lessonTaughtAt:0,
     phases:Object.fromEntries(LEARNING_PHASES.map(p=>[p,{attempts:0,correct:0,lastSeen:0}]))
   };
 }
@@ -637,6 +676,8 @@ function ensureLearningCycleState(skillState){
   lc.practiceCorrect ||= 0;
   lc.readinessNeedsSupport=!!lc.readinessNeedsSupport;
   lc.readinessSupportUsed=!!lc.readinessSupportUsed;
+  lc.lessonStepIndex=Math.max(0,Number(lc.lessonStepIndex)||0);
+  lc.lessonTaughtAt=Number(lc.lessonTaughtAt)||0;
   lc.phases ||= {};
   for(const p of LEARNING_PHASES) lc.phases[p] ||= {attempts:0,correct:0,lastSeen:0};
   return lc;
@@ -3483,6 +3524,47 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
+const NUMBER1000_LESSON_STEPS=[
+  {id:'ten-bundle',moe:'1.1',kind:'bundle',unit:'one',title:'10 birlik, 1 onluk olur.',body:'Birlikleri tek tek sayabiliriz. 10 birlik olduğunda onları bir araya getirip 1 onluk olarak düşünürüz.',equation:'10 birlik = 1 onluk',resultValue:'10',resultLabel:'1 onluk'},
+  {id:'hundred-bundle',moe:'1.1',kind:'bundle',unit:'ten',title:'10 onluk, 1 yüzlük olur.',body:'Onlukları da gruplarız. 10 tane onluk bir araya geldiğinde 100 eder; yani 1 yüzlük oluşur.',equation:'10 onluk = 1 yüzlük',resultValue:'100',resultLabel:'1 yüzlük'},
+  {id:'thousand-bundle',moe:'1.1',kind:'bundle',unit:'hundred',title:'10 yüzlük, 1000 eder.',body:'Aynı yapı bir kez daha büyür. 10 yüzlük bir araya geldiğinde 1000 olur.',equation:'10 yüzlük = 1000',resultValue:'1000',resultLabel:'1000'},
+  {id:'place-value',moe:'1.2',kind:'place',title:'Yüzlük, onluk ve birliği aynı sayıda görelim.',body:'347 sayısındaki her rakam bulunduğu basamağa göre farklı bir değer taşır.',number:'347',values:[['3','Yüzlük','300'],['4','Onluk','40'],['7','Birlik','7']],equation:'347 = 300 + 40 + 7'},
+  {id:'same-digit',moe:'1.2',kind:'place',title:'Aynı rakam, farklı yerde farklı değer taşır.',body:'444 sayısında üç tane 4 görürüz; ama üçü aynı değerde değildir.',number:'444',values:[['4','Yüzlük','400'],['4','Onluk','40'],['4','Birlik','4']],equation:'444 = 400 + 40 + 4'},
+  {id:'read-write',moe:'1.3',kind:'read-write',title:'Sayıyı hem rakamla hem sözcükle okuyabiliriz.',body:'Basamakları soldan sağa okuyunca sayı sözcükleri oluşur.',number:'347',words:'üç yüz kırk yedi',equation:'347 ↔ üç yüz kırk yedi'}
+];
+function number1000LessonStepVisual(step){
+  if(step.kind==='bundle'){
+    const cls=step.unit==='one'?'lesson-unit-one':step.unit==='ten'?'lesson-unit-ten':'lesson-unit-hundred';
+    const tokens=Array.from({length:10},()=>'<i class="'+cls+'" aria-hidden="true"></i>').join('');
+    return '<div class="lesson-bundle-demo" data-unit="'+esc(step.unit)+'"><div class="lesson-bundle-source">'+tokens+'</div><div class="lesson-bundle-arrow" aria-hidden="true">→</div><div class="lesson-bundle-result" id="lessonBundleResult"><span>?</span><b>'+esc(step.resultLabel)+'</b></div></div>';
+  }
+  if(step.kind==='place') return '<div class="lesson-place-demo"><div class="lesson-big-number">'+esc(step.number)+'</div><div class="lesson-place-grid">'+step.values.map(([digit,label,value],i)=>'<button type="button" class="lesson-place-card" data-place-index="'+i+'" data-place-value="'+esc(value)+'"><strong>'+esc(digit)+'</strong><span>'+esc(label)+'</span><b>dokun</b></button>').join('')+'</div><div class="lesson-place-explain" id="lessonPlaceExplain">Her rakama dokunup değerini gör.</div></div>';
+  return '<div class="lesson-read-demo"><strong>'+esc(step.number)+'</strong><div class="lesson-read-arrow" aria-hidden="true">↔</div><span id="lessonWords">?</span></div>';
+}
+function completeNumber1000LessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  if(next>=NUMBER1000_LESSON_STEPS.length){ lc.lessonTaughtAt=Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
+  saveState(); session.lessonStepIndex=next; renderNumber1000LessonStep(skill,next);
+}
+function renderNumber1000LessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(NUMBER1000_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?saved:index, step=NUMBER1000_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=(at+1)+' / '+NUMBER1000_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/NUMBER1000_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">KONU ANLATIMI · '+(at+1)+'/'+NUMBER1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-takeaway"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div><div class="lesson-step-actions"><button type="button" class="soft-button lesson-action-button" id="lessonStepAction">'+(step.kind==='bundle'?'Birleştir':step.kind==='read-write'?'Okunuşunu göster':'Değerleri keşfet')+'</button><button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte deneyelim':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const next=$('#lessonStepNext'), action=$('#lessonStepAction');
+  if(step.kind==='bundle') action?.addEventListener('click',()=>{ $('.lesson-bundle-demo')?.classList.add('bundled'); $('#lessonBundleResult span').textContent=step.resultValue; action.disabled=true; action.textContent='Birleştirildi ✓'; next.disabled=false; });
+  else if(step.kind==='place'){
+    const seen=new Set();
+    $$('.lesson-place-card').forEach(btn=>btn.addEventListener('click',()=>{ const i=Number(btn.dataset.placeIndex); seen.add(i); btn.classList.add('revealed'); btn.querySelector('b').textContent=btn.dataset.placeValue; const [digit,label,value]=step.values[i]; $('#lessonPlaceExplain').textContent=digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir.'; action.disabled=true; action.textContent='Kartlara dokun'; if(seen.size===step.values.length) next.disabled=false; }));
+    action?.addEventListener('click',()=>showToast('Üç rakamın da üzerine dokun'));
+  } else action?.addEventListener('click',()=>{ $('#lessonWords').textContent=step.words; $('.lesson-read-demo')?.classList.add('revealed'); action.disabled=true; action.textContent='Gösterildi ✓'; next.disabled=false; });
+  next?.addEventListener('click',()=>completeNumber1000LessonStep(skill,at));
+}
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -3799,23 +3881,13 @@ function buildSessionPlan(focus){
   }
 
   if(supportsLearningCycle(focus.skill.id)){
+    const learningPlan=buildLearningCyclePlan(focus.state);
     if(!focus.state.learningCycle?.firstCycleCompletedAt){
-      plan.push({
-        skillId:focus.skill.id,
-        representation:null,
-        phase:null,
-        reviewItem:null,
-        kind:'lesson-intro',
-        activityMode:'teach',
-        conceptScope:'fresh',
-        countsTowardEvidence:false
-      });
-    }
-    buildLearningCyclePlan(focus.state).forEach(item=>plan.push({
-      skillId:focus.skill.id,
-      reviewItem:null,
-      ...item
-    }));
+      const readiness=learningPlan.find(item=>item.phase==='readiness');
+      if(readiness) plan.push({skillId:focus.skill.id,reviewItem:null,...readiness});
+      if(!focus.state.learningCycle?.lessonTaughtAt) plan.push({skillId:focus.skill.id,representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false});
+      learningPlan.filter(item=>item.phase!=='readiness').forEach(item=>plan.push({skillId:focus.skill.id,reviewItem:null,...item}));
+    }else learningPlan.forEach(item=>plan.push({skillId:focus.skill.id,reviewItem:null,...item}));
     return plan;
   }
 
@@ -3835,6 +3907,7 @@ function startSession(){
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
     requiresLearningCompletion:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
+    lessonStepIndex:focus.state.learningCycle?.lessonStepIndex||0,
     questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], recentQuestionSignatures:[], learningEvents:[], newStable:0, bridgeAdds:0
   };
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -3929,7 +4002,7 @@ function loadPlanItem(){
   renderQuestion();
 }
 function practiceActivityMeta(selection=currentSelection){
-  if(selection?.kind==='lesson-intro') return {label:'KONUYA GİRİŞ',mode:'teach'};
+  if(selection?.kind==='lesson-intro') return {label:'KONU ANLATIMI',mode:'teach'};
   if(selection?.phase==='readiness') return {label:'ÖN BİLGİ',mode:'check'};
   if(['model','representation','symbol','reasoning'].includes(selection?.phase)) return {label:'BİRLİKTE DENE',mode:'guided'};
   if(selection?.phase==='retrieval'||selection?.kind==='retention') return {label:'KISA TEKRAR',mode:'review'};
@@ -3946,6 +4019,7 @@ function renderPracticeHeader(skill){
   $('#practiceProgress').style.width=`${Math.round(session.planIndex/Math.max(1,total)*100)}%`;
 }
 function renderLessonIntro(skill){
+  if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   currentQuestion=null;
   renderPracticeHeader(skill);
   const bp=lessonBlueprintFor(skill);
@@ -3960,8 +4034,8 @@ function renderLessonIntro(skill){
       <button class="response-submit lesson-start-button" id="beginLessonActivity">Birlikte deneyelim <b>→</b></button>
     </div>`;
   $('#beginLessonActivity')?.addEventListener('click',()=>{
-    session.planIndex++;
-    loadPlanItem();
+    const ss=ensureSkillState(state,skill.id); ss.learningCycle.lessonTaughtAt=Date.now(); ss.learningCycle.lessonStepIndex=Math.max(1,ss.learningCycle.lessonStepIndex||0); saveState();
+    session.planIndex++; loadPlanItem();
   });
 }
 function renderQuestion(){

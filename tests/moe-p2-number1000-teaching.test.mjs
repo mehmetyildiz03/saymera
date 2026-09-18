@@ -10,5 +10,7 @@ const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8'); const cs
 for(const id of ['ten-bundle','hundred-bundle','thousand-bundle','place-value','same-digit','read-write']) assert.ok(app.includes("id:'"+id+"'"),'missing '+id);
 for(const copy of ['10 birlik = 1 onluk','10 onluk = 1 yüzlük','10 yüzlük = 1000','347 = 300 + 40 + 7','347 ↔ üç yüz kırk yedi']) assert.ok(app.includes(copy),'missing '+copy);
 assert.ok(app.includes("const readiness=learningPlan.find(item=>item.phase==='readiness')")); assert.ok(app.includes('lessonTaughtAt'));
+assert.ok(app.includes("$$('.lesson-place-card').forEach"),'place-value teaching must bind all three cards');
+assert.ok(!app.includes('SINGAPUR P2 ·'),'child UI must not expose curriculum-engine jargon');
 assert.match(css,/\.lesson-step-stage/); assert.match(css,/\.lesson-bundle-demo/); assert.match(css,/\.lesson-place-grid/);
 console.log('MOE P2 number1000 teaching tests: PASS (1.1 → 1.2 → 1.3 + canonical sequence)');
