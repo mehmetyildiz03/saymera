@@ -635,6 +635,8 @@ init();
 function init(){
   bindNavigation();
   bindControls();
+  // Isolate inspection before normalization can save a migration.
+  if(INSPECTOR_ENABLED) enterInspectorSandbox();
   normalizeState();
   renderAll();
   applyMotionSetting();

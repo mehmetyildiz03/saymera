@@ -61,3 +61,5 @@ At a place-value boundary, regrouping can change more than one written digit. Fo
 - Model practice includes visible base-ten transitions and construction of the resulting quantity with blocks.
 - Browser regression coverage uses Chromium touch input and WebKit pointer/tap input at phone and tablet viewport sizes. These checks simulate devices; they do not establish physical iPhone/iPad compatibility.
 - Inspector progress remains isolated from real localStorage. Completion and curriculum order contracts are unchanged.
+
+The browser audit also caught and fixed a full-width rotated arrow intercepting mobile taps, and normalization writing to localStorage before inspector sandbox entry. Sandbox isolation now starts before normalization.
