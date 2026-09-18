@@ -139,7 +139,7 @@ function renderNumber1000LessonStep(skill,index=null){
       const card=ev.currentTarget; if(card.classList.contains('revealed')) return;
       card.classList.add('revealed'); $('.lesson-bundle-demo')?.classList.add('bundled');
       card.querySelector('.lesson-reveal-question').textContent=step.resultValue;
-      card.querySelector('small').textContent='keşfettin ✓';
+      card.querySelector('small').textContent=step.equation;
       revealLessonInsight(); next.disabled=false;
     });
   }else if(step.kind==='count'){
@@ -175,7 +175,7 @@ function renderNumber1000LessonStep(skill,index=null){
       seen.add(i); btn.classList.add('revealed');
       const [label,count,digit]=step.groups[i];
       btn.querySelector('strong').textContent=count+' '+label.toLocaleLowerCase('tr-TR');
-      btn.querySelector('small').textContent='gördün ✓';
+      btn.querySelector('small').textContent=String(i===0?count*100:i===1?count*10:count);
       slots[i].textContent=digit; slots[i].classList.add('filled');
       $('#lessonModelExplain').textContent=seen.size<3?'Sayı oluşuyor: '+slots.map(x=>x.textContent).join(' '):'3 yüzlük, 4 onluk ve 7 birlik birlikte 347’yi oluşturdu.';
       if(seen.size===3){ $('#lessonDigitSlots')?.classList.add('complete'); revealLessonInsight(); next.disabled=false; }
@@ -208,17 +208,17 @@ function renderNumber1000LessonStep(skill,index=null){
     let selectedChip=null, dragChip=null, dragStartX=0, dragStartY=0;
     const chips=$$('.lesson-word-chip'), slots=$$('.lesson-word-slot');
     const allPlaced=()=>slots.every(slot=>slot.classList.contains('filled'));
-    const finishIfReady=()=>{ if(allPlaced()){ revealLessonInsight(); next.disabled=false; $('#lessonDragHelp').textContent='526’nın yazılışını doğru sırada kurdun.'; } };
+    const finishIfReady=()=>{ if(allPlaced()){ revealLessonInsight(); next.disabled=false; $('#lessonDragHelp').textContent='526 = beş yüz yirmi altı.'; } };
     const resetChipVisual=chip=>{ chip.style.transform=''; chip.style.zIndex=''; chip.classList.remove('dragging'); };
     const placeChip=(chip,slot)=>{
       if(!chip||!slot||slot.classList.contains('filled')) return false;
       if(chip.dataset.word!==slot.dataset.expected){
         slot.classList.add('wrong'); setTimeout(()=>slot.classList.remove('wrong'),320);
-        $('#lessonDragHelp').textContent='Bu parça bu yuvaya uymuyor. Yeniden dene.';
+        const roles=['yüzlük','onluk','birlik']; $('#lessonDragHelp').textContent='Bu yuva '+roles[Number(slot.dataset.slotIndex)]+' kısmı. “'+slot.dataset.expected+'” buraya gelir.';
         return false;
       }
       slot.textContent=chip.dataset.word; slot.classList.add('filled'); chip.disabled=true; chip.classList.add('placed'); selectedChip=null;
-      $('#lessonDragHelp').textContent='Doğru yere yerleştirdin.'; finishIfReady(); return true;
+      const roles=['yüzlük kısmına','onluk kısmına','birlik kısmına']; $('#lessonDragHelp').textContent='“'+chip.dataset.word+'” '+roles[Number(slot.dataset.slotIndex)]+' yerleşti.'; finishIfReady(); return true;
     };
     chips.forEach(chip=>{
       chip.addEventListener('click',()=>{
@@ -1283,38 +1283,40 @@ function answerQuestion(value,button){
   const lessonFlow=q.skillId==='number1000'&&currentSelection?.kind!=='retention';
   setTimeout(()=>lessonFlow?renderLessonFlowFeedback(correct):(correct?renderCorrectFeedback():renderBridgeFeedback()),260);
 }
+function feedbackMathStatement(q){
+  return String(q?.explain||q?.feedbackTitle||'').trim();
+}
 function renderLessonFlowFeedback(correct){
   const q=currentQuestion;
   const tools=$('.question-tools');
   if(!tools){ correct?renderCorrectFeedback():renderBridgeFeedback(); return; }
-  const title=correct?'Bağlantıyı kurdun.':'Birlikte düzeltelim.';
-  const detail=correct?q.explain:q.hint;
-  const extra=!correct&&q.explain?'<small>'+esc(q.explain)+'</small>':'';
-  tools.outerHTML='<div class="lesson-flow-feedback '+(correct?'is-correct':'is-support')+'" id="lessonFlowFeedback"><div><span>'+(correct?'✓ DEVAM':'İPUCU')+'</span><strong>'+esc(title)+'</strong><p>'+esc(detail)+'</p>'+extra+'</div><button type="button" id="lessonFlowContinue">Devam et <b>→</b></button></div>';
+  const detail=correct?feedbackMathStatement(q):String(q.hint||'').trim();
+  const relation=!correct&&q.explain?'<small>'+esc(q.explain)+'</small>':'';
+  tools.outerHTML='<div class="lesson-flow-feedback '+(correct?'is-correct':'is-support')+'" id="lessonFlowFeedback"><div><span>'+(correct?'SONUÇ':'BURAYA BAK')+'</span><strong>'+esc(detail)+'</strong>'+relation+'</div><button type="button" id="lessonFlowContinue">Devam et <b>→</b></button></div>';
   $('#lessonFlowContinue')?.addEventListener('click',nextQuestion);
-  if(state.settings.voice) speak((correct?title:'Birlikte bakalım.')+' '+detail);
+  if(state.settings.voice) speak(detail);
 }
 function renderCorrectFeedback(){
   const q=currentQuestion;
-  const lead=q.feedbackTitle||'Harika, doğru cevabı buldun.';
+  const statement=feedbackMathStatement(q);
   $('#practiceContent').innerHTML=`<section class="feedback-card">
-    <div class="feedback-mark">✓</div><span class="section-kicker">DOĞRU</span><h2>${esc(lead)}</h2>
-    <div class="explain-box">${esc(q.explain)}</div>
+    <div class="feedback-mark">✓</div><span class="section-kicker">SONUÇ</span><h2>${esc(statement)}</h2>
     <button class="primary-cta" id="continueButton"><span class="cta-icon">→</span><span><b>Devam et</b><small>${nextTaskLabel()}</small></span><i>→</i></button>
   </section>`;
   $('#continueButton').addEventListener('click',nextQuestion);
-  if(state.settings.voice) speak(`${lead} ${q.explain}`);
+  if(state.settings.voice) speak(statement);
 }
 function renderBridgeFeedback(){
   const q=currentQuestion;
+  const hint=String(q.hint||'').trim();
   $('#practiceContent').innerHTML=`<section class="bridge-card">
-    <div class="bridge-mark"><i></i><i></i><i></i></div><span class="section-kicker">BİRLİKTE BAKALIM</span><h2>Bu kez olmadı; ipucuyla devam edelim.</h2>
+    <div class="bridge-mark"><i></i><i></i><i></i></div><span class="section-kicker">BURAYA BAK</span><h2>${esc(hint)}</h2>
     <div class="bridge-visual">${renderVisual(q.visual,q)}</div>
-    <div class="explain-box"><strong>İpucu:</strong> ${esc(q.hint)}<br><span>${esc(q.explain)}</span></div>
+    ${q.explain?`<div class="explain-box">${esc(q.explain)}</div>`:''}
     <button class="primary-cta" id="bridgeContinue"><span class="cta-icon">↗</span><span><b>Devam et</b><small>${nextTaskLabel()}</small></span><i>→</i></button>
   </section>`;
   $('#bridgeContinue').addEventListener('click',nextQuestion);
-  if(state.settings.voice) speak(`İpucuna bakalım. ${q.hint}`);
+  if(state.settings.voice) speak(hint);
 }
 function nextTaskLabel(){
   const next=session?.plan[session.planIndex+1];
@@ -1363,7 +1365,7 @@ function finishSession(){
   $('#practiceCounter').textContent=`${ended.questionIndex} / ${ended.questionIndex}`;
   $('#practiceContent').innerHTML=`<section class="session-end">
     <div class="end-mark">✓</div><span class="section-kicker">TAMAMLANDI</span><h2>Bugünkü çalışmayı bitirdin.</h2>
-    <p>${focusSkill?`“${esc(focusSkill.label)}” ile güzel bir çalışma yaptın.`:'Güzel bir çalışma yaptın.'} Şimdi kısa bir mola zamanı.</p>
+    <p>${focusSkill?`“${esc(focusSkill.label)}” üzerinde ${ended.questionIndex} görev tamamlandı.`:`${ended.questionIndex} görev tamamlandı.`} Şimdi kısa bir mola zamanı.</p>
     <div class="end-stats"><div><strong>${ended.questionIndex}</strong><span>görev tamamlandı</span></div><div><strong>✓</strong><span>çalışma bitti</span></div></div>
     <button class="primary-cta" id="finishToRest"><span class="cta-icon">☼</span><span><b>Mola ver</b><small>ekrandan biraz uzaklaş</small></span><i>→</i></button>
   </section>`;
