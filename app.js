@@ -27,7 +27,7 @@ const repReasons={
 const P2_LESSON_BLUEPRINTS={
   number1000:{headline:'Sayıları basamaklarına ayıralım.',lead:'Bir rakamın değeri bulunduğu yere göre değişir. Yüzlük, onluk ve birlikleri birlikte kuracağız.',model:[['3','yüzlük','300'],['4','onluk','40'],['7','birlik','7']],takeaway:'347 = 300 + 40 + 7'},
   compareOrder1000:{headline:'Büyük sayıları soldan karşılaştır.',lead:'Önce yüzlüklere bak. Eşitse onlukları, onlar da eşitse birlikleri karşılaştır.',takeaway:'En büyük basamak farkı kararı verir.'},
-  numberPattern1000:{headline:'Değişimin hangi basamakta olduğunu gör.',lead:'1 eklemek birlikleri, 10 eklemek onlukları, 100 eklemek yüzlükleri değiştirir.',takeaway:'Örüntünün adımını bul, sonra aynı değişimi sürdür.'},
+  numberPattern1000:{headline:'Örüntüde aynı miktar değişimini gör.',lead:'1, 10 ve 100 daha/az; bir birlik, bir onluk veya bir yüzlük kadar değişimi anlatır. Basamak sınırında yeniden gruplama olabilir.',takeaway:'Önce kuralı söyle; sonra aynı miktar değişimini sürdür.'},
   oddEven1000:{headline:'İkişerli eşleştir ve son basamağa bak.',lead:'Bir sayı ikişerli gruplara artıksız ayrılıyorsa çifttir. Bunu birlikler basamağından anlayabiliriz.',takeaway:'0, 2, 4, 6, 8 ile biten sayılar çifttir.'},
   addSub1000:{headline:'Basamak değerini koruyarak işlem yap.',lead:'Birlikleri birliklerle, onlukları onluklarla, yüzlükleri yüzlüklerle birleştirir veya ayırırız.',takeaway:'10 birlik 1 onluk; 10 onluk 1 yüzlük olarak yeniden gruplanabilir.'},
   wordAddSub2:{headline:'Önce hikâyeyi modele dönüştür.',lead:'Problemde neyin başlangıç, değişim ve sonuç olduğunu ayır. Sonra hangi işlemlerin gerektiğini sırala.',takeaway:'İşlemi metindeki kelimeye değil, miktarlar arasındaki ilişkiye göre seç.'},
@@ -409,14 +409,15 @@ function renderCompareOrderLessonStep(skill,index=null){
   next?.addEventListener('click',()=>completeCompareOrderLessonStep(skill,at));
 }
 
-const PATTERN1000_LESSON_VERSION=1;
+const PATTERN1000_LESSON_VERSION=2;
 const PATTERN1000_SECTIONS=['DEĞİŞİM','BASAMAK','KURAL','SÜRDÜR','EKSİK SAYI'];
 const PATTERN1000_LESSON_STEPS=[
-  {id:'one-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:244,placeIndex:2,action:'1 birlik ekle',title:'1 daha olduğunda birlikler değişir.',body:'243’ten 244’e geçerken sayı bir tane büyür. Değişimi doğru basamağa yerleştir.',result:'243’ten 244’e: 1 birlik daha.'},
-  {id:'ten-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:253,placeIndex:1,action:'1 onluk ekle',title:'10 daha olduğunda onluklar değişir.',body:'Bir onluk eklemek sayıyı 10 büyütür. Yüzlük ve birlik miktarı aynı kalır.',result:'243’ten 253’e: 1 onluk, yani 10 daha.'},
-  {id:'hundred-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:343,placeIndex:0,action:'1 yüzlük ekle',title:'100 daha olduğunda yüzlükler değişir.',body:'Bir yüzlük eklemek sayıyı 100 büyütür. Onluk ve birlik miktarı aynı kalır.',result:'243’ten 343’e: 1 yüzlük, yani 100 daha.'},
-  {id:'ten-less-model',section:'DEĞİŞİM',kind:'place-action',from:654,to:644,placeIndex:1,action:'1 onluk çıkar',title:'10 daha az olduğunda bir onluk çıkar.',body:'654’ten 644’e inerken bir onluk azalır. Hangi basamağın değiştiğini göster.',result:'654’ten 644’e: 1 onluk, yani 10 daha az.'},
-  {id:'place-change-track',section:'BASAMAK',kind:'place-track',seq:[324,334,344,354],placeIndex:1,title:'Örüntüde neyin değiştiğini izle.',body:'Dört sayıyı basamak basamak karşılaştır. Her adımda değişen basamağı seç.',result:'Onluk basamağı her adımda 1 artıyor; sayı 10 büyüyor.'},
+  {id:'one-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:244,placeIndex:2,action:'1 birlik ekle',title:'1 daha = 1 birlik daha.',body:'243’ten 244’e geçerken miktara bir birlik eklenir. Bu örnekte değişimi birlikler basamağında görürüz.',result:'243’ten 244’e: 1 birlik daha.'},
+  {id:'ten-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:253,placeIndex:1,action:'1 onluk ekle',title:'10 daha = 1 onluk daha.',body:'243’e bir onluk eklemek sayıyı 10 büyütür. Bu örnekte yüzlük ve birlik miktarı aynı kalır.',result:'243’ten 253’e: 1 onluk, yani 10 daha.'},
+  {id:'hundred-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:343,placeIndex:0,action:'1 yüzlük ekle',title:'100 daha = 1 yüzlük daha.',body:'243’e bir yüzlük eklemek sayıyı 100 büyütür. Bu örnekte onluk ve birlik miktarı aynı kalır.',result:'243’ten 343’e: 1 yüzlük, yani 100 daha.'},
+  {id:'ten-less-model',section:'DEĞİŞİM',kind:'place-action',from:654,to:644,placeIndex:1,action:'1 onluk çıkar',title:'10 daha az = 1 onluk daha az.',body:'654’ten 644’e inerken miktardan bir onluk çıkarılır. Bu örnekte değişimi onluklar basamağında görürüz.',result:'654’ten 644’e: 1 onluk, yani 10 daha az.'},
+  {id:'place-change-track',section:'BASAMAK',kind:'place-track',seq:[324,334,344,354],placeIndex:1,title:'Bu örnekte değişimi basamaklarda izle.',body:'Dört sayıyı basamak basamak karşılaştır. Bu dizide düzenli değişimi hangi sütunda gördüğünü seç.',result:'Bu örnekte onluk basamağı her adımda 1 artıyor; sayı 10 büyüyor.'},
+  {id:'ten-regroup-boundary',section:'BASAMAK',kind:'regroup-boundary',from:290,to:300,action:'1 onluk ekle',title:'Adım aynı kalır; rakamlar bazen yeniden gruplanır.',body:'290’a 10 daha eklediğimizde 9 onluğa 1 onluk daha gelir. 10 onluk, 1 yüzlük olur; bu yüzden birden fazla rakam değişebilir.',result:'10 daha = 1 onluk daha. 9 onluk + 1 onluk = 10 onluk = 1 yüzlük.'},
   {id:'describe-up-rule',section:'KURAL',kind:'rule-match',seq:[230,330,430,530],rule:'Her adımda 100 daha.',options:['Her adımda 100 daha.','Her adımda 10 daha.','Her adımda 100 daha az.'],title:'Devam ettirmeden önce kuralı söyle.',body:'Sayıları henüz devam ettirme. Önce her geçişte aynı kalan değişimi sözcükle tarif et.',result:'230 → 330 → 430 → 530: her adımda 100 daha.'},
   {id:'describe-down-rule',section:'KURAL',kind:'rule-match',seq:[900,800,700,600],rule:'Her adımda 100 daha az.',options:['Her adımda 10 daha az.','Her adımda 100 daha.','Her adımda 100 daha az.'],title:'Azalan örüntünün kuralını da tarif et.',body:'Bu kez sayılar küçülüyor. Devam etmeden önce değişimin yönünü ve miktarını söyle.',result:'900 → 800 → 700 → 600: her adımda 100 daha az.'},
   {id:'continue-after-rule',section:'SÜRDÜR',kind:'number-slot',seq:[412,422,432,'?'],answer:442,options:[442,433,532],title:'Kuralı söyledikten sonra örüntüyü sürdür.',body:'Bu dizide her adımda 10 daha. Aynı değişimi bir kez daha uygula.',result:'412 → 422 → 432 → 442.'},
@@ -459,9 +460,17 @@ function patternSameRuleVisual(step){
   const row=seq=>'<div class="pattern-sequence-strip compact">'+seq.map(n=>'<span>'+n+'</span>').join('<i>→</i>')+'</div>';
   return '<div class="pattern-lesson-core"><div class="pattern-double-sequence">'+row(step.seqA)+row(step.seqB)+'</div><button type="button" class="pattern-rule-slot" data-pattern-value="'+esc(step.rule)+'"><small>İKİSİNİN KURALI</small><strong>?</strong></button><div class="pattern-rule-bank">'+bank+'</div><p id="patternLessonHelp">İki diziyi de açıklayan aynı kuralı yerleştir.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
 }
+
+function patternRegroupVisual(step){
+  const before='<div class="pattern-regroup-model"><strong>290</strong><div class="pattern-regroup-material">'+amountModel('hundred',2)+amountModel('ten',9)+'</div><small>2 yüzlük + 9 onluk</small></div>';
+  const slot='<button type="button" class="pattern-regroup-slot" data-pattern-value="'+esc(step.action)+'"><strong>?</strong><small>9 onluğun yanına ekle</small></button>';
+  const after='<div class="pattern-regroup-after" id="patternRegroupAfter"><strong>?</strong><small>yeniden grupla</small></div>';
+  return '<div class="pattern-lesson-core"><div class="pattern-regroup-flow">'+before+'<span class="pattern-transition-arrow">+</span>'+slot+'<span class="pattern-transition-arrow">→</span>'+after+'</div><button type="button" class="pattern-drag-chip" data-pattern-value="'+esc(step.action)+'">'+esc(step.action)+'</button><p id="patternLessonHelp">Bir onluğu 9 onluğun yanına sürükle.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
+}
 function pattern1000StepVisual(step){
   if(step.kind==='place-action') return patternActionVisual(step);
   if(step.kind==='place-track') return patternTrackVisual(step);
+  if(step.kind==='regroup-boundary') return patternRegroupVisual(step);
   if(step.kind==='rule-match') return patternRuleVisual(step);
   if(step.kind==='number-slot') return patternNumberSlotVisual(step);
   return patternSameRuleVisual(step);
@@ -537,6 +546,16 @@ function renderPattern1000LessonStep(skill,index=null){
         slot.querySelector('b').textContent=step.action;
         $('#patternAfterNumber').innerHTML=patternPlaceBoard(step.to,step.placeIndex);
         $('#patternLessonHelp').textContent=step.result;
+        revealPatternLessonResult(); next.disabled=false;
+      }
+    });
+  }else if(step.kind==='regroup-boundary'){
+    wirePatternSingleDrop({
+      chipSelector:'.pattern-drag-chip',
+      slotSelector:'.pattern-regroup-slot',
+      onSuccess:()=>{
+        $('#patternRegroupAfter').innerHTML='<div class="pattern-regroup-material">'+amountModel('hundred',3)+'</div><strong>300</strong><small>3 yüzlük + 0 onluk</small>';
+        $('#patternLessonHelp').textContent='10 onluk yeniden gruplanınca 1 yüzlük olur. Adım hâlâ 10 daha.';
         revealPatternLessonResult(); next.disabled=false;
       }
     });
@@ -1200,6 +1219,7 @@ function inspectorPreparePractice(skillId,sectionId){
 function inspectorPrepareReview(skillId){
   inspectorSetPreset(skillId,'review-due');
 }
+function appTextIncludesPatternRegrouping(){ return PATTERN1000_LESSON_STEPS.some(step=>step.id==='ten-regroup-boundary'&&String(step.result).includes('10 onluk = 1 yüzlük')); }
 function inspectorUiAudit(){
   const checks=[];
   const add=(id,label,pass,detail='')=>checks.push({id,label,pass:!!pass,detail});
@@ -1227,6 +1247,12 @@ function inspectorUiAudit(){
       patternIds.indexOf('describe-up-rule')<patternIds.indexOf('continue-after-rule') &&
       patternIds.indexOf('continue-after-rule')<patternIds.indexOf('missing-middle'),
     patternIds.join(' → ')
+  );
+  add(
+    'pattern-regroup-boundary',
+    'Örüntü öğretimi 10 daha sınırında yeniden gruplamayı gösteriyor',
+    patternIds.includes('ten-regroup-boundary') && appTextIncludesPatternRegrouping(),
+    '290 → 300: 9 onluk + 1 onluk = 10 onluk = 1 yüzlük.'
   );
   add(
     'pattern-no-multiplication',
