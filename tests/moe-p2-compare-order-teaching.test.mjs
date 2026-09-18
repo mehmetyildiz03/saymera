@@ -10,7 +10,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compare
 assert.ok(app.includes('const COMPARE_ORDER_LESSON_VERSION=2'),'compare/order lesson must be versioned');
 assert.ok(app.includes("if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }"),'compare/order must use dedicated lesson renderer');
 for(const id of ['compare-hundreds','compare-tens','compare-ones','compare-equal','symbol-meaning-match','symbol-bridge','order-three']) assert.ok(app.includes("id:'"+id+"'"),'missing compare lesson step '+id);
-assert.ok(app.indexOf("id:'compare-equal'") < app.indexOf("id:'comparison-symbols'"),'verbal comparison must precede symbol teaching');
+assert.ok(app.indexOf("id:'compare-equal'") < app.indexOf("id:'symbol-meaning-match'"),'verbal comparison must precede symbol teaching');
 assert.ok(app.includes("const COMPARE_ORDER_SECTIONS=['KARŞILAŞTIR','SEMBOL','SIRALA']"),'compare sections missing');
 assert.ok(app.includes("['number1000','compareOrder1000'].includes(q.skillId)"),'compare feedback must stay in task context');
 assert.ok(!app.includes('Y ·'),'abbreviated place-value labels must not return');
