@@ -558,3 +558,39 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .atlas-lesson-status{grid-column:3;justify-content:flex-start;max-width:none}
   .atlas-lesson-marker{width:34px;height:34px}
 }
+
+/* v1.8.2 — Lesson Center */
+.lesson-center-head{padding-bottom:18px}
+.lesson-center-status{display:inline-flex;margin-top:14px;padding:7px 10px;border-radius:999px;background:var(--teal-soft);color:#17695d;font-size:9px;font-weight:950}
+.lesson-center-body{padding-bottom:32px}
+.lesson-channel-grid{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:14px;align-items:start}
+.lesson-channel-card{background:var(--paper);border:1px solid var(--line);border-radius:28px;padding:20px;box-shadow:0 8px 28px rgba(44,51,51,.035)}
+.lesson-channel-card.practice{grid-row:span 2}
+.lesson-channel-card.locked{opacity:.58}
+.lesson-channel-card.review.due{border-color:#e1c374;background:linear-gradient(180deg,#fffdf7,var(--sun-soft))}
+.lesson-channel-head{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
+.lesson-channel-head>span{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--navy);color:white;font-size:10px;font-weight:950}
+.lesson-channel-card.completed .lesson-channel-head>span{background:var(--teal)}
+.lesson-channel-head small{display:block;font-size:8px;letter-spacing:.12em;font-weight:950;color:var(--muted)}
+.lesson-channel-head h2{font-size:17px;margin:3px 0 0;letter-spacing:-.02em}
+.lesson-channel-head>b{font-size:9px;padding:7px 9px;border-radius:999px;background:var(--paper-2);color:var(--muted);white-space:nowrap}
+.lesson-channel-card>p{font-size:10px;line-height:1.55;color:var(--muted);margin:15px 0}
+.lesson-channel-action{width:100%;min-height:48px;border:0;border-radius:15px;background:var(--navy);color:white;display:flex;justify-content:space-between;align-items:center;padding:0 15px;font-size:11px;font-weight:950}
+.lesson-channel-action.muted,.lesson-channel-action:disabled{background:var(--paper-2);color:#9a9893;cursor:default}
+.lesson-practice-list{display:grid;gap:7px;margin-top:14px}
+.lesson-practice-row{width:100%;min-height:62px;border:1px solid var(--line);border-radius:17px;background:var(--paper-2);display:grid;grid-template-columns:36px minmax(0,1fr) 28px;gap:9px;align-items:center;padding:9px 10px;text-align:left}
+.lesson-practice-row.current{background:var(--teal-soft);border-color:#acd5cb}
+.lesson-practice-row.completed{background:#f2f8f6;border-color:#cbe2dc}
+.lesson-practice-row.locked{opacity:.5}
+.lesson-practice-mark{width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:white;border:1px solid var(--line);font-size:12px;font-weight:950}
+.lesson-practice-row.current .lesson-practice-mark{background:var(--navy);border-color:var(--navy);color:white}
+.lesson-practice-row.completed .lesson-practice-mark{background:var(--teal);border-color:var(--teal);color:white}
+.lesson-practice-copy{display:grid;gap:3px}.lesson-practice-copy strong{font-size:11px;color:var(--navy)}.lesson-practice-copy small{font-size:8px;color:var(--muted);font-weight:800}
+.lesson-practice-arrow{font-size:13px;color:var(--muted);text-align:center}
+.lesson-practice-pending{padding:15px;border-radius:17px;background:var(--paper-2);border:1px dashed var(--line-strong)}
+.lesson-practice-pending strong{font-size:11px}.lesson-practice-pending p{font-size:9px;line-height:1.5;color:var(--muted);margin:6px 0 0}
+.lesson-center-empty{display:grid;gap:12px;justify-items:start;padding:24px;border-radius:24px;background:var(--paper);border:1px solid var(--line)}
+.lesson-center-empty button{min-height:42px;padding:0 14px;border-radius:13px;border:0;background:var(--navy);color:white;font-weight:900}
+.lesson-center-end .end-mark{background:var(--teal-soft);color:#177d70}
+@media(max-width:940px){.lesson-channel-grid{grid-template-columns:1fr 1fr}.lesson-channel-card.practice{grid-row:auto;grid-column:1/-1}}
+@media(max-width:699px){.lesson-channel-grid{grid-template-columns:1fr}.lesson-channel-card.practice{grid-column:auto}.lesson-channel-head{grid-template-columns:40px minmax(0,1fr)}.lesson-channel-head>b{grid-column:2;justify-self:start}.lesson-center-status{margin-top:10px}}

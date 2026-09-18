@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -119,14 +119,14 @@ function completeNumber1000LessonStep(skill,index){
   const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
   lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
   lc.lessonVersion=NUMBER1000_LESSON_VERSION;
-  if(next>=NUMBER1000_LESSON_STEPS.length){ lc.lessonTaughtAt=Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
+  if(next>=NUMBER1000_LESSON_STEPS.length){ lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
   saveState(); session.lessonStepIndex=next; renderNumber1000LessonStep(skill,next);
 }
 function revealLessonInsight(){ $('#lessonInsight')?.classList.add('revealed'); }
 function renderNumber1000LessonStep(skill,index=null){
   const ss=ensureSkillState(state,skill.id);
   const saved=Math.min(NUMBER1000_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
-  const at=index==null?saved:index, step=NUMBER1000_LESSON_STEPS[at];
+  const at=index==null?(session?.lessonReplay?0:saved):index, step=NUMBER1000_LESSON_STEPS[at];
   session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
   $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
   $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NUMBER1000_LESSON_STEPS.length;
@@ -308,14 +308,14 @@ function completeCompareOrderLessonStep(skill,index){
   const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
   lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
   lc.lessonVersion=COMPARE_ORDER_LESSON_VERSION;
-  if(next>=COMPARE_ORDER_LESSON_STEPS.length){ lc.lessonTaughtAt=Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
+  if(next>=COMPARE_ORDER_LESSON_STEPS.length){ lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
   saveState(); session.lessonStepIndex=next; renderCompareOrderLessonStep(skill,next);
 }
 function revealCompareResult(){ $('#compareLessonResult')?.classList.add('revealed'); }
 function renderCompareOrderLessonStep(skill,index=null){
   const ss=ensureSkillState(state,skill.id);
   const saved=Math.min(COMPARE_ORDER_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
-  const at=index==null?saved:index, step=COMPARE_ORDER_LESSON_STEPS[at];
+  const at=index==null?(session?.lessonReplay?0:saved):index, step=COMPARE_ORDER_LESSON_STEPS[at];
   session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
   $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
   $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+COMPARE_ORDER_LESSON_STEPS.length;
@@ -422,7 +422,9 @@ let state=loadState();
 let activeScreen='home';
 let activeDomain='Tümü';
 let activeAtlasUnitId=null;
+let activeLessonSkillId=null;
 let pendingAtlasSkillId=null;
+let pendingLessonLaunch=null;
 let session=null;
 let currentQuestion=null;
 let currentSelection=null;
@@ -494,6 +496,7 @@ function navigate(name){
   $$('.bottom-nav [data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===target));
   if(target==='parent') renderParent();
   if(target==='atlas') renderAtlas();
+  if(target==='lessonCenter') renderLessonCenter();
   window.scrollTo({top:0,behavior:state.settings.calmMotion?'auto':'smooth'});
 }
 
@@ -554,7 +557,7 @@ function completeOnboarding(){
 }
 
 function renderAll(){
-  renderHeader(); renderHome(); renderAtlas(); renderParent();
+  renderHeader(); renderHome(); renderAtlas(); renderParent(); if(activeLessonSkillId) renderLessonCenter();
 }
 function renderHeader(){
   const chip=$('#profileChip');
@@ -639,7 +642,7 @@ function atlasLessonStatusCopy(snapshot){
   }
   return {label:'Açık',detail:'Bu derse geçebilirsin.',mark:'○'};
 }
-function startSessionForSkill(skillId){
+function openLessonCenter(skillId){
   const skill=skillsFor(state.profile).find(item=>item.id===skillId);
   if(!skill) return;
   const access=lessonAccessState(state,skillId);
@@ -648,8 +651,8 @@ function startSessionForSkill(skillId){
     showToast(blocker?'Önce “'+atlasSkillLabel(blocker)+'” dersini tamamla.':'Bu ders henüz açılmadı.');
     return;
   }
-  pendingAtlasSkillId=skillId;
-  startSession();
+  activeLessonSkillId=skillId;
+  navigate('lessonCenter');
 }
 function renderGrade2Atlas(){
   const units=curriculumUnitsFor('grade2');
@@ -710,7 +713,7 @@ function renderGrade2Atlas(){
     activeAtlasUnitId=btn.dataset.atlasUnitToggle;
     renderAtlas();
   }));
-  $$('[data-atlas-lesson]').forEach(btn=>btn.addEventListener('click',()=>startSessionForSkill(btn.dataset.atlasLesson)));
+  $$('[data-atlas-lesson]').forEach(btn=>btn.addEventListener('click',()=>openLessonCenter(btn.dataset.atlasLesson)));
 }
 function renderLegacyAtlas(){
   const summary=profileSummary(state);
@@ -744,6 +747,168 @@ function renderAtlas(){
   else renderLegacyAtlas();
 }
 
+
+const PRACTICE_SECTION_BASE_TASKS=4;
+const PRACTICE_SECTION_MAX_TASKS=6;
+
+function lessonSkill(){
+  return activeLessonSkillId?skillsFor(state.profile).find(skill=>skill.id===activeLessonSkillId)||null:null;
+}
+function reviewTimingCopy(review){
+  if(review.status==='due') return 'Hazır';
+  if(review.status==='caught-up') return 'Şimdilik tamam';
+  if(review.status==='ready') return 'Takvim bekleniyor';
+  if(review.status==='scheduled'&&review.dueAt){
+    const days=Math.max(1,Math.ceil((review.dueAt-Date.now())/(1000*60*60*24)));
+    return days===1?'Yarın':days+' gün sonra';
+  }
+  return 'Öğrenme tamamlanınca açılır';
+}
+function practiceSectionState(snapshot,index){
+  const sections=snapshot.practice.sections||[];
+  const firstIncomplete=sections.findIndex(section=>!section.completedAt);
+  if(snapshot.practice.status==='locked'||snapshot.practice.status==='pending-design') return 'locked';
+  if(sections[index]?.completedAt) return 'completed';
+  if(firstIncomplete<0) return 'available';
+  return index===firstIncomplete?'current':'locked';
+}
+function practiceSectionProgressCopy(section){
+  if(section.completedAt) return 'Tamamlandı';
+  if(section.nativeAttempts>=PRACTICE_SECTION_BASE_TASKS) return 'Destek gerekiyor';
+  if(section.nativeAttempts>0) return Math.min(section.nativeAttempts,PRACTICE_SECTION_BASE_TASKS)+' / '+PRACTICE_SECTION_BASE_TASKS+' görev';
+  if(section.legacyAttempts>0) return 'Önceki çalışma var';
+  return 'Başlamadı';
+}
+function renderLessonCenter(){
+  const skill=lessonSkill();
+  const root=$('#lessonCenterBody');
+  if(!root) return;
+  if(!skill){
+    root.innerHTML='<div class="lesson-center-empty"><strong>Ders seçilmedi.</strong><button type="button" data-nav="atlas">Atlas’a dön</button></div>';
+    root.querySelector('[data-nav="atlas"]')?.addEventListener('click',()=>navigate('atlas'));
+    return;
+  }
+  const snapshot=lessonProgressSnapshot(state,skill.id);
+  const contract=lessonContractFor(skill.id);
+  const unit=curriculumUnitsFor(state.profile).find(item=>item.id===snapshot.unitId);
+  const learnComplete=snapshot.learn.status==='complete';
+  const learnLabel=learnComplete?'Tamamlandı':snapshot.learn.status==='in-progress'?'Devam ediyor':'Başlamadı';
+  const practiceDesigned=!snapshot.provisional&&snapshot.practice.totalSections>0;
+  const practiceLabel=!learnComplete?'Önce Öğren':!practiceDesigned?'Henüz hazırlanıyor':snapshot.practice.status==='complete'?'Tamamlandı':snapshot.practice.completedSections+' / '+snapshot.practice.totalSections+' bölüm';
+  const reviewLabel=reviewTimingCopy(snapshot.review);
+  const reviewReady=snapshot.review.status==='due';
+
+  $('#lessonCenterKicker').textContent=(unit?.strand||skill.family).toUpperCase();
+  $('#lessonCenterTitle').textContent=skill.label;
+  $('#lessonCenterLead').textContent=unit?unit.label+' ünitesindeki ders yolun.':'Bu dersin öğrenme, uygulama ve tekrar alanları.';
+  $('#lessonCenterStatus').textContent=snapshot.access.status==='completed'?'Ders tamamlandı':snapshot.access.status==='current'?'Sıradaki ders':'Ders açık';
+
+  const sectionRows=practiceDesigned?snapshot.practice.sections.map((section,index)=>{
+    const status=practiceSectionState(snapshot,index);
+    const locked=status==='locked';
+    const mark=status==='completed'?'✓':status==='current'?'→':'○';
+    return '<button type="button" class="lesson-practice-row '+status+'" data-practice-section="'+esc(section.id)+'" '+(locked?'disabled aria-disabled="true"':'')+'>'+
+      '<span class="lesson-practice-mark">'+mark+'</span>'+
+      '<span class="lesson-practice-copy"><strong>'+esc(section.label)+'</strong><small>'+esc(practiceSectionProgressCopy(section))+'</small></span>'+
+      '<span class="lesson-practice-arrow">'+(locked?'⌁':'→')+'</span>'+
+    '</button>';
+  }).join(''):'<div class="lesson-practice-pending"><strong>Uygulama bölümleri henüz tasarlanmadı.</strong><p>Bu ders referans kaliteyle hazırlanırken burada bölüm bölüm çalışmalar açılacak.</p></div>';
+
+  root.innerHTML=
+    '<div class="lesson-channel-grid">'+
+      '<article class="lesson-channel-card learn '+(learnComplete?'completed':'')+'">'+
+        '<div class="lesson-channel-head"><span>01</span><div><small>ÖĞREN</small><h2>Konu anlatımı</h2></div><b>'+esc(learnLabel)+'</b></div>'+
+        '<p>Kavramı model, görsel ve açıklamayla adım adım kur.</p>'+
+        '<button type="button" class="lesson-channel-action" id="lessonLearnAction">'+(learnComplete?'Yeniden aç':'Öğrenmeye başla')+' <span>→</span></button>'+
+      '</article>'+
+      '<article class="lesson-channel-card practice '+(!learnComplete?'locked':'')+'">'+
+        '<div class="lesson-channel-head"><span>02</span><div><small>UYGULA</small><h2>Bölüm bölüm çalış</h2></div><b>'+esc(practiceLabel)+'</b></div>'+
+        '<p>Her beceriyi ayrı çalış. Bölümler sırayla açılır; tamamlanan bölüme geri dönebilirsin.</p>'+
+        '<div class="lesson-practice-list">'+sectionRows+'</div>'+
+      '</article>'+
+      '<article class="lesson-channel-card review '+(reviewReady?'due':'')+'">'+
+        '<div class="lesson-channel-head"><span>03</span><div><small>TEKRAR</small><h2>Geri çağır</h2></div><b>'+esc(reviewLabel)+'</b></div>'+
+        '<p>Öğrendiklerini daha sonra kısa bir çalışmayla yeniden hatırla.</p>'+
+        '<button type="button" class="lesson-channel-action '+(reviewReady?'':'muted')+'" id="lessonReviewAction" '+(reviewReady?'':'disabled')+'>'+(reviewReady?'Tekrarı başlat':esc(reviewLabel))+' <span>→</span></button>'+
+      '</article>'+
+    '</div>';
+
+  $('#lessonLearnAction')?.addEventListener('click',()=>startLessonChannel(skill.id,'learn'));
+  $$('[data-practice-section]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(btn.disabled) return;
+    startLessonChannel(skill.id,'practice',btn.dataset.practiceSection);
+  }));
+  $('#lessonReviewAction')?.addEventListener('click',()=>{ if(reviewReady) startLessonChannel(skill.id,'review'); });
+}
+function practiceSectionRepresentations(section){
+  if(section.representation) return Array(PRACTICE_SECTION_BASE_TASKS).fill(section.representation);
+  return ['see','symbol','explain','transfer'];
+}
+function practiceSectionPlan(skillId,section){
+  return practiceSectionRepresentations(section).map((representation,index)=>({
+    skillId,
+    representation,
+    phase:section.phase||'practice',
+    reviewItem:null,
+    kind:'lesson-practice-section',
+    conceptScope:'fresh',
+    practiceIndex:index,
+    practiceSectionId:section.id
+  }));
+}
+function dueReviewPlanForSkill(skillId){
+  return dueReviewItems().filter(item=>item.skillId===skillId).slice(0,3).map(item=>({
+    skillId,
+    representation:item.representation,
+    phase:item.phase||'retrieval',
+    reviewItem:item,
+    kind:'retention',
+    conceptScope:'fresh'
+  }));
+}
+function startLessonChannel(skillId,channel,sectionId=null){
+  const skill=skillsFor(state.profile).find(item=>item.id===skillId);
+  if(!skill) return;
+  const snapshot=lessonProgressSnapshot(state,skillId);
+  if(snapshot.access.status==='locked'){ showToast('Bu ders henüz açılmadı.'); return; }
+
+  let plan=[];
+  let section=null;
+  if(channel==='learn'){
+    plan=[{skillId,representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false}];
+  }else if(channel==='practice'){
+    section=snapshot.practice.sections.find(item=>item.id===sectionId)||null;
+    const index=snapshot.practice.sections.findIndex(item=>item.id===sectionId);
+    if(!section||practiceSectionState(snapshot,index)==='locked'){ showToast('Önce sıradaki uygulama bölümünü tamamla.'); return; }
+    plan=practiceSectionPlan(skillId,section);
+  }else if(channel==='review'){
+    plan=dueReviewPlanForSkill(skillId);
+    if(!plan.length){ showToast('Bu ders için zamanı gelmiş bir tekrar yok.'); return; }
+  }
+  if(!plan.length) return;
+
+  pendingLessonLaunch={skillId,channel,sectionId,plan,sectionLabel:section?.label||null};
+  pendingAtlasSkillId=skillId;
+  startSession();
+}
+function appendPracticeSectionRecovery(){
+  if(!session?.practiceSectionId||session.practiceSectionAttempts>=PRACTICE_SECTION_MAX_TASKS) return;
+  const snapshot=lessonProgressSnapshot(state,session.focusSkillId);
+  const section=snapshot.practice.sections.find(item=>item.id===session.practiceSectionId);
+  if(!section) return;
+  const reps=section.representation?[section.representation]:['see','symbol','explain','transfer','build'];
+  const representation=reps[session.practiceSectionAttempts%reps.length];
+  session.plan.push({
+    skillId:session.focusSkillId,
+    representation,
+    phase:section.phase||'practice',
+    reviewItem:null,
+    kind:'lesson-practice-section',
+    conceptScope:'fresh',
+    practiceIndex:session.practiceSectionAttempts,
+    practiceSectionId:section.id
+  });
+}
 function renderParent(){
   const focus=pickFocus(); const summary=profileSummary(state); const list=skillsFor(state.profile);
   const averages=Object.fromEntries(REPRESENTATIONS.map(r=>{
@@ -838,7 +1003,8 @@ function startSession(){
   $('#toast')?.classList.remove('show'); clearTimeout(toastTimer);
   if(state.cooldownUntil && state.cooldownUntil>Date.now()){ showCooldown(false); return; }
   if(!state.onboarded){ openOnboarding(); return; }
-  const requestedSkillId=pendingAtlasSkillId; pendingAtlasSkillId=null;
+  const lessonLaunch=pendingLessonLaunch; pendingLessonLaunch=null;
+  const requestedSkillId=lessonLaunch?.skillId||pendingAtlasSkillId; pendingAtlasSkillId=null;
   const requestedSkill=requestedSkillId?skillsFor(state.profile).find(s=>s.id===requestedSkillId):null;
   const requestedFocus=requestedSkill?{skill:requestedSkill,state:ensureSkillState(state,requestedSkill.id)}:null;
   const compareSkill=state.profile==='grade2'?skillsFor(state.profile).find(s=>s.id==='compareOrder1000'):null;
@@ -864,12 +1030,20 @@ function startSession(){
     focus.state.learningCycle.lessonTaughtAt=0;
     saveState();
   }
-  const plan=replayCompareRevision?[{skillId:'compareOrder1000',representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false}]:buildSessionPlan(focus,{includeDueReview:!requestedFocus});
+  const plan=lessonLaunch?.plan||(replayCompareRevision?[{skillId:'compareOrder1000',representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false}]:buildSessionPlan(focus,{includeDueReview:!requestedFocus}));
   session={
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
-    requiresLearningCompletion:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
+    requiresLearningCompletion:lessonLaunch?false:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
     lessonStepIndex:focus.state.learningCycle?.lessonStepIndex||0,
+    lessonReplay:lessonLaunch?.channel==='learn',
+    lessonCenterReturn:!!lessonLaunch,
+    lessonChannel:lessonLaunch?.channel||null,
+    practiceSectionId:lessonLaunch?.sectionId||null,
+    practiceSectionLabel:lessonLaunch?.sectionLabel||null,
+    practiceSectionAttempts:0,
+    practiceSectionCorrect:0,
+    practiceSectionCompleted:false,
     questionIndex:0, correct:0, wrong:0, hints:0, effortUsed:0, recentSkillIds:[], recentQuestionSignatures:[], learningEvents:[], newStable:0, bridgeAdds:0
   };
   $('#practiceOverlay').classList.add('open'); $('#practiceOverlay').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -1539,9 +1713,29 @@ function answerQuestion(value,button){
     // attempts are exhausted on an error, the immediate recovery becomes the gate.
     if(practiceDecision.complete||(practiceDecision.atCap&&!correct)) q.cycleFinal=true;
   }
+  let lessonSectionDecision=null;
+  if(session?.practiceSectionId&&currentSelection?.kind==='lesson-practice-section'){
+    const snapshot=lessonProgressSnapshot(state,q.skillId);
+    const sectionIndex=snapshot.practice.sections.findIndex(item=>item.id===session.practiceSectionId);
+    const sectionState=sectionIndex>=0?snapshot.practice.sections[sectionIndex]:null;
+    const projectedAttempts=(sectionState?.nativeAttempts||0)+1;
+    const projectedCorrect=(sectionState?.nativeCorrect||0)+(correct?1:0);
+    const completeNow=!!(correct&&projectedAttempts>=PRACTICE_SECTION_BASE_TASKS&&projectedCorrect>=3);
+    const priorComplete=sectionIndex>0?snapshot.practice.sections.slice(0,sectionIndex).every(item=>item.completedAt):true;
+    const finalSection=sectionIndex===snapshot.practice.sections.length-1;
+    if(completeNow&&priorComplete&&finalSection&&!ensureSkillState(state,q.skillId).learningCycle?.firstCycleCompletedAt) q.cycleFinal=true;
+    lessonSectionDecision={completeNow,projectedAttempts,projectedCorrect};
+  }
   const delayed=currentSelection.reviewItem?.stage==='next-day';
   applyAnswer(state,q,{correct,usedHint,isDelayedReview:!!delayed,now:Date.now(),sessionQuestionIndex:session.questionIndex});
   session.learningEvents.push(event);
+  if(lessonSectionDecision){
+    recordPracticeSectionAttempt(state,q.skillId,session.practiceSectionId,{correct,complete:lessonSectionDecision.completeNow,now:Date.now()});
+    session.practiceSectionAttempts++;
+    if(correct) session.practiceSectionCorrect++;
+    if(lessonSectionDecision.completeNow) session.practiceSectionCompleted=true;
+    else if(session.practiceSectionAttempts>=PRACTICE_SECTION_BASE_TASKS&&session.practiceSectionAttempts<PRACTICE_SECTION_MAX_TASKS) appendPracticeSectionRecovery();
+  }
   if(practiceDecision&&!q.cycleFinal) appendAdaptivePractice(practiceDecision);
   if(currentSelection.reviewItem) consumeReview(state,currentSelection.reviewItem);
   const after=ensureSkillState(state,q.skillId).stable;
@@ -1628,6 +1822,28 @@ function finishSession(){
   state.sessions.push({at:Date.now(),profile:state.profile,focusSkillId:ended.focusSkillId,correct:ended.correct,wrong:ended.wrong,hints:ended.hints,questions:ended.questionIndex,duration,newStable:ended.newStable});
   if(state.sessions.length>80) state.sessions=state.sessions.slice(-80);
   saveState();
+
+  if(ended.lessonCenterReturn){
+    const focusSkill=skillsFor(state.profile).find(s=>s.id===ended.focusSkillId);
+    const channel=ended.lessonChannel;
+    const heading=channel==='learn'?'Konu anlatımı':channel==='practice'?(ended.practiceSectionLabel||'Uygulama bölümü'):'Tekrar';
+    let detail='';
+    if(channel==='learn') detail='Konu anlatımı kapandı. Uygulama bölümleri Ders Merkezi’nde ayrı ayrı duruyor.';
+    else if(channel==='practice') detail=ended.practiceSectionCompleted
+      ? ended.practiceSectionAttempts+' görevle bu uygulama bölümü tamamlandı.'
+      : ended.practiceSectionAttempts+' görev kaydedildi. Bölüm tamamlanmadı; daha sonra buradan devam edebilirsin.';
+    else detail=ended.questionIndex+' tekrar görevi tamamlandı.';
+    $('#practiceProgress').style.width='100%';
+    $('#practiceCounter').textContent=ended.questionIndex?ended.questionIndex+' görev':'Öğren';
+    $('#practiceContent').innerHTML='<section class="session-end lesson-center-end"><div class="end-mark">✓</div><span class="section-kicker">DERS MERKEZİ</span><h2>'+esc(heading)+'</h2><p>'+esc(detail)+'</p><button class="primary-cta" id="finishToLessonCenter"><span class="cta-icon">←</span><span><b>Ders merkezine dön</b><small>'+esc(focusSkill?.label||'ders')+'</small></span><i>→</i></button></section>';
+    $('#finishToLessonCenter').addEventListener('click',()=>{
+      $('#practiceOverlay').classList.remove('open'); $('#practiceOverlay').setAttribute('aria-hidden','true'); document.body.style.overflow='';
+      activeLessonSkillId=ended.focusSkillId;
+      session=null; currentQuestion=null; currentSelection=null; renderAll(); navigate('lessonCenter');
+    });
+    return;
+  }
+
   const attempts=ended.correct+ended.wrong; const rate=attempts?Math.round(ended.correct/attempts*100):0;
   const focusSkill=skillsFor(state.profile).find(s=>s.id===ended.focusSkillId); const focusState=focusSkill?ensureSkillState(state,focusSkill.id):null;
   $('#practiceProgress').style.width='100%';

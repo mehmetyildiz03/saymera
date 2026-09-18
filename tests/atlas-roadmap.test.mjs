@@ -17,8 +17,8 @@ assert.ok(app.includes("snapshot.access.status==='current'"),'Atlas must show th
 assert.ok(app.includes("snapshot.access.status==='locked'"),'future new learning must be visibly locked');
 assert.ok(app.includes('data-atlas-unit-toggle'),'unit sections must be expandable');
 assert.ok(app.includes('data-atlas-lesson'),'lesson rows must be selectable');
-assert.ok(app.includes('function startSessionForSkill(skillId)'),'unlocked Atlas lessons must open a targeted session');
-assert.ok(app.includes('includeDueReview:!requestedFocus'),'a targeted lesson must not begin with an unrelated global review');
+assert.ok(app.includes('function openLessonCenter(skillId)'),'unlocked Atlas lessons must open the Lesson Center');
+assert.ok(app.includes("navigate('lessonCenter')"),'Atlas lesson selection must route through the Lesson Center');
 assert.ok(app.includes("showToast(blocker?'Önce “'+atlasSkillLabel(blocker)+'” dersini tamamla."),'locked lessons must explain the gate');
 assert.ok(!app.slice(app.indexOf('function renderGrade2Atlas'),app.indexOf('function renderLegacyAtlas')).includes('masteryPercent'),'P2 Atlas must not display a fabricated mastery percentage');
 assert.match(html,/Matematik yolun burada\./);
