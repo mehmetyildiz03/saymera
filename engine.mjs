@@ -2774,9 +2774,78 @@ function varyPracticePrompt(q,skillId,representation,index=0){
   return q;
 }
 
+function generateNumber1000LearningQuestion(phase,representation,difficulty=1,rng=Math.random,conceptInstance=null,options={}){
+  const c=conceptInstance?.skillId==='number1000'?conceptInstance:createConceptInstance('number1000',difficulty,rng);
+  const x=c?.anchor||number1000Cases()[0];
+
+  if(phase==='model') return genNumber1000('build',difficulty,rng,c);
+
+  if(phase==='representation'){
+    return qTask('number1000','see','Modelin gösterdiği sayıyı rakamla yaz.',x.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Sayımı kontrol et'},{
+      taskKind:'model-to-number-production',taskLabel:'Modelden sayıyı kendin üret',visual:{type:'base1000',...hto(x.n)},
+      hint:'Yüzlükleri, onlukları ve birlikleri ayrı ayrı say.',
+      explain:x.hundreds+' yüzlük + '+x.tens+' onluk + '+x.ones+' birlik = '+x.n+'.'
+    });
+  }
+
+  if(phase==='symbol'){
+    const y=c?.symbol||x;
+    return qTask('number1000','symbol','“'+trNumberWord(y.n)+'” sayısını rakamla yaz.',y.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Yazdığımı kontrol et'},{
+      taskKind:'word-to-numeral-production',taskLabel:'Sözcükten rakamı kendin üret',
+      hint:'Yüzlük, onluk ve birlik parçalarını sırayla düşün.',explain:'“'+trNumberWord(y.n)+'” = '+y.n+'.'
+    });
+  }
+
+  if(phase==='reasoning'){
+    if(x.n===1000){
+      return qTask('number1000','explain','1000 sayısı kaç yüzlükten oluşur?',10,{kind:'number-input',placeholder:'?',maxLength:2,checkLabel:'Düşüncemi kontrol et'},{
+        taskKind:'place-value-production',taskLabel:'Basamak ilişkisini kendin açıkla',visual:{type:'base1000',...hto(1000)},
+        hint:'Bir yüzlük 100’dür. 1000’e ulaşmak için kaç tane gerekir?',explain:'10 yüzlük = 1000.'
+      });
+    }
+    const places=[
+      {name:'yüzlük',digit:x.hundreds,value:x.hundreds*100},
+      {name:'onluk',digit:x.tens,value:x.tens*10},
+      {name:'birlik',digit:x.ones,value:x.ones}
+    ].filter(p=>p.digit>0);
+    const p=choice(places.length?places:[{name:'yüzlük',digit:x.hundreds,value:x.hundreds*100}],rng);
+    return qTask('number1000','explain',x.n+' sayısında '+p.name+' basamağındaki '+p.digit+' rakamının değeri kaçtır?',p.value,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Değerimi kontrol et'},{
+      taskKind:'place-value-production',taskLabel:'Basamak değerini kendin üret',visual:{type:'numbercard',n:x.n},
+      hint:p.digit+' tane '+p.name+' düşün.',explain:p.digit+' '+p.name+' = '+p.value+'.'
+    });
+  }
+
+  if(phase==='context'){
+    const y=c?.transfer||x;
+    return qTask('number1000','transfer','Bir kutuda '+y.hundreds+' yüzlük deste, '+y.tens+' onluk paket ve '+y.ones+' tek kart var. Toplam kaç kart vardır?',y.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Toplamımı kontrol et'},{
+      taskKind:'context-number-production',taskLabel:'Basamak değerini gerçek miktarda kullan',
+      hint:'Yüzlükleri 100, onlukları 10 olarak düşün.',explain:(y.hundreds*100)+'+'+(y.tens*10)+'+'+y.ones+'='+y.n+'.'
+    });
+  }
+
+  if(phase==='practice' && (options.practiceIndex??0)===0){
+    const zeros=number1000Cases().filter(z=>z.n!==1000&&(z.tens===0||z.ones===0));
+    const z=choice(zeros.length?zeros:number1000Cases(),rng);
+    return qTask('number1000','symbol','Modelde boş kalan basamağı da düşün. Bu model hangi sayıyı gösteriyor?',z.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Sayımı kontrol et'},{
+      taskKind:'zero-place-production',taskLabel:'Sıfırlı basamağı modelden kendin üret',visual:{type:'base1000',...hto(z.n)},
+      hint:'Bir basamakta hiç parça yoksa o yere 0 yazılır.',explain:z.n+' = '+z.hundreds+' yüzlük + '+z.tens+' onluk + '+z.ones+' birlik.'
+    });
+  }
+
+  if(phase==='practice'){
+    const y=c?.transfer||x;
+    return qTask('number1000','transfer','Kütüphanede '+y.hundreds+' yüzlük grup, '+y.tens+' onluk grup ve '+y.ones+' tek kitap var. Toplam kitap sayısını yaz.',y.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Cevabımı kontrol et'},{
+      taskKind:'independent-context-production',taskLabel:'Yeni bağlamda sayıyı kendin üret',
+      hint:'Yüzlük + onluk + birlik değerlerini topla.',explain:(y.hundreds*100)+'+'+(y.tens*10)+'+'+y.ones+'='+y.n+'.'
+    });
+  }
+
+  return generateQuestion('number1000',representation,difficulty,rng,c);
+}
 export function generateLearningQuestion(skillId,phase,representation,difficulty=1,rng=Math.random,conceptInstance=null,options={}){
   let q;
   if(phase==='readiness') q=generateReadinessQuestion(skillId,difficulty,rng,options);
+  else if(skillId==='number1000') q=generateNumber1000LearningQuestion(phase,representation,difficulty,rng,conceptInstance,options);
   else q=generateQuestion(skillId,representation,difficulty,rng,conceptInstance);
   if(phase==='practice') q=varyPracticePrompt(q,skillId,representation,options.practiceIndex??0);
   q.learningPhase=phase||null;

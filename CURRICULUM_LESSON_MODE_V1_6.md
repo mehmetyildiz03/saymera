@@ -87,3 +87,12 @@ The child-facing counting cards no longer show cumulative totals such as 100/200
 The detached yellow `BAĞLANTI` strip is removed. Mathematical conclusions appear inside the central teaching visual as a revealed **ŞUNU GÖRDÜK** relationship.
 
 The 100-dot experience is staged: first one 10-dot row is revealed, then all 10 rows, then `10 × 10 = 100`. Model-to-number builds `347` digit by digit. Place value shows concrete quantities under each digit before revealing `300/40/7`. Zero is shown as an actually empty place. Number-word construction uses Pointer Events drag-and-drop with a tap-to-select fallback for accessibility and touch robustness.
+
+
+## v1.7.2 — Student production + phone-only responsive layer
+
+The 1.1–1.3 teaching content is considered sufficient. The next quality gain comes from what the learner produces, not from adding more explanation cards.
+
+The first-cycle application after teaching now contains seven distinct intents: numeral→model, model→numeral, words→numeral, place-value production, contextual total, zero-placeholder production, and a fresh independent context.
+
+The v1.7.2 responsive patch is intentionally scoped to `max-width:699px`. Tablet rules at `>=700px` are not modified. Phone answer choices collapse to safe single-column layouts, wide visual choices no longer clip, and lesson manipulatives receive phone-specific sizing.
