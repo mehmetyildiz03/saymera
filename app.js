@@ -269,7 +269,7 @@ function consumeDraggedClick(chip){
   chip.dataset.justDragged=''; return true;
 }
 
-const COMPARE_ORDER_LESSON_VERSION=2;const COMPARE_ORDER_LESSON_VERSION=1;
+const COMPARE_ORDER_LESSON_VERSION=2;
 const COMPARE_ORDER_SECTIONS=['KARŞILAŞTIR','SEMBOL','SIRALA'];
 const COMPARE_ORDER_LESSON_STEPS=[
   {id:'compare-hundreds',section:'KARŞILAŞTIR',kind:'place-compare',title:'Önce yüzlüklere bak.',body:'Soldan başlarız. Yüzlükler farklıysa hangi sayının daha büyük olduğunu hemen anlayabiliriz.',a:426,b:581,stopAt:0,result:'581, 426’dan büyüktür. 426, 581’den küçüktür.'},
