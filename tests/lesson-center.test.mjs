@@ -55,3 +55,9 @@ assert.ok(app.includes("section.cycleAttempts||0"),'practice resume must use cur
 assert.ok(app.includes("PRACTICE_SECTION_BASE_TASKS-cycle"),'unfinished section must schedule only remaining base tasks');
 assert.ok(app.includes("resetPracticeSectionCycle"),'exhausted incomplete cycle must be retryable without erasing lifetime evidence');
 assert.ok(app.includes("generateLessonPracticeQuestion("),'section labels must control real question generation');
+
+assert.ok(app.includes('function startPrimaryJourney()'),'P2 needs a single curriculum-aware home entry');
+assert.ok(app.includes("if(state.profile==='grade2')"),'home entry must preserve P1 behavior and special-case P2 architecture');
+assert.ok(app.includes("if(current){ openLessonCenter(current.id); return; }"),'P2 home entry must route through Lesson Center');
+assert.ok(app.includes("$('#startSessionButton').addEventListener('click',startPrimaryJourney)"),'main CTA must use curriculum-aware entry');
+assert.ok(app.includes("$('#bottomStart').addEventListener('click',startPrimaryJourney)"),'bottom CTA must use curriculum-aware entry');
