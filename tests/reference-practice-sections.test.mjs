@@ -62,3 +62,8 @@ for(const section of P2_LESSON_CONTRACTS.numberPattern1000.practice.sections){
 const missingQs=Array.from({length:4},(_,i)=>generateLessonPracticeQuestion('numberPattern1000','missing-number',i,2,seeded(88+i)));
 assert.ok(missingQs.every(q=>q.visual?.items?.includes('?')),'missing-number section must place a gap inside the sequence');
 assert.ok(missingQs.every(q=>q.response.kind==='number-input'),'missing-number work should require student production');
+
+const regroupQs=Array.from({length:16},(_,i)=>generateLessonPracticeQuestion('numberPattern1000','explain-pattern',i%4,2,seeded(900+i)));
+assert.ok(regroupQs.some(q=>q.taskKind==='pattern-explain-regroup'),'pattern reasoning must explicitly test regrouping across a place boundary');
+assert.ok(regroupQs.some(q=>String(q.explain).includes('10 onluk = 1 yüzlük')),'regroup explanation must preserve place-value meaning');
+assert.ok(regroupQs.every(q=>!String(q.prompt).includes('katına')&&!String(q.explain).includes('katına')),'pattern practice must not preteach multiplicative language');
