@@ -48,5 +48,6 @@ assert.ok(app.includes('Bir sırada 10 nokta var.'),'100-dot lesson must reveal 
 assert.ok(app.includes('lesson-digit-slots'),'model-to-number lesson must build digits progressively');
 assert.ok(app.includes('lesson-place-column'),'place value must use quantity models, not label-only cards');
 assert.ok(app.includes("addEventListener('pointerdown'"),'word writing must support pointer drag');
-assert.ok(app.includes("elementFromPoint"),'drag interaction must resolve drop targets');
+assert.ok(app.includes("dropTargetAtPoint('.lesson-word-slot'"),'word drag must resolve drop targets with touch-safe geometry');
+assert.ok(app.includes('getBoundingClientRect()'),'drag target resolution must use element bounds');
 assert.match(css,/\.lesson-insight/); assert.match(css,/\.lesson-place-columns/); assert.match(css,/\.lesson-word-slot/);
