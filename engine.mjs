@@ -255,7 +255,7 @@ export function lessonAccessState(state,skillId){
 }
 
 function emptyPracticeSectionState(){
-  return {nativeAttempts:0,nativeCorrect:0,completedAt:0,lastSeen:0,legacyAttempts:0,legacyCorrect:0,legacyLastSeen:0};
+  return {nativeAttempts:0,nativeCorrect:0,completedAt:0,lastSeen:0,cycleAttempts:0,cycleCorrect:0,cycleStartedAt:0,legacyAttempts:0,legacyCorrect:0,legacyLastSeen:0};
 }
 function defaultLessonJourney(skillId){
   const contract=lessonContractFor(skillId);
@@ -280,7 +280,20 @@ function ensureLessonJourneyOnSkillState(skillState,skillId){
   journey.practice ||= {legacyCompletedAt:0,sections:{}};
   journey.practice.sections ||= {};
   journey.review ||= {dueAt:0,lastCompletedAt:0,attempts:0,successes:0};
-  for(const section of contract.practice?.sections||[]) journey.practice.sections[section.id] ||= emptyPracticeSectionState();
+  for(const section of contract.practice?.sections||[]){
+    journey.practice.sections[section.id] ||= emptyPracticeSectionState();
+    const target=journey.practice.sections[section.id];
+    target.nativeAttempts=Math.max(0,Number(target.nativeAttempts)||0);
+    target.nativeCorrect=Math.max(0,Number(target.nativeCorrect)||0);
+    target.completedAt=Number(target.completedAt)||0;
+    target.lastSeen=Number(target.lastSeen)||0;
+    target.cycleAttempts=Math.max(0,Number(target.cycleAttempts)||0);
+    target.cycleCorrect=Math.max(0,Number(target.cycleCorrect)||0);
+    target.cycleStartedAt=Number(target.cycleStartedAt)||0;
+    target.legacyAttempts=Math.max(0,Number(target.legacyAttempts)||0);
+    target.legacyCorrect=Math.max(0,Number(target.legacyCorrect)||0);
+    target.legacyLastSeen=Number(target.legacyLastSeen)||0;
+  }
 
   const lc=ensureLearningCycleState(skillState);
   const phaseSeen=LEARNING_PHASES.some(phase=>(lc.phases?.[phase]?.attempts||0)>0);
@@ -348,8 +361,20 @@ export function recordPracticeSectionAttempt(state,skillId,sectionId,{correct=fa
   const target=journey.practice.sections[sectionId] ||= emptyPracticeSectionState();
   target.nativeAttempts+=1;
   if(correct) target.nativeCorrect+=1;
+  target.cycleAttempts=(target.cycleAttempts||0)+1;
+  if(correct) target.cycleCorrect=(target.cycleCorrect||0)+1;
+  target.cycleStartedAt=target.cycleStartedAt||now;
   target.lastSeen=now;
   if(complete) target.completedAt=target.completedAt||now;
+  return target;
+}
+export function resetPracticeSectionCycle(state,skillId,sectionId,{now=Date.now()}={}){
+  const journey=ensureLessonJourneyState(state,skillId);
+  const target=journey.practice.sections?.[sectionId];
+  if(!target) throw new Error('Unknown practice section: '+skillId+'/'+sectionId);
+  target.cycleAttempts=0;
+  target.cycleCorrect=0;
+  target.cycleStartedAt=now;
   return target;
 }
 export function lessonProgressSnapshot(state,skillId,now=Date.now()){
@@ -820,7 +845,7 @@ function number1000Cases(){
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
 }
 function compare1000Cases(){
-  return [[342,349],[509,490],[675,625],[808,880],[999,909],[420,421],[731,701],[1000,999],[456,546],[603,630],[288,208],[917,971]]
+  return [[342,349],[509,490],[675,625],[808,880],[999,909],[420,421],[731,701],[1000,999],[456,546],[603,630],[288,208],[917,971],[535,535],[420,420]]
     .map(([a,b])=>({a,b,relation:a>b?'>':'<',larger:Math.max(a,b),smaller:Math.min(a,b)}));
 }
 function pattern1000Cases(){
@@ -3107,6 +3132,266 @@ function generateNumber1000LearningQuestion(phase,representation,difficulty=1,rn
   }
 
   return generateQuestion('number1000',representation,difficulty,rng,c);
+}
+
+function lessonPracticeFinalize(q,sectionId,taskIndex){
+  q.learningPhase='practice';
+  q.lessonPracticeSectionId=sectionId;
+  q.lessonPracticeTaskIndex=taskIndex;
+  q.id=q.skillId+':section:'+sectionId+':'+taskIndex+':'+Date.now()+':'+Math.floor(Math.random()*1e6);
+  return q;
+}
+function number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const d=clamp(difficulty,1,4);
+  const concept=createConceptInstance('number1000',d,rng);
+  const x=concept.anchor;
+  const zeros=number1000Cases().filter(z=>z.n!==1000&&(z.tens===0||z.ones===0));
+  const zeroCase=choice(zeros,rng);
+
+  if(sectionId==='build-number'){
+    if(taskIndex%4===2){
+      return qTask('number1000','build',zeroCase.n+' sayısını modelde kur. Boş basamağı özellikle koru.',zeroCase.hundreds+'|'+zeroCase.tens+'|'+zeroCase.ones,{kind:'manipulative',interaction:'base1000-build',expectedValue:zeroCase.hundreds+'|'+zeroCase.tens+'|'+zeroCase.ones,checkLabel:'Modelimi kontrol et'},{
+        taskKind:'section-build-zero',taskLabel:'Sıfırlı sayıyı modelde kur',visual:{type:'base1000-build-interactive',target:zeroCase.n,maxHundreds:10,maxTens:9,maxOnes:9},
+        hint:'Olmayan basamak için blok ekleme.',explain:zeroCase.n+' = '+zeroCase.hundreds+' yüzlük + '+zeroCase.tens+' onluk + '+zeroCase.ones+' birlik.'
+      });
+    }
+    if(taskIndex%4===3){
+      return qTask('number1000','build','1000 sayısını yalnız yüzlük bloklarla kur.','10|0|0',{kind:'manipulative',interaction:'base1000-build',expectedValue:'10|0|0',checkLabel:'Modelimi kontrol et'},{
+        taskKind:'section-build-thousand',taskLabel:'10 yüzlüğü 1000 olarak kur',visual:{type:'base1000-build-interactive',target:1000,maxHundreds:10,maxTens:0,maxOnes:0},
+        hint:'Bir yüzlük 100 eder.',explain:'10 yüzlük = 1000.'
+      });
+    }
+    const q=genNumber1000('build',d,rng,concept);
+    q.taskKind=taskIndex%4===0?'section-build-number':'section-build-number-alt';
+    if(taskIndex%4===1) q.prompt='Sayı kartı '+x.n+'. Aynı değeri yüzlük, onluk ve birlik bloklarıyla oluştur.';
+    return q;
+  }
+
+  if(sectionId==='place-value'){
+    if(taskIndex%4===0) return generateNumber1000LearningQuestion('representation','see',d,rng,concept);
+    if(taskIndex%4===1) return generateNumber1000LearningQuestion('reasoning','explain',d,rng,concept);
+    if(taskIndex%4===2){
+      const choices=[
+        x.hundreds*100+' + '+x.tens*10+' + '+x.ones,
+        x.hundreds+' + '+x.tens+' + '+x.ones,
+        x.hundreds*10+' + '+x.tens*100+' + '+x.ones,
+        x.n+' + 10'
+      ];
+      const answer=choices[0];
+      return qBase('number1000','see',x.n+' sayısının basamak değerlerine ayrılmış biçimi hangisidir?',answer,semanticChoices(answer,choices.slice(1),rng),{
+        taskKind:'section-expanded-form',taskLabel:'Sayıyı basamak değerlerine ayır',visual:{type:'numbercard',n:x.n},
+        hint:'Yüzlük rakamını 100 ile, onluk rakamını 10 ile düşün.',explain:x.n+' = '+answer+'.'
+      });
+    }
+    const missing=zeroCase.tens===0?'onluk':'birlik';
+    return qBase('number1000','explain',zeroCase.n+' sayısında 0 neden yazılmıştır?','O basamakta hiç '+missing+' olmadığını gösterir',semanticChoices('O basamakta hiç '+missing+' olmadığını gösterir',['Sayının daha büyük olduğunu gösterir','0 her zaman birlik demektir','Yüzlük basamağını siler'],rng),{
+      taskKind:'section-zero-role',taskLabel:'0’ın basamaktaki rolünü açıkla',visual:{type:'base1000',...hto(zeroCase.n)},
+      hint:'Modelde hangi tür blok hiç yok?',explain:'0, '+missing+' basamağında hiç '+missing+' olmadığını gösterir.'
+    });
+  }
+
+  if(sectionId==='read-write'){
+    if(taskIndex%4===0) return generateNumber1000LearningQuestion('symbol','symbol',d,rng,concept);
+    if(taskIndex%4===1){
+      const answer=trNumberWord(x.n);
+      const distractors=[
+        trNumberWord(Math.max(100,x.n-10)),
+        trNumberWord(Math.min(1000,x.n+10)),
+        trNumberWord(Math.max(100,x.n-100))
+      ];
+      return qBase('number1000','symbol',x.n+' sayısının sözcüklerle yazılışı hangisidir?',answer,semanticChoices(answer,distractors,rng),{
+        taskKind:'section-numeral-to-word',taskLabel:'Rakamdan sayı sözcüğünü seç',visual:{type:'numbercard',n:x.n},
+        hint:'Önce yüzlük kısmını, sonra onluk ve birlik kısmını oku.',explain:x.n+' = '+answer+'.'
+      });
+    }
+    if(taskIndex%4===2){
+      const z=zeroCase;
+      const answer=trNumberWord(z.n);
+      return qBase('number1000','symbol',z.n+' sayısını doğru okuyan seçenek hangisidir?',answer,semanticChoices(answer,[answer+' sıfır','sıfır '+answer,trNumberWord(Math.max(100,z.n+10))],rng),{
+        taskKind:'section-zero-reading',taskLabel:'0 bulunan sayıyı doğru oku',visual:{type:'numbercard',n:z.n},
+        hint:'Boş basamak okunurken ayrıca “sıfır” sözcüğü eklenmez.',explain:z.n+' = '+answer+'.'
+      });
+    }
+    const y=concept.symbol;
+    return qTask('number1000','symbol','“'+trNumberWord(y.n)+'” ifadesini rakamlarla yaz.',y.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Yazdığımı kontrol et'},{
+      taskKind:'section-word-production',taskLabel:'Sayı sözcüğünü rakama dönüştür',hint:'Yüzlük, onluk ve birlik parçalarını sırayla yerleştir.',explain:'“'+trNumberWord(y.n)+'” = '+y.n+'.'
+    });
+  }
+
+  if(sectionId==='explain-place'){
+    if(taskIndex%4===0){
+      return qBase('number1000','explain','444 sayısındaki üç tane 4 neden aynı değerde değildir?','Bulundukları basamaklar farklıdır',semanticChoices('Bulundukları basamaklar farklıdır',['Rakamların şekilleri farklıdır','Her 4 her zaman 4 eder','Sayı soldan sağa küçülür'],rng),{
+        taskKind:'section-same-digit-reason',taskLabel:'Aynı rakamın farklı değerini açıkla',visual:{type:'numbercard',n:444},
+        hint:'400, 40 ve 4’ün hangi basamaklarda olduğunu düşün.',explain:'444 = 400 + 40 + 4; rakam aynı, basamak farklıdır.'
+      });
+    }
+    if(taskIndex%4===1){
+      return qBase('number1000','explain','304 sayısında onluk basamağında neden 0 vardır?','Hiç onluk yoktur',semanticChoices('Hiç onluk yoktur',['3 onluk vardır','4 onluk vardır','0 yüzlük vardır'],rng),{
+        taskKind:'section-zero-explanation',taskLabel:'Boş basamağı açıkla',visual:{type:'base1000',...hto(304)},hint:'Modelde onluk çubuğu var mı?',explain:'304 = 3 yüzlük + 0 onluk + 4 birlik.'
+      });
+    }
+    if(taskIndex%4===2){
+      return qBase('number1000','explain','10 onluk bir araya geldiğinde ne oluşur?','1 yüzlük',semanticChoices('1 yüzlük',['1 birlik','10 yüzlük','1000'],rng),{
+        taskKind:'section-ten-to-hundred',taskLabel:'Onluk-yüzlük ilişkisini açıkla',hint:'10 tane 10, 100 eder.',explain:'10 onluk = 1 yüzlük = 100.'
+      });
+    }
+    return generateNumber1000LearningQuestion('reasoning','explain',d,rng,concept);
+  }
+
+  if(sectionId==='transfer-number'){
+    const y=concept.transfer;
+    const contexts=[
+      ['Bir depoda ',' yüzlük kutu, ',' onluk paket ve ',' tek parça var. Toplam kaç parça vardır?'],
+      ['Bir okulda ',' yüzlük deste, ',' onluk deste ve ',' tek kart var. Toplam kaç kart vardır?'],
+      ['Bir arşivde ',' yüzlük klasör grubu, ',' onluk grup ve ',' tek klasör var. Toplam kaç klasör vardır?'],
+      ['Bir oyunda ',' yüzlük puan, ',' onluk puan ve ',' birlik puan toplandı. Toplam puan kaçtır?']
+    ];
+    const t=contexts[taskIndex%contexts.length];
+    return qTask('number1000','transfer',t[0]+y.hundreds+t[1]+y.tens+t[2]+y.ones+t[3],y.n,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Toplamımı kontrol et'},{
+      taskKind:'section-number-transfer',taskLabel:'Basamak değerini yeni bağlama taşı',hint:'Yüzlükleri 100, onlukları 10 olarak düşün.',explain:(y.hundreds*100)+' + '+(y.tens*10)+' + '+y.ones+' = '+y.n+'.'
+    });
+  }
+
+  const mixed=[
+    ()=>generateNumber1000LearningQuestion('practice','symbol',d,rng,concept,{practiceIndex:0}),
+    ()=>generateNumber1000LearningQuestion('representation','see',d,rng,concept),
+    ()=>generateNumber1000LearningQuestion('reasoning','explain',d,rng,concept),
+    ()=>generateNumber1000LearningQuestion('context','transfer',d,rng,concept)
+  ];
+  const q=mixed[taskIndex%mixed.length]();
+  q.taskKind='section-varied-'+q.taskKind;
+  return q;
+}
+
+function compareDecisionPlace(a,b){
+  const ad=[Math.floor(a/100),Math.floor((a%100)/10),a%10], bd=[Math.floor(b/100),Math.floor((b%100)/10),b%10];
+  const labels=['Yüzlük','Onluk','Birlik'];
+  for(let i=0;i<3;i++) if(ad[i]!==bd[i]) return {index:i,label:labels[i],aDigit:ad[i],bDigit:bd[i]};
+  return {index:-1,label:'Hepsi aynı',aDigit:null,bDigit:null};
+}
+function compareTriple(rng){
+  const pool=[...new Set(compare1000Cases().flatMap(z=>[z.a,z.b]))];
+  const vals=shuffled(pool,rng).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3);
+  return {values:vals,ordered:[...vals].sort((a,b)=>a-b)};
+}
+function comparisonSymbolQuestion(a,b,rng,taskKind='section-symbol'){
+  const relation=a===b?'=':a>b?'>':'<';
+  const opts=shuffled(['<','>','='].map(symbol=>({value:symbol,visual:{type:'equation',text:symbol},ariaLabel:symbol==='<'?'küçüktür':symbol==='>'?'büyüktür':'eşittir'})),rng);
+  return qTask('compareOrder1000','symbol',a+' __ '+b+' boşluğuna hangi karşılaştırma işareti gelir?',relation,{kind:'visual-choice',options:opts},{
+    taskKind,taskLabel:'Karşılaştırma işaretini kullan',visual:{type:'equation',text:a+' __ '+b},
+    hint:'Önce cümleyi “küçüktür, büyüktür veya eşittir” diye söyle.',explain:compareOrderReason(a,b)+' Sembolle: '+a+' '+relation+' '+b+'.'
+  });
+}
+function compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const d=clamp(difficulty,1,4);
+  const concept=createConceptInstance('compareOrder1000',d,rng);
+  const x=concept.anchor;
+  const equalCases=compare1000Cases().filter(z=>z.a===z.b);
+  const equalCase=choice(equalCases,rng);
+
+  if(sectionId==='compare-places'){
+    if(taskIndex%4===0){
+      const place=compareDecisionPlace(x.a,x.b);
+      const answer=place.label;
+      return qBase('compareOrder1000','see',x.a+' ile '+x.b+' karşılaştırılırken ilk hangi basamak karar verir?',answer,semanticChoices(answer,['Yüzlük','Onluk','Birlik','Hepsi aynı'].filter(v=>v!==answer),rng),{
+        taskKind:'section-decision-place',taskLabel:'Karar veren basamağı bul',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},
+        hint:'Soldan başla ve ilk farklı basamakta dur.',explain:place.index<0?'Bütün basamaklar aynıdır.':place.label+' basamağı ilk farklı basamaktır.'
+      });
+    }
+    if(taskIndex%4===1){
+      const place=compareDecisionPlace(x.a,x.b);
+      if(place.index<0) return qBase('compareOrder1000','see',x.a+' ile '+x.b+' karşılaştırıldığında sonuç nedir?','aynıdır',semanticChoices('aynıdır',['daha küçüktür','daha büyüktür','karşılaştırılamaz'],rng),{taskKind:'section-place-equal',taskLabel:'Eşit basamakları fark et',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},hint:'Üç basamağı da sırayla karşılaştır.',explain:compareOrderReason(x.a,x.b)});
+      const answer=place.aDigit>place.bDigit?String(place.aDigit):String(place.bDigit);
+      const other=place.aDigit>place.bDigit?String(place.bDigit):String(place.aDigit);
+      return qBase('compareOrder1000','see',place.label+' basamağında hangi rakam daha büyüktür?',answer,semanticChoices(answer,[other,'0','9'].filter(v=>v!==answer),rng),{
+        taskKind:'section-decision-digit',taskLabel:'Karar veren rakamı karşılaştır',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},
+        hint:'Yalnız '+place.label.toLocaleLowerCase('tr-TR')+' basamağına bak.',explain:place.aDigit+' ve '+place.bDigit+' karşılaştırılır.'
+      });
+    }
+    if(taskIndex%4===2) return genCompareOrder1000('see',d,rng,concept);
+    return genCompareOrder1000('build',d,rng,concept);
+  }
+
+  if(sectionId==='verbal-relation'){
+    if(taskIndex%4===2){
+      return qBase('compareOrder1000','see',equalCase.a+', '+equalCase.b+' sayısına göre nasıldır?','aynıdır',semanticChoices('aynıdır',['daha küçüktür','daha büyüktür','karşılaştırılamaz'],rng),{
+        taskKind:'section-verbal-equality',taskLabel:'Eşitliği sözcükle ifade et',visual:{type:'compare-base1000',a:equalCase.a,b:equalCase.b,relation:'?'},
+        hint:'Yüzlük, onluk ve birlikler aynı mı?',explain:equalCase.a+' ve '+equalCase.b+' aynı değerdedir.'
+      });
+    }
+    const a=taskIndex%4===1?x.b:x.a, b=taskIndex%4===1?x.a:x.b;
+    const answer=a===b?'aynıdır':a<b?'daha küçüktür':'daha büyüktür';
+    return qBase('compareOrder1000','see',a+', '+b+' sayısına göre nasıldır?',answer,semanticChoices(answer,['daha küçüktür','daha büyüktür','aynıdır','karşılaştırılamaz'].filter(v=>v!==answer),rng),{
+      taskKind:'section-verbal-relation',taskLabel:'Karşılaştırmayı sözcükle söyle',visual:{type:'compare-base1000',a,b,relation:'?'},
+      hint:'Yüzlüklerden başlayarak ilk farklı basamağı bul.',explain:compareOrderReason(a,b)
+    });
+  }
+
+  if(sectionId==='comparison-symbols'){
+    if(taskIndex%4===2) return comparisonSymbolQuestion(equalCase.a,equalCase.b,rng,'section-symbol-equality');
+    const a=taskIndex%4===1?x.b:x.a, b=taskIndex%4===1?x.a:x.b;
+    return comparisonSymbolQuestion(a,b,rng,taskIndex%4===3?'section-symbol-mixed':'section-symbol');
+  }
+
+  if(sectionId==='order-numbers'){
+    if(taskIndex%4===0) return genCompareOrder1000('build',d,rng,concept);
+    const triple=compareTriple(rng), [small,mid,large]=triple.ordered;
+    if(taskIndex%4===1){
+      const answer=small+' < '+mid+' < '+large;
+      const distractors=[large+' < '+mid+' < '+small,mid+' < '+small+' < '+large,small+' < '+large+' < '+mid];
+      return qBase('compareOrder1000','build','Sayıları küçükten büyüğe doğru sıralayan seçenek hangisidir?',answer,semanticChoices(answer,distractors,rng),{
+        taskKind:'section-order-three',taskLabel:'Üç sayıyı sırala',hint:'Önce en küçük sayıyı bul, sonra kalan ikisini karşılaştır.',explain:answer+'.'
+      });
+    }
+    if(taskIndex%4===2){
+      return qBase('compareOrder1000','see',triple.values.join(', ')+' sayıları içinde en küçük olan hangisidir?',small,semanticChoices(small,triple.values.filter(v=>v!==small),rng),{
+        taskKind:'section-smallest',taskLabel:'En küçük sayıyı bul',hint:'Yüzlüklerden başlayarak karşılaştır.',explain:'En küçük sayı '+small+'.'
+      });
+    }
+    return qBase('compareOrder1000','see',triple.values.join(', ')+' sayıları içinde en büyük olan hangisidir?',large,semanticChoices(large,triple.values.filter(v=>v!==large),rng),{
+      taskKind:'section-largest',taskLabel:'En büyük sayıyı bul',hint:'Yüzlüklerden başlayarak karşılaştır.',explain:'En büyük sayı '+large+'.'
+    });
+  }
+
+  if(sectionId==='explain-order'){
+    if(taskIndex%4===0) return genCompareOrder1000('explain',d,rng,concept);
+    if(taskIndex%4===1){
+      return qBase('compareOrder1000','explain','917 ile 971 karşılaştırılırken neden onluk basamağına bakılır?','Yüzlük basamakları aynıdır',semanticChoices('Yüzlük basamakları aynıdır',['Birlik basamakları aynıdır','971 üç basamaklıdır','9 her zaman en büyük rakamdır'],rng),{
+        taskKind:'section-why-tens',taskLabel:'Neden sonraki basamağa geçildiğini açıkla',visual:{type:'compare-base1000',a:917,b:971,relation:'?'},
+        hint:'İlk basamakta 9 ve 9’u karşılaştır.',explain:'Yüzlükler aynı olduğu için karar onluklara geçer.'
+      });
+    }
+    if(taskIndex%4===2){
+      return qBase('compareOrder1000','explain','420 ile 421 karşılaştırılırken kararı hangi düşünce verir?','Yüzlük ve onluklar aynı; birlikleri karşılaştırırım',semanticChoices('Yüzlük ve onluklar aynı; birlikleri karşılaştırırım',['Yalnız yüzlüklere bakarım','Sayıların rakam sayısı farklıdır','İşlemi toplama ile yaparım'],rng),{
+        taskKind:'section-why-ones',taskLabel:'Birliklere neden geçildiğini açıkla',visual:{type:'compare-base1000',a:420,b:421,relation:'?'},
+        hint:'4 yüzlük ile 4 yüzlük, sonra 2 onluk ile 2 onluğu karşılaştır.',explain:'İlk iki basamak aynı olduğu için birlikler karar verir.'
+      });
+    }
+    return qBase('compareOrder1000','explain','535 ile 535 neden eşittir?','Yüzlük, onluk ve birliklerin hepsi aynıdır',semanticChoices('Yüzlük, onluk ve birliklerin hepsi aynıdır',['Sadece ilk rakam aynıdır','İki sayı da üç basamaklıdır','Son rakamları 5’tir'],rng),{
+      taskKind:'section-why-equal',taskLabel:'Eşitliği gerekçelendir',visual:{type:'compare-base1000',a:535,b:535,relation:'?'},
+      hint:'Üç basamağı da karşılaştır.',explain:'Her basamak aynı olduğu için iki sayı aynı değerdedir.'
+    });
+  }
+
+  const y=concept.transfer;
+  const contexts=[
+    ['İki depoda ',' ve ',' ürün var. Daha çok ürünü olan depoda kaç ürün vardır?','larger'],
+    ['İki sınıf ',' ve ',' puan aldı. Daha yüksek puan kaçtır?','larger'],
+    ['İki rafta ',' ve ',' kitap var. Daha az kitap bulunan rafta kaç kitap vardır?','smaller'],
+    ['İki parkur ',' ve ',' metre. Daha kısa parkur kaç metredir?','smaller']
+  ];
+  const t=contexts[taskIndex%contexts.length];
+  const answer=t[3]==='larger'?y.larger:y.smaller;
+  return qTask('compareOrder1000','transfer',t[0]+y.a+t[1]+y.b+t[2],answer,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Karşılaştırmayı kontrol et'},{
+    taskKind:'section-order-transfer',taskLabel:'Karşılaştırmayı yeni bağlama taşı',hint:'Sayıları soldan sağa karşılaştır.',explain:(t[3]==='larger'?y.larger+' daha büyüktür.':y.smaller+' daha küçüktür.')
+  });
+}
+export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
+  let q;
+  if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else throw new Error('No section practice generator for '+skillId+'/'+sectionId);
+  return lessonPracticeFinalize(q,sectionId,taskIndex);
 }
 export function generateLearningQuestion(skillId,phase,representation,difficulty=1,rng=Math.random,conceptInstance=null,options={}){
   let q;

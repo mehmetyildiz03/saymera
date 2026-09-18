@@ -49,3 +49,8 @@ assert.equal(snap.practice.sections[0].nativeCorrect,3);
 assert.ok(snap.practice.sections[0].completedAt);
 
 console.log('lesson center: PASS (Learn / sectioned Practice / due Review + real progress)');
+
+assert.ok(app.includes("section.cycleAttempts||0"),'practice resume must use current section cycle');
+assert.ok(app.includes("PRACTICE_SECTION_BASE_TASKS-cycle"),'unfinished section must schedule only remaining base tasks');
+assert.ok(app.includes("resetPracticeSectionCycle"),'exhausted incomplete cycle must be retryable without erasing lifetime evidence');
+assert.ok(app.includes("generateLessonPracticeQuestion("),'section labels must control real question generation');
