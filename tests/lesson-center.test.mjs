@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
   defaultState,ensureLearningArchitectureState,ensureSkillState,
-  lessonProgressSnapshot,recordPracticeSectionAttempt
+  lessonProgressSnapshot,recordPracticeSectionAttempt,practiceSectionCompletionAllowed
 } from '../engine.mjs';
 
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
@@ -18,14 +18,15 @@ assert.ok(app.includes("channel==='practice'"),'Practice channel missing');
 assert.ok(app.includes("channel==='review'"),'Review channel missing');
 assert.ok(app.includes('PRACTICE_SECTION_BASE_TASKS=4'),'practice section base task contract missing');
 assert.ok(app.includes('PRACTICE_SECTION_MAX_TASKS=6'),'practice recovery cap missing');
-assert.ok(app.includes('projectedCorrect>=3'),'practice section needs at least 3 correct');
-assert.ok(app.includes('correct&&projectedAttempts>=PRACTICE_SECTION_BASE_TASKS'),'final response must be correct for section completion');
+assert.ok(app.includes('practiceSectionCompletionAllowed(projectedAttempts,projectedCorrect,correct)'),'app must delegate completion to the engine-owned gate');
+assert.equal(practiceSectionCompletionAllowed(4,3,true),true,'practice section needs at least 3 correct');
+assert.equal(practiceSectionCompletionAllowed(4,3,false),false,'final response must be correct for section completion');
 assert.ok(app.includes('appendPracticeSectionRecovery()'),'incomplete section must receive short recovery work');
 assert.ok(app.includes('recordPracticeSectionAttempt'),'native practice progress must persist');
 assert.ok(app.includes("practiceSectionState(snapshot,index)"),'practice sections need sequential access');
 assert.ok(app.includes("snapshot.review.status==='due'"),'Review must only become an active task when due');
 assert.ok(app.includes('lessonCenterReturn:!!lessonLaunch'),'Lesson Center work must return to the center');
-assert.ok(app.includes("session?.lessonReplay?0:saved"),'completed reference lessons must replay from the beginning without clearing progress');
+assert.ok(app.includes("session?.lessonReplayStep!=null")&&app.includes("session?.lessonReplay?0:saved"),'completed reference lessons must replay from the beginning and inspector may target a step');
 assert.ok(app.includes('lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now()'),'replay must preserve original lesson completion time');
 assert.match(css,/\.lesson-channel-grid/);
 assert.match(css,/\.lesson-practice-row\.current/);
