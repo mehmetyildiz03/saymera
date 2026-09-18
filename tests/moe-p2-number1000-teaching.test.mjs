@@ -25,12 +25,12 @@ assert.ok(app.includes("KENDİN DENE"),'independent check stage must remain expl
 assert.ok(app.includes("$('#practiceCounter').textContent=`BİRLİKTE ${at+1} / ${Math.max(1,guided.length)}`"),'header must use stage progress rather than global question count');
 
 assert.ok(app.includes('lesson-reveal-card'),'bundle result itself must be the reveal target');
-assert.ok(app.includes('lesson-core-equation'),'mathematical connection must live inside the teaching visual');
+assert.ok(app.includes('lesson-insight'),'mathematical conclusion must live inside the central teaching visual');
 assert.ok(app.includes('lesson-digit-arrow'),'place-value digit-to-card arrows must be present');
 assert.ok(app.includes('lesson-word-reveal'),'number reading must reveal word parts directly');
 assert.ok(app.includes('lesson-word-build'),'MOE read/write objective must include digital word construction');
 assert.ok(!app.includes('id="lessonStepAction"'),'reference lesson must not depend on detached reveal buttons');
-assert.match(css,/\.lesson-core-equation/);
+assert.match(css,/\.lesson-insight/);
 assert.match(css,/\.lesson-word-build/);
 
 for(const copy of ['Onar onar 100’e kadar sayalım.','Yüzer yüzer 1000’e kadar sayalım.','10 sıra × 10 nokta = 100 nokta','3 yüzlük + 4 onluk + 7 birlik = 347','304 = 300 + 0 + 4']) assert.ok(app.includes(copy),'missing research-backed teaching content: '+copy);
