@@ -6,7 +6,7 @@ const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const engine=fs.readFileSync(new URL('../engine.mjs',import.meta.url),'utf8');
 const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 
-assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000'])"),'compare/order must teach before checking');
+assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000'])"),'compare/order must teach before checking');
 assert.ok(app.includes('const COMPARE_ORDER_LESSON_VERSION=2'),'compare/order lesson must be versioned');
 assert.ok(app.includes("if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }"),'compare/order must use dedicated lesson renderer');
 for(const id of ['compare-hundreds','compare-tens','compare-ones','compare-equal','symbol-meaning-match','symbol-bridge','order-three']) assert.ok(app.includes("id:'"+id+"'"),'missing compare lesson step '+id);
