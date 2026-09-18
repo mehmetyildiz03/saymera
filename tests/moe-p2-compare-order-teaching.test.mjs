@@ -16,7 +16,7 @@ assert.ok(app.includes("['number1000','compareOrder1000'].includes(q.skillId)"),
 assert.ok(!app.includes('Y ·'),'abbreviated place-value labels must not return');
 assert.ok(app.includes('<small>Yüzlük</small>')&&app.includes('<small>Onluk</small>')&&app.includes('<small>Birlik</small>'),'full place-value labels required');
 assert.ok(!engine.includes("['=', '+']"),'addition must not be a comparison distractor');
-assert.ok(engine.includes("semanticChoices(y.relation,['<','>','='].filter"),'symbol options must be comparison relations only');
+assert.ok(engine.includes("const opts=shuffled(['<','>','='].map"),'symbol options must be comparison relations only');
 assert.ok(engine.includes("`${x.a}, ${x.b}'ye göre nasıldır?`"),'visual comparison must reinforce verbal relation');
 assert.match(css,/\.compare-place-table/); assert.match(css,/\.compare-symbol-cards/); assert.match(css,/\.compare-order-chip/);
 assert.match(css,/\.lesson-unit-hundred\{[\s\S]*background-size:10% 100%,100% 10%/,'lesson hundred must render 10x10 cells');
