@@ -1,0 +1,33 @@
+name: Apply SAYMERA v1.6.1 teaching hotfix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v1-6-1-hotfix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Apply hotfix
+        run: python3 .maintenance/v1.6.1-hotfix/apply.py
+      - name: Run full test suite
+        run: npm test
+      - name: Commit hotfix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix P2 teaching interactions" || exit 0
+          git push
