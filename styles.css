@@ -630,3 +630,57 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .inspector-checks small{font-size:8px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}
 @media(max-width:980px){.inspector-grid{grid-template-columns:1fr 1fr}.inspector-panel.inspector-audit{grid-column:1/-1}}
 @media(max-width:699px){.inspector-grid{grid-template-columns:1fr}.inspector-panel.inspector-audit{grid-column:auto}.inspector-checks{grid-template-columns:1fr}.inspector-launcher{bottom:78px}}
+
+/* v1.9.0 — researched P2 number-pattern reference lesson */
+.pattern-lesson-stage{display:flex;flex-direction:column;min-height:100%}
+.pattern-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.pattern-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:7px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.pattern-section-track span.active{background:var(--navy);border-color:var(--navy);color:white}
+.pattern-lesson-visual{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px 0}
+.pattern-lesson-core{width:min(820px,100%);display:grid;gap:14px;justify-items:center}
+.pattern-transition{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:10px;align-items:center;width:100%}
+.pattern-transition-arrow{font-size:24px;font-weight:900;color:var(--muted);text-align:center}
+.pattern-place-board{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:360px}
+.pattern-place-cell{min-height:74px;border-radius:16px;background:var(--paper);border:1px solid var(--line);display:grid;place-items:center;align-content:center;gap:4px;transition:.18s}
+.pattern-place-cell small{font-size:7px;font-weight:950;text-transform:uppercase;color:var(--muted)}
+.pattern-place-cell strong{font-size:28px;color:var(--navy)}
+.pattern-place-cell.changed{background:var(--teal-soft);border-color:#93cbbd;box-shadow:inset 0 0 0 2px rgba(47,153,135,.12)}
+.pattern-after-number{min-height:74px;border-radius:18px;border:1px dashed var(--line-strong);background:var(--paper-2);display:grid;place-items:center;align-content:center;padding:8px}
+.pattern-after-number>strong{font-size:28px;color:var(--muted)}.pattern-after-number>small{font-size:8px;color:var(--muted)}
+.pattern-action-zone{display:grid;gap:10px;width:100%;justify-items:center}
+.pattern-action-targets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.pattern-action-target{min-height:64px;border:1px solid var(--line);border-radius:15px;background:var(--paper-2);display:grid;gap:3px;place-items:center;color:var(--navy)}
+.pattern-action-target span{font-size:8px;font-weight:950;text-transform:uppercase;color:var(--muted)}.pattern-action-target b{font-size:10px}
+.pattern-action-target.filled{background:var(--teal-soft);border-color:#9bcfc2}.pattern-action-target.wrong,.pattern-rule-slot.wrong,.pattern-number-slot.wrong{animation:lessonNudge .28s}
+.pattern-drag-chip,.pattern-rule-chip,.pattern-number-chip{touch-action:none;user-select:none;min-height:44px;border:1px solid #b9d6cf;border-radius:14px;background:#eff8f5;color:#165f55;padding:0 13px;font-size:10px;font-weight:950;box-shadow:0 4px 12px rgba(47,153,135,.06)}
+.pattern-drag-chip.dragging,.pattern-rule-chip.dragging,.pattern-number-chip.dragging{position:relative;z-index:20;box-shadow:0 12px 28px rgba(25,54,75,.18)}
+.pattern-drag-chip.placed,.pattern-rule-chip.placed,.pattern-number-chip.placed{opacity:.45}
+.pattern-lesson-result{opacity:0;transform:translateY(5px);transition:.18s;min-height:40px;padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:11px;font-weight:900;text-align:center}
+.pattern-lesson-result.revealed{opacity:1;transform:none}
+#patternLessonHelp{margin:0;color:var(--muted);font-size:9px;font-weight:780;text-align:center;line-height:1.4}
+.pattern-track-sequence{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
+.pattern-track-number .pattern-place-cell{min-height:58px}.pattern-track-number .pattern-place-cell strong{font-size:21px}
+.pattern-place-choices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.pattern-place-choice{min-width:96px;min-height:44px;border:1px solid var(--line);border-radius:14px;background:var(--paper-2);font-size:10px;font-weight:950;color:var(--navy)}
+.pattern-place-choice.selected{background:var(--teal-soft);border-color:#9bcfc2;color:#17695d}.pattern-place-choice.wrong{animation:lessonNudge .28s}
+.pattern-sequence-strip{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;width:100%}
+.pattern-sequence-strip span,.pattern-number-slot{min-width:70px;min-height:54px;border-radius:15px;background:var(--paper);border:1px solid var(--line);display:grid;place-items:center;font-size:20px;font-weight:950;color:var(--navy)}
+.pattern-sequence-strip i{font-style:normal;color:var(--muted);font-weight:900}
+.pattern-sequence-strip.compact span{min-width:60px;min-height:46px;font-size:17px}
+.pattern-rule-slot{width:min(330px,100%);min-height:62px;border:1px dashed #93bdb4;border-radius:17px;background:var(--paper-2);display:grid;place-items:center;gap:2px;padding:8px}
+.pattern-rule-slot small{font-size:7px;font-weight:950;color:var(--muted);letter-spacing:.1em}.pattern-rule-slot strong{font-size:11px;color:var(--navy)}
+.pattern-rule-slot.filled,.pattern-number-slot.filled{background:var(--teal-soft);border-style:solid;border-color:#93cbbd}
+.pattern-rule-bank,.pattern-number-bank{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.pattern-double-sequence{display:grid;gap:8px;width:100%}
+@media(min-width:700px) and (max-height:1024px){
+  .pattern-place-cell{min-height:62px}.pattern-place-cell strong{font-size:23px}
+  .pattern-track-number .pattern-place-cell{min-height:48px}.pattern-track-number .pattern-place-cell strong{font-size:18px}
+  .pattern-sequence-strip span,.pattern-number-slot{min-height:46px;font-size:18px}
+  .pattern-lesson-core{gap:10px}
+}
+@media(max-width:699px){
+  .pattern-transition{grid-template-columns:1fr;justify-items:center}.pattern-transition-arrow{transform:rotate(90deg)}
+  .pattern-track-sequence{grid-template-columns:repeat(2,1fr)}
+  .pattern-action-targets{grid-template-columns:1fr}
+  .pattern-place-cell{min-height:58px}.pattern-place-cell strong{font-size:22px}
+}
