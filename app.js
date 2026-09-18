@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit, patternContinuationRule
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -409,19 +409,21 @@ function renderCompareOrderLessonStep(skill,index=null){
   next?.addEventListener('click',()=>completeCompareOrderLessonStep(skill,at));
 }
 
-const PATTERN1000_LESSON_VERSION=2;
+const PATTERN1000_LESSON_VERSION=3;
 const PATTERN1000_SECTIONS=['DEĞİŞİM','BASAMAK','KURAL','SÜRDÜR','EKSİK SAYI'];
 const PATTERN1000_LESSON_STEPS=[
   {id:'one-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:244,placeIndex:2,action:'1 birlik ekle',title:'1 daha = 1 birlik daha.',body:'243’ten 244’e geçerken miktara bir birlik eklenir. Bu örnekte değişimi birlikler basamağında görürüz.',result:'243’ten 244’e: 1 birlik daha.'},
   {id:'ten-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:253,placeIndex:1,action:'1 onluk ekle',title:'10 daha = 1 onluk daha.',body:'243’e bir onluk eklemek sayıyı 10 büyütür. Bu örnekte yüzlük ve birlik miktarı aynı kalır.',result:'243’ten 253’e: 1 onluk, yani 10 daha.'},
   {id:'hundred-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:343,placeIndex:0,action:'1 yüzlük ekle',title:'100 daha = 1 yüzlük daha.',body:'243’e bir yüzlük eklemek sayıyı 100 büyütür. Bu örnekte onluk ve birlik miktarı aynı kalır.',result:'243’ten 343’e: 1 yüzlük, yani 100 daha.'},
   {id:'ten-less-model',section:'DEĞİŞİM',kind:'place-action',from:654,to:644,placeIndex:1,action:'1 onluk çıkar',title:'10 daha az = 1 onluk daha az.',body:'654’ten 644’e inerken miktardan bir onluk çıkarılır. Bu örnekte değişimi onluklar basamağında görürüz.',result:'654’ten 644’e: 1 onluk, yani 10 daha az.'},
+  {id:'one-less-model',section:'DEĞİŞİM',kind:'place-action',from:654,to:653,placeIndex:2,action:'1 birlik çıkar',title:'1 daha az = 1 birlik daha az.',body:'654’ten bir birlik çıkar. 4 birlikten 3 birlik kalır; sayı 653 olur.',result:'654’ten 653’e: 1 birlik daha az.'},
+  {id:'hundred-less-model',section:'DEĞİŞİM',kind:'place-action',from:654,to:554,placeIndex:0,action:'1 yüzlük çıkar',title:'100 daha az = 1 yüzlük daha az.',body:'654’ten bir yüzlük çıkar. 6 yüzlükten 5 yüzlük kalır; sayı 554 olur.',result:'654’ten 554’e: 1 yüzlük, yani 100 daha az.'},
   {id:'place-change-track',section:'BASAMAK',kind:'place-track',seq:[324,334,344,354],placeIndex:1,title:'Bu örnekte değişimi basamaklarda izle.',body:'Dört sayıyı basamak basamak karşılaştır. Bu dizide düzenli değişimi hangi sütunda gördüğünü seç.',result:'Bu örnekte onluk basamağı her adımda 1 artıyor; sayı 10 büyüyor.'},
   {id:'ten-regroup-boundary',section:'BASAMAK',kind:'regroup-boundary',from:290,to:300,action:'1 onluk ekle',title:'Adım aynı kalır; rakamlar bazen yeniden gruplanır.',body:'290’a 10 daha eklediğimizde 9 onluğa 1 onluk daha gelir. 10 onluk, 1 yüzlük olur; bu yüzden birden fazla rakam değişebilir.',result:'10 daha = 1 onluk daha. 9 onluk + 1 onluk = 10 onluk = 1 yüzlük.'},
   {id:'describe-up-rule',section:'KURAL',kind:'rule-match',seq:[230,330,430,530],rule:'Her adımda 100 daha.',options:['Her adımda 100 daha.','Her adımda 10 daha.','Her adımda 100 daha az.'],title:'Devam ettirmeden önce kuralı söyle.',body:'Sayıları henüz devam ettirme. Önce her geçişte aynı kalan değişimi sözcükle tarif et.',result:'230 → 330 → 430 → 530: her adımda 100 daha.'},
   {id:'describe-down-rule',section:'KURAL',kind:'rule-match',seq:[900,800,700,600],rule:'Her adımda 100 daha az.',options:['Her adımda 10 daha az.','Her adımda 100 daha.','Her adımda 100 daha az.'],title:'Azalan örüntünün kuralını da tarif et.',body:'Bu kez sayılar küçülüyor. Devam etmeden önce değişimin yönünü ve miktarını söyle.',result:'900 → 800 → 700 → 600: her adımda 100 daha az.'},
-  {id:'continue-after-rule',section:'SÜRDÜR',kind:'number-slot',seq:[412,422,432,'?'],answer:442,options:[442,433,532],title:'Kuralı söyledikten sonra örüntüyü sürdür.',body:'Bu dizide her adımda 10 daha. Aynı değişimi bir kez daha uygula.',result:'412 → 422 → 432 → 442.'},
-  {id:'missing-middle',section:'EKSİK SAYI',kind:'number-slot',seq:[675,665,'?',645],answer:655,options:[655,654,665],title:'Eksik sayı dizinin ortasında da olabilir.',body:'Önce kuralı iki taraftan kontrol et. Sonra eksik sayıyı doğru yere yerleştir.',result:'675 → 665 → 655 → 645: her adımda 10 daha az.'},
+  {id:'continue-after-rule',section:'SÜRDÜR',kind:'number-slot',rule:'Her adımda 10 daha.',ruleOptions:['Her adımda 10 daha.','Her adımda 1 daha.','Her adımda 10 daha az.'],seq:[412,422,432,'?'],answer:442,options:[442,433,532],title:'Kuralı söyledikten sonra örüntüyü sürdür.',body:'Bu dizide her adımda 10 daha. Aynı değişimi bir kez daha uygula.',result:'412 → 422 → 432 → 442.'},
+  {id:'missing-middle',section:'EKSİK SAYI',kind:'number-slot',rule:'Her adımda 10 daha az.',ruleOptions:['Her adımda 10 daha.','Her adımda 100 daha az.','Her adımda 10 daha az.'],seq:[675,665,'?',645],answer:655,options:[655,654,665],title:'Eksik sayı dizinin ortasında da olabilir.',body:'Önce kuralı iki taraftan kontrol et. Sonra eksik sayıyı doğru yere yerleştir.',result:'675 → 665 → 655 → 645: her adımda 10 daha az.'},
   {id:'same-rule-transfer',section:'SÜRDÜR',kind:'same-rule',seqA:[245,255,265],seqB:[610,620,630],rule:'Her adımda 10 daha.',options:['Her adımda 10 daha.','Her adımda 100 daha.','Her adımda 10 daha az.'],title:'Başlangıç değişse de kural aynı kalabilir.',body:'İki farklı diziyi karşılaştır. Başlangıç sayıları başka olsa da aynı değişim kullanılabilir.',result:'İki dizide de her adımda 10 daha.'}
 ];
 
@@ -435,9 +437,13 @@ function patternPlaceBoard(n,highlight=-1){
   const labels=['Yüzlük','Onluk','Birlik'], digits=patternDigits(n);
   return '<div class="pattern-place-board" aria-label="'+n+' basamakları">'+digits.map((digit,i)=>'<div class="pattern-place-cell '+(i===highlight?'changed':'')+'" data-pattern-place="'+i+'"><small>'+labels[i]+'</small><strong>'+digit+'</strong></div>').join('')+'</div>';
 }
+function patternQuantityModel(n){
+  const parts=[Math.floor(n/100),Math.floor(n/10)%10,n%10];
+  return '<div class="pattern-quantity-model" aria-label="'+n+' sayısının basamak modeli">'+parts.map((count,i)=>'<div><small>'+count+' '+['yüzlük','onluk','birlik'][i]+'</small>'+amountModel(['hundred','ten','one'][i],count)+'</div>').join('')+'</div>';
+}
 function patternActionVisual(step){
   const targets=['Yüzlük','Onluk','Birlik'].map((label,i)=>'<button type="button" class="pattern-action-target" data-pattern-value="'+(i===step.placeIndex?esc(step.action):'yanlış-'+i)+'"><span>'+label+'</span><b>?</b></button>').join('');
-  return '<div class="pattern-lesson-core"><div class="pattern-transition"><div>'+patternPlaceBoard(step.from)+'</div><span class="pattern-transition-arrow">→</span><div class="pattern-after-number" id="patternAfterNumber"><strong>?</strong><small>sonraki sayı</small></div></div><div class="pattern-action-zone"><div class="pattern-action-targets">'+targets+'</div><button type="button" class="pattern-drag-chip" data-pattern-value="'+esc(step.action)+'">'+esc(step.action)+'</button><p id="patternLessonHelp">Değişim kartını doğru basamağa sürükle • veya karta, sonra basamağa dokun.</p></div><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
+  return '<div class="pattern-lesson-core"><div class="pattern-transition"><div>'+patternPlaceBoard(step.from)+patternQuantityModel(step.from)+'</div><span class="pattern-transition-arrow">→</span><div class="pattern-after-number" id="patternAfterNumber"><strong>?</strong><small>sonraki sayı</small></div></div><div class="pattern-action-zone"><div class="pattern-action-targets">'+targets+'</div><button type="button" class="pattern-drag-chip" data-pattern-value="'+esc(step.action)+'">'+esc(step.action)+'</button><p id="patternLessonHelp">Değişim kartını doğru basamağa sürükle • veya karta, sonra basamağa dokun.</p></div><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
 }
 function patternTrackVisual(step){
   const rows=step.seq.map(n=>'<div class="pattern-track-number" data-pattern-number="'+n+'">'+patternPlaceBoard(n)+'</div>').join('');
@@ -448,7 +454,8 @@ function patternRuleVisual(step){
   const bank=[...step.options].map(rule=>'<button type="button" class="pattern-rule-chip" data-pattern-value="'+esc(rule)+'">'+esc(rule)+'</button>').join('');
   return '<div class="pattern-lesson-core"><div class="pattern-sequence-strip">'+step.seq.map(n=>'<span>'+n+'</span>').join('<i>→</i>')+'</div><button type="button" class="pattern-rule-slot" data-pattern-value="'+esc(step.rule)+'"><small>KURAL</small><strong>?</strong></button><div class="pattern-rule-bank">'+bank+'</div><p id="patternLessonHelp">Kural kartını boşluğa sürükle • veya karta, sonra KURAL alanına dokun.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
 }
-function patternNumberSlotVisual(step){
+function patternNumberSlotVisual(step,ruleConfirmed=false){
+  if(!ruleConfirmed) return patternRuleVisual({...step,options:step.ruleOptions});
   const bank=[...step.options].map(value=>'<button type="button" class="pattern-number-chip" data-pattern-value="'+value+'">'+value+'</button>').join('');
   const seq=step.seq.map(value=>value==='?'
     ?'<button type="button" class="pattern-number-slot" data-pattern-value="'+step.answer+'">?</button>'
@@ -486,7 +493,7 @@ function wirePatternSingleDrop({chipSelector,slotSelector,onSuccess}){
     const value=chip.dataset.patternValue, expected=slot.dataset.patternValue;
     if(value!==expected){
       slot.classList.add('wrong'); setTimeout(()=>slot.classList.remove('wrong'),320);
-      $('#patternLessonHelp').textContent='Bu kart o alana uymuyor. Dizide gerçekten neyin değiştiğini yeniden izle.';
+      $('#patternLessonHelp').textContent=slot.classList.contains('pattern-action-target')?'Birlik 1, onluk 10, yüzlük 100 değerindedir. Kartın miktarını bu basamaklarla eşleştir.':'Her geçişte aynı miktar artmalı veya azalmalı. Komşu sayıları yeniden karşılaştır.';
       return false;
     }
     slot.classList.add('filled');
@@ -544,7 +551,7 @@ function renderPattern1000LessonStep(skill,index=null){
       slotSelector:'.pattern-action-target',
       onSuccess:(_,slot)=>{
         slot.querySelector('b').textContent=step.action;
-        $('#patternAfterNumber').innerHTML=patternPlaceBoard(step.to,step.placeIndex);
+        $('#patternAfterNumber').innerHTML=patternPlaceBoard(step.to,step.placeIndex)+patternQuantityModel(step.to);
         $('#patternLessonHelp').textContent=step.result;
         revealPatternLessonResult(); next.disabled=false;
       }
@@ -580,13 +587,13 @@ function renderPattern1000LessonStep(skill,index=null){
       }
     });
   }else if(step.kind==='number-slot'){
-    wirePatternSingleDrop({
-      chipSelector:'.pattern-number-chip',
-      slotSelector:'.pattern-number-slot',
-      onSuccess:()=>{
+    wirePatternSingleDrop({chipSelector:'.pattern-rule-chip',slotSelector:'.pattern-rule-slot',onSuccess:()=>{
+      $('.pattern-lesson-visual').innerHTML=patternNumberSlotVisual(step,true);
+      $('#patternLessonHelp').textContent=step.rule+' Şimdi eksik sayıyı yerleştir.';
+      wirePatternSingleDrop({chipSelector:'.pattern-number-chip',slotSelector:'.pattern-number-slot',onSuccess:()=>{
         $('#patternLessonHelp').textContent=step.result; revealPatternLessonResult(); next.disabled=false;
-      }
-    });
+      }});
+    }});
   }
   next?.addEventListener('click',()=>completePattern1000LessonStep(skill,at));
 }
@@ -1689,21 +1696,37 @@ function renderLessonIntro(skill){
     session.planIndex++; loadPlanItem();
   });
 }
+function renderPatternRuleGate(q,rule){
+  const options=[1,-1,10,-10,100,-100].map(step=>'Her adımda '+Math.abs(step)+' '+(step>0?'daha.':'daha az.'));
+  $('#patternResponseGate').innerHTML='<p>Önce dizinin kuralını sözcükle söyle.</p><div class="pattern-rule-bank">'+options.map(value=>'<button type="button" class="pattern-rule-chip" data-rule-choice="'+esc(value)+'">'+esc(value)+'</button>').join('')+'</div><p id="patternRuleFeedback" aria-live="polite"></p>';
+  $$('[data-rule-choice]').forEach(button=>button.addEventListener('click',()=>{
+    if(button.dataset.ruleChoice!==rule){
+      if(!usedHint){usedHint=true;session.hints++;}
+      $('#patternRuleFeedback').textContent='İki komşu sayıyı karşılaştır: miktar artıyor mu, azalıyor mu? Değişim 1, 10 veya 100 mü?';
+      return;
+    }
+    $('#visualStage').innerHTML=renderVisual(q.visual,q);
+    $('#patternResponseGate').innerHTML='<p class="teaching-note">'+esc(rule)+'</p>'+renderResponse(q);
+    wireResponse(q); wireManipulator(q);
+  }));
+}
 function renderQuestion(){
   const q=currentQuestion, s=currentSelection.skill, rep=q.representation;
   renderPracticeHeader(s);
+  const patternRule=patternContinuationRule(q);
+  const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
   $('#practiceContent').innerHTML=`
     <div class="question-stage">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''}" id="visualStage">${renderVisual(q.visual,q)}</div>
-      ${renderResponse(q)}
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
-  wireResponse(q);
+  if(patternRule) renderPatternRuleGate(q,patternRule); else wireResponse(q);
   $('#hintButton').addEventListener('click',showHint);
   $('#inlineSpeak')?.addEventListener('click',speakCurrent);
-  wireManipulator(q);
+  if(!patternRule) wireManipulator(q);
   if(state.settings.voice && state.profile==='preschool') setTimeout(speakCurrent,260);
 }
 function renderResponse(q){
@@ -2403,6 +2426,7 @@ function renderVisual(v,q){
     case 'buttons': return `<div class="visual-objects">${Array.from({length:v.n},()=>'<i class="object-token"></i>').join('')}<span style="font-size:26px;color:var(--muted)">…</span></div>`;
     case 'compare': return `<div class="compare-wrap"><div class="compare-group"><span class="compare-label">SOL</span>${Array.from({length:v.a},()=>'<i class="dot"></i>').join('')}</div><div class="compare-group"><span class="compare-label">SAĞ</span>${Array.from({length:v.b},()=>'<i class="dot" style="background:var(--blue)"></i>').join('')}</div></div>`;
     case 'partwhole': return `<div class="partwhole"><div class="whole">${v.whole}</div><div class="part">${v.part}</div><div class="part">${v.missing==null?'?':v.missing}</div></div>`;
+    case 'pattern-model-transition': return '<div class="pattern-model-comparison">'+v.items.map(n=>'<div><strong>'+n+'</strong>'+patternQuantityModel(n)+'</div>').join('<span aria-hidden="true">→</span>')+'</div>';
     case 'pattern': return `<div class="pattern-row">${v.items.map(x=>`<span>${esc(x)}</span>`).join('')}<span style="color:var(--muted)">?</span></div>`;
     case 'tenframe': return q?.representation==='build'&&q?.skillId==='make10'?interactiveTenFrame(v.n):tenFrame(v.n,'');
     case 'twentyframe-build-interactive': return interactiveTwentyFrame(v.target);

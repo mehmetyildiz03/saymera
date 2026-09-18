@@ -3538,6 +3538,22 @@ function compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   });
 }
 
+// Derive the rule from the displayed sequence, including internal gaps. The
+// symbol/transfer concept may have a different step from its anchor.
+export function patternContinuationRule(q){
+  if(q.skillId!=='numberPattern1000') return null;
+  const needsRule=q.response?.interaction==='pattern-step'||q.response?.kind==='visual-choice'||
+    /^pattern-(continue|missing|transfer)/.test(q.taskKind||'')||
+    ['symbol-entry','context-transfer'].includes(q.taskKind);
+  if(!needsRule) return null;
+  const values=q.visual?.seq||q.visual?.items||[];
+  const known=values.map((value,index)=>({value,index})).filter(x=>typeof x.value==='number');
+  if(known.length<2) return null;
+  const step=(known[1].value-known[0].value)/(known[1].index-known[0].index);
+  if(![1,10,100].includes(Math.abs(step))) return null;
+  return patternRulePhrase(step);
+}
+
 function patternRulePhrase(step){
   return 'Her adımda '+Math.abs(step)+' '+(step>0?'daha':'daha az')+'.';
 }
@@ -3564,27 +3580,26 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
       const a=x.seq[0], b=x.seq[1];
       const answer=unit;
       q=qBase('numberPattern1000','build',a+' ile '+b+' arasındaki '+Math.abs(x.step)+' büyüklüğündeki adım hangi basamak birimine eşittir?',answer,semanticChoices(answer,['yüzlük','onluk','birlik'].filter(v=>v!==answer),rng),{
-        taskKind:'pattern-unit-size',taskLabel:'Adımı basamak birimiyle eşleştir',visual:{type:'sequence',items:[a,b]},
+        taskKind:'pattern-unit-size',taskLabel:'Adımı basamak birimiyle eşleştir',visual:{type:'pattern-model-transition',items:[a,b]},
         hint:'1, 10 ve 100 miktarlarının birlik, onluk ve yüzlük karşılıklarını düşün.',explain:Math.abs(x.step)+' büyüklüğündeki adım = 1 '+unit+'. Sınırda rakamlar yeniden gruplanabilir.'
       });
     }else if(task===1){
       const answer=x.step>0?'bir '+unit+' ekleniyor':'bir '+unit+' çıkarılıyor';
       const others=['bir yüzlük ekleniyor','bir onluk ekleniyor','bir birlik ekleniyor','bir yüzlük çıkarılıyor','bir onluk çıkarılıyor','bir birlik çıkarılıyor'].filter(v=>v!==answer);
       q=qBase('numberPattern1000','build',x.seq[1]+' sayısı '+x.seq[0]+' sayısından nasıl elde edildi?',answer,semanticChoices(answer,others,rng),{
-        taskKind:'pattern-unit-change',taskLabel:'Bir sonraki sayının model değişimini söyle',visual:{type:'sequence',items:x.seq.slice(0,2)},
+        taskKind:'pattern-unit-change',taskLabel:'Bir sonraki sayının model değişimini söyle',visual:{type:'pattern-model-transition',items:x.seq.slice(0,2)},
         hint:'Adım '+Math.abs(x.step)+' ise bunun kaç birlik, onluk veya yüzlük olduğunu düşün.',explain:rule
       });
     }else if(task===2){
-      const candidates=shuffled([...new Set([x.step,-x.step,x.step>0?10:-10,x.step>0?100:-100,1,-1])],rng).slice(0,4);
-      if(!candidates.includes(x.step)) candidates[0]=x.step;
-      q=qTask('numberPattern1000','build','Bu dizide her sayıdan sonraki sayıya geçişi oluşturacak adımı seç.',x.step,{kind:'manipulative',interaction:'pattern-step',expectedValue:String(x.step),checkLabel:'Adımı kontrol et'},{
-        taskKind:'pattern-step-build',taskLabel:'Sabit değişimi seçerek kur',visual:{type:'pattern-step-interactive',seq:x.seq,candidates:shuffled([...new Set(candidates)],rng)},
-        hint:'Bir komşu sayıdan diğerine ne kadar değiştiğine bak.',explain:rule
+      const target=x.seq[1], model=hto(target);
+      q=qTask('numberPattern1000','build',x.seq[0]+' sayısından başla. '+rule+' Sonraki sayıyı bloklarla kur.',`${model.hundreds}|${model.tens}|${model.ones}`,{kind:'manipulative',interaction:'base1000-build',expectedValue:`${model.hundreds}|${model.tens}|${model.ones}`,checkLabel:'Modeli kontrol et'},{
+        taskKind:'pattern-model-build',taskLabel:'Değişimden sonraki miktarı modelle kur',visual:{type:'base1000-operation-build',a:x.seq[0],b:Math.abs(x.step),op:x.step>0?'+':'−',maxHundreds:10,maxTens:9,maxOnes:9},
+        teachingNote:x.seq[0]+' → ? · '+rule,hint:'Başlangıç miktarına 1 '+unit+' '+(x.step>0?'ekle.':'çıkar.'),explain:rule+' '+x.seq[0]+' → '+target+'.'
       });
     }else{
       const y=concept.symbol, a=y.seq[0],b=y.seq[1];
       q=qTask('numberPattern1000','build',a+' ile '+b+' arasındaki değişim kaçtır?',Math.abs(y.step),{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Değişimi kontrol et'},{
-        taskKind:'pattern-change-amount',taskLabel:'Değişim miktarını bul',visual:{type:'sequence',items:[a,b]},
+        taskKind:'pattern-change-amount',taskLabel:'Değişim miktarını bul',visual:{type:'pattern-model-transition',items:[a,b]},
         hint:'Büyük sayı ile küçük sayı arasındaki farkı düşün.',explain:'Değişim miktarı '+Math.abs(y.step)+'; dizi '+patternDirectionWord(y.step)+'.'
       });
     }

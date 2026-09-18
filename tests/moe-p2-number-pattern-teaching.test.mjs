@@ -8,7 +8,7 @@ const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 
 assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000'])"),'numberPattern1000 must teach before checking');
-assert.ok(app.includes('const PATTERN1000_LESSON_VERSION=2'),'number-pattern lesson must be versioned');
+assert.ok(app.includes('const PATTERN1000_LESSON_VERSION=3'),'number-pattern lesson must be versioned');
 assert.ok(app.includes("if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }"),'number-pattern must use dedicated lesson renderer');
 for(const id of ['one-more-model','ten-more-model','hundred-more-model','ten-less-model','place-change-track','ten-regroup-boundary','describe-up-rule','describe-down-rule','continue-after-rule','missing-middle','same-rule-transfer']){
   assert.ok(app.includes("id:'"+id+"'"),'missing number-pattern teaching step '+id);
@@ -44,3 +44,27 @@ assert.ok(app.includes("title:'Adım aynı kalır; rakamlar bazen yeniden grupla
 assert.ok(app.includes('9 onluk + 1 onluk = 10 onluk = 1 yüzlük'),'290→300 regrouping relation missing');
 assert.ok(!app.includes("title:'10 daha olduğunda onluklar değişir.'"),'do not overgeneralize +10 as only a tens-digit change');
 assert.match(css,/\.pattern-regroup-flow/);
+
+// The rule must match the actual displayed sequence, not an unrelated anchor.
+const {patternContinuationRule,generateQuestion}=await import('../engine.mjs');
+let seed=192; const rng=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
+const seen=new Set();
+for(let i=0;i<200;i++){
+  for(const section of ['continue-sequence','missing-number','transfer-pattern']){
+    const q=generateLessonPracticeQuestion('numberPattern1000',section,i%4,2,rng);
+    const known=q.visual.items.map((n,index)=>({n,index})).filter(x=>typeof x.n==='number');
+    const step=(known[1].n-known[0].n)/(known[1].index-known[0].index);
+    seen.add(step);
+    assert.equal(patternContinuationRule(q),'Her adımda '+Math.abs(step)+' '+(step>0?'daha.':'daha az.'));
+  }
+  for(const rep of ['build','see','symbol','transfer']){
+    assert.ok(patternContinuationRule(generateQuestion('numberPattern1000',rep,2,rng)),'learn/review continuation also needs its own rule');
+  }
+}
+assert.deepEqual([...seen].sort((a,b)=>a-b),[-100,-10,-1,1,10,100]);
+assert.equal(patternContinuationRule(generateQuestion('number1000','symbol',2,rng)),null);
+const modelTask=generateLessonPracticeQuestion('numberPattern1000','model-change',2,2,rng);
+assert.equal(modelTask.response.interaction,'base1000-build');
+assert.equal(modelTask.visual.type,'base1000-operation-build');
+assert.equal(modelTask.answer.split('|').map(Number).reduce((sum,n,i)=>sum+n*[100,10,1][i],0),modelTask.visual.a+(modelTask.visual.op==='+'?1:-1)*modelTask.visual.b);
+console.log('Pattern rule gates: PASS (all six signed steps, gaps, practice and review; model production)');

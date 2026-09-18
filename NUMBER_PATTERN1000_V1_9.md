@@ -52,3 +52,12 @@ The lesson distinguishes **step size** from **which written digits happen to cha
 - +100 means one hundred more.
 
 At a place-value boundary, regrouping can change more than one written digit. For example, 290 → 300 is still “10 more”: 9 tens + 1 ten = 10 tens = 1 hundred. Practice reasoning therefore avoids the false shortcut “+10 changes only the tens digit”.
+
+## v1.9.2 reference audit
+
+- All six signed changes are explicitly taught: ±1, ±10, ±100. Model-change steps show the quantities as hundred grids, ten rods and units before and after the action.
+- Continuation and internal-gap teaching require a correct word rule before number cards appear. Each new practice/review continuation sequence also requires its own rule; the rule is derived from the displayed sequence, including gaps, rather than a potentially different concept anchor.
+- A wrong rule keeps number entry closed and marks subsequent work as supported. A rule selection does not count as a completed practice task.
+- Model practice includes visible base-ten transitions and construction of the resulting quantity with blocks.
+- Browser regression coverage uses Chromium touch input and WebKit pointer/tap input at phone and tablet viewport sizes. These checks simulate devices; they do not establish physical iPhone/iPad compatibility.
+- Inspector progress remains isolated from real localStorage. Completion and curriculum order contracts are unchanged.

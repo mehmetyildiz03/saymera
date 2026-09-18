@@ -699,3 +699,32 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .pattern-regroup-flow>.pattern-transition-arrow{transform:rotate(90deg)}
   .pattern-regroup-model,.pattern-regroup-after{min-height:104px}
 }
+
+/* Number-pattern models keep ten cells per rod and a 10 by 10 hundred. */
+.pattern-quantity-model{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;margin-top:8px}
+.pattern-quantity-model>div{min-width:0;display:grid;align-content:start;gap:6px;text-align:center}
+.pattern-quantity-model small{font-size:11px;color:var(--muted)}
+.pattern-quantity-model .lesson-unit-hundred{width:30px;height:30px;flex:none}
+.pattern-quantity-model .lesson-unit-ten{width:10px;height:50px;flex:none}
+.pattern-quantity-model .lesson-unit-one{width:10px;height:10px;flex:none}
+.pattern-quantity-model .lesson-amount-model{min-height:0;gap:3px}
+.pattern-transition>div{width:100%;min-width:0}
+.pattern-model-comparison{display:grid;grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:12px;align-items:center;width:min(700px,100%)}
+.pattern-model-comparison>div{text-align:center;min-width:0}
+.pattern-model-comparison>div>strong{font-size:24px}
+.pattern-rule-chip.selected,.pattern-number-chip.selected,.pattern-drag-chip.selected{outline:3px solid var(--teal);outline-offset:2px}
+#patternResponseGate>p{text-align:center;font-size:14px;line-height:1.5}
+#patternRuleFeedback{color:var(--navy)}
+@media(max-width:699px){
+  .pattern-action-targets{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .pattern-action-target{min-height:54px;padding:6px}
+  .pattern-transition{grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);gap:5px}
+  .pattern-transition>.pattern-transition-arrow{transform:none}
+  .pattern-place-cell small{font-size:8px}
+  .pattern-place-cell strong{font-size:20px}
+  .pattern-quantity-model .lesson-unit-hundred{width:24px;height:24px}
+  .pattern-quantity-model small{font-size:9px}
+  .pattern-lesson-core{gap:10px}
+  .pattern-rule-chip{font-size:12px;padding:8px 10px}
+  #patternLessonHelp{font-size:12px}
+}
