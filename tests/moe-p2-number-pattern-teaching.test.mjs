@@ -55,6 +55,8 @@ for(let i=0;i<200;i++){
     const known=q.visual.items.map((n,index)=>({n,index})).filter(x=>typeof x.n==='number');
     const step=(known[1].n-known[0].n)/(known[1].index-known[0].index);
     seen.add(step);
+    assert.equal(q.patternStep,step,'metadata must describe this task, not its anchor');
+    assert.equal(q.patternRule,patternContinuationRule(q));
     assert.equal(patternContinuationRule(q),'Her adımda '+Math.abs(step)+' '+(step>0?'daha.':'daha az.'));
   }
   for(const rep of ['build','see','symbol','transfer']){

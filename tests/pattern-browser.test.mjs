@@ -78,7 +78,7 @@ try{
         }
         assert.equal(await page.locator('#patternLessonNext').isEnabled(),true,id+' completion');
         await layout(page);
-        if(['one-more-model','ten-regroup-boundary','missing-middle'].includes(id))await page.screenshot({path:'test-results/'+config.name+'-'+id+'.png',fullPage:true});
+        if(['one-more-model','ten-regroup-boundary','missing-middle'].includes(id))await page.screenshot({path:'test-results/'+config.name+'-'+id+'.png',fullPage:false});
       }
       for(const section of ['continue-sequence','missing-number','transfer-pattern']){
         await openInspector(page);await page.locator('#inspectorPracticeSection').selectOption(section);await tap(page,'#inspectorLaunchPractice');
@@ -93,7 +93,7 @@ try{
         assert.equal(await page.locator('#numberAnswer,[data-answer]').count(),0);
         await page.locator('[data-rule-choice]').filter({hasText:rule}).tap();
         await page.locator('#numberAnswer').waitFor();await layout(page);
-        await page.screenshot({path:'test-results/'+config.name+'-'+section+'.png',fullPage:true});
+        await page.screenshot({path:'test-results/'+config.name+'-'+section+'.png',fullPage:false});
       }
       await openInspector(page);await page.locator('#inspectorPracticeSection').selectOption('model-change');await tap(page,'#inspectorLaunchPractice');
       await page.locator('.pattern-model-comparison').waitFor();
@@ -101,7 +101,7 @@ try{
       assert.equal(await page.evaluate(()=>localStorage.getItem('saymera.math.v2')),saved,'inspector must not write real progress');
       assert.deepEqual(errors,[]);
       console.log(config.name+': PASS (13 learn steps; rule gates; touch/tap; width; isolated progress)');
-    }catch(error){await page.screenshot({path:'test-results/'+config.name+'-failure.png',fullPage:true});throw error;}
+    }catch(error){await page.screenshot({path:'test-results/'+config.name+'-failure.png',fullPage:false});throw error;}
     finally{await browser.close();}
   }
 }finally{server?.kill();}

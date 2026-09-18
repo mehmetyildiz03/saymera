@@ -728,3 +728,5 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .pattern-rule-chip{font-size:12px;padding:8px 10px}
   #patternLessonHelp{font-size:12px}
 }
+/* A rotated full-width grid item otherwise covers the cards below it. */
+.pattern-regroup-flow>.pattern-transition-arrow{width:32px;height:32px;line-height:32px;justify-self:center;pointer-events:none}

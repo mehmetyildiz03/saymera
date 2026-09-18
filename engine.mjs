@@ -3573,7 +3573,7 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const task=taskIndex%4;
   const rule=patternRulePhrase(x.step);
   const unit=patternStepUnit(x.step);
-  let q;
+  let q, appliedStep=x.step;
 
   if(sectionId==='model-change'){
     if(task===0){
@@ -3597,7 +3597,7 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
         teachingNote:x.seq[0]+' → ? · '+rule,hint:'Başlangıç miktarına 1 '+unit+' '+(x.step>0?'ekle.':'çıkar.'),explain:rule+' '+x.seq[0]+' → '+target+'.'
       });
     }else{
-      const y=concept.symbol, a=y.seq[0],b=y.seq[1];
+      const y=concept.symbol, a=y.seq[0],b=y.seq[1]; appliedStep=y.step;
       q=qTask('numberPattern1000','build',a+' ile '+b+' arasındaki değişim kaçtır?',Math.abs(y.step),{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Değişimi kontrol et'},{
         taskKind:'pattern-change-amount',taskLabel:'Değişim miktarını bul',visual:{type:'pattern-model-transition',items:[a,b]},
         hint:'Büyük sayı ile küçük sayı arasındaki farkı düşün.',explain:'Değişim miktarı '+Math.abs(y.step)+'; dizi '+patternDirectionWord(y.step)+'.'
@@ -3622,7 +3622,7 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
     });
   }else if(sectionId==='continue-sequence'){
     if(task===0||task===2){
-      const y=task===0?x:concept.symbol;
+      const y=task===0?x:concept.symbol; appliedStep=y.step;
       q=qTask('numberPattern1000','symbol',y.seq.join(', ')+', … dizisinde sıradaki sayı kaçtır?',y.next,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Sayımı kontrol et'},{
         taskKind:'pattern-continue-entry-'+task,taskLabel:'Tarif edilen kuralı bir adım sürdür',visual:{type:'sequence',items:[...y.seq,'?']},
         hint:'Kuralı bir kez daha uygula: '+patternRulePhrase(y.step),explain:'Sıradaki sayı '+y.next+'.'
@@ -3657,6 +3657,7 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
         hint:'Adımın büyüklüğü 1 mi, 10 mu, 100 mü?',explain:Math.abs(x.step)+' büyüklüğündeki adım = 1 '+unit+'. Bu, her geçişte yalnız o rakamın değişeceği anlamına gelmez.'
       });
     }else if(task===1){
+      appliedStep=10;
       const answer='9 onluk + 1 onluk = 10 onluk = 1 yüzlük olur';
       q=qBase('numberPattern1000','explain','290 → 300 geçişi 10 daha olmasına rağmen neden yüzlük rakamı da değişir?',answer,semanticChoices(answer,['10 daha aslında 100 daha demektir','Onluk basamağı her zaman 0 olmalıdır','300 sayısında birlik olmadığı için'],rng),{
         taskKind:'pattern-explain-regroup',taskLabel:'Sınır geçişinde yeniden gruplamayı açıkla',visual:{type:'sequence',items:[290,300]},
@@ -3676,7 +3677,7 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
       });
     }
   }else if(sectionId==='transfer-pattern'){
-    const y=concept.transfer;
+    const y=concept.transfer; appliedStep=y.step;
     const amount=Math.abs(y.step);
     const contexts=[
       y.step>0?'Bir oyunda her tur aynı miktarda puan ekleniyor.':'Bir oyunda her tur aynı miktarda puan azalıyor.',
@@ -3691,8 +3692,8 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
   }else{
     throw new Error('Unknown numberPattern1000 practice section: '+sectionId);
   }
-  q.patternStep=x.step;
-  q.patternRule=rule;
+  q.patternStep=appliedStep;
+  q.patternRule=patternRulePhrase(appliedStep);
   return q;
 }
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
