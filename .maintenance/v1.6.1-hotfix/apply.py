@@ -16,18 +16,18 @@ replace_once(
 
 replace_once(
     "app.js",
-    "'<span class=\"lesson-kicker\">SINGAPUR P2 · '+esc(step.moe)+'</span>'",
-    "'<span class=\"lesson-kicker\">KONU ANLATIMI · '+(at+1)+'/'+NUMBER1000_LESSON_STEPS.length+'</span>'"
+    "SINGAPUR P2 · '+esc(step.moe)",
+    "KONU ANLATIMI · '+(at+1)+'/'+NUMBER1000_LESSON_STEPS.length"
 )
 
 p=ROOT/"tests/moe-p2-number1000-teaching.test.mjs"
 text=p.read_text(encoding="utf-8")
 needle="assert.ok(app.includes('lessonTaughtAt'));"
-if "lesson-place-card').forEach" not in text:
-    text=text.replace(
-        needle,
-        needle+"\nassert.ok(app.includes(\"$$('.lesson-place-card').forEach\"),'place-value teaching must bind all three cards');\nassert.ok(!app.includes('SINGAPUR P2 ·'),'child UI must not expose curriculum-engine jargon');"
-    )
+addition=needle+"\nassert.ok(app.includes(\"$$('.lesson-place-card').forEach\"),'place-value teaching must bind all three cards');\nassert.ok(!app.includes('SINGAPUR P2 ·'),'child UI must not expose curriculum-engine jargon');"
+if "$$('.lesson-place-card').forEach" not in text:
+    if needle not in text:
+        raise SystemExit("test insertion point not found")
+    text=text.replace(needle,addition,1)
 p.write_text(text,encoding="utf-8")
 
 for p in [ROOT/".github/workflows/apply-v1-6-1-hotfix.yml",ROOT/".maintenance/v1.6.1-hotfix/apply.py"]:
