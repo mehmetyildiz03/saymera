@@ -1,4 +1,4 @@
-# P2 Number Patterns Reference Lesson — v1.9.0
+# P2 Number Patterns Reference Lesson — v1.9.1
 
 ## Research basis
 
@@ -17,16 +17,17 @@ This supports a place-value interpretation of ±1, ±10 and ±100 rather than tr
 
 ## Learn progression
 
-1. 1 more → ones change
-2. 10 more → tens change
-3. 100 more → hundreds change
-4. 10 less → tens decrease
+1. 1 more → one more unit
+2. 10 more → one more ten
+3. 100 more → one more hundred
+4. 10 less → one ten less
 5. Compare a complete sequence by place-value columns
-6. Describe an increasing rule in words
-7. Describe a decreasing rule in words
-8. Continue a sequence only after the rule is explicit
-9. Find a missing internal term and verify from both sides
-10. Recognise the same rule with a different starting number
+6. Cross a place-value boundary explicitly: 290 → 300, where 9 tens + 1 ten regroup as 1 hundred
+7. Describe an increasing rule in words
+8. Describe a decreasing rule in words
+9. Continue a sequence only after the rule is explicit
+10. Find a missing internal term and verify from both sides
+11. Recognise the same rule with a different starting number
 
 Multiplication/skip-count patterns are intentionally excluded from this lesson because multiplication tables occur later in the canonical P2 sequence.
 
@@ -40,3 +41,14 @@ Multiplication/skip-count patterns are intentionally excluded from this lesson b
 - Aynı kuralı yeni durumda kullan
 
 All reference tasks are restricted to step sizes ±1, ±10 and ±100.
+
+
+## Boundary rule
+
+The lesson distinguishes **step size** from **which written digits happen to change**.
+
+- +1 means one unit more.
+- +10 means one ten more.
+- +100 means one hundred more.
+
+At a place-value boundary, regrouping can change more than one written digit. For example, 290 → 300 is still “10 more”: 9 tens + 1 ten = 10 tens = 1 hundred. Practice reasoning therefore avoids the false shortcut “+10 changes only the tens digit”.
