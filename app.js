@@ -47,7 +47,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['number1000']);
+const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -251,6 +251,112 @@ function renderNumber1000LessonStep(skill,index=null){
     });
   }
   next?.addEventListener('click',()=>completeNumber1000LessonStep(skill,at));
+}
+const COMPARE_ORDER_LESSON_VERSION=1;
+const COMPARE_ORDER_SECTIONS=['KARŞILAŞTIR','SEMBOL','SIRALA'];
+const COMPARE_ORDER_LESSON_STEPS=[
+  {id:'compare-hundreds',section:'KARŞILAŞTIR',kind:'place-compare',title:'Önce yüzlüklere bak.',body:'Soldan başlarız. Yüzlükler farklıysa hangi sayının daha büyük olduğunu hemen anlayabiliriz.',a:426,b:581,stopAt:0,result:'581, 426’dan büyüktür. 426, 581’den küçüktür.'},
+  {id:'compare-tens',section:'KARŞILAŞTIR',kind:'place-compare',title:'Yüzlükler aynıysa onluklara geç.',body:'Yüzlükler karar vermiyorsa bir sonraki basamağı karşılaştırırız.',a:917,b:971,stopAt:1,result:'1 onluk, 7 onluktan küçüktür. Bu yüzden 917, 971’den küçüktür.'},
+  {id:'compare-ones',section:'KARŞILAŞTIR',kind:'place-compare',title:'Onluklar da aynıysa birliklere bak.',body:'İlk iki basamak aynıysa kararı birlikler verir.',a:420,b:421,stopAt:2,result:'0 birlik, 1 birlikten küçüktür. Bu yüzden 420, 421’den küçüktür.'},
+  {id:'compare-equal',section:'KARŞILAŞTIR',kind:'place-compare',title:'Bütün basamaklar aynıysa sayılar aynıdır.',body:'Yüzlük, onluk ve birliklerin üçü de aynıysa iki sayı aynı değerdedir.',a:535,b:535,stopAt:2,equal:true,result:'535 ve 535 aynı değerdedir.'},
+  {id:'comparison-symbols',section:'SEMBOL',kind:'symbols',title:'Şimdi karşılaştırma işaretlerini tanıyalım.',body:'Önce anlamını söyle, sonra işareti kullan. İşaretler “küçüktür”, “büyüktür” ve “eşittir” sözlerinin kısa yazımıdır.'},
+  {id:'symbol-bridge',section:'SEMBOL',kind:'symbol-bridge',title:'Sözü işarete bağlayalım.',body:'917, 971’den küçüktür. Bu cümleyi şimdi matematik işaretiyle yazalım.',a:917,b:971,result:'917 < 971'},
+  {id:'order-three',section:'SIRALA',kind:'order-three',title:'Karşılaştırmayı sıralamaya taşı.',body:'Üç sayıyı küçükten büyüğe yerleştir. Yine soldan başlayarak basamakları karşılaştır.',values:[421,419,420],ordered:[419,420,421],result:'419 < 420 < 421. En küçük 419, en büyük 421.'}
+];
+
+function compareOrderSectionTrack(step){
+  return '<div class="compare-section-track">'+COMPARE_ORDER_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function compareDigits(n){ return [Math.floor(n/100),Math.floor((n%100)/10),n%10]; }
+function comparePlaceTable(step){
+  const labels=['Yüzlük','Onluk','Birlik'], a=compareDigits(step.a), b=compareDigits(step.b);
+  return '<div class="compare-place-table">'+labels.map((label,i)=>'<button type="button" class="compare-place-column '+(i===0?'ready':'')+'" data-compare-col="'+i+'"><span>'+label+'</span><div><strong>'+a[i]+'</strong><i>ve</i><strong>'+b[i]+'</strong></div><small>dokun</small></button>').join('')+'</div><div class="compare-place-note" id="comparePlaceNote">Önce yüzlüklere dokun.</div>';
+}
+function compareOrderStepVisual(step){
+  if(step.kind==='place-compare') return '<div class="compare-lesson-core"><div class="compare-number-pair"><strong>'+step.a+'</strong><span>ile</span><strong>'+step.b+'</strong></div>'+comparePlaceTable(step)+'<div class="compare-lesson-result" id="compareLessonResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='symbols') return '<div class="compare-lesson-core"><div class="compare-symbol-cards">'+
+    '<button type="button" class="compare-symbol-card" data-symbol="<"><strong>&lt;</strong><span>küçüktür</span><small>420 &lt; 421</small></button>'+
+    '<button type="button" class="compare-symbol-card" data-symbol=">"><strong>&gt;</strong><span>büyüktür</span><small>421 &gt; 420</small></button>'+
+    '<button type="button" class="compare-symbol-card" data-symbol="="><strong>=</strong><span>eşittir</span><small>420 = 420</small></button>'+
+    '</div><div class="compare-symbol-note" id="compareSymbolNote">Her işarete dokun ve cümlesini oku.</div></div>';
+  if(step.kind==='symbol-bridge') return '<div class="compare-lesson-core"><div class="compare-verbal-bridge"><p><strong>'+step.a+'</strong>, <strong>'+step.b+'</strong>’den <b>küçüktür</b>.</p><div class="compare-symbol-equation"><strong>'+step.a+'</strong><button type="button" id="compareBridgeSymbol">?</button><strong>'+step.b+'</strong></div><small>Sözcükteki “küçüktür” işaretle aynı ilişkiyi anlatır.</small></div><div class="compare-lesson-result" id="compareLessonResult">'+esc(step.result)+'</div></div>';
+  const chips=step.values.map(n=>'<button type="button" class="compare-order-chip" data-order-value="'+n+'">'+n+'</button>').join('');
+  return '<div class="compare-lesson-core"><div class="compare-order-builder"><div class="compare-order-slots" id="compareOrderSlots">'+step.ordered.map((_,i)=>'<button type="button" class="compare-order-slot" data-order-slot="'+i+'">?</button>').join('')+'</div><div class="compare-order-bank">'+chips+'</div><button type="button" class="compare-order-reset" id="compareOrderReset">Baştan sırala</button><p id="compareOrderHelp">Kartları sürükle-bırak • veya karta, sonra yuvaya dokun</p></div><div class="compare-lesson-result" id="compareLessonResult">'+esc(step.result)+'</div></div>';
+}
+function completeCompareOrderLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=COMPARE_ORDER_LESSON_VERSION;
+  if(next>=COMPARE_ORDER_LESSON_STEPS.length){ lc.lessonTaughtAt=Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
+  saveState(); session.lessonStepIndex=next; renderCompareOrderLessonStep(skill,next);
+}
+function revealCompareResult(){ $('#compareLessonResult')?.classList.add('revealed'); }
+function renderCompareOrderLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(COMPARE_ORDER_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?saved:index, step=COMPARE_ORDER_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+COMPARE_ORDER_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/COMPARE_ORDER_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="compare-lesson-stage" data-compare-step="'+esc(step.id)+'">'+compareOrderSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · ADIM '+(at+1)+' / '+COMPARE_ORDER_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="compare-lesson-visual">'+compareOrderStepVisual(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="compareLessonNext" disabled>'+(at===COMPARE_ORDER_LESSON_STEPS.length-1?'Birlikte uygulamaya geç':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const next=$('#compareLessonNext');
+
+  if(step.kind==='place-compare'){
+    const a=compareDigits(step.a), b=compareDigits(step.b), seen=new Set();
+    $$('.compare-place-column').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=Number(btn.dataset.compareCol);
+      if(seen.has(i)||!btn.classList.contains('ready')) return;
+      seen.add(i); btn.classList.add('revealed'); btn.querySelector('small').textContent='karşılaştırıldı';
+      const label=['yüzlük','onluk','birlik'][i];
+      const same=a[i]===b[i];
+      if(same){
+        $('#comparePlaceNote').textContent=a[i]+' '+label+' ile '+b[i]+' '+label+' aynı. '+(i<2?'Bir sonraki basamağa geç.':'Bütün basamaklar aynı.');
+        const nxt=$('.compare-place-column[data-compare-col="'+(i+1)+'"]'); if(nxt) nxt.classList.add('ready');
+        if(i===2){ revealCompareResult(); next.disabled=false; }
+      }else{
+        const relation=a[i]<b[i]?'küçüktür':'büyüktür';
+        $('#comparePlaceNote').textContent=a[i]+' '+label+', '+b[i]+' '+label+'dan '+relation+'. Burada karar verildi.';
+        revealCompareResult(); next.disabled=false;
+      }
+    }));
+  }else if(step.kind==='symbols'){
+    const seen=new Set();
+    $$('.compare-symbol-card').forEach(card=>card.addEventListener('click',()=>{
+      if(seen.has(card.dataset.symbol)) return;
+      seen.add(card.dataset.symbol); card.classList.add('revealed');
+      const symbol=card.dataset.symbol;
+      $('#compareSymbolNote').textContent=symbol==='<'?'Sivri uç küçük sayının, açık taraf büyük sayının tarafındadır.':symbol==='>'?'Açık taraf büyük sayının, sivri uç küçük sayının tarafındadır.':'Eşittir işareti iki değerin aynı olduğunu söyler.';
+      if(seen.size===3) next.disabled=false;
+    }));
+  }else if(step.kind==='symbol-bridge'){
+    $('#compareBridgeSymbol')?.addEventListener('click',()=>{
+      $('#compareBridgeSymbol').textContent='<'; $('#compareBridgeSymbol').classList.add('revealed'); revealCompareResult(); next.disabled=false;
+    });
+  }else{
+    let selected=null,drag=null,sx=0,sy=0;
+    const chips=$$('.compare-order-chip'), slots=$$('.compare-order-slot');
+    const place=(chip,slot)=>{
+      if(!chip||!slot||slot.classList.contains('filled')) return false;
+      const idx=Number(slot.dataset.orderSlot), expected=step.ordered[idx], value=Number(chip.dataset.orderValue);
+      if(value!==expected){ slot.classList.add('wrong'); setTimeout(()=>slot.classList.remove('wrong'),300); $('#compareOrderHelp').textContent='Bu yuvada '+expected+' olmalı. Sayıları yeniden soldan karşılaştır.'; return false; }
+      slot.textContent=value; slot.classList.add('filled'); chip.disabled=true; chip.classList.add('placed'); selected=null;
+      chips.forEach(x=>x.classList.remove('selected'));
+      if(slots.every(x=>x.classList.contains('filled'))){ $('#compareOrderHelp').textContent='419, 420 ve 421 küçükten büyüğe sıralandı.'; revealCompareResult(); next.disabled=false; }
+      else $('#compareOrderHelp').textContent='Bu sayı yerine yerleşti. Sıradaki sayıyı yerleştir.';
+      return true;
+    };
+    chips.forEach(chip=>{
+      chip.addEventListener('click',()=>{ if(chip.disabled)return; selected=selected===chip?null:chip; chips.forEach(x=>x.classList.toggle('selected',x===selected)); $('#compareOrderHelp').textContent=selected?'Şimdi doğru yuvaya dokun.':'Kart seçimi kaldırıldı.'; });
+      chip.addEventListener('pointerdown',ev=>{ if(chip.disabled)return; drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');});
+      chip.addEventListener('pointermove',ev=>{ if(drag!==chip)return; chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.04)';});
+      chip.addEventListener('pointerup',ev=>{ if(drag!==chip)return; const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest?.('.compare-order-slot'); chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip,target);drag=null;});
+      chip.addEventListener('pointercancel',()=>{ if(drag===chip){chip.style.transform='';chip.classList.remove('dragging');drag=null;} });
+    });
+    slots.forEach(slot=>slot.addEventListener('click',()=>{ if(selected) place(selected,slot); }));
+    $('#compareOrderReset')?.addEventListener('click',()=>{ slots.forEach(x=>{x.textContent='?';x.className='compare-order-slot';}); chips.forEach(x=>{x.disabled=false;x.classList.remove('placed','selected');x.style.transform='';}); selected=null;drag=null;$('#compareLessonResult')?.classList.remove('revealed');next.disabled=true;$('#compareOrderHelp').textContent='Kartları sürükle-bırak • veya karta, sonra yuvaya dokun';});
+  }
+  next?.addEventListener('click',()=>completeCompareOrderLessonStep(skill,at));
 }
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
@@ -594,6 +700,12 @@ function startSession(){
     focus.state.learningCycle.lessonVersion=NUMBER1000_LESSON_VERSION;
     saveState();
   }
+  if(focus.skill.id==='compareOrder1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==COMPARE_ORDER_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=COMPARE_ORDER_LESSON_VERSION;
+    saveState();
+  }
   const focusDifficulty=focus.state.difficulty||1;
   const focusConcept=createConceptInstance(focus.skill.id,focusDifficulty,Math.random);
   const plan=buildSessionPlan(focus);
@@ -739,6 +851,7 @@ function renderPracticeHeader(skill){
 }
 function renderLessonIntro(skill){
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
+  if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   currentQuestion=null;
   renderPracticeHeader(skill);
   const bp=lessonBlueprintFor(skill);
@@ -1280,7 +1393,7 @@ function answerQuestion(value,button){
   session.effortUsed+=(q.effort||1)*(usedHint?1.12:1);
   if(correct) session.correct++; else session.wrong++;
   saveState();
-  const lessonFlow=q.skillId==='number1000'&&currentSelection?.kind!=='retention';
+  const lessonFlow=['number1000','compareOrder1000'].includes(q.skillId)&&currentSelection?.kind!=='retention';
   setTimeout(()=>lessonFlow?renderLessonFlowFeedback(correct):(correct?renderCorrectFeedback():renderBridgeFeedback()),260);
 }
 function feedbackMathStatement(q){
@@ -1658,7 +1771,7 @@ function base1000Visual(hundreds=0,tens=0,ones=0){
   return `<div class="sg-base1000"><div class="sg-place-column hundreds"><small>YÜZLÜK</small><div>${Array.from({length:Number(hundreds)||0},()=>'<i class="sg-hundred-block"></i>').join('')||'<em>0</em>'}</div><b>${hundreds}</b></div><div class="sg-place-column tens"><small>ONLUK</small><div>${Array.from({length:Number(tens)||0},()=>'<i class="sg-ten-block"></i>').join('')||'<em>0</em>'}</div><b>${tens}</b></div><div class="sg-place-column ones"><small>BİRLİK</small><div>${Array.from({length:Number(ones)||0},()=>'<i class="sg-one-block"></i>').join('')||'<em>0</em>'}</div><b>${ones}</b></div></div>`;
 }
 function compareBase1000Visual(a,b,relation){
-  const mini=n=>{ const h=Math.floor(n/100), t=Math.floor((n%100)/10), o=n%10; return `<div class="sg-mini-base1000"><b>${n}</b><span>${h}Y · ${t}O · ${o}B</span></div>`; };
+  const mini=n=>{ const h=Math.floor(n/100), t=Math.floor((n%100)/10), o=n%10; return `<div class="sg-mini-base1000"><b>${n}</b><div class="sg-mini-place-row"><span><small>Yüzlük</small><strong>${h}</strong></span><span><small>Onluk</small><strong>${t}</strong></span><span><small>Birlik</small><strong>${o}</strong></span></div></div>`; };
   return `<div class="sg-compare-base1000">${mini(a)}<strong>${esc(relation)}</strong>${mini(b)}</div>`;
 }
 function bundleStory(tens,ones){ return `<div class="sg-bundle-story"><div>${Array.from({length:tens},()=>'<span class="bundle">10</span>').join('')}</div><div>${Array.from({length:ones},()=>'<i></i>').join('')||'<em>0 birlik</em>'}</div></div>`; }

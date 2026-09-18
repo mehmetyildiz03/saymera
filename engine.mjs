@@ -1633,30 +1633,40 @@ function genNumber1000(rep,d,rng,concept){
   });
 }
 
+function compareOrderReason(a,b){
+  const ad=[Math.floor(a/100),Math.floor((a%100)/10),a%10], bd=[Math.floor(b/100),Math.floor((b%100)/10),b%10];
+  const names=['yüzlük','onluk','birlik'];
+  for(let i=0;i<3;i++){
+    if(ad[i]!==bd[i]){
+      const relation=ad[i]<bd[i]?'küçüktür':'büyüktür';
+      return `${ad[i]} ${names[i]}, ${bd[i]} ${names[i]}dan ${relation}; bu yüzden ${a}, ${b}'den ${a<b?'küçüktür':'büyüktür'}.`;
+    }
+  }
+  return `${a} ve ${b}'nin yüzlük, onluk ve birlikleri aynıdır; sayılar eşittir.`;
+}
 function genCompareOrder1000(rep,d,rng,concept){
   const c=concept?.skillId==='compareOrder1000'?concept:createConceptInstance('compareOrder1000',d,rng);
   const x=c.anchor;
   if(rep==='build') return qTask('compareOrder1000',rep,`${x.a} ve ${x.b} sayı kartlarını küçükten büyüğe sırala.`,`${x.smaller}|${x.larger}`,{kind:'manipulative',interaction:'order-pair',expectedValue:`${x.smaller}|${x.larger}`,checkLabel:'Sıramı kontrol et'}, {
-    taskKind:'manipulative-build',taskLabel:'Üç basamaklı sayıları sırala',visual:{type:'order-pair-interactive',a:x.a,b:x.b},hint:'Önce yüzlükleri; eşitse onlukları, sonra birlikleri karşılaştır.',explain:`${x.smaller} < ${x.larger}.`
+    taskKind:'manipulative-build',taskLabel:'Üç basamaklı sayıları sırala',visual:{type:'order-pair-interactive',a:x.a,b:x.b},hint:'Yüzlüklerden başla. Aynıysa onluklara, sonra birliklere geç.',explain:compareOrderReason(x.a,x.b)
   });
   if(rep==='see'){
-    const rels=[x.relation,x.relation==='>'?'<':'>','='];
-    const opts=shuffled(rels.map((relation,i)=>({value:relation===x.relation?'correct':`wrong-${i}`,visual:{type:'compare-base1000',a:x.a,b:x.b,relation},ariaLabel:`${x.a} ${relation} ${x.b}`})),rng);
-    return qTask('compareOrder1000',rep,'Yüzlük–onluk–birlik bilgisine göre doğru karşılaştırma hangisi?','correct',{kind:'visual-choice',options:opts},{
-      taskKind:'visual-discrimination',taskLabel:'Karşılaştırmayı basamak modelinde gör',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},hint:'Soldaki en büyük basamaktan karşılaştırmaya başla.',explain:`${x.a} ${x.relation} ${x.b}.`
+    const answer=x.a===x.b?'aynıdır':x.a<x.b?'daha küçüktür':'daha büyüktür';
+    return qBase('compareOrder1000',rep,`${x.a}, ${x.b}'ye göre nasıldır?`,answer,semanticChoices(answer,['daha küçüktür','daha büyüktür','aynıdır'].filter(v=>v!==answer),rng),{
+      taskKind:'visual-discrimination',taskLabel:'Karşılaştırmayı basamak modelinde gör',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},hint:'Soldan başla: yüzlük, onluk, birlik.',explain:compareOrderReason(x.a,x.b)
     });
   }
   if(rep==='symbol'){
     const y=c.symbol;
-    return qBase('compareOrder1000',rep,`${y.a} __ ${y.b} boşluğuna hangi işaret gelir?`,y.relation,semanticChoices(y.relation,[y.relation==='>'?'<':'>','=','+'],rng),{
-      taskKind:'symbol-entry',taskLabel:'Karşılaştırmayı sembolleştir',visual:{type:'equation',text:`${y.a} __ ${y.b}`},hint:'Önce yüzlükleri karşılaştır.',explain:`${y.a} ${y.relation} ${y.b}.`
+    return qBase('compareOrder1000',rep,`${y.a} __ ${y.b} boşluğuna hangi karşılaştırma işareti gelir?`,y.relation,semanticChoices(y.relation,['<','>','='].filter(v=>v!==y.relation),rng),{
+      taskKind:'symbol-entry',taskLabel:'Karşılaştırmayı sembolleştir',visual:{type:'equation',text:`${y.a} __ ${y.b}`},hint:'Önce sayıları sözcükle karşılaştır; sonra aynı ilişkiyi <, > veya = ile yaz.',explain:`${compareOrderReason(y.a,y.b)} Sembolle: ${y.a} ${y.relation} ${y.b}.`
     });
   }
   if(rep==='explain'){
     const ah=Math.floor(x.a/100), bh=Math.floor(x.b/100), at=Math.floor((x.a%100)/10), bt=Math.floor((x.b%100)/10);
     const answer=ah!==bh?'Önce yüzlük basamağını karşılaştırırım':at!==bt?'Yüzlükler eşit; onluk basamağını karşılaştırırım':'Yüzlük ve onluklar eşit; birlikleri karşılaştırırım';
     return qBase('compareOrder1000',rep,`${x.a} ile ${x.b} karşılaştırılırken hangi düşünce doğrudur?`,answer,semanticChoices(answer,['Yalnız son rakama bakarım','Rakam sayıları eşitse sayılar da eşittir','Basamakların yerini önemsemem'],rng),{
-      taskKind:'reasoning-choice',taskLabel:'Basamak sırasını gerekçelendir',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:x.relation},hint:'Basamak değeri soldan sağa azalır.',explain:`${answer}; sonuç ${x.a} ${x.relation} ${x.b}.`
+      taskKind:'reasoning-choice',taskLabel:'Basamak sırasını gerekçelendir',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},hint:'Soldan sağa ilerle ve ilk farklı basamakta dur.',explain:compareOrderReason(x.a,x.b)
     });
   }
   const y=c.transfer;
@@ -1664,7 +1674,6 @@ function genCompareOrder1000(rep,d,rng,concept){
     taskKind:'context-transfer',taskLabel:'Karşılaştırmayı gerçek miktara taşı',visual:{type:'shelf-counts',a:y.a,b:y.b},hint:'İki sayıyı yüzlüklerden başlayarak karşılaştır.',explain:`${y.larger}, ${y.smaller}'dan büyüktür.`
   });
 }
-
 function genNumberPattern1000(rep,d,rng,concept){
   const c=concept?.skillId==='numberPattern1000'?concept:createConceptInstance('numberPattern1000',d,rng);
   const x=c.anchor;
