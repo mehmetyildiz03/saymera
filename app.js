@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -421,6 +421,8 @@ const accentRing={amber:'#d9a12f',blue:'#4e8cc8',violet:'#8270ca',green:'#2f9987
 let state=loadState();
 let activeScreen='home';
 let activeDomain='Tümü';
+let activeAtlasUnitId=null;
+let pendingAtlasSkillId=null;
 let session=null;
 let currentQuestion=null;
 let currentSelection=null;
@@ -622,7 +624,95 @@ function renderHome(){
   $('#bottomStart').disabled=!!locked;
 }
 
-function renderAtlas(){
+function atlasSkillLabel(skillId){
+  return skillsFor(state.profile).find(skill=>skill.id===skillId)?.label||'önceki ders';
+}
+function atlasLessonStatusCopy(snapshot){
+  if(snapshot.access.status==='completed'){
+    if(snapshot.review.status==='due') return {label:'Tekrar hazır',detail:'Dersi yeniden açabilirsin.',mark:'↻'};
+    return {label:'Tamamlandı',detail:'İstediğin zaman yeniden açabilirsin.',mark:'✓'};
+  }
+  if(snapshot.access.status==='current') return {label:'Sıradaki ders',detail:'Yeni öğrenme burada devam ediyor.',mark:'→'};
+  if(snapshot.access.status==='locked'){
+    const blocker=snapshot.access.lockReason?.skillId;
+    return {label:'Henüz açılmadı',detail:blocker?'Önce '+atlasSkillLabel(blocker)+' tamamlanmalı.':'Önce önceki ders tamamlanmalı.',mark:'⌁'};
+  }
+  return {label:'Açık',detail:'Bu derse geçebilirsin.',mark:'○'};
+}
+function startSessionForSkill(skillId){
+  const skill=skillsFor(state.profile).find(item=>item.id===skillId);
+  if(!skill) return;
+  const access=lessonAccessState(state,skillId);
+  if(access.status==='locked'){
+    const blocker=access.lockReason?.skillId;
+    showToast(blocker?'Önce “'+atlasSkillLabel(blocker)+'” dersini tamamla.':'Bu ders henüz açılmadı.');
+    return;
+  }
+  pendingAtlasSkillId=skillId;
+  startSession();
+}
+function renderGrade2Atlas(){
+  const units=curriculumUnitsFor('grade2');
+  const current=currentCurriculumSkill(state);
+  const currentUnit=units.find(unit=>unit.lessons.some(skill=>skill.id===current?.id))||units.find(unit=>unit.lessons.some(skill=>lessonAccessState(state,skill.id).status!=='completed'))||units.at(-1);
+  if(!activeAtlasUnitId||!units.some(unit=>unit.id===activeAtlasUnitId)) activeAtlasUnitId=currentUnit?.id||units[0]?.id||null;
+
+  const snapshots=new Map();
+  units.forEach(unit=>unit.lessons.forEach(skill=>snapshots.set(skill.id,lessonProgressSnapshot(state,skill.id))));
+  const allLessons=units.flatMap(unit=>unit.lessons);
+  const completed=allLessons.filter(skill=>snapshots.get(skill.id)?.access.status==='completed').length;
+  const due=allLessons.filter(skill=>snapshots.get(skill.id)?.review.status==='due').length;
+  const currentIndex=current?allLessons.findIndex(skill=>skill.id===current.id)+1:allLessons.length;
+
+  $('#atlasSummary').innerHTML=`
+    <div class="summary-card"><span>TAMAMLANAN DERS</span><strong>${completed} / ${allLessons.length}</strong><p>Müfredat yolunda tamamlanan yeni öğrenmeler.</p></div>
+    <div class="summary-card text"><span>ŞİMDİKİ ÜNİTE</span><strong>${esc(currentUnit?.label||'Yol tamamlandı')}</strong><p>${currentUnit?'Bu ünitenin dersleri sırayla açılır.':'Bütün yeni dersler açıldı.'}</p></div>
+    <div class="summary-card"><span>YOLDAKİ DERS</span><strong>${currentIndex}</strong><p>${current?esc(current.label):'Yeni öğrenme yolu tamamlandı.'}</p></div>
+    <div class="summary-card"><span>TEKRAR HAZIR</span><strong>${due}</strong><p>Zamanı gelen kısa geri çağırmalar.</p></div>`;
+
+  $('#domainTabs').innerHTML=units.map((unit,index)=>`<button class="domain-tab ${unit.id===activeAtlasUnitId?'active':''}" data-atlas-unit-tab="${esc(unit.id)}" role="tab"><span>${index+1}</span>${esc(unit.label)}</button>`).join('');
+  $$('#domainTabs [data-atlas-unit-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+    activeAtlasUnitId=btn.dataset.atlasUnitTab;
+    renderAtlas();
+    requestAnimationFrame(()=>document.querySelector('[data-atlas-unit="'+CSS.escape(activeAtlasUnitId)+'"]')?.scrollIntoView({behavior:state.settings.calmMotion?'auto':'smooth',block:'start'}));
+  }));
+
+  $('#skillMap').innerHTML='<div class="atlas-roadmap">'+units.map((unit,unitIndex)=>{
+    const lessonSnapshots=unit.lessons.map(skill=>({skill,snapshot:snapshots.get(skill.id)}));
+    const done=lessonSnapshots.filter(item=>item.snapshot.access.status==='completed').length;
+    const hasCurrent=lessonSnapshots.some(item=>item.snapshot.access.status==='current');
+    const allDone=done===unit.lessons.length;
+    const expanded=unit.id===activeAtlasUnitId;
+    const unitState=allDone?'completed':hasCurrent?'current':'locked';
+    const unitLabel=allDone?'Tamamlandı':hasCurrent?'Şimdi buradasın':'Daha sonra';
+    return `<section class="atlas-unit ${unitState} ${expanded?'expanded':''}" data-atlas-unit="${esc(unit.id)}">
+      <button class="atlas-unit-head" type="button" data-atlas-unit-toggle="${esc(unit.id)}" aria-expanded="${expanded?'true':'false'}">
+        <span class="atlas-unit-index">${String(unitIndex+1).padStart(2,'0')}</span>
+        <span class="atlas-unit-copy"><small>${esc(unit.strand)}</small><strong>${esc(unit.label)}</strong><em>${done} / ${unit.lessons.length} ders</em></span>
+        <span class="atlas-unit-state ${unitState}">${unitLabel}</span>
+        <i aria-hidden="true">${expanded?'−':'+'}</i>
+      </button>
+      <div class="atlas-unit-lessons" ${expanded?'':'hidden'}>${lessonSnapshots.map(({skill,snapshot},lessonIndex)=>{
+        const status=atlasLessonStatusCopy(snapshot);
+        const rowClass=snapshot.access.status;
+        const reviewBadge=snapshot.review.status==='due'?'<span class="atlas-review-badge">Tekrar hazır</span>':'';
+        return `<button type="button" class="atlas-lesson-row ${rowClass}" data-atlas-lesson="${esc(skill.id)}" aria-disabled="${snapshot.access.status==='locked'?'true':'false'}">
+          <span class="atlas-lesson-order">${unitIndex+1}.${lessonIndex+1}</span>
+          <span class="atlas-lesson-marker">${status.mark}</span>
+          <span class="atlas-lesson-copy"><strong>${esc(skill.label)}</strong><small>${esc(status.detail)}</small></span>
+          <span class="atlas-lesson-status">${reviewBadge}<b>${status.label}</b></span>
+        </button>`;
+      }).join('')}</div>
+    </section>`;
+  }).join('')+'</div>';
+
+  $$('[data-atlas-unit-toggle]').forEach(btn=>btn.addEventListener('click',()=>{
+    activeAtlasUnitId=btn.dataset.atlasUnitToggle;
+    renderAtlas();
+  }));
+  $$('[data-atlas-lesson]').forEach(btn=>btn.addEventListener('click',()=>startSessionForSkill(btn.dataset.atlasLesson)));
+}
+function renderLegacyAtlas(){
   const summary=profileSummary(state);
   const list=skillsFor(state.profile);
   const inProgress=list.filter(s=>{const ss=ensureSkillState(state,s.id); return ss.totalAttempts>0&&!ss.stable;}).length;
@@ -648,6 +738,10 @@ function renderAtlas(){
       <div class="skill-status"><span>${status}</span><span>${ss.totalAttempts?'Daha önce çalışıldı':'Henüz başlanmadı'}</span></div>
     </article>`;
   }).join('');
+}
+function renderAtlas(){
+  if(state.profile==='grade2') renderGrade2Atlas();
+  else renderLegacyAtlas();
 }
 
 function renderParent(){
@@ -709,9 +803,9 @@ function focusRepresentations(skillState){
   const weakest=[...REPRESENTATIONS].sort((a,b)=>(skillState.evidence[a]?.score||0)-(skillState.evidence[b]?.score||0)).slice(0,3);
   return REPRESENTATIONS.filter(r=>weakest.includes(r));
 }
-function buildSessionPlan(focus){
+function buildSessionPlan(focus,{includeDueReview=true}={}){
   const plan=[];
-  const due=dueReviewItems()[0];
+  const due=includeDueReview?dueReviewItems()[0]:null;
   if(due){
     const s=skillsFor(state.profile).find(x=>x.id===due.skillId);
     if(s) plan.push({
@@ -744,10 +838,13 @@ function startSession(){
   $('#toast')?.classList.remove('show'); clearTimeout(toastTimer);
   if(state.cooldownUntil && state.cooldownUntil>Date.now()){ showCooldown(false); return; }
   if(!state.onboarded){ openOnboarding(); return; }
+  const requestedSkillId=pendingAtlasSkillId; pendingAtlasSkillId=null;
+  const requestedSkill=requestedSkillId?skillsFor(state.profile).find(s=>s.id===requestedSkillId):null;
+  const requestedFocus=requestedSkill?{skill:requestedSkill,state:ensureSkillState(state,requestedSkill.id)}:null;
   const compareSkill=state.profile==='grade2'?skillsFor(state.profile).find(s=>s.id==='compareOrder1000'):null;
   const compareState=compareSkill?ensureSkillState(state,'compareOrder1000'):null;
-  const replayCompareRevision=!!(compareSkill&&compareState?.learningCycle?.firstCycleCompletedAt&&compareState.learningCycle.lessonVersion!==COMPARE_ORDER_LESSON_VERSION);
-  const focus=replayCompareRevision?{skill:compareSkill,state:compareState}:pickFocus(); if(!focus){ showToast('Bu seviye için içerik bulunamadı'); return; }
+  const replayCompareRevision=!!(compareSkill&&compareState?.learningCycle?.firstCycleCompletedAt&&compareState.learningCycle.lessonVersion!==COMPARE_ORDER_LESSON_VERSION&&(!requestedSkillId||requestedSkillId==='compareOrder1000'));
+  const focus=requestedFocus||(replayCompareRevision?{skill:compareSkill,state:compareState}:pickFocus()); if(!focus){ showToast('Bu seviye için içerik bulunamadı'); return; }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -767,7 +864,7 @@ function startSession(){
     focus.state.learningCycle.lessonTaughtAt=0;
     saveState();
   }
-  const plan=replayCompareRevision?[{skillId:'compareOrder1000',representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false}]:buildSessionPlan(focus);
+  const plan=replayCompareRevision?[{skillId:'compareOrder1000',representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false}]:buildSessionPlan(focus,{includeDueReview:!requestedFocus});
   session={
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),

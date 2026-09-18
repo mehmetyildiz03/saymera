@@ -505,3 +505,56 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .compare-symbol-slot>p{font-size:10px}
   .compare-symbol-drag{width:76px;min-height:58px}
 }
+
+/* v1.8.1 — curriculum roadmap Atlas */
+.summary-card.text strong{font-size:16px;line-height:1.15;letter-spacing:-.02em;min-height:37px;display:flex;align-items:center}
+#atlasScreen .domain-tabs{padding-bottom:16px}
+#atlasScreen .domain-tab{display:flex;align-items:center;gap:7px}
+#atlasScreen .domain-tab>span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:rgba(34,60,74,.08);font-size:8px}
+#atlasScreen .domain-tab.active>span{background:rgba(255,255,255,.16)}
+#atlasScreen .skill-map{display:block;margin-top:0}
+.atlas-roadmap{display:grid;gap:12px;padding-bottom:28px}
+.atlas-unit{border:1px solid var(--line);border-radius:28px;background:rgba(255,253,248,.76);overflow:hidden;box-shadow:0 8px 28px rgba(44,51,51,.03);scroll-margin-top:18px}
+.atlas-unit.current{border-color:#a9d4ca;box-shadow:0 10px 30px rgba(47,153,135,.08)}
+.atlas-unit.locked{background:rgba(249,247,241,.72)}
+.atlas-unit-head{width:100%;min-height:92px;border:0;background:transparent;display:grid;grid-template-columns:52px minmax(0,1fr) auto 30px;gap:14px;align-items:center;padding:17px 20px;text-align:left}
+.atlas-unit-head>i{font-style:normal;font-size:21px;color:var(--muted);text-align:center}
+.atlas-unit-index{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:var(--navy);color:white;font-size:12px;font-weight:950;letter-spacing:.05em}
+.atlas-unit.completed .atlas-unit-index{background:var(--teal)}
+.atlas-unit.locked .atlas-unit-index{background:#d9d7cf;color:#77746e}
+.atlas-unit-copy{display:grid;gap:3px;min-width:0}
+.atlas-unit-copy small{font-size:8px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.atlas-unit-copy strong{font-size:18px;line-height:1.15;color:var(--navy)}
+.atlas-unit-copy em{font-style:normal;font-size:9px;font-weight:800;color:var(--muted)}
+.atlas-unit-state{min-width:98px;padding:8px 11px;border-radius:999px;background:var(--paper-2);font-size:9px;font-weight:900;text-align:center;color:var(--muted)}
+.atlas-unit-state.current{background:var(--teal-soft);color:#17695d}
+.atlas-unit-state.completed{background:#e8f2ef;color:#317b70}
+.atlas-unit-lessons{border-top:1px solid var(--line);padding:7px}
+.atlas-unit-lessons[hidden]{display:none}
+.atlas-lesson-row{width:100%;border:0;border-radius:20px;background:transparent;display:grid;grid-template-columns:42px 42px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 13px;text-align:left;transition:background .16s,transform .16s}
+.atlas-lesson-row+ .atlas-lesson-row{margin-top:3px}
+.atlas-lesson-row:not(.locked):hover{background:var(--paper-2)}
+.atlas-lesson-row:not(.locked):active{transform:scale(.995)}
+.atlas-lesson-row.current{background:linear-gradient(90deg,var(--teal-soft),rgba(234,245,241,.35));box-shadow:inset 3px 0 0 var(--teal)}
+.atlas-lesson-row.locked{opacity:.55;cursor:default}
+.atlas-lesson-order{font-size:9px;font-weight:900;color:var(--muted);text-align:center}
+.atlas-lesson-marker{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:var(--paper-2);border:1px solid var(--line);font-size:15px;font-weight:950;color:var(--muted)}
+.atlas-lesson-row.completed .atlas-lesson-marker{background:var(--teal-soft);border-color:#b5d9d0;color:#177d70}
+.atlas-lesson-row.current .atlas-lesson-marker{background:var(--navy);border-color:var(--navy);color:white}
+.atlas-lesson-copy{display:grid;gap:3px;min-width:0}
+.atlas-lesson-copy strong{font-size:14px;line-height:1.22;color:var(--navy)}
+.atlas-lesson-copy small{font-size:9px;line-height:1.35;color:var(--muted);font-weight:730}
+.atlas-lesson-status{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;max-width:190px}
+.atlas-lesson-status>b{font-size:9px;color:var(--ink-2);white-space:nowrap}
+.atlas-review-badge{padding:6px 8px;border-radius:999px;background:var(--sun-soft);font-size:8px;font-weight:950;color:#8f681d;white-space:nowrap}
+@media(max-width:760px){
+  #atlasScreen .page-head{padding-top:28px}
+  #atlasScreen .atlas-summary{grid-template-columns:repeat(2,1fr)}
+  .atlas-unit-head{grid-template-columns:44px minmax(0,1fr) 24px;padding:14px 13px;gap:10px}
+  .atlas-unit-index{width:40px;height:40px}
+  .atlas-unit-state{display:none}
+  .atlas-unit-head>i{grid-column:3}
+  .atlas-lesson-row{grid-template-columns:34px 38px minmax(0,1fr);padding:11px 8px;gap:8px}
+  .atlas-lesson-status{grid-column:3;justify-content:flex-start;max-width:none}
+  .atlas-lesson-marker{width:34px;height:34px}
+}
