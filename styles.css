@@ -481,3 +481,27 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .compare-verbal-bridge{display:grid;justify-items:center;gap:14px}.compare-verbal-bridge p{font-size:20px;margin:0}.compare-symbol-equation{display:flex;align-items:center;gap:18px}.compare-symbol-equation>strong{font-size:46px}.compare-symbol-equation button{width:74px;height:64px;border-radius:18px;border:2px dashed #9bb7c1;background:var(--navy-soft);font-size:34px;font-weight:950;color:var(--navy)}.compare-symbol-equation button.revealed{border-style:solid;background:var(--teal-soft);border-color:#8bc8ba}.compare-verbal-bridge>small{font-size:11px;color:var(--muted);font-weight:800}
 .compare-order-builder{display:grid;justify-items:center;gap:14px;width:min(620px,100%)}.compare-order-slots,.compare-order-bank{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}.compare-order-slot{min-height:70px;border-radius:18px;border:2px dashed var(--line-strong);background:var(--paper-2);font-size:24px;font-weight:950;color:#a2abad}.compare-order-slot.filled{border-style:solid;border-color:#8bc8ba;background:var(--teal-soft);color:var(--navy)}.compare-order-slot.wrong{background:var(--sun-soft);border-color:#d8ad50}.compare-order-chip{min-height:62px;border-radius:18px;border:1px solid var(--line);background:var(--paper);box-shadow:0 4px 0 #e7e2d7;font-size:23px;font-weight:950;touch-action:none;user-select:none;cursor:grab}.compare-order-chip.dragging{cursor:grabbing;z-index:20;box-shadow:0 12px 24px rgba(25,54,75,.16)}.compare-order-chip.placed{opacity:.25}.compare-order-reset{border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;color:var(--muted);font-weight:850}.compare-order-builder p{margin:0;min-height:18px;font-size:10px;font-weight:850;color:var(--muted)}
 @media(max-width:699px){.compare-place-table,.compare-symbol-cards{grid-template-columns:1fr}.compare-place-column{min-height:95px}.compare-symbol-card{min-height:120px}.compare-order-slots,.compare-order-bank{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* v1.7.5 — touch-safe drag/drop + symbol meaning matching */
+.lesson-word-chip{touch-action:none;user-select:none;cursor:grab}
+.lesson-word-chip.dragging{cursor:grabbing;position:relative;z-index:30;box-shadow:0 12px 26px rgba(25,54,75,.16)}
+.compare-symbol-definitions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
+.compare-symbol-slot{min-height:150px;border-radius:22px;border:2px dashed var(--line-strong);background:var(--paper-2);display:grid;align-content:center;justify-items:center;gap:8px;padding:14px;text-align:center;transition:.18s}
+.compare-symbol-slot>span{font-size:14px;font-weight:950;color:var(--navy)}
+.compare-symbol-slot>p{margin:0;font-size:11px;line-height:1.45;color:var(--muted);font-weight:750}
+.compare-symbol-slot>strong{font-size:42px;color:#a3adb3}
+.compare-symbol-slot.filled{border-style:solid;border-color:#8bc8ba;background:var(--teal-soft)}
+.compare-symbol-slot.filled>strong{color:var(--navy)}
+.compare-symbol-slot.wrong,.compare-bridge-slot.wrong{border-color:#d8ad50;background:var(--sun-soft)}
+.compare-symbol-bank{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;width:100%}
+.compare-symbol-drag{width:86px;min-height:64px;border-radius:18px;border:1px solid var(--line);background:var(--paper);box-shadow:0 4px 0 #e7e2d7;font-size:34px;font-weight:950;color:var(--navy);touch-action:none;user-select:none;cursor:grab}
+.compare-symbol-drag.dragging{cursor:grabbing;position:relative;z-index:30;box-shadow:0 12px 26px rgba(25,54,75,.18)}
+.compare-symbol-drag.selected{outline:3px solid #8bc8ba}.compare-symbol-drag.placed{opacity:.28}
+.compare-symbol-bank-small{margin-top:4px}.compare-symbol-bank-small .compare-symbol-drag{width:72px;min-height:54px;font-size:29px}
+.compare-bridge-slot{touch-action:none}
+@media(max-width:699px){
+  .compare-symbol-definitions{grid-template-columns:1fr;gap:8px}
+  .compare-symbol-slot{min-height:105px;padding:10px}
+  .compare-symbol-slot>p{font-size:10px}
+  .compare-symbol-drag{width:76px;min-height:58px}
+}

@@ -222,7 +222,7 @@ function renderNumber1000LessonStep(skill,index=null){
     };
     chips.forEach(chip=>{
       chip.addEventListener('click',()=>{
-        if(chip.disabled) return;
+        if(chip.disabled||consumeDraggedClick(chip)) return;
         selectedChip=selectedChip===chip?null:chip;
         chips.forEach(x=>x.classList.toggle('selected',x===selectedChip));
         $('#lessonDragHelp').textContent=selectedChip?'Şimdi doğru yuvaya dokun.':'Kart seçimi kaldırıldı.';
@@ -234,11 +234,12 @@ function renderNumber1000LessonStep(skill,index=null){
       });
       chip.addEventListener('pointermove',ev=>{
         if(dragChip!==chip) return;
+        markDragMovement(chip,dragStartX,dragStartY,ev.clientX,ev.clientY);
         chip.style.transform='translate('+(ev.clientX-dragStartX)+'px,'+(ev.clientY-dragStartY)+'px) scale(1.04)';
       });
       const endDrag=ev=>{
         if(dragChip!==chip) return;
-        const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest?.('.lesson-word-slot');
+        const target=dropTargetAtPoint('.lesson-word-slot',ev.clientX,ev.clientY);
         resetChipVisual(chip); if(target) placeChip(chip,target); dragChip=null;
       };
       chip.addEventListener('pointerup',endDrag); chip.addEventListener('pointercancel',()=>{ if(dragChip===chip){ resetChipVisual(chip); dragChip=null; } });
@@ -252,14 +253,30 @@ function renderNumber1000LessonStep(skill,index=null){
   }
   next?.addEventListener('click',()=>completeNumber1000LessonStep(skill,at));
 }
-const COMPARE_ORDER_LESSON_VERSION=1;
+function dropTargetAtPoint(selector,x,y){
+  return [...document.querySelectorAll(selector)].find(node=>{
+    const r=node.getBoundingClientRect();
+    return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;
+  })||null;
+}
+function markDragMovement(chip,startX,startY,x,y){
+  const moved=Math.hypot(x-startX,y-startY)>7;
+  if(moved) chip.dataset.justDragged='1';
+  return moved;
+}
+function consumeDraggedClick(chip){
+  if(chip.dataset.justDragged!=='1') return false;
+  chip.dataset.justDragged=''; return true;
+}
+
+const COMPARE_ORDER_LESSON_VERSION=2;const COMPARE_ORDER_LESSON_VERSION=1;
 const COMPARE_ORDER_SECTIONS=['KARŞILAŞTIR','SEMBOL','SIRALA'];
 const COMPARE_ORDER_LESSON_STEPS=[
   {id:'compare-hundreds',section:'KARŞILAŞTIR',kind:'place-compare',title:'Önce yüzlüklere bak.',body:'Soldan başlarız. Yüzlükler farklıysa hangi sayının daha büyük olduğunu hemen anlayabiliriz.',a:426,b:581,stopAt:0,result:'581, 426’dan büyüktür. 426, 581’den küçüktür.'},
   {id:'compare-tens',section:'KARŞILAŞTIR',kind:'place-compare',title:'Yüzlükler aynıysa onluklara geç.',body:'Yüzlükler karar vermiyorsa bir sonraki basamağı karşılaştırırız.',a:917,b:971,stopAt:1,result:'1 onluk, 7 onluktan küçüktür. Bu yüzden 917, 971’den küçüktür.'},
   {id:'compare-ones',section:'KARŞILAŞTIR',kind:'place-compare',title:'Onluklar da aynıysa birliklere bak.',body:'İlk iki basamak aynıysa kararı birlikler verir.',a:420,b:421,stopAt:2,result:'0 birlik, 1 birlikten küçüktür. Bu yüzden 420, 421’den küçüktür.'},
   {id:'compare-equal',section:'KARŞILAŞTIR',kind:'place-compare',title:'Bütün basamaklar aynıysa sayılar aynıdır.',body:'Yüzlük, onluk ve birliklerin üçü de aynıysa iki sayı aynı değerdedir.',a:535,b:535,stopAt:2,equal:true,result:'535 ve 535 aynı değerdedir.'},
-  {id:'comparison-symbols',section:'SEMBOL',kind:'symbols',title:'Şimdi karşılaştırma işaretlerini tanıyalım.',body:'Önce anlamını söyle, sonra işareti kullan. İşaretler “küçüktür”, “büyüktür” ve “eşittir” sözlerinin kısa yazımıdır.'},
+  {id:'symbol-meaning-match',section:'SEMBOL',kind:'symbol-match',title:'İşaretleri anlamlarıyla eşleştir.',body:'Henüz sayı kullanmadan işaretlerin ne anlattığını kuralım. <, > ve = kartlarını doğru tanımın üzerine sürükle.'},
   {id:'symbol-bridge',section:'SEMBOL',kind:'symbol-bridge',title:'Sözü işarete bağlayalım.',body:'917, 971’den küçüktür. Bu cümleyi şimdi matematik işaretiyle yazalım.',a:917,b:971,result:'917 < 971'},
   {id:'order-three',section:'SIRALA',kind:'order-three',title:'Karşılaştırmayı sıralamaya taşı.',body:'Üç sayıyı küçükten büyüğe yerleştir. Yine soldan başlayarak basamakları karşılaştır.',values:[421,419,420],ordered:[419,420,421],result:'419 < 420 < 421. En küçük 419, en büyük 421.'}
 ];
@@ -274,12 +291,16 @@ function comparePlaceTable(step){
 }
 function compareOrderStepVisual(step){
   if(step.kind==='place-compare') return '<div class="compare-lesson-core"><div class="compare-number-pair"><strong>'+step.a+'</strong><span>ile</span><strong>'+step.b+'</strong></div>'+comparePlaceTable(step)+'<div class="compare-lesson-result" id="compareLessonResult">'+esc(step.result)+'</div></div>';
-  if(step.kind==='symbols') return '<div class="compare-lesson-core"><div class="compare-symbol-cards">'+
-    '<button type="button" class="compare-symbol-card" data-symbol="<"><strong>&lt;</strong><span>küçüktür</span><small>420 &lt; 421</small></button>'+
-    '<button type="button" class="compare-symbol-card" data-symbol=">"><strong>&gt;</strong><span>büyüktür</span><small>421 &gt; 420</small></button>'+
-    '<button type="button" class="compare-symbol-card" data-symbol="="><strong>=</strong><span>eşittir</span><small>420 = 420</small></button>'+
-    '</div><div class="compare-symbol-note" id="compareSymbolNote">Her işarete dokun ve cümlesini oku.</div></div>';
-  if(step.kind==='symbol-bridge') return '<div class="compare-lesson-core"><div class="compare-verbal-bridge"><p><strong>'+step.a+'</strong>, <strong>'+step.b+'</strong>’den <b>küçüktür</b>.</p><div class="compare-symbol-equation"><strong>'+step.a+'</strong><button type="button" id="compareBridgeSymbol">?</button><strong>'+step.b+'</strong></div><small>Sözcükteki “küçüktür” işaretle aynı ilişkiyi anlatır.</small></div><div class="compare-lesson-result" id="compareLessonResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='symbol-match'){
+    const defs=[
+      ['<','küçüktür','Soldaki değer sağdakinden daha küçüktür.'],
+      ['>','büyüktür','Soldaki değer sağdakinden daha büyüktür.'],
+      ['=','eşittir','İki taraf aynı değerdedir.']
+    ];
+    const bank=['=','<','>'];
+    return '<div class="compare-lesson-core"><div class="compare-symbol-definitions">'+defs.map(([symbol,name,definition])=>'<button type="button" class="compare-symbol-slot" data-symbol-slot="'+esc(symbol)+'"><span>'+esc(name)+'</span><p>'+esc(definition)+'</p><strong>?</strong></button>').join('')+'</div><div class="compare-symbol-bank">'+bank.map(symbol=>'<button type="button" class="compare-symbol-drag" data-symbol-value="'+esc(symbol)+'">'+esc(symbol)+'</button>').join('')+'</div><button type="button" class="compare-order-reset" id="compareSymbolReset">Baştan eşleştir</button><div class="compare-symbol-note" id="compareSymbolNote">İşareti sürükleyip doğru tanımın üzerine bırak.</div></div>';
+  }
+  if(step.kind==='symbol-bridge') return '<div class="compare-lesson-core"><div class="compare-verbal-bridge"><p><strong>'+step.a+'</strong>, <strong>'+step.b+'</strong>’den <b>küçüktür</b>.</p><div class="compare-symbol-equation"><strong>'+step.a+'</strong><button type="button" class="compare-bridge-slot" id="compareBridgeSymbol" data-symbol-slot="<">?</button><strong>'+step.b+'</strong></div><div class="compare-symbol-bank compare-symbol-bank-small"><button type="button" class="compare-symbol-drag compare-bridge-chip" data-symbol-value="=">=</button><button type="button" class="compare-symbol-drag compare-bridge-chip" data-symbol-value=">">&gt;</button><button type="button" class="compare-symbol-drag compare-bridge-chip" data-symbol-value="<">&lt;</button></div><small id="compareBridgeHelp">“küçüktür” cümlesini anlatan işareti boşluğa sürükle.</small></div><div class="compare-lesson-result" id="compareLessonResult">'+esc(step.result)+'</div></div>';
   const chips=step.values.map(n=>'<button type="button" class="compare-order-chip" data-order-value="'+n+'">'+n+'</button>').join('');
   return '<div class="compare-lesson-core"><div class="compare-order-builder"><div class="compare-order-slots" id="compareOrderSlots">'+step.ordered.map((_,i)=>'<button type="button" class="compare-order-slot" data-order-slot="'+i+'">?</button>').join('')+'</div><div class="compare-order-bank">'+chips+'</div><button type="button" class="compare-order-reset" id="compareOrderReset">Baştan sırala</button><p id="compareOrderHelp">Kartları sürükle-bırak • veya karta, sonra yuvaya dokun</p></div><div class="compare-lesson-result" id="compareLessonResult">'+esc(step.result)+'</div></div>';
 }
@@ -320,19 +341,47 @@ function renderCompareOrderLessonStep(skill,index=null){
         revealCompareResult(); next.disabled=false;
       }
     }));
-  }else if(step.kind==='symbols'){
-    const seen=new Set();
-    $$('.compare-symbol-card').forEach(card=>card.addEventListener('click',()=>{
-      if(seen.has(card.dataset.symbol)) return;
-      seen.add(card.dataset.symbol); card.classList.add('revealed');
-      const symbol=card.dataset.symbol;
-      $('#compareSymbolNote').textContent=symbol==='<'?'Sivri uç küçük sayının, açık taraf büyük sayının tarafındadır.':symbol==='>'?'Açık taraf büyük sayının, sivri uç küçük sayının tarafındadır.':'Eşittir işareti iki değerin aynı olduğunu söyler.';
-      if(seen.size===3) next.disabled=false;
-    }));
-  }else if(step.kind==='symbol-bridge'){
-    $('#compareBridgeSymbol')?.addEventListener('click',()=>{
-      $('#compareBridgeSymbol').textContent='<'; $('#compareBridgeSymbol').classList.add('revealed'); revealCompareResult(); next.disabled=false;
+  }else if(step.kind==='symbol-match'){
+    let selected=null,drag=null,sx=0,sy=0;
+    const chips=$$('.compare-symbol-drag'), slots=$$('.compare-symbol-slot');
+    const place=(chip,slot)=>{
+      if(!chip||!slot||slot.classList.contains('filled')) return false;
+      const expected=slot.dataset.symbolSlot, value=chip.dataset.symbolValue;
+      if(value!==expected){
+        slot.classList.add('wrong'); setTimeout(()=>slot.classList.remove('wrong'),320);
+        $('#compareSymbolNote').textContent='Bu tanım “'+(expected==='<'?'küçüktür':expected==='>'?'büyüktür':'eşittir')+'” anlamındadır.';
+        return false;
+      }
+      slot.querySelector('strong').textContent=value; slot.classList.add('filled'); chip.disabled=true; chip.classList.add('placed'); selected=null; chips.forEach(x=>x.classList.remove('selected'));
+      $('#compareSymbolNote').textContent=value==='='?'= işareti iki tarafın aynı değerde olduğunu gösterir.':'Sivri uç küçük tarafı, açık taraf büyük tarafı gösterir.';
+      if(slots.every(x=>x.classList.contains('filled'))) next.disabled=false;
+      return true;
+    };
+    chips.forEach(chip=>{
+      chip.addEventListener('click',()=>{ if(chip.disabled||consumeDraggedClick(chip))return; selected=selected===chip?null:chip; chips.forEach(x=>x.classList.toggle('selected',x===selected)); $('#compareSymbolNote').textContent=selected?'Şimdi doğru tanıma dokun.':'İşaret seçimi kaldırıldı.'; });
+      chip.addEventListener('pointerdown',ev=>{ if(chip.disabled)return; drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');});
+      chip.addEventListener('pointermove',ev=>{ if(drag!==chip)return; markDragMovement(chip,sx,sy,ev.clientX,ev.clientY); chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.08)';});
+      chip.addEventListener('pointerup',ev=>{ if(drag!==chip)return; const target=dropTargetAtPoint('.compare-symbol-slot',ev.clientX,ev.clientY); chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip,target);drag=null;});
+      chip.addEventListener('pointercancel',()=>{ if(drag===chip){chip.style.transform='';chip.classList.remove('dragging');drag=null;} });
     });
+    slots.forEach(slot=>slot.addEventListener('click',()=>{ if(selected)place(selected,slot); }));
+    $('#compareSymbolReset')?.addEventListener('click',()=>{ slots.forEach(slot=>{slot.classList.remove('filled','wrong');slot.querySelector('strong').textContent='?';}); chips.forEach(chip=>{chip.disabled=false;chip.classList.remove('placed','selected','dragging');chip.style.transform='';chip.dataset.justDragged='';}); selected=null;drag=null;next.disabled=true;$('#compareSymbolNote').textContent='İşareti sürükleyip doğru tanımın üzerine bırak.'; });
+  }else if(step.kind==='symbol-bridge'){
+    let selected=null,drag=null,sx=0,sy=0;
+    const slot=$('#compareBridgeSymbol'), chips=$$('.compare-bridge-chip');
+    const place=chip=>{
+      if(!chip||slot.classList.contains('revealed'))return false;
+      if(chip.dataset.symbolValue!==slot.dataset.symbolSlot){ $('#compareBridgeHelp').textContent='Cümlede “küçüktür” deniyor. O anlamı taşıyan işareti seç.'; slot.classList.add('wrong');setTimeout(()=>slot.classList.remove('wrong'),320);return false; }
+      slot.textContent='<';slot.classList.add('revealed');chips.forEach(x=>{x.disabled=true;x.classList.toggle('placed',x===chip);});$('#compareBridgeHelp').textContent='917, 971’den küçüktür: 917 < 971.';revealCompareResult();next.disabled=false;return true;
+    };
+    chips.forEach(chip=>{
+      chip.addEventListener('click',()=>{if(chip.disabled||consumeDraggedClick(chip))return;selected=chip;chips.forEach(x=>x.classList.toggle('selected',x===chip));$('#compareBridgeHelp').textContent='Şimdi işareti boşluğa bırak veya boşluğa dokun.';});
+      chip.addEventListener('pointerdown',ev=>{if(chip.disabled)return;drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');});
+      chip.addEventListener('pointermove',ev=>{if(drag!==chip)return;markDragMovement(chip,sx,sy,ev.clientX,ev.clientY);chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.08)';});
+      chip.addEventListener('pointerup',ev=>{if(drag!==chip)return;const target=dropTargetAtPoint('.compare-bridge-slot',ev.clientX,ev.clientY);chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip);drag=null;});
+      chip.addEventListener('pointercancel',()=>{if(drag===chip){chip.style.transform='';chip.classList.remove('dragging');drag=null;}});
+    });
+    slot?.addEventListener('click',()=>{if(selected)place(selected);});
   }else{
     let selected=null,drag=null,sx=0,sy=0;
     const chips=$$('.compare-order-chip'), slots=$$('.compare-order-slot');
@@ -347,10 +396,10 @@ function renderCompareOrderLessonStep(skill,index=null){
       return true;
     };
     chips.forEach(chip=>{
-      chip.addEventListener('click',()=>{ if(chip.disabled)return; selected=selected===chip?null:chip; chips.forEach(x=>x.classList.toggle('selected',x===selected)); $('#compareOrderHelp').textContent=selected?'Şimdi doğru yuvaya dokun.':'Kart seçimi kaldırıldı.'; });
+      chip.addEventListener('click',()=>{ if(chip.disabled||consumeDraggedClick(chip))return; selected=selected===chip?null:chip; chips.forEach(x=>x.classList.toggle('selected',x===selected)); $('#compareOrderHelp').textContent=selected?'Şimdi doğru yuvaya dokun.':'Kart seçimi kaldırıldı.'; });
       chip.addEventListener('pointerdown',ev=>{ if(chip.disabled)return; drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');});
-      chip.addEventListener('pointermove',ev=>{ if(drag!==chip)return; chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.04)';});
-      chip.addEventListener('pointerup',ev=>{ if(drag!==chip)return; const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest?.('.compare-order-slot'); chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip,target);drag=null;});
+      chip.addEventListener('pointermove',ev=>{ if(drag!==chip)return; markDragMovement(chip,sx,sy,ev.clientX,ev.clientY); chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.04)';});
+      chip.addEventListener('pointerup',ev=>{ if(drag!==chip)return; const target=dropTargetAtPoint('.compare-order-slot',ev.clientX,ev.clientY); chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip,target);drag=null;});
       chip.addEventListener('pointercancel',()=>{ if(drag===chip){chip.style.transform='';chip.classList.remove('dragging');drag=null;} });
     });
     slots.forEach(slot=>slot.addEventListener('click',()=>{ if(selected) place(selected,slot); }));
@@ -693,7 +742,10 @@ function startSession(){
   $('#toast')?.classList.remove('show'); clearTimeout(toastTimer);
   if(state.cooldownUntil && state.cooldownUntil>Date.now()){ showCooldown(false); return; }
   if(!state.onboarded){ openOnboarding(); return; }
-  const focus=pickFocus(); if(!focus){ showToast('Bu seviye için içerik bulunamadı'); return; }
+  const compareSkill=state.profile==='grade2'?skillsFor(state.profile).find(s=>s.id==='compareOrder1000'):null;
+  const compareState=compareSkill?ensureSkillState(state,'compareOrder1000'):null;
+  const replayCompareRevision=!!(compareSkill&&compareState?.learningCycle?.firstCycleCompletedAt&&compareState.learningCycle.lessonVersion!==COMPARE_ORDER_LESSON_VERSION);
+  const focus=replayCompareRevision?{skill:compareSkill,state:compareState}:pickFocus(); if(!focus){ showToast('Bu seviye için içerik bulunamadı'); return; }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -708,7 +760,12 @@ function startSession(){
   }
   const focusDifficulty=focus.state.difficulty||1;
   const focusConcept=createConceptInstance(focus.skill.id,focusDifficulty,Math.random);
-  const plan=buildSessionPlan(focus);
+  if(replayCompareRevision){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    saveState();
+  }
+  const plan=replayCompareRevision?[{skillId:'compareOrder1000',representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false}]:buildSessionPlan(focus);
   session={
     startedAt:Date.now(), focusSkillId:focus.skill.id, focusConcept, plan, planIndex:0,
     focusRepresentations:plan.filter(x=>x.kind==='focus').map(x=>x.representation),
