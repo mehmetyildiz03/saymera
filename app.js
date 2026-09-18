@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -461,13 +461,15 @@ function loadState(){
 }
 function normalizeState(){
   if(!PROFILE_META[state.profile]) state.profile='grade1';
-  state.version=2;
+  state.version=3;
   state.settings ||= defaultState().settings;
+  state.learningArchitecture ||= {version:1};
   state.reviewQueue ||= [];
   state.history ||= [];
   state.sessions ||= [];
   state.totals ||= defaultState().totals;
   skillsFor(state.profile).forEach(s=>ensureSkillState(state,s.id));
+  ensureLearningArchitectureState(state);
   saveState();
 }
 function saveState(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(err){ console.warn('SAYMERA save failed',err); } }

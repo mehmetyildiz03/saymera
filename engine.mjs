@@ -54,6 +54,54 @@ export const P2_MOE_NUMBER1000_OBJECTIVES = [
   {code:'1.6',label:'Tek ve çift sayılar',skillId:'oddEven1000'}
 ];
 
+
+export const LEARNING_ARCHITECTURE_VERSION = 1;
+export const LESSON_CHANNELS = ['learn','practice','review'];
+
+export const P2_CURRICULUM_UNITS = [
+  {id:'whole-numbers',label:'1000’e kadar sayılar',strand:'Sayılar',lessons:['number1000','compareOrder1000','numberPattern1000','oddEven1000']},
+  {id:'addition-subtraction',label:'Toplama ve çıkarma',strand:'İşlemler',lessons:['addSub1000','wordAddSub2']},
+  {id:'multiplication-division',label:'Çarpma ve bölme',strand:'İşlemler',lessons:['times23510','divisionTables2','multDivFamilies2']},
+  {id:'fractions',label:'Kesirler',strand:'Kesir',lessons:['fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2']},
+  {id:'money',label:'Para',strand:'Para',lessons:['moneyP2']},
+  {id:'measurement',label:'Ölçme ve zaman',strand:'Ölçme',lessons:['lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2']},
+  {id:'geometry',label:'Şekiller ve cisimler',strand:'Geometri',lessons:['shapePatterns2','solids2']},
+  {id:'data',label:'Veri',strand:'Veri',lessons:['pictureGraphScale2']}
+];
+
+export const P2_LESSON_CONTRACTS = {
+  number1000:{
+    version:1,
+    unitId:'whole-numbers',
+    practice:{
+      sections:[
+        {id:'build-number',label:'Modelle kur',phase:'model',representation:'build'},
+        {id:'place-value',label:'Basamak değerini gör',phase:'representation',representation:'see'},
+        {id:'read-write',label:'Oku ve yaz',phase:'symbol',representation:'symbol'},
+        {id:'explain-place',label:'Nedenini açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-number',label:'Yeni durumda kullan',phase:'context',representation:'transfer'},
+        {id:'varied-practice',label:'Farklı örneklerle pekiştir',phase:'practice',representation:null}
+      ]
+    },
+    review:{enabled:true}
+  },
+  compareOrder1000:{
+    version:1,
+    unitId:'whole-numbers',
+    practice:{
+      sections:[
+        {id:'compare-places',label:'Basamakları karşılaştır',phase:'model',representation:'build'},
+        {id:'verbal-relation',label:'Sözcükle karşılaştır',phase:'representation',representation:'see'},
+        {id:'comparison-symbols',label:'İşaretleri kullan',phase:'symbol',representation:'symbol'},
+        {id:'order-numbers',label:'Sırala',phase:'practice',representation:'build'},
+        {id:'explain-order',label:'Nedenini açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-order',label:'Yeni durumda kullan',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
+  }
+};
+
 export function curriculumSequenceFor(profile){
   if(!CURRICULUM_SEQUENCED_PROFILES.has(profile)) return [];
   const byId=new Map(skillsFor(profile).map(s=>[s.id,s]));
@@ -149,6 +197,212 @@ export const SKILLS = [
 
 export function skillsFor(profile){ return SKILLS.filter(s => s.profile === profile); }
 
+
+export function curriculumUnitsFor(profile){
+  if(profile!=='grade2') return [];
+  const byId=new Map(skillsFor(profile).map(s=>[s.id,s]));
+  return P2_CURRICULUM_UNITS.map(unit=>({
+    ...unit,
+    lessons:unit.lessons.map(id=>byId.get(id)).filter(Boolean)
+  }));
+}
+export function curriculumUnitForSkill(skillId){
+  return P2_CURRICULUM_UNITS.find(unit=>unit.lessons.includes(skillId))||null;
+}
+export function lessonContractFor(skillId){
+  const explicit=P2_LESSON_CONTRACTS[skillId];
+  if(explicit) return {skillId,...explicit,provisional:false};
+  const unit=curriculumUnitForSkill(skillId);
+  return {
+    skillId,
+    version:1,
+    unitId:unit?.id||null,
+    practice:{sections:[]},
+    review:{enabled:true},
+    provisional:true
+  };
+}
+export function prerequisiteStatus(state,skillId){
+  const skillObj=SKILLS.find(s=>s.id===skillId);
+  const required=[...(skillObj?.prerequisite||[])];
+  const missing=required.filter(id=>!(ensureSkillState(state,id).learningCycle?.firstCycleCompletedAt||0));
+  return {met:missing.length===0,required,missing};
+}
+export function curriculumGateStatus(state,skillId){
+  const sequence=curriculumSequenceFor(state?.profile);
+  if(!sequence.length) return {unlocked:true,blockedBy:null,currentSkillId:null};
+  const targetIndex=sequence.findIndex(s=>s.id===skillId);
+  if(targetIndex<0) return {unlocked:true,blockedBy:null,currentSkillId:null};
+  const current=currentCurriculumSkill(state);
+  if(!current) return {unlocked:true,blockedBy:null,currentSkillId:null};
+  const currentIndex=sequence.findIndex(s=>s.id===current.id);
+  return {
+    unlocked:targetIndex<=currentIndex,
+    blockedBy:targetIndex<=currentIndex?null:current.id,
+    currentSkillId:current.id
+  };
+}
+export function lessonAccessState(state,skillId){
+  const ss=ensureSkillState(state,skillId);
+  const completed=!!(ss.learningCycle?.firstCycleCompletedAt||0);
+  if(completed) return {status:'completed',lockReason:null};
+  const curriculum=curriculumGateStatus(state,skillId);
+  if(!curriculum.unlocked) return {status:'locked',lockReason:{type:'curriculum',skillId:curriculum.blockedBy}};
+  const prereq=prerequisiteStatus(state,skillId);
+  if(!prereq.met) return {status:'locked',lockReason:{type:'prerequisite',skillId:prereq.missing[0],missing:prereq.missing}};
+  const current=currentCurriculumSkill(state);
+  return {status:current?.id===skillId?'current':'available',lockReason:null};
+}
+
+function emptyPracticeSectionState(){
+  return {nativeAttempts:0,nativeCorrect:0,completedAt:0,lastSeen:0,legacyAttempts:0,legacyCorrect:0,legacyLastSeen:0};
+}
+function defaultLessonJourney(skillId){
+  const contract=lessonContractFor(skillId);
+  return {
+    version:LEARNING_ARCHITECTURE_VERSION,
+    contractVersion:contract.version,
+    learn:{startedAt:0,completedAt:0,stepIndex:0,lessonVersion:0,completionSource:null},
+    practice:{
+      legacyCompletedAt:0,
+      sections:Object.fromEntries((contract.practice?.sections||[]).map(section=>[section.id,emptyPracticeSectionState()]))
+    },
+    review:{dueAt:0,lastCompletedAt:0,attempts:0,successes:0}
+  };
+}
+function ensureLessonJourneyOnSkillState(skillState,skillId){
+  const contract=lessonContractFor(skillId);
+  skillState.lessonJourney ||= defaultLessonJourney(skillId);
+  const journey=skillState.lessonJourney;
+  journey.version=LEARNING_ARCHITECTURE_VERSION;
+  journey.contractVersion=Math.max(Number(journey.contractVersion)||0,contract.version||1);
+  journey.learn ||= {startedAt:0,completedAt:0,stepIndex:0,lessonVersion:0,completionSource:null};
+  journey.practice ||= {legacyCompletedAt:0,sections:{}};
+  journey.practice.sections ||= {};
+  journey.review ||= {dueAt:0,lastCompletedAt:0,attempts:0,successes:0};
+  for(const section of contract.practice?.sections||[]) journey.practice.sections[section.id] ||= emptyPracticeSectionState();
+
+  const lc=ensureLearningCycleState(skillState);
+  const phaseSeen=LEARNING_PHASES.some(phase=>(lc.phases?.[phase]?.attempts||0)>0);
+  if(!journey.learn.startedAt&&(lc.lessonStepIndex>0||lc.lessonTaughtAt||phaseSeen||lc.firstCycleCompletedAt)){
+    journey.learn.startedAt=lc.lessonTaughtAt||lc.lastCycleAt||lc.firstCycleCompletedAt||skillState.lastSeen||0;
+  }
+  journey.learn.stepIndex=Math.max(Number(journey.learn.stepIndex)||0,Number(lc.lessonStepIndex)||0);
+  journey.learn.lessonVersion=Math.max(Number(journey.learn.lessonVersion)||0,Number(lc.lessonVersion)||0);
+  if(lc.lessonTaughtAt){
+    journey.learn.completedAt=Math.max(Number(journey.learn.completedAt)||0,Number(lc.lessonTaughtAt)||0);
+    journey.learn.completionSource=journey.learn.completionSource||'lesson';
+  }else if(lc.firstCycleCompletedAt&&!journey.learn.completedAt){
+    journey.learn.completedAt=Number(lc.firstCycleCompletedAt)||0;
+    journey.learn.completionSource='legacy-cycle';
+  }
+
+  if(lc.firstCycleCompletedAt) journey.practice.legacyCompletedAt=Math.max(Number(journey.practice.legacyCompletedAt)||0,Number(lc.firstCycleCompletedAt)||0);
+  for(const section of contract.practice?.sections||[]){
+    const phase=lc.phases?.[section.phase];
+    if(!phase) continue;
+    const target=journey.practice.sections[section.id];
+    target.legacyAttempts=Math.max(Number(target.legacyAttempts)||0,Number(phase.attempts)||0);
+    target.legacyCorrect=Math.max(Number(target.legacyCorrect)||0,Number(phase.correct)||0);
+    target.legacyLastSeen=Math.max(Number(target.legacyLastSeen)||0,Number(phase.lastSeen)||0);
+  }
+
+  journey.review.dueAt=Math.max(Number(journey.review.dueAt)||0,Number(lc.retrievalDueAt)||0);
+  journey.review.attempts=Math.max(Number(journey.review.attempts)||0,Number(lc.retrievalAttempts)||0);
+  journey.review.successes=Math.max(Number(journey.review.successes)||0,Number(lc.retrievalSuccesses)||0);
+  if(lc.retrievalSuccesses>0&&!journey.review.lastCompletedAt) journey.review.lastCompletedAt=Number(lc.lastCycleAt)||Number(skillState.lastSeen)||0;
+  return journey;
+}
+export function ensureLessonJourneyState(state,skillId){
+  if(!state.skills[skillId]) state.skills[skillId]=makeSkillState();
+  const ss=state.skills[skillId];
+  ss.evidence ||= defaultEvidence();
+  for(const r of REPRESENTATIONS){ ss.evidence[r] ||= {score:0,attempts:0,correct:0,lastSeen:0}; }
+  ensureLearningCycleState(ss);
+  return ensureLessonJourneyOnSkillState(ss,skillId);
+}
+export function ensureLearningArchitectureState(state){
+  state.version=Math.max(3,Number(state.version)||0);
+  state.learningArchitecture ||= {version:LEARNING_ARCHITECTURE_VERSION};
+  state.learningArchitecture.version=LEARNING_ARCHITECTURE_VERSION;
+  for(const skillObj of skillsFor(state.profile)) ensureSkillState(state,skillObj.id);
+  return state;
+}
+export function markLessonLearnProgress(state,skillId,{stepIndex=null,completedAt=0,startedAt=0,lessonVersion=null}={}){
+  const journey=ensureLessonJourneyState(state,skillId);
+  const now=Date.now();
+  journey.learn.startedAt=journey.learn.startedAt||Number(startedAt)||now;
+  if(stepIndex!=null) journey.learn.stepIndex=Math.max(journey.learn.stepIndex,Number(stepIndex)||0);
+  if(lessonVersion!=null) journey.learn.lessonVersion=Math.max(journey.learn.lessonVersion,Number(lessonVersion)||0);
+  if(completedAt){
+    journey.learn.completedAt=Math.max(journey.learn.completedAt,Number(completedAt)||now);
+    journey.learn.completionSource='native';
+  }
+  return journey.learn;
+}
+export function recordPracticeSectionAttempt(state,skillId,sectionId,{correct=false,complete=false,now=Date.now()}={}){
+  const contract=lessonContractFor(skillId);
+  const section=contract.practice?.sections?.find(item=>item.id===sectionId);
+  if(!section) throw new Error('Unknown practice section: '+skillId+'/'+sectionId);
+  const journey=ensureLessonJourneyState(state,skillId);
+  const target=journey.practice.sections[sectionId] ||= emptyPracticeSectionState();
+  target.nativeAttempts+=1;
+  if(correct) target.nativeCorrect+=1;
+  target.lastSeen=now;
+  if(complete) target.completedAt=target.completedAt||now;
+  return target;
+}
+export function lessonProgressSnapshot(state,skillId,now=Date.now()){
+  const ss=ensureSkillState(state,skillId);
+  const journey=ensureLessonJourneyState(state,skillId);
+  const contract=lessonContractFor(skillId);
+  const access=lessonAccessState(state,skillId);
+  const phaseSeen=LEARNING_PHASES.some(phase=>(ss.learningCycle?.phases?.[phase]?.attempts||0)>0);
+  const learnStatus=journey.learn.completedAt?'complete':(journey.learn.stepIndex>0||phaseSeen?'in-progress':'not-started');
+  const sectionDefs=contract.practice?.sections||[];
+  const sectionStates=sectionDefs.map(def=>({def,state:journey.practice.sections[def.id]}));
+  const completedSections=sectionStates.filter(item=>item.state?.completedAt).length;
+  const nativeAttempts=sectionStates.reduce((sum,item)=>sum+(item.state?.nativeAttempts||0),0);
+  let practiceStatus='ready';
+  if(access.status==='locked'||learnStatus!=='complete') practiceStatus='locked';
+  else if(!sectionDefs.length) practiceStatus='pending-design';
+  else if(completedSections===sectionDefs.length) practiceStatus='complete';
+  else if(nativeAttempts>0) practiceStatus='in-progress';
+  else if(journey.practice.legacyCompletedAt) practiceStatus='legacy-complete';
+
+  let reviewStatus='locked';
+  if(ss.learningCycle?.firstCycleCompletedAt){
+    if(journey.review.dueAt&&journey.review.dueAt<=now) reviewStatus='due';
+    else if(journey.review.dueAt>now) reviewStatus='scheduled';
+    else if(journey.review.successes>0) reviewStatus='caught-up';
+    else reviewStatus='ready';
+  }
+
+  return {
+    skillId,
+    unitId:contract.unitId,
+    provisional:contract.provisional,
+    access,
+    learn:{status:learnStatus,...journey.learn},
+    practice:{
+      status:practiceStatus,
+      completedSections,
+      totalSections:sectionDefs.length,
+      legacyCompletedAt:journey.practice.legacyCompletedAt,
+      sections:sectionStates.map(({def,state:sectionState})=>({id:def.id,label:def.label,phase:def.phase,representation:def.representation,...sectionState}))
+    },
+    review:{status:reviewStatus,...journey.review}
+  };
+}
+export function lessonChannelAccess(state,skillId,now=Date.now()){
+  const snapshot=lessonProgressSnapshot(state,skillId,now);
+  return {
+    learn:snapshot.access.status!=='locked',
+    practice:snapshot.practice.status!=='locked'&&snapshot.practice.status!=='pending-design',
+    review:snapshot.review.status!=='locked'
+  };
+}
+
 function defaultEvidence(){
   return Object.fromEntries(REPRESENTATIONS.map(r => [r,{score:0, attempts:0, correct:0, lastSeen:0}]));
 }
@@ -205,11 +459,12 @@ export function makeSkillState(){
 }
 export function defaultState(){
   return {
-    version: 2,
+    version: 3,
     profile: 'grade1',
     childName: '',
     onboarded: false,
     settings: { voice:true, calmMotion:false, cooldownMinutes:null, dailyMinutes:20 },
+    learningArchitecture: { version:LEARNING_ARCHITECTURE_VERSION },
     skills: {},
     reviewQueue: [],
     history: [],
@@ -223,6 +478,7 @@ export function ensureSkillState(state, skillId){
   ss.evidence ||= defaultEvidence();
   for(const r of REPRESENTATIONS){ ss.evidence[r] ||= {score:0,attempts:0,correct:0,lastSeen:0}; }
   ensureLearningCycleState(ss);
+  ensureLessonJourneyOnSkillState(ss,skillId);
   return ss;
 }
 
