@@ -42,3 +42,12 @@ Phones may scroll when necessary. Browser/device runtime verification remains se
 ## v1.6.1 — First complete P2 teaching sequence
 
 After prerequisite readiness, `number1000` teaches MOE 1.1 (10 birlik→1 onluk, 10 onluk→1 yüzlük, 10 yüzlük→1000), then MOE 1.2 (347 place value, 444 same-digit place value), then MOE 1.3 (347↔üç yüz kırk yedi). Every teaching screen requires a child action. `lessonStepIndex` persists resume position and `lessonTaughtAt` prevents replay after completion.
+
+
+## v1.6.2 — Lesson-first reference flow
+
+The first P2 reference lesson no longer opens with a multiple-choice readiness quiz. For `number1000`, MOE 1.1 itself rebuilds the P1 tens/hundreds foundation, so the separate readiness screen is redundant and made the product feel quiz-first.
+
+The child now enters the six-step teaching sequence directly. Guided and independent application still collect evidence afterwards, but correct/wrong feedback stays in the same task context instead of replacing the whole screen with a `DOĞRU → Sonraki göreve geç` card.
+
+Place-value teaching has no ambiguous “Değerleri keşfet” button: the three digit cards are the interaction, and the next step unlocks after all three values are revealed.

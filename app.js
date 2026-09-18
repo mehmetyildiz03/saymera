@@ -47,6 +47,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
+const LESSON_FIRST_SKILLS=new Set(['number1000']);
 const NUMBER1000_LESSON_STEPS=[
   {id:'ten-bundle',moe:'1.1',kind:'bundle',unit:'one',title:'10 birlik, 1 onluk olur.',body:'Birlikleri tek tek sayabiliriz. 10 birlik olduğunda onları bir araya getirip 1 onluk olarak düşünürüz.',equation:'10 birlik = 1 onluk',resultValue:'10',resultLabel:'1 onluk'},
   {id:'hundred-bundle',moe:'1.1',kind:'bundle',unit:'ten',title:'10 onluk, 1 yüzlük olur.',body:'Onlukları da gruplarız. 10 tane onluk bir araya geldiğinde 100 eder; yani 1 yüzlük oluşur.',equation:'10 onluk = 1 yüzlük',resultValue:'100',resultLabel:'1 yüzlük'},
@@ -78,13 +79,15 @@ function renderNumber1000LessonStep(skill,index=null){
   $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
   $('#practiceCounter').textContent=(at+1)+' / '+NUMBER1000_LESSON_STEPS.length;
   $('#practiceProgress').style.width=Math.round((at+1)/NUMBER1000_LESSON_STEPS.length*100)+'%';
-  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">KONU ANLATIMI · '+(at+1)+'/'+NUMBER1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-takeaway"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div><div class="lesson-step-actions"><button type="button" class="soft-button lesson-action-button" id="lessonStepAction">'+(step.kind==='bundle'?'Birleştir':step.kind==='read-write'?'Okunuşunu göster':'Değerleri keşfet')+'</button><button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte deneyelim':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const lessonAction=step.kind==='place'
+    ? '<div class="lesson-place-prompt">Üç rakamın her birine dokun ve değerini gör.</div>'
+    : '<button type="button" class="soft-button lesson-action-button" id="lessonStepAction">'+(step.kind==='bundle'?'Birleştir':'Okunuşunu göster')+'</button>';
+  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">KONU ANLATIMI · '+(at+1)+'/'+NUMBER1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-takeaway"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div><div class="lesson-step-actions">'+lessonAction+'<button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte deneyelim':'Sonraki adım')+' <b>→</b></button></div></div>';
   const next=$('#lessonStepNext'), action=$('#lessonStepAction');
   if(step.kind==='bundle') action?.addEventListener('click',()=>{ $('.lesson-bundle-demo')?.classList.add('bundled'); $('#lessonBundleResult span').textContent=step.resultValue; action.disabled=true; action.textContent='Birleştirildi ✓'; next.disabled=false; });
   else if(step.kind==='place'){
     const seen=new Set();
-    $$('.lesson-place-card').forEach(btn=>btn.addEventListener('click',()=>{ const i=Number(btn.dataset.placeIndex); seen.add(i); btn.classList.add('revealed'); btn.querySelector('b').textContent=btn.dataset.placeValue; const [digit,label,value]=step.values[i]; $('#lessonPlaceExplain').textContent=digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir.'; action.disabled=true; action.textContent='Kartlara dokun'; if(seen.size===step.values.length) next.disabled=false; }));
-    action?.addEventListener('click',()=>showToast('Üç rakamın da üzerine dokun'));
+    $$('.lesson-place-card').forEach(btn=>btn.addEventListener('click',()=>{ const i=Number(btn.dataset.placeIndex); seen.add(i); btn.classList.add('revealed'); btn.querySelector('b').textContent=btn.dataset.placeValue; const [digit,label,value]=step.values[i]; const left=step.values.length-seen.size; $('#lessonPlaceExplain').textContent=left?digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir. '+left+' rakam daha kaldı.':digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir. Üçünü de keşfettin.'; if(seen.size===step.values.length) next.disabled=false; }));
   } else action?.addEventListener('click',()=>{ $('#lessonWords').textContent=step.words; $('.lesson-read-demo')?.classList.add('revealed'); action.disabled=true; action.textContent='Gösterildi ✓'; next.disabled=false; });
   next?.addEventListener('click',()=>completeNumber1000LessonStep(skill,at));
 }
@@ -406,9 +409,10 @@ function buildSessionPlan(focus){
   if(supportsLearningCycle(focus.skill.id)){
     const learningPlan=buildLearningCyclePlan(focus.state);
     if(!focus.state.learningCycle?.firstCycleCompletedAt){
+      const lessonFirst=LESSON_FIRST_SKILLS.has(focus.skill.id);
       const readiness=learningPlan.find(item=>item.phase==='readiness');
-      if(readiness) plan.push({skillId:focus.skill.id,reviewItem:null,...readiness});
       if(!focus.state.learningCycle?.lessonTaughtAt) plan.push({skillId:focus.skill.id,representation:null,phase:null,reviewItem:null,kind:'lesson-intro',activityMode:'teach',conceptScope:'fresh',countsTowardEvidence:false});
+      if(!lessonFirst&&readiness) plan.push({skillId:focus.skill.id,reviewItem:null,...readiness});
       learningPlan.filter(item=>item.phase!=='readiness').forEach(item=>plan.push({skillId:focus.skill.id,reviewItem:null,...item}));
     }else learningPlan.forEach(item=>plan.push({skillId:focus.skill.id,reviewItem:null,...item}));
     return plan;
@@ -1084,7 +1088,19 @@ function answerQuestion(value,button){
   session.effortUsed+=(q.effort||1)*(usedHint?1.12:1);
   if(correct) session.correct++; else session.wrong++;
   saveState();
-  setTimeout(()=>correct?renderCorrectFeedback():renderBridgeFeedback(),360);
+  const lessonFlow=q.skillId==='number1000'&&currentSelection?.kind!=='retention';
+  setTimeout(()=>lessonFlow?renderLessonFlowFeedback(correct):(correct?renderCorrectFeedback():renderBridgeFeedback()),260);
+}
+function renderLessonFlowFeedback(correct){
+  const q=currentQuestion;
+  const tools=$('.question-tools');
+  if(!tools){ correct?renderCorrectFeedback():renderBridgeFeedback(); return; }
+  const title=correct?'Bağlantıyı kurdun.':'Birlikte düzeltelim.';
+  const detail=correct?q.explain:q.hint;
+  const extra=!correct&&q.explain?'<small>'+esc(q.explain)+'</small>':'';
+  tools.outerHTML='<div class="lesson-flow-feedback '+(correct?'is-correct':'is-support')+'" id="lessonFlowFeedback"><div><span>'+(correct?'✓ DEVAM':'İPUCU')+'</span><strong>'+esc(title)+'</strong><p>'+esc(detail)+'</p>'+extra+'</div><button type="button" id="lessonFlowContinue">Devam et <b>→</b></button></div>';
+  $('#lessonFlowContinue')?.addEventListener('click',nextQuestion);
+  if(state.settings.voice) speak((correct?title:'Birlikte bakalım.')+' '+detail);
 }
 function renderCorrectFeedback(){
   const q=currentQuestion;
@@ -1092,7 +1108,7 @@ function renderCorrectFeedback(){
   $('#practiceContent').innerHTML=`<section class="feedback-card">
     <div class="feedback-mark">✓</div><span class="section-kicker">DOĞRU</span><h2>${esc(lead)}</h2>
     <div class="explain-box">${esc(q.explain)}</div>
-    <button class="primary-cta" id="continueButton"><span class="cta-icon">→</span><span><b>Sonraki göreve geç</b><small>${nextTaskLabel()}</small></span><i>→</i></button>
+    <button class="primary-cta" id="continueButton"><span class="cta-icon">→</span><span><b>Devam et</b><small>${nextTaskLabel()}</small></span><i>→</i></button>
   </section>`;
   $('#continueButton').addEventListener('click',nextQuestion);
   if(state.settings.voice) speak(`${lead} ${q.explain}`);
@@ -1110,7 +1126,7 @@ function renderBridgeFeedback(){
 }
 function nextTaskLabel(){
   const next=session?.plan[session.planIndex+1];
-  return next?'sıradaki soru':'oturumu tamamla';
+  return next?'sonraki adım':'oturumu tamamla';
 }
 function nextQuestion(){
   if(!session) return;
