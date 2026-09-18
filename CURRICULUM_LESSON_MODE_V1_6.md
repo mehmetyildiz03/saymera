@@ -64,3 +64,10 @@ For `number1000`, the child-facing header no longer presents one global task cou
 - **KENDİN DENE**
 
 Within guided and independent work, any counter is stage-local rather than a “question 3 of 9” session counter.
+
+
+## v1.6.4 — Direct discovery and digital writing
+
+The reference lesson removes detached reveal buttons. The object that contains the unknown value is now the interaction itself: bundle-result `?` cards reveal the regrouped value; place-value cards reveal `300 / 40 / 7` in place; subtle digit-to-card arrows strengthen the positional-value mapping; and the mathematical connection lives inside the central teaching visual after the relevant discovery is complete.
+
+Number words are revealed by parts rather than by a separate show-reading button. MOE 1.3 includes reading and writing numbers, so SAYMERA also adds a non-scored digital construction step (`526 = beş yüz yirmi altı`) using word parts. Freehand handwriting is not a required mathematics gate; it may later be offered as an optional stylus activity so motor execution does not contaminate conceptual assessment.

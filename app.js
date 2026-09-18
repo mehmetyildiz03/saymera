@@ -48,23 +48,39 @@ const P2_LESSON_BLUEPRINTS={
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
 const LESSON_FIRST_SKILLS=new Set(['number1000']);
-const NUMBER1000_LESSON_VERSION=3;
+const NUMBER1000_LESSON_VERSION=4;
 const NUMBER1000_LESSON_STEPS=[
   {id:'ten-bundle',moe:'1.1',kind:'bundle',unit:'one',title:'10 birlik, 1 onluk olur.',body:'Birlikleri tek tek sayabiliriz. 10 birlik olduğunda onları bir araya getirip 1 onluk olarak düşünürüz.',equation:'10 birlik = 1 onluk',resultValue:'10',resultLabel:'1 onluk'},
   {id:'hundred-bundle',moe:'1.1',kind:'bundle',unit:'ten',title:'10 onluk, 1 yüzlük olur.',body:'Onlukları da gruplarız. 10 tane onluk bir araya geldiğinde 100 eder; yani 1 yüzlük oluşur.',equation:'10 onluk = 1 yüzlük',resultValue:'100',resultLabel:'1 yüzlük'},
   {id:'thousand-bundle',moe:'1.1',kind:'bundle',unit:'hundred',title:'10 yüzlük, 1000 eder.',body:'Aynı yapı bir kez daha büyür. 10 yüzlük bir araya geldiğinde 1000 olur.',equation:'10 yüzlük = 1000',resultValue:'1000',resultLabel:'1000'},
   {id:'place-value',moe:'1.2',kind:'place',title:'Yüzlük, onluk ve birliği aynı sayıda görelim.',body:'347 sayısındaki her rakam bulunduğu basamağa göre farklı bir değer taşır.',number:'347',values:[['3','Yüzlük','300'],['4','Onluk','40'],['7','Birlik','7']],equation:'347 = 300 + 40 + 7'},
   {id:'same-digit',moe:'1.2',kind:'place',title:'Aynı rakam, farklı yerde farklı değer taşır.',body:'444 sayısında üç tane 4 görürüz; ama üçü aynı değerde değildir.',number:'444',values:[['4','Yüzlük','400'],['4','Onluk','40'],['4','Birlik','4']],equation:'444 = 400 + 40 + 4'},
-  {id:'read-write',moe:'1.3',kind:'read-write',title:'Sayıyı hem rakamla hem sözcükle okuyabiliriz.',body:'Basamakları soldan sağa okuyunca sayı sözcükleri oluşur.',number:'347',words:'üç yüz kırk yedi',equation:'347 ↔ üç yüz kırk yedi'}
+  {id:'read-write',moe:'1.3',kind:'read-write',title:'Sayıyı hem rakamla hem sözcükle okuyabiliriz.',body:'Basamakları soldan sağa okuruz. Her parçaya dokununca sayı sözcükleri sırayla görünür.',number:'347',wordParts:['üç yüz','kırk','yedi'],equation:'347 ↔ üç yüz kırk yedi'},
+  {id:'word-build',moe:'1.3',kind:'word-build',title:'Şimdi sayı yazılışını sen kur.',body:'526 sayısını sözcüklerle yazarken yüzlük, onluk ve birlik parçalarını doğru sıraya yerleştiririz.',number:'526',wordParts:['beş yüz','yirmi','altı'],equation:'526 = beş yüz yirmi altı'}
 ];
+
+function lessonEquationMarkup(step){
+  return '<div class="lesson-core-equation" id="lessonCoreEquation" aria-live="polite"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div>';
+}
 function number1000LessonStepVisual(step){
   if(step.kind==='bundle'){
     const cls=step.unit==='one'?'lesson-unit-one':step.unit==='ten'?'lesson-unit-ten':'lesson-unit-hundred';
     const tokens=Array.from({length:10},()=>'<i class="'+cls+'" aria-hidden="true"></i>').join('');
-    return '<div class="lesson-bundle-demo" data-unit="'+esc(step.unit)+'"><div class="lesson-bundle-source">'+tokens+'</div><div class="lesson-bundle-arrow" aria-hidden="true">→</div><div class="lesson-bundle-result" id="lessonBundleResult"><span>?</span><b>'+esc(step.resultLabel)+'</b></div></div>';
+    return '<div class="lesson-visual-core"><div class="lesson-bundle-demo" data-unit="'+esc(step.unit)+'"><div class="lesson-bundle-source">'+tokens+'</div><div class="lesson-bundle-arrow" aria-hidden="true">→</div><button type="button" class="lesson-bundle-result lesson-reveal-card" id="lessonBundleResult" aria-label="'+esc(step.resultLabel)+' sonucunu keşfet"><span class="lesson-reveal-question">?</span><b>'+esc(step.resultLabel)+'</b><small>dokun</small></button></div>'+lessonEquationMarkup(step)+'</div>';
   }
-  if(step.kind==='place') return '<div class="lesson-place-demo"><div class="lesson-big-number">'+esc(step.number)+'</div><div class="lesson-place-grid">'+step.values.map(([digit,label,value],i)=>'<button type="button" class="lesson-place-card" data-place-index="'+i+'" data-place-value="'+esc(value)+'"><strong>'+esc(digit)+'</strong><span>'+esc(label)+'</span><b>dokun</b></button>').join('')+'</div><div class="lesson-place-explain" id="lessonPlaceExplain">Her rakama dokunup değerini gör.</div></div>';
-  return '<div class="lesson-read-demo"><strong>'+esc(step.number)+'</strong><div class="lesson-read-arrow" aria-hidden="true">↔</div><span id="lessonWords">?</span></div>';
+  if(step.kind==='place'){
+    const digits=[...String(step.number)];
+    const cards=step.values.map(([digit,label,value],i)=>'<button type="button" class="lesson-place-card" data-place-index="'+i+'" data-place-value="'+esc(value)+'"><strong>'+esc(digit)+'</strong><span>'+esc(label)+'</span><b class="lesson-place-value">?</b><small>dokun</small></button>').join('');
+    const digitRow=digits.map((digit,i)=>'<span class="lesson-number-digit" data-digit-index="'+i+'">'+esc(digit)+'</span>').join('');
+    const arrows=digits.map((_,i)=>'<i class="lesson-digit-arrow" data-arrow-index="'+i+'" aria-hidden="true">↓</i>').join('');
+    return '<div class="lesson-visual-core"><div class="lesson-place-demo"><div class="lesson-big-number">'+digitRow+'</div><div class="lesson-digit-arrows">'+arrows+'</div><div class="lesson-place-grid">'+cards+'</div><div class="lesson-place-explain" id="lessonPlaceExplain">Kartlardaki ? işaretlerine dokun.</div></div>'+lessonEquationMarkup(step)+'</div>';
+  }
+  if(step.kind==='read-write'){
+    const parts=step.wordParts.map((part,i)=>'<button type="button" class="lesson-word-reveal" data-word-index="'+i+'" data-word="'+esc(part)+'"><span>?</span><small>'+(i===0?'yüzlük':i===1?'onluk':'birlik')+'</small></button>').join('');
+    return '<div class="lesson-visual-core"><div class="lesson-read-demo"><strong>'+esc(step.number)+'</strong><div class="lesson-read-arrow" aria-hidden="true">↓</div><div class="lesson-word-parts">'+parts+'</div><div class="lesson-read-combined" id="lessonReadCombined" aria-live="polite"></div></div>'+lessonEquationMarkup(step)+'</div>';
+  }
+  const chips=['yirmi','altı','beş yüz'];
+  return '<div class="lesson-visual-core"><div class="lesson-word-build"><strong>'+esc(step.number)+'</strong><p>Sözcük parçalarına doğru sırayla dokun.</p><div class="lesson-word-slots" id="lessonWordSlots">'+step.wordParts.map(()=>'<span>?</span>').join('')+'</div><div class="lesson-word-bank">'+chips.map((word,i)=>'<button type="button" class="lesson-word-chip" data-word="'+esc(word)+'" data-chip-index="'+i+'">'+esc(word)+'</button>').join('')+'</div><button type="button" class="lesson-word-clear" id="lessonWordClear">Baştan kur</button></div>'+lessonEquationMarkup(step)+'</div>';
 }
 function completeNumber1000LessonStep(skill,index){
   const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
@@ -72,6 +88,9 @@ function completeNumber1000LessonStep(skill,index){
   lc.lessonVersion=NUMBER1000_LESSON_VERSION;
   if(next>=NUMBER1000_LESSON_STEPS.length){ lc.lessonTaughtAt=Date.now(); saveState(); session.planIndex++; loadPlanItem(); return; }
   saveState(); session.lessonStepIndex=next; renderNumber1000LessonStep(skill,next);
+}
+function revealLessonEquation(){
+  $('#lessonCoreEquation')?.classList.add('revealed');
 }
 function renderNumber1000LessonStep(skill,index=null){
   const ss=ensureSkillState(state,skill.id);
@@ -81,16 +100,75 @@ function renderNumber1000LessonStep(skill,index=null){
   $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
   $('#practiceCounter').textContent=(at+1)+' / '+NUMBER1000_LESSON_STEPS.length;
   $('#practiceProgress').style.width=Math.round((at+1)/NUMBER1000_LESSON_STEPS.length*100)+'%';
-  const lessonAction=step.kind==='place'
-    ? '<div class="lesson-place-prompt">Üç rakamın her birine dokun ve değerini gör.</div>'
-    : '<button type="button" class="soft-button lesson-action-button" id="lessonStepAction">'+(step.kind==='bundle'?'Birleştir':'Okunuşunu göster')+'</button>';
-  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">ADIM '+(at+1)+' / '+NUMBER1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-takeaway"><span>BAĞLANTI</span><strong>'+esc(step.equation)+'</strong></div><div class="lesson-step-actions">'+lessonAction+'<button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte uygulamaya geç':'Sonraki adım')+' <b>→</b></button></div></div>';
-  const next=$('#lessonStepNext'), action=$('#lessonStepAction');
-  if(step.kind==='bundle') action?.addEventListener('click',()=>{ $('.lesson-bundle-demo')?.classList.add('bundled'); $('#lessonBundleResult span').textContent=step.resultValue; action.disabled=true; action.textContent='Birleştirildi ✓'; next.disabled=false; });
-  else if(step.kind==='place'){
+  $('#practiceContent').innerHTML='<div class="lesson-step-stage" data-lesson-step="'+esc(step.id)+'"><div class="lesson-step-copy"><span class="lesson-kicker">ADIM '+(at+1)+' / '+NUMBER1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="lesson-step-visual">'+number1000LessonStepVisual(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="lessonStepNext" disabled>'+(at===NUMBER1000_LESSON_STEPS.length-1?'Birlikte uygulamaya geç':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const next=$('#lessonStepNext');
+
+  if(step.kind==='bundle'){
+    $('#lessonBundleResult')?.addEventListener('click',ev=>{
+      const card=ev.currentTarget;
+      if(card.classList.contains('revealed')) return;
+      card.classList.add('revealed');
+      $('.lesson-bundle-demo')?.classList.add('bundled');
+      card.querySelector('.lesson-reveal-question').textContent=step.resultValue;
+      card.querySelector('small').textContent='keşfettin ✓';
+      revealLessonEquation();
+      next.disabled=false;
+    });
+  }else if(step.kind==='place'){
     const seen=new Set();
-    $$('.lesson-place-card').forEach(btn=>btn.addEventListener('click',()=>{ const i=Number(btn.dataset.placeIndex); seen.add(i); btn.classList.add('revealed'); btn.querySelector('b').textContent=btn.dataset.placeValue; const [digit,label,value]=step.values[i]; const left=step.values.length-seen.size; $('#lessonPlaceExplain').textContent=left?digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir. '+left+' rakam daha kaldı.':digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir. Üçünü de keşfettin.'; if(seen.size===step.values.length) next.disabled=false; }));
-  } else action?.addEventListener('click',()=>{ $('#lessonWords').textContent=step.words; $('.lesson-read-demo')?.classList.add('revealed'); action.disabled=true; action.textContent='Gösterildi ✓'; next.disabled=false; });
+    $$('.lesson-place-card').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=Number(btn.dataset.placeIndex);
+      if(seen.has(i)) return;
+      seen.add(i);
+      btn.classList.add('revealed');
+      btn.querySelector('.lesson-place-value').textContent=btn.dataset.placeValue;
+      btn.querySelector('small').textContent='değeri';
+      $('.lesson-number-digit[data-digit-index="'+i+'"]')?.classList.add('revealed');
+      $('.lesson-digit-arrow[data-arrow-index="'+i+'"]')?.classList.add('revealed');
+      const [digit,label,value]=step.values[i], left=step.values.length-seen.size;
+      $('#lessonPlaceExplain').textContent=left?digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir. '+left+' tane daha keşfet.':digit+', '+label.toLocaleLowerCase('tr-TR')+' basamağında '+value+' değerindedir. Şimdi parçaları birlikte gör.';
+      if(seen.size===step.values.length){ revealLessonEquation(); next.disabled=false; }
+    }));
+  }else if(step.kind==='read-write'){
+    const seen=new Set();
+    $$('.lesson-word-reveal').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=Number(btn.dataset.wordIndex);
+      if(seen.has(i)) return;
+      seen.add(i);
+      btn.classList.add('revealed');
+      btn.querySelector('span').textContent=btn.dataset.word;
+      if(seen.size===step.wordParts.length){
+        $('#lessonReadCombined').textContent=step.wordParts.join(' ');
+        revealLessonEquation();
+        next.disabled=false;
+      }
+    }));
+  }else{
+    const picked=[];
+    const correct=step.wordParts;
+    const slots=$$('#lessonWordSlots span');
+    const reset=()=>{
+      picked.splice(0,picked.length);
+      slots.forEach(x=>{x.textContent='?';x.classList.remove('correct','wrong');});
+      $$('.lesson-word-chip').forEach(x=>{x.disabled=false;x.classList.remove('selected');});
+      $('#lessonCoreEquation')?.classList.remove('revealed');
+      next.disabled=true;
+    };
+    $$('.lesson-word-chip').forEach(btn=>btn.addEventListener('click',()=>{
+      if(picked.length>=correct.length||btn.disabled) return;
+      picked.push(btn.dataset.word);
+      const idx=picked.length-1;
+      slots[idx].textContent=btn.dataset.word;
+      btn.disabled=true; btn.classList.add('selected');
+      if(picked.length===correct.length){
+        const ok=picked.every((word,i)=>word===correct[i]);
+        slots.forEach(x=>x.classList.add(ok?'correct':'wrong'));
+        if(ok){ revealLessonEquation(); next.disabled=false; }
+        else showToast('Sıra tam olmadı; parçaları yeniden kurabilirsin.');
+      }
+    }));
+    $('#lessonWordClear')?.addEventListener('click',reset);
+  }
   next?.addEventListener('click',()=>completeNumber1000LessonStep(skill,at));
 }
 function lessonBlueprintFor(skill){
