@@ -52,3 +52,13 @@ assert.equal(section.cycleAttempts,0);
 assert.equal(section.cycleCorrect,0);
 
 console.log('reference practice sections: PASS (content-specific task families + resumable cycles)');
+
+const patternRng=seeded(77);
+for(const section of P2_LESSON_CONTRACTS.numberPattern1000.practice.sections){
+  const qs=Array.from({length:4},(_,i)=>generateLessonPracticeQuestion('numberPattern1000',section.id,i,2,patternRng));
+  assert.ok(qs.every(q=>[1,10,100].includes(Math.abs(Number(q.patternStep)))),'numberPattern1000 must stay within ±1/±10/±100');
+  assert.ok(qs.every(q=>!String(q.prompt).includes('katına')),'numberPattern1000 must not teach multiplicative patterns before multiplication');
+}
+const missingQs=Array.from({length:4},(_,i)=>generateLessonPracticeQuestion('numberPattern1000','missing-number',i,2,seeded(88+i)));
+assert.ok(missingQs.every(q=>q.visual?.items?.includes('?')),'missing-number section must place a gap inside the sequence');
+assert.ok(missingQs.every(q=>q.response.kind==='number-input'),'missing-number work should require student production');

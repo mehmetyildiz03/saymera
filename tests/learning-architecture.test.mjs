@@ -18,8 +18,10 @@ assert.equal(P2_LESSON_CONTRACTS.number1000.practice.sections.length,6);
 assert.deepEqual(P2_LESSON_CONTRACTS.compareOrder1000.practice.sections.map(x=>x.id),[
   'compare-places','verbal-relation','comparison-symbols','order-numbers','explain-order','transfer-order'
 ]);
-assert.equal(lessonContractFor('numberPattern1000').provisional,true,'future lessons must stay explicitly provisional until designed');
-assert.equal(lessonContractFor('numberPattern1000').practice.sections.length,0,'do not invent future practice sections');
+assert.equal(lessonContractFor('numberPattern1000').provisional,false,'numberPattern1000 is now an explicit reference lesson');
+assert.deepEqual(P2_LESSON_CONTRACTS.numberPattern1000.practice.sections.map(x=>x.id),[
+  'model-change','describe-rule','continue-sequence','missing-number','explain-pattern','transfer-pattern'
+]);
 
 const state=defaultState();
 state.profile='grade2';

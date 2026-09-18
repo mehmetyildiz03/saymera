@@ -99,6 +99,21 @@ export const P2_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  numberPattern1000:{
+    version:1,
+    unitId:'whole-numbers',
+    practice:{
+      sections:[
+        {id:'model-change',label:'Değişimi modelde gör',phase:'model',representation:'build'},
+        {id:'describe-rule',label:'Kuralı sözcükle söyle',phase:'representation',representation:'see'},
+        {id:'continue-sequence',label:'Örüntüyü sürdür',phase:'symbol',representation:'symbol'},
+        {id:'missing-number',label:'Eksik sayıyı bul',phase:'practice',representation:'symbol'},
+        {id:'explain-pattern',label:'Basamak değişimini açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-pattern',label:'Aynı kuralı yeni durumda kullan',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -460,7 +475,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       reviewBeforeCompletion.length?'Erken tekrar: '+reviewBeforeCompletion.join(', '):'Tekrar kapıları doğru.'
     );
 
-    const referenceContracts=['number1000','compareOrder1000'];
+    const referenceContracts=['number1000','compareOrder1000','numberPattern1000'];
     const incompleteContracts=referenceContracts.filter(id=>{
       const contract=lessonContractFor(id);
       return contract.provisional || (contract.practice?.sections?.length||0)<5;
@@ -469,7 +484,24 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'reference-contracts',
       'Referans derslerin Öğren/Uygula sözleşmeleri tanımlı',
       incompleteContracts.length===0,
-      incompleteContracts.length?'Eksik sözleşme: '+incompleteContracts.join(', '):'İki referans ders açık sözleşmeye sahip.'
+      incompleteContracts.length?'Eksik sözleşme: '+incompleteContracts.join(', '):'Üç referans ders açık sözleşmeye sahip.'
+    );
+
+
+    let patternScopeClean=true;
+    const patternRng=(()=>{let s=1901;return()=>((s=(s*1664525+1013904223)>>>0)/2**32)})();
+    for(const section of P2_LESSON_CONTRACTS.numberPattern1000.practice.sections){
+      for(let i=0;i<4;i++){
+        const q=generateLessonPracticeQuestion('numberPattern1000',section.id,i,2,patternRng);
+        const step=Math.abs(Number(q.patternStep||0));
+        if(![1,10,100].includes(step)) patternScopeClean=false;
+      }
+    }
+    add(
+      'pattern-step-scope',
+      'P2 sayı örüntüsü yalnız 1, 10 ve 100 adımlarını kullanıyor',
+      patternScopeClean,
+      patternScopeClean?'Çarpımsal/ileri konu adımı yok.':'Örüntü kapsamı ±1/±10/±100 dışına çıktı.'
     );
 
     let symbolGuard=true;
@@ -3505,10 +3537,155 @@ function compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng){
     taskKind:'section-order-transfer',taskLabel:'Karşılaştırmayı yeni bağlama taşı',hint:'Sayıları soldan sağa karşılaştır.',explain:(t[3]==='larger'?y.larger+' daha büyüktür.':y.smaller+' daha küçüktür.')
   });
 }
+
+function patternRulePhrase(step){
+  return 'Her adımda '+Math.abs(step)+' '+(step>0?'daha':'daha az')+'.';
+}
+function patternChangedPlace(step){
+  const amount=Math.abs(step);
+  return amount===100?'yüzlük':amount===10?'onluk':'birlik';
+}
+function patternDirectionWord(step){ return step>0?'artıyor':'azalıyor'; }
+function patternSequenceWithGap(x,gapIndex){
+  const full=[...x.seq,x.next];
+  return {full,answer:full[gapIndex],items:full.map((n,i)=>i===gapIndex?'?':n)};
+}
+function pattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const d=clamp(difficulty,1,4);
+  const concept=createConceptInstance('numberPattern1000',d,rng);
+  const x=concept.anchor;
+  const task=taskIndex%4;
+  const rule=patternRulePhrase(x.step);
+  const place=patternChangedPlace(x.step);
+  let q;
+
+  if(sectionId==='model-change'){
+    if(task===0){
+      const a=x.seq[0], b=x.seq[1];
+      const answer=place;
+      q=qBase('numberPattern1000','build',a+' sayısından '+b+' sayısına geçerken hangi basamak düzenli değişiyor?',answer,semanticChoices(answer,['yüzlük','onluk','birlik'].filter(v=>v!==answer),rng),{
+        taskKind:'pattern-place-change',taskLabel:'Değişen basamağı modelde bul',visual:{type:'sequence',items:[a,b]},
+        hint:'İki sayıyı yüzlük, onluk ve birlik olarak yan yana düşün.',explain:Math.abs(x.step)+' fark, '+place+' basamağındaki düzenli değişimle ilgilidir.'
+      });
+    }else if(task===1){
+      const answer=x.step>0?'bir '+place+' ekleniyor':'bir '+place+' çıkarılıyor';
+      const others=['bir yüzlük ekleniyor','bir onluk ekleniyor','bir birlik ekleniyor','bir yüzlük çıkarılıyor','bir onluk çıkarılıyor','bir birlik çıkarılıyor'].filter(v=>v!==answer);
+      q=qBase('numberPattern1000','build',x.seq[1]+' sayısı '+x.seq[0]+' sayısından nasıl elde edildi?',answer,semanticChoices(answer,others,rng),{
+        taskKind:'pattern-unit-change',taskLabel:'Bir sonraki sayının model değişimini söyle',visual:{type:'sequence',items:x.seq.slice(0,2)},
+        hint:'Adım '+Math.abs(x.step)+' ise bunun kaç birlik, onluk veya yüzlük olduğunu düşün.',explain:rule
+      });
+    }else if(task===2){
+      const candidates=shuffled([...new Set([x.step,-x.step,x.step>0?10:-10,x.step>0?100:-100,1,-1])],rng).slice(0,4);
+      if(!candidates.includes(x.step)) candidates[0]=x.step;
+      q=qTask('numberPattern1000','build','Bu dizide her sayıdan sonraki sayıya geçişi oluşturacak adımı seç.',x.step,{kind:'manipulative',interaction:'pattern-step',expectedValue:String(x.step),checkLabel:'Adımı kontrol et'},{
+        taskKind:'pattern-step-build',taskLabel:'Sabit değişimi seçerek kur',visual:{type:'pattern-step-interactive',seq:x.seq,candidates:shuffled([...new Set(candidates)],rng)},
+        hint:'Bir komşu sayıdan diğerine ne kadar değiştiğine bak.',explain:rule
+      });
+    }else{
+      const y=concept.symbol, a=y.seq[0],b=y.seq[1];
+      q=qTask('numberPattern1000','build',a+' ile '+b+' arasındaki değişim kaçtır?',Math.abs(y.step),{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Değişimi kontrol et'},{
+        taskKind:'pattern-change-amount',taskLabel:'Değişim miktarını bul',visual:{type:'sequence',items:[a,b]},
+        hint:'Büyük sayı ile küçük sayı arasındaki farkı düşün.',explain:'Değişim miktarı '+Math.abs(y.step)+'; dizi '+patternDirectionWord(y.step)+'.'
+      });
+    }
+  }else if(sectionId==='describe-rule'){
+    const answer=rule;
+    const distractors=[
+      'Her adımda '+Math.abs(x.step)+' '+(x.step>0?'daha az.':'daha.'),
+      'Her adımda '+(Math.abs(x.step)===1?10:1)+' daha.',
+      'Sayılar arasında sabit bir kural yok.'
+    ];
+    const prompts=[
+      x.seq.join(', ')+' dizisini devam ettirmeden önce kuralını söyle.',
+      'Bu sayı dizisinde her adımda ne oluyor?',
+      x.seq.slice(0,3).join(' → ')+' geçişlerini tek cümleyle nasıl tarif edersin?',
+      'Aşağıdaki örüntünün değişmeyen kuralı hangisidir?'
+    ];
+    q=qBase('numberPattern1000','see',prompts[task],answer,semanticChoices(answer,distractors,rng),{
+      taskKind:'pattern-rule-language-'+task,taskLabel:'Örüntü kuralını sözcükle ifade et',visual:{type:'sequence',items:[...x.seq,'?']},
+      hint:'Önce iki komşu sayı arasındaki değişimi söyle; sonra diğer geçişte de aynı olup olmadığını kontrol et.',explain:answer
+    });
+  }else if(sectionId==='continue-sequence'){
+    if(task===0||task===2){
+      const y=task===0?x:concept.symbol;
+      q=qTask('numberPattern1000','symbol',y.seq.join(', ')+', … dizisinde sıradaki sayı kaçtır?',y.next,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Sayımı kontrol et'},{
+        taskKind:'pattern-continue-entry-'+task,taskLabel:'Tarif edilen kuralı bir adım sürdür',visual:{type:'sequence',items:[...y.seq,'?']},
+        hint:'Kuralı bir kez daha uygula: '+patternRulePhrase(y.step),explain:'Sıradaki sayı '+y.next+'.'
+      });
+    }else{
+      const options=[x.next,x.next+x.step,x.next-x.step].filter((v,i,a)=>v>=0&&v<=1000&&a.indexOf(v)===i);
+      while(options.length<3) options.push(x.next+(options.length+1));
+      const answer=String(x.next);
+      q=qBase('numberPattern1000','symbol','Kuralı bozmadan diziyi hangi sayı devam ettirir?',answer,semanticChoices(answer,options.filter(v=>String(v)!==answer).map(String),rng),{
+        taskKind:'pattern-continue-choice-'+task,taskLabel:'Doğru devamı seç',visual:{type:'sequence',items:[...x.seq,'?']},
+        hint:rule,explain:'Kural aynı kaldığı için sonraki sayı '+x.next+'.'
+      });
+    }
+  }else if(sectionId==='missing-number'){
+    const gapIndex=[1,2,3,2][task];
+    const gap=patternSequenceWithGap(x,gapIndex);
+    const prompts=[
+      gap.items.join(', ')+' dizisindeki eksik sayıyı yaz.',
+      'Örüntünün ortasındaki boşluğa hangi sayı gelmeli? '+gap.items.join(', '),
+      'Kuralı iki taraftan kontrol et ve eksik sayıyı bul: '+gap.items.join(', '),
+      'Bu sayı dizisinde “?” yerine ne gelmelidir? '+gap.items.join(', ')
+    ];
+    q=qTask('numberPattern1000','symbol',prompts[task],gap.answer,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Eksik sayıyı kontrol et'},{
+      taskKind:'pattern-missing-'+task,taskLabel:'Dizinin içindeki eksik sayıyı bul',visual:{type:'sequence',items:gap.items},
+      hint:'Boşluğun hem solundaki hem sağındaki geçiş aynı kuralı sağlamalı.',explain:rule+' Eksik sayı '+gap.answer+'.'
+    });
+  }else if(sectionId==='explain-pattern'){
+    if(task===0){
+      const answer=place+' basamağı';
+      q=qBase('numberPattern1000','explain',x.seq.join(', ')+' dizisinde değişimi ilk olarak hangi basamakta görürüz?',answer,semanticChoices(answer,['yüzlük basamağı','onluk basamağı','birlik basamağı'].filter(v=>v!==answer),rng),{
+        taskKind:'pattern-explain-place',taskLabel:'Değişen basamağı gerekçelendir',visual:{type:'sequence',items:x.seq},
+        hint:'Adımın büyüklüğü 1 mi, 10 mu, 100 mü?',explain:Math.abs(x.step)+' büyüklüğündeki adım '+place+' yapısıyla bağlantılıdır.'
+      });
+    }else if(task===1){
+      const stable=place==='yüzlük'?'onluk ve birlik':place==='onluk'?'yüzlük ve birlik':'yüzlük ve onluk';
+      const answer=stable;
+      q=qBase('numberPattern1000','explain','Bu örnekte hangi basamaklar sabit kalıyor? '+x.seq.slice(0,3).join(', '),answer,semanticChoices(answer,['yüzlük','onluk','birlik','hiçbiri'].filter(v=>v!==answer),rng),{
+        taskKind:'pattern-explain-stable',taskLabel:'Sabit kalan basamakları fark et',visual:{type:'sequence',items:x.seq.slice(0,3)},
+        hint:'Sayıların aynı kalan rakamlarını karşılaştır.',explain:'Bu örnekte '+stable+' aynı kalırken '+place+' düzenli değişir.'
+      });
+    }else if(task===2){
+      const answer=x.step>0?'Sayılar aynı miktarda artıyor':'Sayılar aynı miktarda azalıyor';
+      q=qBase('numberPattern1000','explain','Bu dizinin neden bir sayı örüntüsü olduğunu en iyi hangi cümle açıklar?',answer,semanticChoices(answer,['Rakamların hepsi aynıdır','Her sayı rastgele seçilmiştir','Her sayı öncekinin iki katıdır'].filter(v=>v!==answer),rng),{
+        taskKind:'pattern-explain-constant',taskLabel:'Sabit değişim fikrini açıkla',visual:{type:'sequence',items:x.seq},
+        hint:'Her geçişte değişen miktarın aynı olup olmadığına bak.',explain:rule
+      });
+    }else{
+      const answer='Önce kuralı söyler, sonra aynı değişimi uygularım';
+      q=qBase('numberPattern1000','explain','Bir örüntüde eksik sayıyı bulurken en sağlam yol hangisidir?',answer,semanticChoices(answer,['Yalnız son rakama bakarım','En büyük sayıyı seçerim','Rastgele bir sayı denerim'],rng),{
+        taskKind:'pattern-explain-method',taskLabel:'Örüntü çözme yöntemini açıkla',visual:{type:'sequence',items:[x.seq[0],x.seq[1],'?',x.seq[3]]},
+        hint:'Eksik sayıyı seçmeden önce dizinin değişmeyen kuralını belirle.',explain:'Önce kuralı tarif etmek, sonra boşluğu aynı kuralla kontrol etmek gerekir.'
+      });
+    }
+  }else if(sectionId==='transfer-pattern'){
+    const y=concept.transfer;
+    const amount=Math.abs(y.step);
+    const contexts=[
+      y.step>0?'Bir oyunda her tur aynı miktarda puan ekleniyor.':'Bir oyunda her tur aynı miktarda puan azalıyor.',
+      y.step>0?'Bir depoya her sevkiyatta aynı sayıda kutu geliyor.':'Bir depodan her sevkiyatta aynı sayıda kutu çıkıyor.',
+      y.step>0?'Bir sayaç her ölçümde aynı miktarda yükseliyor.':'Bir sayaç her ölçümde aynı miktarda düşüyor.',
+      y.step>0?'Bir koleksiyona her gün aynı sayıda parça ekleniyor.':'Bir koleksiyondan her gün aynı sayıda parça ayrılıyor.'
+    ];
+    q=qTask('numberPattern1000','transfer',contexts[task]+' Sayımlar '+y.seq.join(', ')+' oldu. Bir sonraki sayı kaç olur?',y.next,{kind:'number-input',placeholder:'?',maxLength:4,checkLabel:'Sonraki sayıyı kontrol et'},{
+      taskKind:'pattern-transfer-'+task,taskLabel:'Sabit değişimi yeni bağlama taşı',visual:{type:'sequence',items:[...y.seq,'?']},
+      hint:'Her geçişte '+amount+' '+(y.step>0?'ekleniyor.':'azalıyor.'),explain:patternRulePhrase(y.step)+' Sonraki sayı '+y.next+'.'
+    });
+  }else{
+    throw new Error('Unknown numberPattern1000 practice section: '+sectionId);
+  }
+  q.patternStep=x.step;
+  q.patternRule=rule;
+  return q;
+}
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
   if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='numberPattern1000') q=numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else throw new Error('No section practice generator for '+skillId+'/'+sectionId);
   return lessonPracticeFinalize(q,sectionId,taskIndex);
 }
