@@ -32,9 +32,32 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
 export function supportsLearningCycle(skillId){ return LEARNING_CYCLE_READY_SKILLS.has(skillId); }
 
 const CURRICULUM_SEQUENCED_PROFILES = new Set(['grade2']);
+
+// Canonical new-learning order from Singapore MOE Primary 2.
+// Adaptation may revisit earlier learning, but it must not open a later new topic.
+export const P2_MOE_SKILL_SEQUENCE = [
+  'number1000','compareOrder1000','numberPattern1000','oddEven1000',
+  'addSub1000','wordAddSub2',
+  'times23510','divisionTables2','multDivFamilies2',
+  'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
+  'moneyP2',
+  'lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2',
+  'shapePatterns2','solids2','pictureGraphScale2'
+];
+
+export const P2_MOE_NUMBER1000_OBJECTIVES = [
+  {code:'1.1',label:'Onluklar ve yüzlükler hâlinde sayma'},
+  {code:'1.2',label:'Sayı gösterimi, temsilleri ve basamak değeri'},
+  {code:'1.3',label:'Sayıları rakamla ve sözcükle okuma-yazma'},
+  {code:'1.4',label:'Sayıları karşılaştırma ve sıralama',skillId:'compareOrder1000'},
+  {code:'1.5',label:'Sayı dizilerinde örüntüler',skillId:'numberPattern1000'},
+  {code:'1.6',label:'Tek ve çift sayılar',skillId:'oddEven1000'}
+];
+
 export function curriculumSequenceFor(profile){
   if(!CURRICULUM_SEQUENCED_PROFILES.has(profile)) return [];
-  return skillsFor(profile).filter(s=>supportsLearningCycle(s.id));
+  const byId=new Map(skillsFor(profile).map(s=>[s.id,s]));
+  return P2_MOE_SKILL_SEQUENCE.map(id=>byId.get(id)).filter(Boolean);
 }
 export function currentCurriculumSkill(state){
   const sequence=curriculumSequenceFor(state?.profile);
@@ -113,12 +136,12 @@ export const SKILLS = [
   skill('fractionNotation2','grade2','Kesirleri okuma ve yazma','Kesir','rose',['fractionMeaning2']),
   skill('fractionCompare2','grade2','Kesirleri karşılaştırma ve sıralama','Kesir','violet',['fractionNotation2']),
   skill('fractionAddSub2','grade2','Eş paydalı kesirlerde toplama ve çıkarma','Kesir','teal',['fractionCompare2']),
+  skill('moneyP2','grade2','TL, kuruş ve ondalık para gösterimi','Para','teal'),
   skill('lengthMetre2','grade2','Metre ile uzunluk','Ölçme','green'),
   skill('massMetric2','grade2','Gram ve kilogram ile kütle','Ölçme','amber'),
   skill('volumeLitre2','grade2','Litre ile sıvı hacmi','Ölçme','blue'),
   skill('timeMinute2','grade2','Dakikaya kadar saat okuma','Zaman','violet'),
   skill('timeDuration2','grade2','Saat ve dakika cinsinden süre','Zaman','violet',['timeMinute2']),
-  skill('moneyP2','grade2','TL, kuruş ve ondalık para gösterimi','Para','teal'),
   skill('shapePatterns2','grade2','2B şekillerle örüntüler','Geometri','rose'),
   skill('solids2','grade2','3B cisimleri tanıma ve sınıflandırma','Geometri','violet'),
   skill('pictureGraphScale2','grade2','Ölçekli resimli grafikleri okuma','Veri','amber'),
@@ -142,6 +165,8 @@ function defaultLearningCycle(){
     practiceCorrect:0,
     readinessNeedsSupport:false,
     readinessSupportUsed:false,
+    lessonStepIndex:0,
+    lessonTaughtAt:0,
     phases:Object.fromEntries(LEARNING_PHASES.map(p=>[p,{attempts:0,correct:0,lastSeen:0}]))
   };
 }
@@ -159,6 +184,8 @@ export function ensureLearningCycleState(skillState){
   lc.practiceCorrect ||= 0;
   lc.readinessNeedsSupport=!!lc.readinessNeedsSupport;
   lc.readinessSupportUsed=!!lc.readinessSupportUsed;
+  lc.lessonStepIndex=Math.max(0,Number(lc.lessonStepIndex)||0);
+  lc.lessonTaughtAt=Number(lc.lessonTaughtAt)||0;
   lc.phases ||= {};
   for(const p of LEARNING_PHASES) lc.phases[p] ||= {attempts:0,correct:0,lastSeen:0};
   return lc;

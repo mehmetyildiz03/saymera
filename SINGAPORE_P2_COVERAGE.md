@@ -109,13 +109,13 @@ Bu dosya SAYMERA'nın 2. sınıf içeriğini Singapore Primary 2 (P2) kapsamına
 12. `fractionCompare2` — birim ve eş paydalı kesirleri karşılaştırma/sıralama
 13. `fractionAddSub2` — eş paydalı kesirlerde toplama/çıkarma
 
-### P2-C — Measurement + Time + Money
-14. `lengthMetre2` — metre ile ölçme, karşılaştırma ve uygun uzunluk birimi
-15. `massMetric2` — g/kg ile kütle, uygun birim, karşılaştırma/sıralama
-16. `volumeLitre2` — litre ile sıvı hacmi, karşılaştırma/sıralama
-17. `timeMinute2` — dakikaya kadar analog/dijital saat
-18. `timeDuration2` — saat+dakika ↔ yalnız dakika
-19. `moneyP2` — TL/kuruş, ondalık gösterim ve karşılaştırma
+### P2-C — Money + Measurement + Time
+14. `moneyP2` — TL/kuruş, ondalık gösterim ve karşılaştırma
+15. `lengthMetre2` — metre ile ölçme, karşılaştırma ve uygun uzunluk birimi
+16. `massMetric2` — g/kg ile kütle, uygun birim, karşılaştırma/sıralama
+17. `volumeLitre2` — litre ile sıvı hacmi, karşılaştırma/sıralama
+18. `timeMinute2` — dakikaya kadar analog/dijital saat
+19. `timeDuration2` — saat+dakika ↔ yalnız dakika
 
 ### P2-D — Geometry + Data
 20. `shapePatterns2` — 2B şekillerde boyut/şekil/renk/yön ile örüntü
@@ -206,3 +206,8 @@ Legacy `shapes2` ve yanlış P2 çekirdeği olan `data2` görünür haritadan ç
 ## Kapsam doğruluğu notu — v1.5.2
 
 P2 beceri kartları yalnız Updated Oct 2025 resmî content objectives üzerinden sayılır. 2B bileşik figür ve grid-copy P1 hedefi olarak kalır; P1 grid-copy artık gerçek etkileşimli kopyalamadır. Learning experiences, ayrı content objective olmadıkça yeni P2 mastery kartına dönüştürülmez.
+
+
+## v1.6.1 — Canonical sıra
+
+Yeni öğrenme sırası `P2_MOE_SKILL_SEQUENCE` ile açıkça sabittir. Money, Fractions sonrasında ve Measurement & Geometry öncesinde gelir. `number1000` alt sırası: 1.1 sayma → 1.2 temsil/basamak değeri → 1.3 rakamla-sözcükle okuma/yazma; 1.4–1.6 sonraki becerilerdir.

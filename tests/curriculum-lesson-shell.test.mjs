@@ -9,10 +9,11 @@ const expectedP2=[
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
-  'lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2',
+  'moneyP2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2',
   'shapePatterns2','solids2','pictureGraphScale2'
 ];
 assert.deepEqual(curriculumSequenceFor('grade2').map(s=>s.id),expectedP2);
+assert.ok(expectedP2.indexOf('moneyP2')<expectedP2.indexOf('lengthMetre2'),'MOE Money must precede Measurement & Geometry');
 assert.equal(curriculumSequenceFor('preschool').length,0);
 
 const state=defaultState();

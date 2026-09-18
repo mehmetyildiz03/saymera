@@ -18,10 +18,10 @@ const P2_A1_SKILLS=['number1000','compareOrder1000','numberPattern1000','addSub1
 const P2_A2_SKILLS=['oddEven1000','wordAddSub2'];
 const P2_MULT_DIV_SKILLS=['times23510','divisionTables2','multDivFamilies2'];
 const P2_FRACTION_SKILLS=['fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2'];
-const P2_MEASURE_TIME_MONEY_SKILLS=['lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2'];
+const P2_MEASURE_TIME_MONEY_SKILLS=['moneyP2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2'];
 const P2_GEOMETRY_DATA_SKILLS=['shapePatterns2','solids2','pictureGraphScale2'];
 const P2_REFERENCE_SKILLS=[...P2_A1_SKILLS,...P2_A2_SKILLS,...P2_MULT_DIV_SKILLS,...P2_FRACTION_SKILLS,...P2_MEASURE_TIME_MONEY_SKILLS,...P2_GEOMETRY_DATA_SKILLS];
-assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','moneyP2','shapePatterns2','solids2','pictureGraphScale2'],'Primary 2 reference graph changed unexpectedly');
+assert.deepEqual(skillsFor('grade2').filter(s=>P2_REFERENCE_SKILLS.includes(s.id)).map(s=>s.id),['number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2','times23510','divisionTables2','multDivFamilies2','fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2','moneyP2','lengthMetre2','massMetric2','volumeLitre2','timeMinute2','timeDuration2','shapePatterns2','solids2','pictureGraphScale2'],'Primary 2 reference graph changed unexpectedly');
 for(const legacy of ['place100','add100','sub100','numberPattern2','word2','multiply5','divide20','fraction','lengthCm','time2','moneyTL','shapes2','data2']) assert.ok(!skillsFor('grade2').some(s=>s.id===legacy),`legacy P2 skill still visible: ${legacy}`);
 
 
