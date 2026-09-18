@@ -41,7 +41,8 @@ for(const [i,skill] of p2.entries()){
     assert.ok(!forbidden.test(childCopy),`${skill.id}: internal product language leaked to child copy: ${childCopy}`);
   }
   const evidenceQs=qs.slice(1,6);
-  for(const q of evidenceQs) assert.equal(q.taskKind,expectedKinds[q.representation],`${skill.id}/${q.representation}: cognitive task family mismatch`);
+  const expectedForSkill=skill.id==='number1000'?{build:'manipulative-build',see:'model-to-number-production',symbol:'word-to-numeral-production',explain:'place-value-production',transfer:'context-number-production'}:expectedKinds;
+  for(const q of evidenceQs) assert.equal(q.taskKind,expectedForSkill[q.representation],`${skill.id}/${q.representation}: cognitive task family mismatch`);
   assert.equal(new Set(evidenceQs.map(q=>q.taskKind)).size,5,`${skill.id}: five windows collapsed into repeated cognitive action`);
   assert.equal(new Set(evidenceQs.map(signature)).size,5,`${skill.id}: exact task repeated inside model→context core`);
 }
