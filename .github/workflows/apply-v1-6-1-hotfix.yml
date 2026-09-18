@@ -31,3 +31,4 @@ jobs:
           git add -A
           git commit -m "Fix P2 teaching interactions" || exit 0
           git push
+# rerun: robust selector and child-copy patch
