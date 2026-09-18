@@ -78,3 +78,12 @@ Number words are revealed by parts rather than by a separate show-reading button
 The reference lesson is expanded from isolated equivalences to actual learning experiences: counting in tens to 100, counting in hundreds to 1000, establishing 10 tens = 1 hundred and 10 hundreds = 1 thousand, making sense of the size of 100 through a 10×10 quantity, constructing 347 from a base-ten model, explaining place value, handling zero placeholders, and reading/writing numbers in numerals and words.
 
 Child-facing lesson navigation groups the short interactions into semantic sections: **SAY → GRUPLA → KUR → BASAMAK → OKU / YAZ**. This is intentionally not presented as a long question counter. Comparison/order, number sequences and 1/10/100 more-or-less are not pulled forward; they remain for their later curriculum objectives.
+
+
+## v1.7.1 — Reference lesson interaction polish
+
+The child-facing counting cards no longer show cumulative totals such as 100/200/300 on identical hundred blocks. Every object is labelled by what it is (for example, **1 yüzlük**), while a separate central readout maps **number of hundreds → total value**. This prevents the visual misconception that the third hundred block is itself “300”.
+
+The detached yellow `BAĞLANTI` strip is removed. Mathematical conclusions appear inside the central teaching visual as a revealed **ŞUNU GÖRDÜK** relationship.
+
+The 100-dot experience is staged: first one 10-dot row is revealed, then all 10 rows, then `10 × 10 = 100`. Model-to-number builds `347` digit by digit. Place value shows concrete quantities under each digit before revealing `300/40/7`. Zero is shown as an actually empty place. Number-word construction uses Pointer Events drag-and-drop with a tap-to-select fallback for accessibility and touch robustness.

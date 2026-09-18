@@ -18,7 +18,7 @@ assert.ok(app.includes("return next?'sonraki adım':'oturumu tamamla';"),'lesson
 assert.match(css,/\.lesson-step-stage/); assert.match(css,/\.lesson-bundle-demo/); assert.match(css,/\.lesson-place-grid/);
 console.log('MOE P2 number1000 teaching tests: PASS (1.1 → 1.2 → 1.3 + canonical sequence)');
 
-assert.ok(app.includes('const NUMBER1000_LESSON_VERSION=5'),'lesson revision must invalidate stale unfinished local lesson state');
+assert.ok(app.includes('const NUMBER1000_LESSON_VERSION=6'),'lesson revision must invalidate stale unfinished local lesson state');
 assert.ok(app.includes("lessonVersion!==NUMBER1000_LESSON_VERSION"),'stale lesson progress must be replayed in the new lesson structure');
 assert.ok(app.includes("BİRLİKTE UYGULA"),'guided work must be framed as application, not another quiz');
 assert.ok(app.includes("KENDİN DENE"),'independent check stage must remain explicit');
@@ -34,9 +34,19 @@ assert.match(css,/\.lesson-core-equation/);
 assert.match(css,/\.lesson-word-build/);
 
 for(const copy of ['Onar onar 100’e kadar sayalım.','Yüzer yüzer 1000’e kadar sayalım.','10 sıra × 10 nokta = 100 nokta','3 yüzlük + 4 onluk + 7 birlik = 347','304 = 300 + 0 + 4']) assert.ok(app.includes(copy),'missing research-backed teaching content: '+copy);
-assert.ok(app.includes("const NUMBER1000_SECTIONS=['SAY','GRUPLA','KUR','BASAMAK','OKU / YAZ']"),'semantic lesson sections must be explicit');
+assert.ok(app.includes("const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ']"),'semantic lesson sections must be explicit');
 assert.ok(app.includes('lesson-count-token'),'counting must happen on the base-ten objects themselves');
 assert.ok(app.includes('lesson-hundred-sense'),'size-of-100 experience must be present');
 assert.ok(app.includes('lesson-model-build'),'model-to-number transition must be taught');
 assert.ok(app.includes('lesson-zero-reveal'),'zero placeholder must be taught explicitly');
 assert.match(css,/\.lesson-section-track/); assert.match(css,/\.lesson-count-grid/); assert.match(css,/\.lesson-zero-demo/);
+
+assert.ok(app.includes("<span>1 '+esc(step.unitName)+'</span>"),'count cards must name the unit, not cumulative totals');
+assert.ok(app.includes('lesson-insight'),'lesson conclusion must live inside the central teaching visual');
+assert.ok(!app.includes('lesson-core-equation'),'detached connection panel must be removed');
+assert.ok(app.includes('Bir sırada 10 nokta var.'),'100-dot lesson must reveal structure in stages');
+assert.ok(app.includes('lesson-digit-slots'),'model-to-number lesson must build digits progressively');
+assert.ok(app.includes('lesson-place-column'),'place value must use quantity models, not label-only cards');
+assert.ok(app.includes("addEventListener('pointerdown'"),'word writing must support pointer drag');
+assert.ok(app.includes("elementFromPoint"),'drag interaction must resolve drop targets');
+assert.match(css,/\.lesson-insight/); assert.match(css,/\.lesson-place-columns/); assert.match(css,/\.lesson-word-slot/);
