@@ -71,3 +71,10 @@ Within guided and independent work, any counter is stage-local rather than a “
 The reference lesson removes detached reveal buttons. The object that contains the unknown value is now the interaction itself: bundle-result `?` cards reveal the regrouped value; place-value cards reveal `300 / 40 / 7` in place; subtle digit-to-card arrows strengthen the positional-value mapping; and the mathematical connection lives inside the central teaching visual after the relevant discovery is complete.
 
 Number words are revealed by parts rather than by a separate show-reading button. MOE 1.3 includes reading and writing numbers, so SAYMERA also adds a non-scored digital construction step (`526 = beş yüz yirmi altı`) using word parts. Freehand handwriting is not a required mathematics gate; it may later be offered as an optional stylus activity so motor execution does not contaminate conceptual assessment.
+
+
+## v1.7.0 — MOE-complete reference lesson for P2 1.1–1.3
+
+The reference lesson is expanded from isolated equivalences to actual learning experiences: counting in tens to 100, counting in hundreds to 1000, establishing 10 tens = 1 hundred and 10 hundreds = 1 thousand, making sense of the size of 100 through a 10×10 quantity, constructing 347 from a base-ten model, explaining place value, handling zero placeholders, and reading/writing numbers in numerals and words.
+
+Child-facing lesson navigation groups the short interactions into semantic sections: **SAY → GRUPLA → KUR → BASAMAK → OKU / YAZ**. This is intentionally not presented as a long question counter. Comparison/order, number sequences and 1/10/100 more-or-less are not pulled forward; they remain for their later curriculum objectives.

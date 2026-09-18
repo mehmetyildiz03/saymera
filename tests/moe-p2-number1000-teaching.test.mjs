@@ -7,7 +7,7 @@ assert.deepEqual(P2_MOE_NUMBER1000_OBJECTIVES.map(x=>x.code),['1.1','1.2','1.3',
 const state=defaultState(); state.profile='grade2'; skillsFor('grade2').forEach(s=>ensureSkillState(state,s.id)); const lc=ensureSkillState(state,'number1000').learningCycle;
 assert.equal(lc.lessonStepIndex,0); assert.equal(lc.lessonTaughtAt,0);
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8'); const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
-for(const id of ['ten-bundle','hundred-bundle','thousand-bundle','place-value','same-digit','read-write','word-build']) assert.ok(app.includes("id:'"+id+"'"),'missing '+id);
+for(const id of ['ten-bundle','count-tens','count-hundreds','hundred-sense','model-build','place-value','same-digit','zero-place','read-write','word-build']) assert.ok(app.includes("id:'"+id+"'"),'missing '+id);
 for(const copy of ['10 birlik = 1 onluk','10 onluk = 1 yüzlük','10 yüzlük = 1000','347 = 300 + 40 + 7','347 ↔ üç yüz kırk yedi']) assert.ok(app.includes(copy),'missing '+copy);
 assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000'])")); assert.ok(app.includes("if(!lessonFirst&&readiness)"),'number1000 must not open with a readiness quiz'); assert.ok(app.includes('lessonTaughtAt'));
 assert.ok(app.includes("$$('.lesson-place-card').forEach"),'place-value teaching must bind all three cards');
@@ -18,7 +18,7 @@ assert.ok(app.includes("return next?'sonraki adım':'oturumu tamamla';"),'lesson
 assert.match(css,/\.lesson-step-stage/); assert.match(css,/\.lesson-bundle-demo/); assert.match(css,/\.lesson-place-grid/);
 console.log('MOE P2 number1000 teaching tests: PASS (1.1 → 1.2 → 1.3 + canonical sequence)');
 
-assert.ok(app.includes('const NUMBER1000_LESSON_VERSION=4'),'lesson revision must invalidate stale unfinished local lesson state');
+assert.ok(app.includes('const NUMBER1000_LESSON_VERSION=5'),'lesson revision must invalidate stale unfinished local lesson state');
 assert.ok(app.includes("lessonVersion!==NUMBER1000_LESSON_VERSION"),'stale lesson progress must be replayed in the new lesson structure');
 assert.ok(app.includes("BİRLİKTE UYGULA"),'guided work must be framed as application, not another quiz');
 assert.ok(app.includes("KENDİN DENE"),'independent check stage must remain explicit');
@@ -32,3 +32,11 @@ assert.ok(app.includes('lesson-word-build'),'MOE read/write objective must inclu
 assert.ok(!app.includes('id="lessonStepAction"'),'reference lesson must not depend on detached reveal buttons');
 assert.match(css,/\.lesson-core-equation/);
 assert.match(css,/\.lesson-word-build/);
+
+for(const copy of ['Onar onar 100’e kadar sayalım.','Yüzer yüzer 1000’e kadar sayalım.','10 sıra × 10 nokta = 100 nokta','3 yüzlük + 4 onluk + 7 birlik = 347','304 = 300 + 0 + 4']) assert.ok(app.includes(copy),'missing research-backed teaching content: '+copy);
+assert.ok(app.includes("const NUMBER1000_SECTIONS=['SAY','GRUPLA','KUR','BASAMAK','OKU / YAZ']"),'semantic lesson sections must be explicit');
+assert.ok(app.includes('lesson-count-token'),'counting must happen on the base-ten objects themselves');
+assert.ok(app.includes('lesson-hundred-sense'),'size-of-100 experience must be present');
+assert.ok(app.includes('lesson-model-build'),'model-to-number transition must be taught');
+assert.ok(app.includes('lesson-zero-reveal'),'zero placeholder must be taught explicitly');
+assert.match(css,/\.lesson-section-track/); assert.match(css,/\.lesson-count-grid/); assert.match(css,/\.lesson-zero-demo/);
