@@ -53,3 +53,7 @@ assert.match(css,/\.inspector-grid/);
 assert.match(css,/\.inspector-checks/);
 
 console.log('dev inspector: PASS (sandbox + direct lesson launch + runtime pedagogy QA)');
+
+assert.ok(app.includes("if(skillId==='numberPattern1000') return PATTERN1000_LESSON_STEPS.map"),'inspector must jump to pattern teaching steps');
+assert.ok(app.includes("'pattern-teaching-order'"),'inspector must audit describe-before-continue order');
+assert.ok(app.includes("'pattern-no-multiplication'"),'inspector must guard pattern scope from multiplication');
