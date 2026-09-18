@@ -2134,7 +2134,7 @@ function genNumberPattern1000(rep,d,rng,concept){
   }
   if(rep==='explain'){
     const answer=rule(x.step);
-    return qBase('numberPattern1000',rep,`${x.seq.join(', ')}, … dizisinin kuralı nedir?`,answer,semanticChoices(answer,[`Her adımda ${Math.abs(x.step)} ${x.step>0?'çıkarılıyor':'ekleniyor'}`,'Her sayı rastgele seçiliyor','Her adımda sayı iki katına çıkıyor'],rng),{
+    return qBase('numberPattern1000',rep,`${x.seq.join(', ')}, … dizisinin kuralı nedir?`,answer,semanticChoices(answer,[`Her adımda ${Math.abs(x.step)} ${x.step>0?'çıkarılıyor':'ekleniyor'}`,'Her sayı rastgele seçiliyor','Her adımda değişen miktar farklı'],rng),{
       taskKind:'reasoning-choice',taskLabel:'Sabit değişimi gerekçelendir',visual:{type:'sequence',items:[...x.seq,'?']},hint:'İki komşu sayı arasındaki farkı karşılaştır.',explain:answer+'.'
     });
   }
@@ -3541,7 +3541,7 @@ function compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 function patternRulePhrase(step){
   return 'Her adımda '+Math.abs(step)+' '+(step>0?'daha':'daha az')+'.';
 }
-function patternChangedPlace(step){
+function patternStepUnit(step){
   const amount=Math.abs(step);
   return amount===100?'yüzlük':amount===10?'onluk':'birlik';
 }
@@ -3556,19 +3556,19 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const x=concept.anchor;
   const task=taskIndex%4;
   const rule=patternRulePhrase(x.step);
-  const place=patternChangedPlace(x.step);
+  const unit=patternStepUnit(x.step);
   let q;
 
   if(sectionId==='model-change'){
     if(task===0){
       const a=x.seq[0], b=x.seq[1];
-      const answer=place;
-      q=qBase('numberPattern1000','build',a+' sayısından '+b+' sayısına geçerken hangi basamak düzenli değişiyor?',answer,semanticChoices(answer,['yüzlük','onluk','birlik'].filter(v=>v!==answer),rng),{
-        taskKind:'pattern-place-change',taskLabel:'Değişen basamağı modelde bul',visual:{type:'sequence',items:[a,b]},
-        hint:'İki sayıyı yüzlük, onluk ve birlik olarak yan yana düşün.',explain:Math.abs(x.step)+' fark, '+place+' basamağındaki düzenli değişimle ilgilidir.'
+      const answer=unit;
+      q=qBase('numberPattern1000','build',a+' ile '+b+' arasındaki '+Math.abs(x.step)+' büyüklüğündeki adım hangi basamak birimine eşittir?',answer,semanticChoices(answer,['yüzlük','onluk','birlik'].filter(v=>v!==answer),rng),{
+        taskKind:'pattern-unit-size',taskLabel:'Adımı basamak birimiyle eşleştir',visual:{type:'sequence',items:[a,b]},
+        hint:'1, 10 ve 100 miktarlarının birlik, onluk ve yüzlük karşılıklarını düşün.',explain:Math.abs(x.step)+' büyüklüğündeki adım = 1 '+unit+'. Sınırda rakamlar yeniden gruplanabilir.'
       });
     }else if(task===1){
-      const answer=x.step>0?'bir '+place+' ekleniyor':'bir '+place+' çıkarılıyor';
+      const answer=x.step>0?'bir '+unit+' ekleniyor':'bir '+unit+' çıkarılıyor';
       const others=['bir yüzlük ekleniyor','bir onluk ekleniyor','bir birlik ekleniyor','bir yüzlük çıkarılıyor','bir onluk çıkarılıyor','bir birlik çıkarılıyor'].filter(v=>v!==answer);
       q=qBase('numberPattern1000','build',x.seq[1]+' sayısı '+x.seq[0]+' sayısından nasıl elde edildi?',answer,semanticChoices(answer,others,rng),{
         taskKind:'pattern-unit-change',taskLabel:'Bir sonraki sayının model değişimini söyle',visual:{type:'sequence',items:x.seq.slice(0,2)},
@@ -3636,21 +3636,20 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
     });
   }else if(sectionId==='explain-pattern'){
     if(task===0){
-      const answer=place+' basamağı';
-      q=qBase('numberPattern1000','explain',x.seq.join(', ')+' dizisinde değişimi ilk olarak hangi basamakta görürüz?',answer,semanticChoices(answer,['yüzlük basamağı','onluk basamağı','birlik basamağı'].filter(v=>v!==answer),rng),{
-        taskKind:'pattern-explain-place',taskLabel:'Değişen basamağı gerekçelendir',visual:{type:'sequence',items:x.seq},
-        hint:'Adımın büyüklüğü 1 mi, 10 mu, 100 mü?',explain:Math.abs(x.step)+' büyüklüğündeki adım '+place+' yapısıyla bağlantılıdır.'
+      const answer='1 '+unit;
+      q=qBase('numberPattern1000','explain',x.seq.join(', ')+' dizisinin her adımı hangi basamak birimi büyüklüğündedir?',answer,semanticChoices(answer,['1 yüzlük','1 onluk','1 birlik'].filter(v=>v!==answer),rng),{
+        taskKind:'pattern-explain-unit',taskLabel:'Adımın basamak birimini açıkla',visual:{type:'sequence',items:x.seq},
+        hint:'Adımın büyüklüğü 1 mi, 10 mu, 100 mü?',explain:Math.abs(x.step)+' büyüklüğündeki adım = 1 '+unit+'. Bu, her geçişte yalnız o rakamın değişeceği anlamına gelmez.'
       });
     }else if(task===1){
-      const stable=place==='yüzlük'?'onluk ve birlik':place==='onluk'?'yüzlük ve birlik':'yüzlük ve onluk';
-      const answer=stable;
-      q=qBase('numberPattern1000','explain','Bu örnekte hangi basamaklar sabit kalıyor? '+x.seq.slice(0,3).join(', '),answer,semanticChoices(answer,['yüzlük','onluk','birlik','hiçbiri'].filter(v=>v!==answer),rng),{
-        taskKind:'pattern-explain-stable',taskLabel:'Sabit kalan basamakları fark et',visual:{type:'sequence',items:x.seq.slice(0,3)},
-        hint:'Sayıların aynı kalan rakamlarını karşılaştır.',explain:'Bu örnekte '+stable+' aynı kalırken '+place+' düzenli değişir.'
+      const answer='9 onluk + 1 onluk = 10 onluk = 1 yüzlük olur';
+      q=qBase('numberPattern1000','explain','290 → 300 geçişi 10 daha olmasına rağmen neden yüzlük rakamı da değişir?',answer,semanticChoices(answer,['10 daha aslında 100 daha demektir','Onluk basamağı her zaman 0 olmalıdır','300 sayısında birlik olmadığı için'],rng),{
+        taskKind:'pattern-explain-regroup',taskLabel:'Sınır geçişinde yeniden gruplamayı açıkla',visual:{type:'sequence',items:[290,300]},
+        hint:'290’da 9 onluk var. Bir onluk daha eklenince kaç onluk olur?',explain:'9 onluk + 1 onluk = 10 onluk = 1 yüzlük. Adım yine 10 daha olarak kalır.'
       });
     }else if(task===2){
       const answer=x.step>0?'Sayılar aynı miktarda artıyor':'Sayılar aynı miktarda azalıyor';
-      q=qBase('numberPattern1000','explain','Bu dizinin neden bir sayı örüntüsü olduğunu en iyi hangi cümle açıklar?',answer,semanticChoices(answer,['Rakamların hepsi aynıdır','Her sayı rastgele seçilmiştir','Her sayı öncekinin iki katıdır'].filter(v=>v!==answer),rng),{
+      q=qBase('numberPattern1000','explain','Bu dizinin neden bir sayı örüntüsü olduğunu en iyi hangi cümle açıklar?',answer,semanticChoices(answer,['Rakamların hepsi aynıdır','Her sayı rastgele seçilmiştir','Her adımda farklı miktar değişir'].filter(v=>v!==answer),rng),{
         taskKind:'pattern-explain-constant',taskLabel:'Sabit değişim fikrini açıkla',visual:{type:'sequence',items:x.seq},
         hint:'Her geçişte değişen miktarın aynı olup olmadığına bak.',explain:rule
       });
