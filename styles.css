@@ -684,3 +684,18 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .pattern-action-targets{grid-template-columns:1fr}
   .pattern-place-cell{min-height:58px}.pattern-place-cell strong{font-size:22px}
 }
+
+/* v1.9.1 — pattern boundary regrouping */
+.pattern-regroup-flow{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(150px,.7fr) 34px minmax(0,1fr);gap:8px;align-items:center;width:100%}
+.pattern-regroup-model,.pattern-regroup-after{min-height:132px;border:1px solid var(--line);border-radius:18px;background:var(--paper-2);padding:10px;display:grid;gap:7px;align-content:center;justify-items:center;text-align:center}
+.pattern-regroup-model>strong,.pattern-regroup-after>strong{font-size:24px;color:var(--navy)}
+.pattern-regroup-model>small,.pattern-regroup-after>small{font-size:8px;color:var(--muted);font-weight:850}
+.pattern-regroup-material{display:flex;align-items:flex-end;justify-content:center;gap:5px;flex-wrap:wrap;max-width:100%}
+.pattern-regroup-slot{min-height:82px;border:1px dashed #93bdb4;border-radius:17px;background:var(--paper);display:grid;place-items:center;align-content:center;gap:4px;padding:10px;color:var(--navy)}
+.pattern-regroup-slot strong{font-size:12px}.pattern-regroup-slot small{font-size:8px;color:var(--muted)}
+.pattern-regroup-slot.filled{background:var(--teal-soft);border-style:solid;border-color:#93cbbd}
+@media(max-width:760px){
+  .pattern-regroup-flow{grid-template-columns:1fr;justify-items:stretch}
+  .pattern-regroup-flow>.pattern-transition-arrow{transform:rotate(90deg)}
+  .pattern-regroup-model,.pattern-regroup-after{min-height:104px}
+}
