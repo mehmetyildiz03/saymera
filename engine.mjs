@@ -1652,13 +1652,14 @@ function genCompareOrder1000(rep,d,rng,concept){
   });
   if(rep==='see'){
     const answer=x.a===x.b?'aynıdır':x.a<x.b?'daha küçüktür':'daha büyüktür';
-    return qBase('compareOrder1000',rep,`${x.a}, ${x.b}'ye göre nasıldır?`,answer,semanticChoices(answer,['daha küçüktür','daha büyüktür','aynıdır'].filter(v=>v!==answer),rng),{
+    return qBase('compareOrder1000',rep,`${x.a}, ${x.b}'ye göre nasıldır?`,answer,semanticChoices(answer,['daha küçüktür','daha büyüktür','aynıdır','karşılaştırılamaz'].filter(v=>v!==answer),rng),{
       taskKind:'visual-discrimination',taskLabel:'Karşılaştırmayı basamak modelinde gör',visual:{type:'compare-base1000',a:x.a,b:x.b,relation:'?'},hint:'Soldan başla: yüzlük, onluk, birlik.',explain:compareOrderReason(x.a,x.b)
     });
   }
   if(rep==='symbol'){
     const y=c.symbol;
-    return qBase('compareOrder1000',rep,`${y.a} __ ${y.b} boşluğuna hangi karşılaştırma işareti gelir?`,y.relation,semanticChoices(y.relation,['<','>','='].filter(v=>v!==y.relation),rng),{
+    const opts=shuffled(['<','>','='].map(relation=>({value:relation,visual:{type:'equation',text:relation},ariaLabel:relation==='<'?'küçüktür':relation==='>'?'büyüktür':'eşittir'})),rng);
+    return qTask('compareOrder1000',rep,`${y.a} __ ${y.b} boşluğuna hangi karşılaştırma işareti gelir?`,y.relation,{kind:'visual-choice',options:opts},{
       taskKind:'symbol-entry',taskLabel:'Karşılaştırmayı sembolleştir',visual:{type:'equation',text:`${y.a} __ ${y.b}`},hint:'Önce sayıları sözcükle karşılaştır; sonra aynı ilişkiyi <, > veya = ile yaz.',explain:`${compareOrderReason(y.a,y.b)} Sembolle: ${y.a} ${y.relation} ${y.b}.`
     });
   }
