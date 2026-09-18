@@ -26,19 +26,19 @@ assert.ok(app.includes("$('#practiceCounter').textContent=`BİRLİKTE ${at+1} / 
 
 assert.ok(app.includes('lesson-reveal-card'),'bundle result itself must be the reveal target');
 assert.ok(app.includes('lesson-insight'),'mathematical conclusion must live inside the central teaching visual');
-assert.ok(app.includes('lesson-digit-arrow'),'place-value digit-to-card arrows must be present');
+assert.ok(app.includes('lesson-place-arrow'),'place-value digit-to-quantity arrows must be present');
 assert.ok(app.includes('lesson-word-reveal'),'number reading must reveal word parts directly');
 assert.ok(app.includes('lesson-word-build'),'MOE read/write objective must include digital word construction');
 assert.ok(!app.includes('id="lessonStepAction"'),'reference lesson must not depend on detached reveal buttons');
 assert.match(css,/\.lesson-insight/);
 assert.match(css,/\.lesson-word-build/);
 
-for(const copy of ['Onar onar 100’e kadar sayalım.','Yüzer yüzer 1000’e kadar sayalım.','10 sıra × 10 nokta = 100 nokta','3 yüzlük + 4 onluk + 7 birlik = 347','304 = 300 + 0 + 4']) assert.ok(app.includes(copy),'missing research-backed teaching content: '+copy);
+for(const copy of ['Onar onar 100’e kadar sayalım.','Yüzer yüzer 1000’e kadar sayalım.','10 sıra × 10 nokta = 100 nokta','3 yüzlük + 4 onluk + 7 birlik = 347','304 = 3 yüzlük + 0 onluk + 4 birlik']) assert.ok(app.includes(copy),'missing research-backed teaching content: '+copy);
 assert.ok(app.includes("const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ']"),'semantic lesson sections must be explicit');
 assert.ok(app.includes('lesson-count-token'),'counting must happen on the base-ten objects themselves');
 assert.ok(app.includes('lesson-hundred-sense'),'size-of-100 experience must be present');
 assert.ok(app.includes('lesson-model-build'),'model-to-number transition must be taught');
-assert.ok(app.includes('lesson-zero-reveal'),'zero placeholder must be taught explicitly');
+assert.ok(app.includes('lesson-zero-gap'),'zero placeholder must be taught as an actually empty place');
 assert.match(css,/\.lesson-section-track/); assert.match(css,/\.lesson-count-grid/); assert.match(css,/\.lesson-zero-demo/);
 
 assert.ok(app.includes("<span>1 '+esc(step.unitName)+'</span>"),'count cards must name the unit, not cumulative totals');
