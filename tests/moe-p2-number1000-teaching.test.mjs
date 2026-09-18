@@ -30,5 +30,5 @@ assert.ok(app.includes('lesson-digit-arrow'),'place-value digit-to-card arrows m
 assert.ok(app.includes('lesson-word-reveal'),'number reading must reveal word parts directly');
 assert.ok(app.includes('lesson-word-build'),'MOE read/write objective must include digital word construction');
 assert.ok(!app.includes('id="lessonStepAction"'),'reference lesson must not depend on detached reveal buttons');
-assert.match(css,/\\.lesson-core-equation/);
-assert.match(css,/\\.lesson-word-build/);
+assert.match(css,/\.lesson-core-equation/);
+assert.match(css,/\.lesson-word-build/);
