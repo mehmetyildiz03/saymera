@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000']);
+const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -408,6 +408,170 @@ function renderCompareOrderLessonStep(skill,index=null){
   }
   next?.addEventListener('click',()=>completeCompareOrderLessonStep(skill,at));
 }
+
+const PATTERN1000_LESSON_VERSION=1;
+const PATTERN1000_SECTIONS=['DEĞİŞİM','BASAMAK','KURAL','SÜRDÜR','EKSİK SAYI'];
+const PATTERN1000_LESSON_STEPS=[
+  {id:'one-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:244,placeIndex:2,action:'1 birlik ekle',title:'1 daha olduğunda birlikler değişir.',body:'243’ten 244’e geçerken sayı bir tane büyür. Değişimi doğru basamağa yerleştir.',result:'243’ten 244’e: 1 birlik daha.'},
+  {id:'ten-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:253,placeIndex:1,action:'1 onluk ekle',title:'10 daha olduğunda onluklar değişir.',body:'Bir onluk eklemek sayıyı 10 büyütür. Yüzlük ve birlik miktarı aynı kalır.',result:'243’ten 253’e: 1 onluk, yani 10 daha.'},
+  {id:'hundred-more-model',section:'DEĞİŞİM',kind:'place-action',from:243,to:343,placeIndex:0,action:'1 yüzlük ekle',title:'100 daha olduğunda yüzlükler değişir.',body:'Bir yüzlük eklemek sayıyı 100 büyütür. Onluk ve birlik miktarı aynı kalır.',result:'243’ten 343’e: 1 yüzlük, yani 100 daha.'},
+  {id:'ten-less-model',section:'DEĞİŞİM',kind:'place-action',from:654,to:644,placeIndex:1,action:'1 onluk çıkar',title:'10 daha az olduğunda bir onluk çıkar.',body:'654’ten 644’e inerken bir onluk azalır. Hangi basamağın değiştiğini göster.',result:'654’ten 644’e: 1 onluk, yani 10 daha az.'},
+  {id:'place-change-track',section:'BASAMAK',kind:'place-track',seq:[324,334,344,354],placeIndex:1,title:'Örüntüde neyin değiştiğini izle.',body:'Dört sayıyı basamak basamak karşılaştır. Her adımda değişen basamağı seç.',result:'Onluk basamağı her adımda 1 artıyor; sayı 10 büyüyor.'},
+  {id:'describe-up-rule',section:'KURAL',kind:'rule-match',seq:[230,330,430,530],rule:'Her adımda 100 daha.',options:['Her adımda 100 daha.','Her adımda 10 daha.','Her adımda 100 daha az.'],title:'Devam ettirmeden önce kuralı söyle.',body:'Sayıları henüz devam ettirme. Önce her geçişte aynı kalan değişimi sözcükle tarif et.',result:'230 → 330 → 430 → 530: her adımda 100 daha.'},
+  {id:'describe-down-rule',section:'KURAL',kind:'rule-match',seq:[900,800,700,600],rule:'Her adımda 100 daha az.',options:['Her adımda 10 daha az.','Her adımda 100 daha.','Her adımda 100 daha az.'],title:'Azalan örüntünün kuralını da tarif et.',body:'Bu kez sayılar küçülüyor. Devam etmeden önce değişimin yönünü ve miktarını söyle.',result:'900 → 800 → 700 → 600: her adımda 100 daha az.'},
+  {id:'continue-after-rule',section:'SÜRDÜR',kind:'number-slot',seq:[412,422,432,'?'],answer:442,options:[442,433,532],title:'Kuralı söyledikten sonra örüntüyü sürdür.',body:'Bu dizide her adımda 10 daha. Aynı değişimi bir kez daha uygula.',result:'412 → 422 → 432 → 442.'},
+  {id:'missing-middle',section:'EKSİK SAYI',kind:'number-slot',seq:[675,665,'?',645],answer:655,options:[655,654,665],title:'Eksik sayı dizinin ortasında da olabilir.',body:'Önce kuralı iki taraftan kontrol et. Sonra eksik sayıyı doğru yere yerleştir.',result:'675 → 665 → 655 → 645: her adımda 10 daha az.'},
+  {id:'same-rule-transfer',section:'SÜRDÜR',kind:'same-rule',seqA:[245,255,265],seqB:[610,620,630],rule:'Her adımda 10 daha.',options:['Her adımda 10 daha.','Her adımda 100 daha.','Her adımda 10 daha az.'],title:'Başlangıç değişse de kural aynı kalabilir.',body:'İki farklı diziyi karşılaştır. Başlangıç sayıları başka olsa da aynı değişim kullanılabilir.',result:'İki dizide de her adımda 10 daha.'}
+];
+
+function pattern1000SectionTrack(step){
+  return '<div class="pattern-section-track">'+PATTERN1000_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function patternDigits(n){
+  return [Math.floor(n/100)%10,Math.floor(n/10)%10,n%10];
+}
+function patternPlaceBoard(n,highlight=-1){
+  const labels=['Yüzlük','Onluk','Birlik'], digits=patternDigits(n);
+  return '<div class="pattern-place-board" aria-label="'+n+' basamakları">'+digits.map((digit,i)=>'<div class="pattern-place-cell '+(i===highlight?'changed':'')+'" data-pattern-place="'+i+'"><small>'+labels[i]+'</small><strong>'+digit+'</strong></div>').join('')+'</div>';
+}
+function patternActionVisual(step){
+  const targets=['Yüzlük','Onluk','Birlik'].map((label,i)=>'<button type="button" class="pattern-action-target" data-pattern-value="'+(i===step.placeIndex?esc(step.action):'yanlış-'+i)+'"><span>'+label+'</span><b>?</b></button>').join('');
+  return '<div class="pattern-lesson-core"><div class="pattern-transition"><div>'+patternPlaceBoard(step.from)+'</div><span class="pattern-transition-arrow">→</span><div class="pattern-after-number" id="patternAfterNumber"><strong>?</strong><small>sonraki sayı</small></div></div><div class="pattern-action-zone"><div class="pattern-action-targets">'+targets+'</div><button type="button" class="pattern-drag-chip" data-pattern-value="'+esc(step.action)+'">'+esc(step.action)+'</button><p id="patternLessonHelp">Değişim kartını doğru basamağa sürükle • veya karta, sonra basamağa dokun.</p></div><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
+}
+function patternTrackVisual(step){
+  const rows=step.seq.map(n=>'<div class="pattern-track-number" data-pattern-number="'+n+'">'+patternPlaceBoard(n)+'</div>').join('');
+  const choices=['Yüzlük','Onluk','Birlik'].map((label,i)=>'<button type="button" class="pattern-place-choice" data-place-choice="'+i+'">'+label+'</button>').join('');
+  return '<div class="pattern-lesson-core"><div class="pattern-track-sequence">'+rows+'</div><div class="pattern-place-choices">'+choices+'</div><p id="patternLessonHelp">Her sayıda aynı sütuna bak. Düzenli değişen basamağı seç.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
+}
+function patternRuleVisual(step){
+  const bank=[...step.options].map(rule=>'<button type="button" class="pattern-rule-chip" data-pattern-value="'+esc(rule)+'">'+esc(rule)+'</button>').join('');
+  return '<div class="pattern-lesson-core"><div class="pattern-sequence-strip">'+step.seq.map(n=>'<span>'+n+'</span>').join('<i>→</i>')+'</div><button type="button" class="pattern-rule-slot" data-pattern-value="'+esc(step.rule)+'"><small>KURAL</small><strong>?</strong></button><div class="pattern-rule-bank">'+bank+'</div><p id="patternLessonHelp">Kural kartını boşluğa sürükle • veya karta, sonra KURAL alanına dokun.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
+}
+function patternNumberSlotVisual(step){
+  const bank=[...step.options].map(value=>'<button type="button" class="pattern-number-chip" data-pattern-value="'+value+'">'+value+'</button>').join('');
+  const seq=step.seq.map(value=>value==='?'
+    ?'<button type="button" class="pattern-number-slot" data-pattern-value="'+step.answer+'">?</button>'
+    :'<span>'+value+'</span>').join('<i>→</i>');
+  return '<div class="pattern-lesson-core"><div class="pattern-sequence-strip pattern-sequence-build">'+seq+'</div><div class="pattern-number-bank">'+bank+'</div><p id="patternLessonHelp">Sayı kartını “?” yerine sürükle • veya karta, sonra boşluğa dokun.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
+}
+function patternSameRuleVisual(step){
+  const bank=[...step.options].map(rule=>'<button type="button" class="pattern-rule-chip" data-pattern-value="'+esc(rule)+'">'+esc(rule)+'</button>').join('');
+  const row=seq=>'<div class="pattern-sequence-strip compact">'+seq.map(n=>'<span>'+n+'</span>').join('<i>→</i>')+'</div>';
+  return '<div class="pattern-lesson-core"><div class="pattern-double-sequence">'+row(step.seqA)+row(step.seqB)+'</div><button type="button" class="pattern-rule-slot" data-pattern-value="'+esc(step.rule)+'"><small>İKİSİNİN KURALI</small><strong>?</strong></button><div class="pattern-rule-bank">'+bank+'</div><p id="patternLessonHelp">İki diziyi de açıklayan aynı kuralı yerleştir.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
+}
+function pattern1000StepVisual(step){
+  if(step.kind==='place-action') return patternActionVisual(step);
+  if(step.kind==='place-track') return patternTrackVisual(step);
+  if(step.kind==='rule-match') return patternRuleVisual(step);
+  if(step.kind==='number-slot') return patternNumberSlotVisual(step);
+  return patternSameRuleVisual(step);
+}
+function revealPatternLessonResult(){
+  $('#patternLessonResult')?.classList.add('revealed');
+}
+function wirePatternSingleDrop({chipSelector,slotSelector,onSuccess}){
+  let selected=null,drag=null,sx=0,sy=0;
+  const chips=$$(chipSelector), slots=$$(slotSelector);
+  const place=(chip,slot)=>{
+    if(!chip||!slot||slot.classList.contains('filled')) return false;
+    const value=chip.dataset.patternValue, expected=slot.dataset.patternValue;
+    if(value!==expected){
+      slot.classList.add('wrong'); setTimeout(()=>slot.classList.remove('wrong'),320);
+      $('#patternLessonHelp').textContent='Bu kart o alana uymuyor. Dizide gerçekten neyin değiştiğini yeniden izle.';
+      return false;
+    }
+    slot.classList.add('filled');
+    if(slot.querySelector('strong')) slot.querySelector('strong').textContent=value;
+    if(slot.classList.contains('pattern-number-slot')) slot.textContent=value;
+    chip.disabled=true; chip.classList.add('placed'); chips.forEach(x=>x.classList.remove('selected')); selected=null;
+    onSuccess?.(chip,slot); return true;
+  };
+  chips.forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      if(chip.disabled||consumeDraggedClick(chip)) return;
+      selected=selected===chip?null:chip; chips.forEach(x=>x.classList.toggle('selected',x===selected));
+      $('#patternLessonHelp').textContent=selected?'Şimdi doğru hedefe dokun.':'Kart seçimi kaldırıldı.';
+    });
+    chip.addEventListener('pointerdown',ev=>{
+      if(chip.disabled) return; drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');
+    });
+    chip.addEventListener('pointermove',ev=>{
+      if(drag!==chip) return; markDragMovement(chip,sx,sy,ev.clientX,ev.clientY);
+      chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.04)';
+    });
+    chip.addEventListener('pointerup',ev=>{
+      if(drag!==chip) return;
+      const target=dropTargetAtPoint(slotSelector,ev.clientX,ev.clientY);
+      chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip,target);drag=null;
+    });
+    chip.addEventListener('pointercancel',()=>{if(drag===chip){chip.style.transform='';chip.classList.remove('dragging');drag=null;}});
+  });
+  slots.forEach(slot=>slot.addEventListener('click',()=>{if(selected)place(selected,slot);}));
+}
+function completePattern1000LessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=PATTERN1000_LESSON_VERSION;
+  if(next>=PATTERN1000_LESSON_STEPS.length){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return;
+  }
+  saveState(); session.lessonStepIndex=next; renderPattern1000LessonStep(skill,next);
+}
+function renderPattern1000LessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(PATTERN1000_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(PATTERN1000_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=PATTERN1000_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+PATTERN1000_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/PATTERN1000_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="pattern-lesson-stage" data-pattern-step="'+esc(step.id)+'">'+pattern1000SectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · ADIM '+(at+1)+' / '+PATTERN1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="pattern-lesson-visual">'+pattern1000StepVisual(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="patternLessonNext" disabled>'+(at===PATTERN1000_LESSON_STEPS.length-1?'Birlikte uygulamaya geç':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const next=$('#patternLessonNext');
+
+  if(step.kind==='place-action'){
+    wirePatternSingleDrop({
+      chipSelector:'.pattern-drag-chip',
+      slotSelector:'.pattern-action-target',
+      onSuccess:(_,slot)=>{
+        slot.querySelector('b').textContent=step.action;
+        $('#patternAfterNumber').innerHTML=patternPlaceBoard(step.to,step.placeIndex);
+        $('#patternLessonHelp').textContent=step.result;
+        revealPatternLessonResult(); next.disabled=false;
+      }
+    });
+  }else if(step.kind==='place-track'){
+    $$('.pattern-place-choice').forEach(btn=>btn.addEventListener('click',()=>{
+      const index=Number(btn.dataset.placeChoice);
+      if(index!==step.placeIndex){
+        btn.classList.add('wrong');setTimeout(()=>btn.classList.remove('wrong'),320);
+        $('#patternLessonHelp').textContent='Bu sütundaki rakamları dört sayıda da karşılaştır.';
+        return;
+      }
+      btn.classList.add('selected'); $$('.pattern-place-choice').forEach(x=>x.disabled=true);
+      $$('.pattern-place-board').forEach(board=>board.children[index]?.classList.add('changed'));
+      $('#patternLessonHelp').textContent=step.result; revealPatternLessonResult(); next.disabled=false;
+    }));
+  }else if(step.kind==='rule-match'||step.kind==='same-rule'){
+    wirePatternSingleDrop({
+      chipSelector:'.pattern-rule-chip',
+      slotSelector:'.pattern-rule-slot',
+      onSuccess:()=>{
+        $('#patternLessonHelp').textContent=step.result; revealPatternLessonResult(); next.disabled=false;
+      }
+    });
+  }else if(step.kind==='number-slot'){
+    wirePatternSingleDrop({
+      chipSelector:'.pattern-number-chip',
+      slotSelector:'.pattern-number-slot',
+      onSuccess:()=>{
+        $('#patternLessonHelp').textContent=step.result; revealPatternLessonResult(); next.disabled=false;
+      }
+    });
+  }
+  next?.addEventListener('click',()=>completePattern1000LessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -962,6 +1126,7 @@ function inspectorSkillList(){
 function inspectorLessonSteps(skillId){
   if(skillId==='number1000') return NUMBER1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='compareOrder1000') return COMPARE_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='numberPattern1000') return PATTERN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -1052,6 +1217,22 @@ function inspectorUiAudit(){
     '1000’e kadar sayı referans öğretim adımları korunuyor',
     ['ten-bundle','count-tens','count-hundreds','hundred-sense','model-build','place-value','same-digit','zero-place','read-write','word-build'].every(id=>numberIds.includes(id)),
     numberIds.join(' → ')
+  );
+
+  const patternIds=PATTERN1000_LESSON_STEPS.map(step=>step.id);
+  add(
+    'pattern-teaching-order',
+    'Örüntüde model → kuralı tarif et → sürdür → eksik sayıyı bul sırası korunuyor',
+    patternIds.indexOf('place-change-track')<patternIds.indexOf('describe-up-rule') &&
+      patternIds.indexOf('describe-up-rule')<patternIds.indexOf('continue-after-rule') &&
+      patternIds.indexOf('continue-after-rule')<patternIds.indexOf('missing-middle'),
+    patternIds.join(' → ')
+  );
+  add(
+    'pattern-no-multiplication',
+    'P2 örüntü öğretimi çarpma/ritmik sayma konusuna taşmıyor',
+    !PATTERN1000_LESSON_STEPS.some(step=>/[×x]|katına|çarp/i.test([step.title,step.body,step.result].join(' '))),
+    'Bu ders ±1, ±10 ve ±100 basamak değişiminde kalır.'
   );
   const probe=document.createElement('div');
   probe.style.cssText='position:fixed;left:-9999px;top:-9999px;visibility:hidden';
@@ -1280,6 +1461,12 @@ function startSession(){
     focus.state.learningCycle.lessonVersion=COMPARE_ORDER_LESSON_VERSION;
     saveState();
   }
+  if(focus.skill.id==='numberPattern1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==PATTERN1000_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=PATTERN1000_LESSON_VERSION;
+    saveState();
+  }
   const focusDifficulty=focus.state.difficulty||1;
   const focusConcept=createConceptInstance(focus.skill.id,focusDifficulty,Math.random);
   if(replayCompareRevision){
@@ -1450,6 +1637,7 @@ function renderPracticeHeader(skill){
 function renderLessonIntro(skill){
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
+  if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
   currentQuestion=null;
   renderPracticeHeader(skill);
   const bp=lessonBlueprintFor(skill);
