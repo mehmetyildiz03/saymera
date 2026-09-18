@@ -594,3 +594,39 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .lesson-center-end .end-mark{background:var(--teal-soft);color:#177d70}
 @media(max-width:940px){.lesson-channel-grid{grid-template-columns:1fr 1fr}.lesson-channel-card.practice{grid-row:auto;grid-column:1/-1}}
 @media(max-width:699px){.lesson-channel-grid{grid-template-columns:1fr}.lesson-channel-card.practice{grid-column:auto}.lesson-channel-head{grid-template-columns:40px minmax(0,1fr)}.lesson-channel-head>b{grid-column:2;justify-self:start}.lesson-center-status{margin-top:10px}}
+
+/* v1.8.4 — hidden developer lesson inspector */
+.inspector-launcher{position:fixed;right:14px;bottom:88px;z-index:80;width:48px;height:48px;border:1px solid #233746;border-radius:15px;background:#142b3b;color:#fff;font:950 10px/1 system-ui;letter-spacing:.08em;box-shadow:0 10px 24px rgba(20,43,59,.2)}
+.inspector-screen{--inspector:#142b3b}
+.inspector-head{border-bottom:1px solid var(--line);margin-bottom:18px}
+.inspector-head-meta{display:flex;gap:8px;align-items:center;margin-top:12px}
+.inspector-head-meta>span,.inspector-head-meta>b{padding:7px 10px;border-radius:999px;background:#e8f2ef;font-size:9px;font-weight:950;color:#246f65}
+.inspector-head-meta>b.fail{background:#f9e8df;color:#9b4b2c}
+.inspector-body{padding-bottom:42px}
+.inspector-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;align-items:start}
+.inspector-panel{border:1px solid var(--line);border-radius:24px;background:var(--paper);padding:17px;box-shadow:0 8px 24px rgba(20,43,59,.04);display:grid;gap:12px}
+.inspector-panel.inspector-audit{grid-column:1/-1}
+.inspector-panel-title{display:grid;gap:3px}
+.inspector-panel-title>span{font-size:8px;font-weight:950;letter-spacing:.12em;color:#26776b}
+.inspector-panel-title>h2{font-size:17px;line-height:1.15;margin:0;color:var(--navy)}
+.inspector-panel-title>small{font-size:9px;color:var(--muted)}
+.inspector-panel label{display:grid;gap:5px}
+.inspector-panel label>span{font-size:8px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.inspector-panel select{width:100%;min-height:43px;border:1px solid var(--line);border-radius:13px;background:var(--paper-2);padding:0 10px;color:var(--navy);font-weight:800}
+.inspector-action,.inspector-secondary{min-height:43px;border-radius:13px;font-size:10px;font-weight:950}
+.inspector-action{border:0;background:var(--inspector);color:#fff}
+.inspector-secondary{border:1px solid var(--line);background:var(--paper-2);color:var(--navy)}
+.inspector-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.inspector-summary>span{min-height:52px;border-radius:13px;background:var(--paper-2);padding:8px;display:grid;gap:2px}
+.inspector-summary small{font-size:7px;color:var(--muted);text-transform:uppercase}
+.inspector-summary b{font-size:10px;color:var(--navy);overflow-wrap:anywhere}
+.inspector-note{padding:12px;border:1px dashed var(--line-strong);border-radius:14px;background:var(--paper-2);font-size:9px;line-height:1.5;color:var(--muted)}
+.inspector-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.inspector-checks article{display:grid;grid-template-columns:34px minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--line);border-radius:15px;padding:10px;background:var(--paper-2)}
+.inspector-checks article>b{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#e4f3ee;color:#24776a}
+.inspector-checks article.fail>b{background:#f9e5dd;color:#a04e31}
+.inspector-checks article>div{display:grid;gap:3px}
+.inspector-checks strong{font-size:10px;color:var(--navy)}
+.inspector-checks small{font-size:8px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}
+@media(max-width:980px){.inspector-grid{grid-template-columns:1fr 1fr}.inspector-panel.inspector-audit{grid-column:1/-1}}
+@media(max-width:699px){.inspector-grid{grid-template-columns:1fr}.inspector-panel.inspector-audit{grid-column:auto}.inspector-checks{grid-template-columns:1fr}.inspector-launcher{bottom:78px}}

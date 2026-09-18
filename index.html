@@ -87,6 +87,20 @@
         <div class="lesson-center-body" id="lessonCenterBody"></div>
       </section>
 
+
+      <section class="screen inspector-screen" id="inspectorScreen" aria-labelledby="inspectorTitle">
+        <div class="page-head inspector-head">
+          <button class="back-button" id="inspectorExit" aria-label="Test modundan çık">×</button>
+          <div>
+            <span class="section-kicker">GELİŞTİRİCİ / QA · SANDBOX</span>
+            <h1 id="inspectorTitle">Ders İnceleyici</h1>
+            <p>Gerçek ilerlemeyi değiştirmeden ders durumlarını, öğretim adımlarını ve uygulama bölümlerini test et.</p>
+            <div class="inspector-head-meta"><span id="inspectorProfileLabel">2. sınıf</span><b id="inspectorAuditBadge">QA</b></div>
+          </div>
+        </div>
+        <div class="inspector-body" id="inspectorBody"></div>
+      </section>
+
       <section class="screen" id="parentScreen" aria-labelledby="parentTitle">
         <div class="page-head">
           <button class="back-button" data-nav="home" aria-label="Çocuk ekranına dön">←</button>
@@ -121,6 +135,8 @@
       <button data-nav="atlas"><span>◇</span><b>Atlas</b></button>
     </nav>
   </div>
+
+  <button class="inspector-launcher" id="inspectorLauncher" type="button" hidden>QA</button>
 
   <div class="overlay onboarding" id="onboardingOverlay" aria-hidden="true">
     <section class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">

@@ -377,6 +377,125 @@ export function resetPracticeSectionCycle(state,skillId,sectionId,{now=Date.now(
   target.cycleStartedAt=now;
   return target;
 }
+export function practiceSectionCompletionAllowed(attempts,correctCount,lastCorrect){
+  return !!lastCorrect && Number(attempts)>=4 && Number(correctCount)>=3;
+}
+
+export function runPedagogyStateAudit(state,now=Date.now()){
+  ensureLearningArchitectureState(state);
+  const checks=[];
+  const add=(id,label,pass,detail='')=>checks.push({id,label,pass:!!pass,detail:String(detail||'')});
+
+  add(
+    'practice-final-correct',
+    'Uygulama son yanlış cevapla tamamlanamaz',
+    !practiceSectionCompletionAllowed(4,3,false) &&
+      practiceSectionCompletionAllowed(4,3,true) &&
+      !practiceSectionCompletionAllowed(3,3,true),
+    'Tamamlama: en az 4 görev, en az 3 doğru ve son cevap doğru.'
+  );
+
+  if(state.profile==='grade2'){
+    const flattened=P2_CURRICULUM_UNITS.flatMap(unit=>unit.lessons);
+    add(
+      'canonical-order',
+      'P2 ünite yolu canonical müfredat sırasını koruyor',
+      flattened.length===P2_MOE_SKILL_SEQUENCE.length &&
+        flattened.every((id,index)=>id===P2_MOE_SKILL_SEQUENCE[index]),
+      flattened.join(' → ')
+    );
+
+    let seenIncomplete=false;
+    const outOfOrder=[];
+    for(const id of P2_MOE_SKILL_SEQUENCE){
+      const completed=!!ensureSkillState(state,id).learningCycle?.firstCycleCompletedAt;
+      if(!completed) seenIncomplete=true;
+      else if(seenIncomplete) outOfOrder.push(id);
+    }
+    add(
+      'curriculum-continuity',
+      'Gelecek yeni ders daha erken tamamlanmış görünmüyor',
+      outOfOrder.length===0,
+      outOfOrder.length?'Sıra dışı: '+outOfOrder.join(', '):'Yeni öğrenme sırası tutarlı.'
+    );
+
+    const current=currentCurriculumSkill(state);
+    const currentIndex=current?P2_MOE_SKILL_SEQUENCE.indexOf(current.id):P2_MOE_SKILL_SEQUENCE.length;
+    const prematurelyOpen=P2_MOE_SKILL_SEQUENCE.slice(Math.max(0,currentIndex+1)).filter(id=>{
+      const completed=!!ensureSkillState(state,id).learningCycle?.firstCycleCompletedAt;
+      return !completed && lessonAccessState(state,id).status!=='locked';
+    });
+    add(
+      'future-locks',
+      'Gelecek yeni dersler kilitli kalıyor',
+      prematurelyOpen.length===0,
+      prematurelyOpen.length?'Erken açık: '+prematurelyOpen.join(', '):'Gelecek ders kapıları doğru.'
+    );
+
+    const practiceOrderErrors=[];
+    for(const skillId of Object.keys(P2_LESSON_CONTRACTS)){
+      const snap=lessonProgressSnapshot(state,skillId,now);
+      let gap=false;
+      for(const section of snap.practice.sections){
+        if(!section.completedAt) gap=true;
+        else if(gap) practiceOrderErrors.push(skillId+'/'+section.id);
+      }
+    }
+    add(
+      'practice-order',
+      'Uygula bölümleri sırayı atlamıyor',
+      practiceOrderErrors.length===0,
+      practiceOrderErrors.length?'Sıra dışı tamamlanan: '+practiceOrderErrors.join(', '):'Bölüm sırası tutarlı.'
+    );
+
+    const reviewBeforeCompletion=P2_MOE_SKILL_SEQUENCE.filter(id=>{
+      const ss=ensureSkillState(state,id);
+      const journey=ensureLessonJourneyState(state,id);
+      return !ss.learningCycle?.firstCycleCompletedAt && !!journey.review?.dueAt;
+    });
+    add(
+      'review-after-cycle',
+      'Tekrar yalnız ilk öğrenme döngüsünden sonra planlanıyor',
+      reviewBeforeCompletion.length===0,
+      reviewBeforeCompletion.length?'Erken tekrar: '+reviewBeforeCompletion.join(', '):'Tekrar kapıları doğru.'
+    );
+
+    const referenceContracts=['number1000','compareOrder1000'];
+    const incompleteContracts=referenceContracts.filter(id=>{
+      const contract=lessonContractFor(id);
+      return contract.provisional || (contract.practice?.sections?.length||0)<5;
+    });
+    add(
+      'reference-contracts',
+      'Referans derslerin Öğren/Uygula sözleşmeleri tanımlı',
+      incompleteContracts.length===0,
+      incompleteContracts.length?'Eksik sözleşme: '+incompleteContracts.join(', '):'İki referans ders açık sözleşmeye sahip.'
+    );
+
+    let symbolGuard=true;
+    let equalitySeen=false;
+    const rng=(()=>{let s=1844;return()=>((s=(s*1664525+1013904223)>>>0)/2**32)})();
+    for(let i=0;i<4;i++){
+      const q=generateLessonPracticeQuestion('compareOrder1000','comparison-symbols',i,2,rng);
+      const values=(q.response?.options||[]).map(opt=>String(opt.value));
+      if(values.length!==3 || values.some(value=>!['<','>','='].includes(value))) symbolGuard=false;
+      if(q.answer==='=') equalitySeen=true;
+    }
+    add(
+      'comparison-symbol-set',
+      'Karşılaştırma uygulaması yalnız < > = kullanıyor ve eşitliği içeriyor',
+      symbolGuard&&equalitySeen,
+      symbolGuard&&equalitySeen?'Sembol kümesi temiz.':'Karşılaştırma sembol sözleşmesi bozuldu.'
+    );
+  }
+
+  return {
+    passed:checks.filter(check=>check.pass).length,
+    failed:checks.filter(check=>!check.pass).length,
+    checks
+  };
+}
+
 export function lessonProgressSnapshot(state,skillId,now=Date.now()){
   const ss=ensureSkillState(state,skillId);
   const journey=ensureLessonJourneyState(state,skillId);

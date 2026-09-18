@@ -1,10 +1,11 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
+const INSPECTOR_ENABLED=new URLSearchParams(location.search).get('inspect')==='1';
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
@@ -126,7 +127,7 @@ function revealLessonInsight(){ $('#lessonInsight')?.classList.add('revealed'); 
 function renderNumber1000LessonStep(skill,index=null){
   const ss=ensureSkillState(state,skill.id);
   const saved=Math.min(NUMBER1000_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
-  const at=index==null?(session?.lessonReplay?0:saved):index, step=NUMBER1000_LESSON_STEPS[at];
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NUMBER1000_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index, step=NUMBER1000_LESSON_STEPS[at];
   session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
   $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
   $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NUMBER1000_LESSON_STEPS.length;
@@ -315,7 +316,7 @@ function revealCompareResult(){ $('#compareLessonResult')?.classList.add('reveal
 function renderCompareOrderLessonStep(skill,index=null){
   const ss=ensureSkillState(state,skill.id);
   const saved=Math.min(COMPARE_ORDER_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
-  const at=index==null?(session?.lessonReplay?0:saved):index, step=COMPARE_ORDER_LESSON_STEPS[at];
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(COMPARE_ORDER_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index, step=COMPARE_ORDER_LESSON_STEPS[at];
   session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
   $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
   $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+COMPARE_ORDER_LESSON_STEPS.length;
@@ -423,6 +424,9 @@ let activeScreen='home';
 let activeDomain='Tümü';
 let activeAtlasUnitId=null;
 let activeLessonSkillId=null;
+let inspectorSandbox=false;
+let inspectorRealState=null;
+let inspectorSelectedSkillId=null;
 let pendingAtlasSkillId=null;
 let pendingLessonLaunch=null;
 let session=null;
@@ -445,6 +449,12 @@ function init(){
   renderAll();
   applyMotionSetting();
   registerSW();
+  if(INSPECTOR_ENABLED){
+    const launcher=$('#inspectorLauncher'); if(launcher) launcher.hidden=false;
+    enterInspectorSandbox();
+    navigate('inspector');
+    return;
+  }
   if(!state.onboarded) openOnboarding();
   if(state.cooldownUntil && state.cooldownUntil>Date.now()) showCooldown(false);
 }
@@ -476,7 +486,7 @@ function normalizeState(){
   ensureLearningArchitectureState(state);
   saveState();
 }
-function saveState(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(err){ console.warn('SAYMERA save failed',err); } }
+function saveState(){ if(inspectorSandbox) return; try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(err){ console.warn('SAYMERA save failed',err); } }
 function showToast(message){
   const node=$('#toast'); if(!node) return;
   node.textContent=message; node.classList.add('show');
@@ -497,6 +507,7 @@ function navigate(name){
   if(target==='parent') renderParent();
   if(target==='atlas') renderAtlas();
   if(target==='lessonCenter') renderLessonCenter();
+  if(target==='inspector') renderInspector();
   window.scrollTo({top:0,behavior:state.settings.calmMotion?'auto':'smooth'});
 }
 
@@ -511,6 +522,8 @@ function bindControls(){
   $('#parentSkipCooldown').addEventListener('click',()=>{ state.cooldownUntil=0; saveState(); hideCooldown(); renderAll(); showToast('Mola ebeveyn tarafından sonlandırıldı'); });
   $('#saveSettingsButton').addEventListener('click',saveSettingsFromUI);
   $('#resetButton').addEventListener('click',resetProgress);
+  $('#inspectorLauncher')?.addEventListener('click',()=>{ if(!INSPECTOR_ENABLED) return; if(!inspectorSandbox) enterInspectorSandbox(); navigate('inspector'); });
+  $('#inspectorExit')?.addEventListener('click',exitInspectorSandbox);
 
   const adult=$('#adultButton');
   const beginHold=e=>{
@@ -557,7 +570,7 @@ function completeOnboarding(){
 }
 
 function renderAll(){
-  renderHeader(); renderHome(); renderAtlas(); renderParent(); if(activeLessonSkillId) renderLessonCenter();
+  renderHeader(); renderHome(); renderAtlas(); renderParent(); if(activeLessonSkillId) renderLessonCenter(); if(inspectorSandbox) renderInspector();
 }
 function renderHeader(){
   const chip=$('#profileChip');
@@ -870,7 +883,7 @@ function dueReviewPlanForSkill(skillId){
     conceptScope:'fresh'
   }));
 }
-function startLessonChannel(skillId,channel,sectionId=null){
+function startLessonChannel(skillId,channel,sectionId=null,options={}){
   const skill=skillsFor(state.profile).find(item=>item.id===skillId);
   if(!skill) return;
   const snapshot=lessonProgressSnapshot(state,skillId);
@@ -898,7 +911,7 @@ function startLessonChannel(skillId,channel,sectionId=null){
   }
   if(!plan.length) return;
 
-  pendingLessonLaunch={skillId,channel,sectionId,plan,sectionLabel:section?.label||null};
+  pendingLessonLaunch={skillId,channel,sectionId,plan,sectionLabel:section?.label||null,lessonStep:options.lessonStep??null,inspector:!!options.inspector||inspectorSandbox};
   pendingAtlasSkillId=skillId;
   startSession();
 }
@@ -916,6 +929,241 @@ function appendPracticeSectionRecovery(){
     conceptScope:'fresh',
     practiceIndex:section.cycleAttempts||0,
     practiceSectionId:section.id
+  });
+}
+
+function cloneState(value){
+  if(typeof structuredClone==='function') return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
+}
+function enterInspectorSandbox(){
+  if(inspectorSandbox) return;
+  inspectorRealState=state;
+  state=cloneState(state);
+  inspectorSandbox=true;
+  inspectorSelectedSkillId=skillsFor(state.profile)[0]?.id||null;
+  ensureLearningArchitectureState(state);
+  const launcher=$('#inspectorLauncher'); if(launcher) launcher.hidden=false;
+  showToast('Test sandboxı açıldı · gerçek ilerleme korunuyor');
+}
+function exitInspectorSandbox(){
+  $('#practiceOverlay')?.classList.remove('open');
+  $('#practiceOverlay')?.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  session=null; currentQuestion=null; currentSelection=null; answered=false;
+  if(inspectorRealState) state=inspectorRealState;
+  inspectorRealState=null; inspectorSandbox=false; inspectorSelectedSkillId=null; activeLessonSkillId=null;
+  renderAll(); navigate('home');
+  showToast('Test sandboxı kapandı · gerçek ilerleme değişmedi');
+}
+function inspectorSkillList(){
+  return skillsFor(state.profile);
+}
+function inspectorLessonSteps(skillId){
+  if(skillId==='number1000') return NUMBER1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='compareOrder1000') return COMPARE_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  return [];
+}
+function inspectorCompletePriorPath(skillId){
+  if(state.profile!=='grade2') return;
+  const sequence=curriculumUnitsFor('grade2').flatMap(unit=>unit.lessons.map(skill=>skill.id));
+  const target=sequence.indexOf(skillId);
+  if(target<0) return;
+  const base=Date.now()-1000*60*60*24;
+  sequence.slice(0,target).forEach((id,index)=>{
+    const ss=ensureSkillState(state,id), lc=ss.learningCycle;
+    const at=base+index*1000;
+    lc.lessonTaughtAt=lc.lessonTaughtAt||at;
+    lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,1);
+    lc.firstCycleCompletedAt=lc.firstCycleCompletedAt||at;
+    lc.lastCycleAt=lc.lastCycleAt||at;
+    lessonProgressSnapshot(state,id);
+  });
+}
+function inspectorSetPreset(skillId,preset){
+  inspectorCompletePriorPath(skillId);
+  if(preset==='fresh'){
+    delete state.skills[skillId];
+    state.reviewQueue=state.reviewQueue.filter(item=>item.skillId!==skillId);
+    ensureSkillState(state,skillId);
+  }
+  const ss=ensureSkillState(state,skillId), lc=ss.learningCycle;
+  const now=Date.now();
+  if(preset==='learned'||preset==='practice-ready'){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||now-60000;
+    lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,1);
+    lc.firstCycleCompletedAt=0;
+    lc.retrievalDueAt=0;
+    lessonProgressSnapshot(state,skillId);
+  }
+  if(preset==='completed'||preset==='review-due'){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||now-1000*60*60*24;
+    lc.firstCycleCompletedAt=lc.firstCycleCompletedAt||now-1000*60*60*20;
+    lc.lastCycleAt=lc.lastCycleAt||lc.firstCycleCompletedAt;
+    lc.retrievalDueAt=preset==='review-due'?now-1000:now+1000*60*60*20;
+    const journey=lessonProgressSnapshot(state,skillId);
+    if(preset==='completed'){
+      const raw=ensureSkillState(state,skillId).lessonJourney;
+      for(const section of Object.values(raw.practice?.sections||{})) section.completedAt=section.completedAt||now-1000*60*60;
+    }
+    if(preset==='review-due'){
+      state.reviewQueue=state.reviewQueue.filter(item=>!(item.skillId===skillId&&item.stage==='next-day'));
+      state.reviewQueue.push({
+        id:'inspector-review:'+skillId,
+        skillId,
+        representation:'symbol',
+        phase:'retrieval',
+        dueAt:now-1000,
+        stage:'next-day'
+      });
+    }
+    lessonProgressSnapshot(state,skillId);
+  }
+  renderInspector();
+}
+function inspectorPreparePractice(skillId,sectionId){
+  inspectorSetPreset(skillId,'practice-ready');
+  const snapshot=lessonProgressSnapshot(state,skillId);
+  const index=snapshot.practice.sections.findIndex(section=>section.id===sectionId);
+  const journey=ensureSkillState(state,skillId).lessonJourney;
+  snapshot.practice.sections.forEach((section,i)=>{
+    const raw=journey.practice.sections[section.id];
+    if(i<index) raw.completedAt=raw.completedAt||Date.now()-10000-i*1000;
+    else if(i===index){ raw.completedAt=0; raw.cycleAttempts=0; raw.cycleCorrect=0; }
+  });
+}
+function inspectorPrepareReview(skillId){
+  inspectorSetPreset(skillId,'review-due');
+}
+function inspectorUiAudit(){
+  const checks=[];
+  const add=(id,label,pass,detail='')=>checks.push({id,label,pass:!!pass,detail});
+  const compareIds=COMPARE_ORDER_LESSON_STEPS.map(step=>step.id);
+  add(
+    'symbol-teaching-order',
+    'Karşılaştırma anlamı sembolden önce öğretiliyor',
+    compareIds.indexOf('compare-equal')<compareIds.indexOf('symbol-meaning-match') &&
+      compareIds.indexOf('symbol-meaning-match')<compareIds.indexOf('symbol-bridge'),
+    compareIds.join(' → ')
+  );
+  const numberIds=NUMBER1000_LESSON_STEPS.map(step=>step.id);
+  add(
+    'number-reference-steps',
+    '1000’e kadar sayı referans öğretim adımları korunuyor',
+    ['ten-bundle','count-tens','count-hundreds','hundred-sense','model-build','place-value','same-digit','zero-place','read-write','word-build'].every(id=>numberIds.includes(id)),
+    numberIds.join(' → ')
+  );
+  const probe=document.createElement('div');
+  probe.style.cssText='position:fixed;left:-9999px;top:-9999px;visibility:hidden';
+  probe.innerHTML='<i class="lesson-unit-hundred"></i><i class="lesson-unit-ten"></i>';
+  document.body.append(probe);
+  const hundred=getComputedStyle(probe.children[0]).backgroundSize.replace(/\s+/g,' ');
+  const ten=getComputedStyle(probe.children[1]).backgroundSize.replace(/\s+/g,' ');
+  add('hundred-grid','Yüzlük model 10×10 ızgara sözleşmesini taşıyor',hundred.includes('10% 100%')&&hundred.includes('100% 10%'),hundred);
+  add('ten-grid','Onluk model 10 eş bölme sözleşmesini taşıyor',ten.includes('100% 10%'),ten);
+  probe.remove();
+  add('touch-drop','Sürükle-bırak hedefi pointer-capture’dan bağımsız çözülüyor',typeof dropTargetAtPoint==='function','getBoundingClientRect tabanlı hedefleme');
+  return checks;
+}
+function inspectorStateSummary(skillId){
+  const snapshot=lessonProgressSnapshot(state,skillId);
+  return {
+    access:snapshot.access.status,
+    learn:snapshot.learn.status,
+    practice:snapshot.practice.status,
+    practiceProgress:snapshot.practice.completedSections+' / '+snapshot.practice.totalSections,
+    review:snapshot.review.status,
+    firstCycle:!!ensureSkillState(state,skillId).learningCycle?.firstCycleCompletedAt,
+    provisional:snapshot.provisional
+  };
+}
+function renderInspector(){
+  const body=$('#inspectorBody');
+  if(!body||!inspectorSandbox) return;
+  const list=inspectorSkillList();
+  if(!list.some(skill=>skill.id===inspectorSelectedSkillId)) inspectorSelectedSkillId=list[0]?.id||null;
+  const skill=list.find(item=>item.id===inspectorSelectedSkillId)||null;
+  if(!skill){ body.innerHTML='<p>Bu profilde incelenecek ders yok.</p>'; return; }
+  const snapshot=lessonProgressSnapshot(state,skill.id);
+  const steps=inspectorLessonSteps(skill.id);
+  const audit=runPedagogyStateAudit(state);
+  const uiChecks=inspectorUiAudit();
+  const allChecks=[...audit.checks,...uiChecks];
+  const pass=allChecks.filter(check=>check.pass).length;
+  const fail=allChecks.length-pass;
+  const summary=inspectorStateSummary(skill.id);
+  const contract=lessonContractFor(skill.id);
+
+  $('#inspectorProfileLabel').textContent=PROFILE_META[state.profile]?.label||state.profile;
+  $('#inspectorAuditBadge').textContent=fail?fail+' sorun':pass+' kontrol temiz';
+  $('#inspectorAuditBadge').classList.toggle('fail',!!fail);
+
+  body.innerHTML=
+    '<div class="inspector-grid">'+
+      '<section class="inspector-panel inspector-controls">'+
+        '<div class="inspector-panel-title"><span>SANDBOX</span><h2>Dersi doğrudan aç</h2><small>Gerçek local state yazılmaz.</small></div>'+
+        '<label><span>Sınıf / profil</span><select id="inspectorProfile">'+
+          Object.entries(PROFILE_META).map(([id,meta])=>'<option value="'+esc(id)+'" '+(id===state.profile?'selected':'')+'>'+esc(meta.label)+'</option>').join('')+
+        '</select></label>'+
+        '<label><span>Ders</span><select id="inspectorSkill">'+
+          list.map(item=>'<option value="'+esc(item.id)+'" '+(item.id===skill.id?'selected':'')+'>'+esc(item.label)+'</option>').join('')+
+        '</select></label>'+
+        '<label><span>Durum simülasyonu</span><select id="inspectorPreset">'+
+          '<option value="fresh">Bu dersi sıfırla / sıradaki yap</option>'+
+          '<option value="practice-ready">Öğren tamam · Uygula hazır</option>'+
+          '<option value="completed">Ders tamamlandı</option>'+
+          '<option value="review-due">Tekrar zamanı geldi</option>'+
+        '</select></label>'+
+        '<button class="inspector-action" id="inspectorApplyPreset">Durumu uygula</button>'+
+        '<div class="inspector-summary">'+Object.entries(summary).map(([key,value])=>'<span><small>'+esc(key)+'</small><b>'+esc(value)+'</b></span>').join('')+'</div>'+
+      '</section>'+
+      '<section class="inspector-panel">'+
+        '<div class="inspector-panel-title"><span>ÖĞREN</span><h2>Öğretim adımına atla</h2><small>'+esc(skill.label)+'</small></div>'+
+        (steps.length
+          ? '<label><span>Adım</span><select id="inspectorLessonStep">'+steps.map(step=>'<option value="'+step.index+'">'+esc(step.label)+'</option>').join('')+'</select></label><button class="inspector-action" id="inspectorLaunchLearn">Bu adımdan aç</button>'
+          : '<div class="inspector-note">Bu ders için henüz özel referans Öğren adımları tanımlanmadı.</div>')+
+        '<button class="inspector-secondary" id="inspectorOpenCenter">Ders Merkezi’ni aç</button>'+
+      '</section>'+
+      '<section class="inspector-panel">'+
+        '<div class="inspector-panel-title"><span>UYGULA</span><h2>Bölüme doğrudan git</h2><small>'+snapshot.practice.completedSections+' / '+snapshot.practice.totalSections+' bölüm</small></div>'+
+        (contract.practice?.sections?.length
+          ? '<label><span>Uygulama bölümü</span><select id="inspectorPracticeSection">'+contract.practice.sections.map(section=>'<option value="'+esc(section.id)+'">'+esc(section.label)+'</option>').join('')+'</select></label><button class="inspector-action" id="inspectorLaunchPractice">Bölümü test et</button>'
+          : '<div class="inspector-note">Bu dersin bölüm sözleşmesi henüz provisional.</div>')+
+        '<button class="inspector-secondary" id="inspectorLaunchReview">Tekrarı zamanı gelmiş gibi aç</button>'+
+      '</section>'+
+      '<section class="inspector-panel inspector-audit">'+
+        '<div class="inspector-panel-title"><span>QA</span><h2>Pedagojik sözleşmeler</h2><small>'+pass+' geçti · '+fail+' sorun</small></div>'+
+        '<div class="inspector-checks">'+allChecks.map(check=>'<article class="'+(check.pass?'pass':'fail')+'"><b>'+(check.pass?'✓':'!')+'</b><div><strong>'+esc(check.label)+'</strong><small>'+esc(check.detail)+'</small></div></article>').join('')+'</div>'+
+      '</section>'+
+    '</div>';
+
+  $('#inspectorProfile')?.addEventListener('change',e=>{
+    state.profile=e.target.value;
+    ensureLearningArchitectureState(state);
+    inspectorSelectedSkillId=skillsFor(state.profile)[0]?.id||null;
+    renderAll(); renderInspector();
+  });
+  $('#inspectorSkill')?.addEventListener('change',e=>{ inspectorSelectedSkillId=e.target.value; renderInspector(); });
+  $('#inspectorApplyPreset')?.addEventListener('click',()=>inspectorSetPreset(skill.id,$('#inspectorPreset').value));
+  $('#inspectorOpenCenter')?.addEventListener('click',()=>{
+    inspectorCompletePriorPath(skill.id);
+    activeLessonSkillId=skill.id;
+    navigate('lessonCenter');
+  });
+  $('#inspectorLaunchLearn')?.addEventListener('click',()=>{
+    inspectorCompletePriorPath(skill.id);
+    const lessonStep=Number($('#inspectorLessonStep')?.value||0);
+    startLessonChannel(skill.id,'learn',null,{lessonStep});
+  });
+  $('#inspectorLaunchPractice')?.addEventListener('click',()=>{
+    const sectionId=$('#inspectorPracticeSection')?.value;
+    if(!sectionId) return;
+    inspectorPreparePractice(skill.id,sectionId);
+    startLessonChannel(skill.id,'practice',sectionId,{inspector:true});
+  });
+  $('#inspectorLaunchReview')?.addEventListener('click',()=>{
+    inspectorPrepareReview(skill.id);
+    startLessonChannel(skill.id,'review',null,{inspector:true});
   });
 }
 function renderParent(){
@@ -1046,6 +1294,8 @@ function startSession(){
     requiresLearningCompletion:lessonLaunch?false:!!(supportsLearningCycle(focus.skill.id)&&!focus.state.learningCycle?.firstCycleCompletedAt),
     lessonStepIndex:focus.state.learningCycle?.lessonStepIndex||0,
     lessonReplay:lessonLaunch?.channel==='learn',
+    lessonReplayStep:lessonLaunch?.lessonStep??null,
+    inspectorLaunch:!!lessonLaunch?.inspector,
     lessonCenterReturn:!!lessonLaunch,
     lessonChannel:lessonLaunch?.channel||null,
     practiceSectionId:lessonLaunch?.sectionId||null,
@@ -1738,7 +1988,7 @@ function answerQuestion(value,button){
     const sectionState=sectionIndex>=0?snapshot.practice.sections[sectionIndex]:null;
     const projectedAttempts=(sectionState?.cycleAttempts||0)+1;
     const projectedCorrect=(sectionState?.cycleCorrect||0)+(correct?1:0);
-    const completeNow=!!(correct&&projectedAttempts>=PRACTICE_SECTION_BASE_TASKS&&projectedCorrect>=3);
+    const completeNow=practiceSectionCompletionAllowed(projectedAttempts,projectedCorrect,correct);
     const priorComplete=sectionIndex>0?snapshot.practice.sections.slice(0,sectionIndex).every(item=>item.completedAt):true;
     const finalSection=sectionIndex===snapshot.practice.sections.length-1;
     if(completeNow&&priorComplete&&finalSection&&!ensureSkillState(state,q.skillId).learningCycle?.firstCycleCompletedAt) q.cycleFinal=true;
