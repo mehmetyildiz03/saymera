@@ -676,10 +676,17 @@ function showToast(message){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>node.classList.remove('show'),2200);
 }
 
+function startPrimaryJourney(){
+  if(state.profile==='grade2'){
+    const current=currentCurriculumSkill(state);
+    if(current){ openLessonCenter(current.id); return; }
+  }
+  startSession();
+}
 function bindNavigation(){
   $$('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>navigate(btn.dataset.nav)));
   $('#profileChip').addEventListener('click',()=>openOnboarding(true));
-  $('#bottomStart').addEventListener('click',startSession);
+  $('#bottomStart').addEventListener('click',startPrimaryJourney);
 }
 function navigate(name){
   const target=name==='map'?'atlas':name;
@@ -695,7 +702,7 @@ function navigate(name){
 }
 
 function bindControls(){
-  $('#startSessionButton').addEventListener('click',startSession);
+  $('#startSessionButton').addEventListener('click',startPrimaryJourney);
   $('#closePractice').addEventListener('click',()=>closePractice(true));
   $('#speakButton').addEventListener('click',speakCurrent);
   $('#onboardingContinue').addEventListener('click',completeOnboarding);
@@ -817,9 +824,9 @@ function renderHome(){
   const locked=state.cooldownUntil && state.cooldownUntil>Date.now();
   const main=$('#startSessionButton');
   main.disabled=!!locked;
-  $('#startMainText').textContent=locked?'Mola sürüyor':'Keşfi başlat';
+  $('#startMainText').textContent=locked?'Mola sürüyor':state.profile==='grade2'?'Derse devam et':'Keşfi başlat';
   const firstCycle=!!(focus&&supportsLearningCycle(focus.skill.id)&&!ss?.learningCycle?.firstCycleCompletedAt);
-  $('#startMetaText').textContent=locked?'ekran dışı ara':`yaklaşık ${firstCycle?'7–10':state.profile==='grade2'?'6–8':'5–7'} dk`;
+  $('#startMetaText').textContent=locked?'ekran dışı ara':state.profile==='grade2'?'Öğren · Uygula · Tekrar':`yaklaşık ${firstCycle?'7–10':'5–7'} dk`;
   $('#bottomStart').disabled=!!locked;
 }
 
