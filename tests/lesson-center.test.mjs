@@ -12,7 +12,7 @@ const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 assert.match(html,/id="lessonCenterScreen"/);
 assert.match(html,/id="lessonCenterBody"/);
 assert.ok(app.includes('function renderLessonCenter()'),'Lesson Center renderer missing');
-assert.ok(app.includes("function startLessonChannel(skillId,channel,sectionId=null)"),'Lesson Center channel launcher missing');
+assert.ok(app.includes("function startLessonChannel(skillId,channel,sectionId=null,options={})"),'Lesson Center channel launcher missing');
 assert.ok(app.includes("channel==='learn'"),'Learn channel missing');
 assert.ok(app.includes("channel==='practice'"),'Practice channel missing');
 assert.ok(app.includes("channel==='review'"),'Review channel missing');
