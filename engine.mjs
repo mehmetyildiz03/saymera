@@ -3550,7 +3550,7 @@ function patternSequenceWithGap(x,gapIndex){
   const full=[...x.seq,x.next];
   return {full,answer:full[gapIndex],items:full.map((n,i)=>i===gapIndex?'?':n)};
 }
-function pattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
+function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const d=clamp(difficulty,1,4);
   const concept=createConceptInstance('numberPattern1000',d,rng);
   const x=concept.anchor;
