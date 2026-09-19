@@ -658,8 +658,12 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .pattern-lesson-result{opacity:0;transform:translateY(5px);transition:.18s;min-height:40px;padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:11px;font-weight:900;text-align:center}
 .pattern-lesson-result.revealed{opacity:1;transform:none}
 #patternLessonHelp{margin:0;color:var(--muted);font-size:9px;font-weight:780;text-align:center;line-height:1.4}
-.pattern-track-sequence{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
-.pattern-track-number .pattern-place-cell{min-height:58px}.pattern-track-number .pattern-place-cell strong{font-size:21px}
+#patternLessonHelp:empty{display:none}
+.pattern-track-sequence{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%}
+.pattern-track-number{min-width:0;display:grid;gap:7px;padding:8px;border:1px solid var(--line);border-radius:18px;background:var(--paper-2);box-shadow:0 3px 0 #ece7dc}
+.pattern-track-value{font-size:18px;line-height:1;color:var(--navy);text-align:center}
+.pattern-track-number .pattern-place-board{gap:4px}
+.pattern-track-number .pattern-place-cell{min-height:52px;border-radius:13px}.pattern-track-number .pattern-place-cell strong{font-size:21px}
 .pattern-place-choices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .pattern-place-choice{min-width:96px;min-height:44px;border:1px solid var(--line);border-radius:14px;background:var(--paper-2);font-size:10px;font-weight:950;color:var(--navy)}
 .pattern-place-choice.selected{background:var(--teal-soft);border-color:#9bcfc2;color:#17695d}.pattern-place-choice.wrong{animation:lessonNudge .28s}
@@ -680,7 +684,7 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 }
 @media(max-width:699px){
   .pattern-transition{grid-template-columns:1fr;justify-items:center}.pattern-transition-arrow{transform:rotate(90deg)}
-  .pattern-track-sequence{grid-template-columns:repeat(2,1fr)}
+  .pattern-track-sequence{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .pattern-action-targets{grid-template-columns:1fr}
   .pattern-place-cell{min-height:58px}.pattern-place-cell strong{font-size:22px}
 }

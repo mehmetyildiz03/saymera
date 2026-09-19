@@ -44,6 +44,9 @@ assert.ok(app.includes("title:'Adım aynı kalır; rakamlar bazen yeniden grupla
 assert.ok(app.includes('9 onluk + 1 onluk = 10 onluk = 1 yüzlük'),'290→300 regrouping relation missing');
 assert.ok(!app.includes("title:'10 daha olduğunda onluklar değişir.'"),'do not overgeneralize +10 as only a tens-digit change');
 assert.match(css,/\.pattern-regroup-flow/);
+assert.ok(app.includes('class="pattern-track-value"'),'place-change tracking must label each whole number as a distinct group');
+assert.match(css,/\.pattern-track-number\{[^}]*border:1px solid var\(--line\)/,'place-change numbers must have visible group boundaries');
+assert.ok(!app.includes("$('#patternLessonHelp').textContent=step.result"),'successful pattern steps must not duplicate the result in helper text');
 
 // The rule must match the actual displayed sequence, not an unrelated anchor.
 const {patternContinuationRule,generateQuestion}=await import('../engine.mjs');

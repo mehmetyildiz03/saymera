@@ -446,7 +446,7 @@ function patternActionVisual(step){
   return '<div class="pattern-lesson-core"><div class="pattern-transition"><div>'+patternPlaceBoard(step.from)+patternQuantityModel(step.from)+'</div><span class="pattern-transition-arrow">→</span><div class="pattern-after-number" id="patternAfterNumber"><strong>?</strong><small>sonraki sayı</small></div></div><div class="pattern-action-zone"><div class="pattern-action-targets">'+targets+'</div><button type="button" class="pattern-drag-chip" data-pattern-value="'+esc(step.action)+'">'+esc(step.action)+'</button><p id="patternLessonHelp">Değişim kartını doğru basamağa sürükle • veya karta, sonra basamağa dokun.</p></div><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
 }
 function patternTrackVisual(step){
-  const rows=step.seq.map(n=>'<div class="pattern-track-number" data-pattern-number="'+n+'">'+patternPlaceBoard(n)+'</div>').join('');
+  const rows=step.seq.map(n=>'<div class="pattern-track-number" data-pattern-number="'+n+'"><strong class="pattern-track-value">'+n+'</strong>'+patternPlaceBoard(n)+'</div>').join('');
   const choices=['Yüzlük','Onluk','Birlik'].map((label,i)=>'<button type="button" class="pattern-place-choice" data-place-choice="'+i+'">'+label+'</button>').join('');
   return '<div class="pattern-lesson-core"><div class="pattern-track-sequence">'+rows+'</div><div class="pattern-place-choices">'+choices+'</div><p id="patternLessonHelp">Her sayıda aynı sütuna bak. Düzenli değişen basamağı seç.</p><div class="pattern-lesson-result" id="patternLessonResult">'+esc(step.result)+'</div></div>';
 }
@@ -552,7 +552,7 @@ function renderPattern1000LessonStep(skill,index=null){
       onSuccess:(_,slot)=>{
         slot.querySelector('b').textContent=step.action;
         $('#patternAfterNumber').innerHTML=patternPlaceBoard(step.to,step.placeIndex)+patternQuantityModel(step.to);
-        $('#patternLessonHelp').textContent=step.result;
+        $('#patternLessonHelp').textContent='';
         revealPatternLessonResult(); next.disabled=false;
       }
     });
@@ -562,7 +562,7 @@ function renderPattern1000LessonStep(skill,index=null){
       slotSelector:'.pattern-regroup-slot',
       onSuccess:()=>{
         $('#patternRegroupAfter').innerHTML='<div class="pattern-regroup-material">'+amountModel('hundred',3)+'</div><strong>300</strong><small>3 yüzlük + 0 onluk</small>';
-        $('#patternLessonHelp').textContent='10 onluk yeniden gruplanınca 1 yüzlük olur. Adım hâlâ 10 daha.';
+        $('#patternLessonHelp').textContent='';
         revealPatternLessonResult(); next.disabled=false;
       }
     });
@@ -576,14 +576,14 @@ function renderPattern1000LessonStep(skill,index=null){
       }
       btn.classList.add('selected'); $$('.pattern-place-choice').forEach(x=>x.disabled=true);
       $$('.pattern-place-board').forEach(board=>board.children[index]?.classList.add('changed'));
-      $('#patternLessonHelp').textContent=step.result; revealPatternLessonResult(); next.disabled=false;
+      $('#patternLessonHelp').textContent=''; revealPatternLessonResult(); next.disabled=false;
     }));
   }else if(step.kind==='rule-match'||step.kind==='same-rule'){
     wirePatternSingleDrop({
       chipSelector:'.pattern-rule-chip',
       slotSelector:'.pattern-rule-slot',
       onSuccess:()=>{
-        $('#patternLessonHelp').textContent=step.result; revealPatternLessonResult(); next.disabled=false;
+        $('#patternLessonHelp').textContent=''; revealPatternLessonResult(); next.disabled=false;
       }
     });
   }else if(step.kind==='number-slot'){
@@ -591,7 +591,7 @@ function renderPattern1000LessonStep(skill,index=null){
       $('.pattern-lesson-visual').innerHTML=patternNumberSlotVisual(step,true);
       $('#patternLessonHelp').textContent=step.rule+' Şimdi eksik sayıyı yerleştir.';
       wirePatternSingleDrop({chipSelector:'.pattern-number-chip',slotSelector:'.pattern-number-slot',onSuccess:()=>{
-        $('#patternLessonHelp').textContent=step.result; revealPatternLessonResult(); next.disabled=false;
+        $('#patternLessonHelp').textContent=''; revealPatternLessonResult(); next.disabled=false;
       }});
     }});
   }

@@ -76,9 +76,14 @@ try{
             }
           }
         }
+        if(id==='place-change-track'){
+          assert.deepEqual(await page.locator('.pattern-track-value').allTextContents(),['324','334','344','354']);
+          assert.equal(await page.locator('.pattern-track-number').evaluateAll(xs=>xs.every(x=>parseFloat(getComputedStyle(x).borderTopWidth)>0)),true,'each tracked number needs its own visible group');
+        }
+        assert.equal((await page.locator('#patternLessonHelp').textContent()||'').trim(),'','successful step must show one result, not duplicate helper copy');
         assert.equal(await page.locator('#patternLessonNext').isEnabled(),true,id+' completion');
         await layout(page);
-        if(['one-more-model','ten-regroup-boundary','missing-middle'].includes(id))await page.screenshot({path:'test-results/'+config.name+'-'+id+'.png',fullPage:false,animations:"disabled"});
+        if(['one-more-model','ten-regroup-boundary','place-change-track','missing-middle'].includes(id))await page.screenshot({path:'test-results/'+config.name+'-'+id+'.png',fullPage:false,animations:"disabled"});
       }
       for(const section of ['continue-sequence','missing-number','transfer-pattern']){
         await openInspector(page);await page.locator('#inspectorPracticeSection').selectOption(section);await tap(page,'#inspectorLaunchPractice');
