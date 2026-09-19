@@ -636,14 +636,14 @@ function oddEvenLessonVisual(step){
 }
 function revealOddEvenResult(){ $('#oddEvenResult')?.classList.add('revealed'); }
 function wireOddEvenChoiceStep(step,next){
-  $('.odd-even-choice').forEach(button=>button.addEventListener('click',()=>{
+  $$('.odd-even-choice').forEach(button=>button.addEventListener('click',()=>{
     if(button.disabled) return;
     if(button.dataset.correct!=='true'){
       button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
       $('#oddEvenHelp').textContent='Birlikleri ikişerli eşleştirip artan olup olmadığına yeniden bak.';
       return;
     }
-    button.classList.add('selected'); $('.odd-even-choice').forEach(x=>x.disabled=true);
+    button.classList.add('selected'); $$('.odd-even-choice').forEach(x=>x.disabled=true);
     $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
   }));
 }
@@ -661,7 +661,7 @@ function wireOddEvenLessonStep(step,next){
   }
   if(step.kind==='choice'){ wireOddEvenChoiceStep(step,next); return; }
   if(step.kind==='multi-classify'){
-    $('.odd-even-classify-row').forEach(row=>row.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{
+    $$('.odd-even-classify-row').forEach(row=>row.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
@@ -669,18 +669,18 @@ function wireOddEvenLessonStep(step,next){
         return;
       }
       row.classList.add('complete'); button.classList.add('selected'); row.querySelectorAll('button').forEach(x=>x.disabled=true);
-      if($('.odd-even-classify-row:not(.complete)').length===0){ $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false; }
+      if($$('.odd-even-classify-row:not(.complete)').length===0){ $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false; }
     })));
     return;
   }
   if(step.kind==='digit-set'){
-    $('[data-odd-digit]').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('selected')));
+    $$('[data-odd-digit]').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('selected')));
     $('#oddEvenSetCheck')?.addEventListener('click',()=>{
-      const picked=$('[data-odd-digit].selected').map(button=>Number(button.dataset.oddDigit)).sort((a,b)=>a-b);
+      const picked=$$('[data-odd-digit].selected').map(button=>Number(button.dataset.oddDigit)).sort((a,b)=>a-b);
       const expected=[...step.digits].sort((a,b)=>a-b);
       const correct=picked.length===expected.length&&picked.every((value,index)=>value===expected[index]);
       if(!correct){ $('#oddEvenHelp').textContent='Tam beş rakam seç. Her rakamı ikişerli eşleştirince artan kalıp kalmadığını düşün.'; return; }
-      $('[data-odd-digit]').forEach(button=>button.disabled=true); $('#oddEvenSetCheck').disabled=true;
+      $$('[data-odd-digit]').forEach(button=>button.disabled=true); $('#oddEvenSetCheck').disabled=true;
       $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
     });
   }
