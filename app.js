@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000']);
+const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -596,6 +596,116 @@ function renderPattern1000LessonStep(skill,index=null){
     }});
   }
   next?.addEventListener('click',()=>completePattern1000LessonStep(skill,at));
+}
+
+const ODD_EVEN1000_LESSON_VERSION=1;
+const ODD_EVEN1000_SECTIONS=['EŞLEŞTİR','ARTANI GÖR','BİRLİK','KURAL','SINIFLANDIR','TAŞI'];
+const ODD_EVEN1000_LESSON_STEPS=[
+  {id:'pair-six',section:'EŞLEŞTİR',kind:'pair',n:6,title:'6 nesneyi ikişerli eşleştir.',body:'Her seferinde iki nesneyi bir çift yap. Sonunda eşsiz nesne kalıp kalmadığını gör.',result:'6 nesne ikişerli eşleşti; artan kalmadı. 6 çifttir.'},
+  {id:'pair-seven',section:'EŞLEŞTİR',kind:'pair',n:7,title:'7 nesneyi aynı şekilde eşleştir.',body:'Yine ikişerli çiftler oluştur. Bu kez bütün nesnelerin eşleşip eşleşmediğini kontrol et.',result:'7 nesne ikişerli eşleşti; 1 nesne arttı. 7 tektir.'},
+  {id:'pair-contrast',section:'ARTANI GÖR',kind:'choice',correct:'9',options:['8','9'],title:'Aynı eşleştirme, farklı sonuç.',body:'8 ve 9’u karşılaştır. Hangisinde ikişerli eşleştirmeden sonra 1 nesne artar?',result:'8’de artan kalmaz; 9’da 1 nesne artar.'},
+  {id:'ten-is-pairable',section:'BİRLİK',kind:'pair',n:10,title:'Bir onluk da tamamen eşleşir.',body:'10 birliği ikişerli eşleştir. Bir onluk oluşturacak 10 birlik artan bırakır mı?',result:'10 birlik tamamen ikişerli eşleşir; artan kalmaz.'},
+  {id:'hundred-is-pairable',section:'BİRLİK',kind:'choice',correct:'Artan kalmaz',options:['Artan kalmaz','1 onluk artar'],title:'Bir yüzlük de tam onluklardan oluşur.',body:'1 yüzlükte 10 onluk vardır. Bu 10 onluğu ikişerli eşleştirdiğimizde ne olur?',result:'10 onluk tamamen eşleşir. Yüzlükler tek–çift kararında artan birlik oluşturmaz.'},
+  {id:'ones-decide',section:'BİRLİK',kind:'choice',correct:'Birlik',options:['Yüzlük','Onluk','Birlik'],n:243,title:'Kararı birlik basamağı verir.',body:'243’te yüzlük ve onluk grupları tam çiftler oluşturabilir. Eşsiz kalan olup olmadığını hangi basamak belirler?',result:'243’ün birlik rakamı 3’tür. 3 birlik ikişerli eşleşince 1 birlik artar; 243 tektir.'},
+  {id:'zero-one-boundary',section:'BİRLİK',kind:'multi-classify',numbers:[{n:430,parity:'Çift'},{n:431,parity:'Tek'}],title:'0 birlik ile 1 birlik arasındaki farkı gör.',body:'Yüzlük ve onluklar aynı. Yalnız birlik değiştiğinde tek–çift durumu nasıl değişiyor?',result:'430’da birlik 0: artan yok, çift. 431’de birlik 1: 1 artan var, tek.'},
+  {id:'even-endings',section:'KURAL',kind:'digit-set',digits:[0,2,4,6,8],title:'Artan bırakmayan birlik rakamlarını topla.',body:'0’dan 9’a kadar birlik rakamlarını düşün. İkişerli eşleşince artan bırakmayanların hepsini seç.',result:'0, 2, 4, 6 ve 8 birlik tam eşleşir. Bu rakamlarla biten sayılar çifttir.'},
+  {id:'odd-endings',section:'KURAL',kind:'digit-set',digits:[1,3,5,7,9],title:'1 artan bırakan birlik rakamlarını topla.',body:'Bu kez ikişerli eşleşince 1 birlik artıran rakamların hepsini seç.',result:'1, 3, 5, 7 ve 9 birlikten 1 birlik artar. Bu rakamlarla biten sayılar tektir.'},
+  {id:'classify-three-digit',section:'SINIFLANDIR',kind:'multi-classify',numbers:[{n:248,parity:'Çift'},{n:431,parity:'Tek'},{n:1000,parity:'Çift'}],title:'Şimdi büyük sayılarda yalnız birliklere bak.',body:'Her sayının birlik rakamını kullanarak Tek ya da Çift sınıfını seç.',result:'248 çift, 431 tek, 1000 çifttir. Sayının büyüklüğü değil, birliklerin eşleşmesi belirleyicidir.'},
+  {id:'consecutive-switch',section:'SINIFLANDIR',kind:'choice',correct:'249 tektir',options:['249 tektir','249 çifttir'],title:'Bir birlik eklemek tek–çift durumunu değiştirir.',body:'248 çifttir. Bir birlik ekleyip 249 yaptığımızda eşleşmede ne değişir?',result:'248’de artan yoktur. 249’da 1 birlik artar; 249 tektir.'},
+  {id:'pairing-transfer',section:'TAŞI',kind:'choice',correct:'Evet',options:['Evet','Hayır'],title:'Aynı fikri günlük bir duruma taşı.',body:'527 öğrenci ikişerli sıraya geçiyor. Bir öğrenci eşsiz kalır mı?',result:'527’nin birlik rakamı 7’dir. 7 birlik ikişerli eşleşince 1 artar; bir öğrenci eşsiz kalır.'}
+];
+function oddEven1000SectionTrack(step){
+  return '<div class="odd-even-section-track">'+ODD_EVEN1000_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function oddEvenChoiceButtons(step){
+  return '<div class="odd-even-choice-grid">'+step.options.map(value=>'<button type="button" class="odd-even-choice" data-odd-value="'+esc(value)+'" data-correct="'+(String(value)===String(step.correct)?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div>';
+}
+function oddEvenMultiClassify(step){
+  return '<div class="odd-even-classify-list">'+step.numbers.map((item,index)=>'<div class="odd-even-classify-row" data-parity-row="'+index+'"><strong>'+item.n+'</strong><div><button type="button" data-odd-parity="Çift" data-correct="'+(item.parity==='Çift'?'true':'false')+'">Çift</button><button type="button" data-odd-parity="Tek" data-correct="'+(item.parity==='Tek'?'true':'false')+'">Tek</button></div></div>').join('')+'</div>';
+}
+function oddEvenLessonVisual(step){
+  if(step.kind==='pair') return '<div class="odd-even-lesson-core">'+parityPairBuilder(step.n,step.n)+'<p class="odd-even-help" id="oddEvenHelp">“Bir çift oluştur” ile ikişerli eşleştir.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='pair-contrast') return '<div class="odd-even-lesson-core"><div class="odd-even-card-pair">'+parityCardVisual(8,8,0)+parityCardVisual(9,9,1)+'</div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">Eşsiz kalan turuncu birliği karşılaştır.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='hundred-is-pairable') return '<div class="odd-even-lesson-core"><div class="odd-even-hundred-safe"><strong>1 yüzlük</strong><small>10 onluk</small><div>'+amountModel('ten',10)+'</div></div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">10 onluğu ikişerli düşün.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='ones-decide') return '<div class="odd-even-lesson-core"><div class="odd-even-place-focus">'+patternPlaceBoard(step.n,2)+parityCardVisual(step.n,3,1)+'</div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">Tam onluklar eşleşir; artanı hangi basamak bırakabilir?</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='multi-classify') return '<div class="odd-even-lesson-core">'+oddEvenMultiClassify(step)+'<p class="odd-even-help" id="oddEvenHelp">Her sayıda birlik rakamını kullan.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='digit-set') return '<div class="odd-even-lesson-core"><div class="odd-even-digit-grid">'+Array.from({length:10},(_,digit)=>'<button type="button" data-odd-digit="'+digit+'" data-correct="'+(step.digits.includes(digit)?'true':'false')+'">'+digit+'</button>').join('')+'</div><button type="button" class="odd-even-set-check" id="oddEvenSetCheck">Seçimimi kontrol et</button><p class="odd-even-help" id="oddEvenHelp">Beş rakam seç.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='consecutive-switch') return '<div class="odd-even-lesson-core"><div class="odd-even-card-pair">'+parityCardVisual(248,8,0)+parityCardVisual(249,9,1)+'</div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">Bir birlik eklenince eşsiz kalan değişiyor mu?</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='pairing-transfer') return '<div class="odd-even-lesson-core"><div class="odd-even-context-card"><strong>527 öğrenci</strong><span>👤👤 · 👤👤 · …</span><small>ikişerli sıra</small></div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">527’nin birlik rakamını eşleştir.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  return '<div class="odd-even-lesson-core">'+oddEvenChoiceButtons(step)+'<div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+}
+function revealOddEvenResult(){ $('#oddEvenResult')?.classList.add('revealed'); }
+function wireOddEvenChoiceStep(step,next){
+  $('.odd-even-choice').forEach(button=>button.addEventListener('click',()=>{
+    if(button.disabled) return;
+    if(button.dataset.correct!=='true'){
+      button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
+      $('#oddEvenHelp').textContent='Birlikleri ikişerli eşleştirip artan olup olmadığına yeniden bak.';
+      return;
+    }
+    button.classList.add('selected'); $('.odd-even-choice').forEach(x=>x.disabled=true);
+    $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
+  }));
+}
+function wireOddEvenLessonStep(step,next){
+  if(step.kind==='pair'){
+    const root=$('.sg-parity-builder'), action=root?.querySelector('.sg-pair-action');
+    action?.addEventListener('click',()=>{
+      const free=[...root.querySelectorAll('.sg-pair-token:not(.paired)')];
+      if(free.length>=2){ free[0].classList.add('paired'); free[1].classList.add('paired'); }
+      const left=root.querySelectorAll('.sg-pair-token:not(.paired)').length;
+      $('#oddEvenHelp').textContent=left>=2?left+' birlik henüz eşleşmedi.':(left===1?'1 birlik eşsiz kaldı.':'Artan birlik kalmadı.');
+      if(left<2){ action.disabled=true; revealOddEvenResult(); next.disabled=false; }
+    });
+    return;
+  }
+  if(step.kind==='choice'){ wireOddEvenChoiceStep(step,next); return; }
+  if(step.kind==='multi-classify'){
+    $('.odd-even-classify-row').forEach(row=>row.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{
+      if(button.disabled) return;
+      if(button.dataset.correct!=='true'){
+        button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
+        $('#oddEvenHelp').textContent='Bu sayının birlik rakamını ikişerli eşleştir.';
+        return;
+      }
+      row.classList.add('complete'); button.classList.add('selected'); row.querySelectorAll('button').forEach(x=>x.disabled=true);
+      if($('.odd-even-classify-row:not(.complete)').length===0){ $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false; }
+    })));
+    return;
+  }
+  if(step.kind==='digit-set'){
+    $('[data-odd-digit]').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('selected')));
+    $('#oddEvenSetCheck')?.addEventListener('click',()=>{
+      const picked=$('[data-odd-digit].selected').map(button=>Number(button.dataset.oddDigit)).sort((a,b)=>a-b);
+      const expected=[...step.digits].sort((a,b)=>a-b);
+      const correct=picked.length===expected.length&&picked.every((value,index)=>value===expected[index]);
+      if(!correct){ $('#oddEvenHelp').textContent='Tam beş rakam seç. Her rakamı ikişerli eşleştirince artan kalıp kalmadığını düşün.'; return; }
+      $('[data-odd-digit]').forEach(button=>button.disabled=true); $('#oddEvenSetCheck').disabled=true;
+      $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
+    });
+  }
+}
+function completeOddEven1000LessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=ODD_EVEN1000_LESSON_VERSION;
+  if(next>=ODD_EVEN1000_LESSON_STEPS.length){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return;
+  }
+  saveState(); session.lessonStepIndex=next; renderOddEven1000LessonStep(skill,next);
+}
+function renderOddEven1000LessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(ODD_EVEN1000_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(ODD_EVEN1000_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=ODD_EVEN1000_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+ODD_EVEN1000_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/ODD_EVEN1000_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="odd-even-lesson-stage" data-odd-even-step="'+esc(step.id)+'">'+oddEven1000SectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · ADIM '+(at+1)+' / '+ODD_EVEN1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="odd-even-lesson-visual">'+oddEvenLessonVisual(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="oddEvenLessonNext" disabled>'+(at===ODD_EVEN1000_LESSON_STEPS.length-1?'Birlikte uygulamaya geç':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const next=$('#oddEvenLessonNext'); wireOddEvenLessonStep(step,next);
+  next?.addEventListener('click',()=>completeOddEven1000LessonStep(skill,at));
 }
 
 function lessonBlueprintFor(skill){
@@ -1162,6 +1272,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='number1000') return NUMBER1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='compareOrder1000') return COMPARE_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='numberPattern1000') return PATTERN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='oddEven1000') return ODD_EVEN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -1275,6 +1386,21 @@ function inspectorUiAudit(){
     'P2 örüntü öğretimi çarpma/ritmik sayma konusuna taşmıyor',
     !PATTERN1000_LESSON_STEPS.some(step=>/[×x]|katına|çarp/i.test([step.title,step.body,step.result].join(' '))),
     'Bu ders ±1, ±10 ve ±100 basamak değişiminde kalır.'
+  );
+  const oddIds=ODD_EVEN1000_LESSON_STEPS.map(step=>step.id);
+  add(
+    'odd-even-teaching-order',
+    'Tek–çift öğretiminde eşleştirme anlamı birlik-rakamı kuralından önce geliyor',
+    oddIds.indexOf('pair-six')<oddIds.indexOf('ones-decide') &&
+      oddIds.indexOf('ones-decide')<oddIds.indexOf('even-endings') &&
+      oddIds.indexOf('even-endings')<oddIds.indexOf('classify-three-digit'),
+    oddIds.join(' → ')
+  );
+  add(
+    'odd-even-no-future-topics',
+    'Tek–çift öğretimi çarpma/bölme/asal diline taşmıyor',
+    !ODD_EVEN1000_LESSON_STEPS.some(step=>/[×÷]|asal|bölünebilir|çarpım|çarpma|katına|faktör/i.test([step.title,step.body,step.result].join(' '))),
+    'Pairing → birlik basamağı → Tek/Çift sınıflandırması.'
   );
   const probe=document.createElement('div');
   probe.style.cssText='position:fixed;left:-9999px;top:-9999px;visibility:hidden';
@@ -1680,6 +1806,7 @@ function renderLessonIntro(skill){
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
+  if(skill.id==='oddEven1000'){ renderOddEven1000LessonStep(skill); return; }
   currentQuestion=null;
   renderPracticeHeader(skill);
   const bp=lessonBlueprintFor(skill);
