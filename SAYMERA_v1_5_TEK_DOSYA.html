@@ -7179,7 +7179,7 @@ function finishSession(){
     const channel=ended.lessonChannel;
     const heading=channel==='learn'?'Konu anlatımı':channel==='practice'?(ended.practiceSectionLabel||'Uygulama bölümü'):'Tekrar';
     let detail='';
-    if(channel==='learn') detail='Konu anlatımı kapandı. Uygulama bölümleri Ders Merkezi’nde ayrı ayrı duruyor.';
+    if(channel==='learn') detail='Konu anlatımı tamamlandı. İstersen Ders Merkezi’nden yeniden açabilir veya Uygula bölümlerine geçebilirsin.';
     else if(channel==='practice') detail=ended.practiceSectionCompleted
       ? ended.practiceSectionAttempts+' görevle bu uygulama bölümü tamamlandı.'
       : ended.practiceSectionAttempts+' görev kaydedildi. Bölüm tamamlanmadı; daha sonra buradan devam edebilirsin.';

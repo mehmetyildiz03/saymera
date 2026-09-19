@@ -61,3 +61,5 @@ assert.ok(app.includes("if(state.profile==='grade2')"),'home entry must preserve
 assert.ok(app.includes("if(current){ openLessonCenter(current.id); return; }"),'P2 home entry must route through Lesson Center');
 assert.ok(app.includes("$('#startSessionButton').addEventListener('click',startPrimaryJourney)"),'main CTA must use curriculum-aware entry');
 assert.ok(app.includes("$('#bottomStart').addEventListener('click',startPrimaryJourney)"),'bottom CTA must use curriculum-aware entry');
+assert.ok(!app.includes('Konu anlatımı kapandı'),'completed Learn copy must not imply the lesson is permanently closed');
+assert.ok(app.includes('Konu anlatımı tamamlandı. İstersen Ders Merkezi’nden yeniden açabilir veya Uygula bölümlerine geçebilirsin.'),'completed Learn copy must explain replay and next action');
