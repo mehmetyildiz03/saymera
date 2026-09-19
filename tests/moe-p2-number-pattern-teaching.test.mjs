@@ -47,6 +47,8 @@ assert.match(css,/\.pattern-regroup-flow/);
 assert.ok(app.includes('class="pattern-track-value"'),'place-change tracking must label each whole number as a distinct group');
 assert.match(css,/\.pattern-track-number\{[^}]*border:1px solid var\(--line\)/,'place-change numbers must have visible group boundaries');
 assert.ok(!app.includes("$('#patternLessonHelp').textContent=step.result"),'successful pattern steps must not duplicate the result in helper text');
+assert.ok(!app.includes("body:'Bu dizide her adımda 10 daha. Aynı değişimi bir kez daha uygula.'"),'continue teaching must not reveal the rule before the child identifies it');
+assert.ok(app.includes("body:'Önce komşu sayılar arasındaki değişimi sözcükle tarif et. Sonra aynı değişimi bir kez daha uygula.'"),'continue teaching should prompt rule noticing before continuation');
 
 // The rule must match the actual displayed sequence, not an unrelated anchor.
 const {patternContinuationRule,generateQuestion}=await import('../engine.mjs');

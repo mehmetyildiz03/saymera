@@ -636,7 +636,7 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .pattern-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
 .pattern-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:7px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
 .pattern-section-track span.active{background:var(--navy);border-color:var(--navy);color:white}
-.pattern-lesson-visual{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px 0}
+.pattern-lesson-visual{flex:1;min-height:0;display:flex;align-items:flex-start;justify-content:center;padding:10px 0 8px}
 .pattern-lesson-core{width:min(820px,100%);display:grid;gap:14px;justify-items:center}
 .pattern-transition{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:10px;align-items:center;width:100%}
 .pattern-transition-arrow{font-size:24px;font-weight:900;color:var(--muted);text-align:center}
