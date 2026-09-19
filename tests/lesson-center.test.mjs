@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
   defaultState,ensureLearningArchitectureState,ensureSkillState,
-  lessonProgressSnapshot,recordPracticeSectionAttempt,practiceSectionCompletionAllowed
+  lessonProgressSnapshot,recordPracticeSectionAttempt,practiceSectionCompletionAllowed,
+  generateQuestion,applyAnswer
 } from '../engine.mjs';
 
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
@@ -63,3 +64,32 @@ assert.ok(app.includes("$('#startSessionButton').addEventListener('click',startP
 assert.ok(app.includes("$('#bottomStart').addEventListener('click',startPrimaryJourney)"),'bottom CTA must use curriculum-aware entry');
 assert.ok(!app.includes('Konu anlatımı kapandı'),'completed Learn copy must not imply the lesson is permanently closed');
 assert.ok(app.includes('Konu anlatımı tamamlandı. İstersen Ders Merkezi’nden yeniden açabilir veya Uygula bölümlerine geçebilirsin.'),'completed Learn copy must explain replay and next action');
+
+const reviewSuccessState=defaultState(); reviewSuccessState.profile='grade2'; ensureLearningArchitectureState(reviewSuccessState);
+const reviewSuccessSkill=ensureSkillState(reviewSuccessState,'numberPattern1000');
+reviewSuccessSkill.learningCycle.firstCycleCompletedAt=100;
+reviewSuccessSkill.learningCycle.retrievalDueAt=200;
+let reviewSnap=lessonProgressSnapshot(reviewSuccessState,'numberPattern1000',250);
+assert.equal(reviewSnap.review.status,'due','completed pattern lesson should expose a due review at the scheduled time');
+let reviewQuestion=generateQuestion('numberPattern1000','symbol',2,()=>0.42);
+reviewQuestion.learningPhase='retrieval';
+applyAnswer(reviewSuccessState,reviewQuestion,{correct:true,isDelayedReview:true,now:250,sessionQuestionIndex:1});
+reviewSnap=lessonProgressSnapshot(reviewSuccessState,'numberPattern1000',250);
+assert.equal(reviewSnap.review.dueAt,0,'successful delayed review must clear the Lesson Center due time');
+assert.equal(reviewSnap.review.status,'caught-up','successful delayed review must leave Review caught up');
+
+const reviewFailState=defaultState(); reviewFailState.profile='grade2'; ensureLearningArchitectureState(reviewFailState);
+const reviewFailSkill=ensureSkillState(reviewFailState,'numberPattern1000');
+reviewFailSkill.learningCycle.firstCycleCompletedAt=100;
+reviewFailSkill.learningCycle.retrievalDueAt=200;
+reviewFailState.reviewQueue.push({id:'retention:numberPattern1000:100',skillId:'numberPattern1000',representation:'symbol',phase:'retrieval',dueAt:200,stage:'next-day'});
+lessonProgressSnapshot(reviewFailState,'numberPattern1000',250);
+reviewQuestion=generateQuestion('numberPattern1000','symbol',2,()=>0.42);
+reviewQuestion.learningPhase='retrieval';
+applyAnswer(reviewFailState,reviewQuestion,{correct:false,isDelayedReview:true,now:250,sessionQuestionIndex:1});
+reviewSnap=lessonProgressSnapshot(reviewFailState,'numberPattern1000',250);
+assert.equal(reviewSnap.review.status,'scheduled','failed delayed review must schedule another delayed retrieval instead of disappearing');
+assert.ok(reviewSnap.review.dueAt>250,'failed delayed review must move the next due time into the future');
+assert.ok(reviewFailState.reviewQueue.some(item=>item.skillId==='numberPattern1000'&&item.stage==='same-session'),'failed delayed review must create immediate support');
+assert.ok(reviewFailState.reviewQueue.some(item=>item.skillId==='numberPattern1000'&&item.stage==='next-day'&&item.dueAt>250),'failed delayed review must retain a future retrieval check');
+

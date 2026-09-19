@@ -1258,8 +1258,11 @@ function ensureLessonJourneyOnSkillState(skillState,skillId){
     target.legacyLastSeen=Math.max(Number(target.legacyLastSeen)||0,Number(phase.lastSeen)||0);
   }
 
-  journey.review.dueAt=Math.max(Number(journey.review.dueAt)||0,Number(lc.retrievalDueAt)||0);
-  journey.review.attempts=Math.max(Number(journey.review.attempts)||0,Number(lc.retrievalAttempts)||0);
+  const retrievalAttempts=Number(lc.retrievalAttempts)||0;
+  journey.review.dueAt=retrievalAttempts>0
+    ? (Number(lc.retrievalDueAt)||0)
+    : Math.max(Number(journey.review.dueAt)||0,Number(lc.retrievalDueAt)||0);
+  journey.review.attempts=Math.max(Number(journey.review.attempts)||0,retrievalAttempts);
   journey.review.successes=Math.max(Number(journey.review.successes)||0,Number(lc.retrievalSuccesses)||0);
   if(lc.retrievalSuccesses>0&&!journey.review.lastCompletedAt) journey.review.lastCompletedAt=Number(lc.lastCycleAt)||Number(skillState.lastSeen)||0;
   return journey;
@@ -4725,8 +4728,21 @@ function applyAnswer(state, question, {correct, usedHint=false, isDelayedReview=
     }
     if(phase==='retrieval'){
       lc.retrievalAttempts=(lc.retrievalAttempts||0)+1;
-      if(correct) lc.retrievalSuccesses=(lc.retrievalSuccesses||0)+1;
-      lc.retrievalDueAt=0;
+      if(correct){
+        lc.retrievalSuccesses=(lc.retrievalSuccesses||0)+1;
+        lc.retrievalDueAt=0;
+      }else{
+        lc.retrievalDueAt=now+1000*60*60*20;
+        const existingRetry=state.reviewQueue.some(item=>item.skillId===question.skillId&&item.stage==='next-day'&&item.dueAt>now);
+        if(!existingRetry) state.reviewQueue.push({
+          id:`retention-retry:${question.skillId}:${now}`,
+          skillId:question.skillId,
+          representation:question.representation==='symbol'?'transfer':'symbol',
+          phase:'retrieval',
+          dueAt:lc.retrievalDueAt,
+          stage:'next-day'
+        });
+      }
     }
   }
 
