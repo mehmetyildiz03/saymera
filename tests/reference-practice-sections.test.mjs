@@ -67,3 +67,17 @@ const regroupQs=Array.from({length:16},(_,i)=>generateLessonPracticeQuestion('nu
 assert.ok(regroupQs.some(q=>q.taskKind==='pattern-explain-regroup'),'pattern reasoning must explicitly test regrouping across a place boundary');
 assert.ok(regroupQs.some(q=>String(q.explain).includes('10 onluk = 1 yüzlük')),'regroup explanation must preserve place-value meaning');
 assert.ok(regroupQs.every(q=>!String(q.prompt).includes('katına')&&!String(q.explain).includes('katına')),'pattern practice must not preteach multiplicative language');
+const continuationBoundsRng=seeded(1909);
+let upperEdgeSeen=false;
+for(let i=0;i<5000;i++){
+  const q=generateLessonPracticeQuestion('numberPattern1000','continue-sequence',i%4,2,continuationBoundsRng);
+  if(String(q.answer)==='1000') upperEdgeSeen=true;
+  for(const option of q.response?.options||[]){
+    const value=Number(option.value);
+    if(Number.isFinite(value)) assert.ok(value>=0&&value<=1000,'continuation choice must stay inside 0–1000: '+value);
+  }
+}
+assert.ok(upperEdgeSeen,'bounded continuation audit must exercise answer 1000');
+const magnitudeQ=generateLessonPracticeQuestion('numberPattern1000','model-change',3,2,seeded(1910));
+assert.match(magnitudeQ.prompt,/değişimin büyüklüğü kaçtır\?/,'absolute step answer must be asked as change magnitude');
+

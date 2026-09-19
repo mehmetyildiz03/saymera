@@ -3598,7 +3598,7 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
       });
     }else{
       const y=concept.symbol, a=y.seq[0],b=y.seq[1]; appliedStep=y.step;
-      q=qTask('numberPattern1000','build',a+' ile '+b+' arasındaki değişim kaçtır?',Math.abs(y.step),{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Değişimi kontrol et'},{
+      q=qTask('numberPattern1000','build',a+' ile '+b+' arasındaki değişimin büyüklüğü kaçtır?',Math.abs(y.step),{kind:'number-input',placeholder:'?',maxLength:3,checkLabel:'Değişimi kontrol et'},{
         taskKind:'pattern-change-amount',taskLabel:'Değişim miktarını bul',visual:{type:'pattern-model-transition',items:[a,b]},
         hint:'Büyük sayı ile küçük sayı arasındaki farkı düşün.',explain:'Değişim miktarı '+Math.abs(y.step)+'; dizi '+patternDirectionWord(y.step)+'.'
       });
@@ -3628,9 +3628,15 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
         hint:'Kuralı bir kez daha uygula: '+patternRulePhrase(y.step),explain:'Sıradaki sayı '+y.next+'.'
       });
     }else{
-      const options=[x.next,x.next+x.step,x.next-x.step].filter((v,i,a)=>v>=0&&v<=1000&&a.indexOf(v)===i);
-      while(options.length<3) options.push(x.next+(options.length+1));
       const answer=String(x.next);
+      const options=[x.next];
+      const distractorDeltas=[x.step,-x.step,1,-1,10,-10,100,-100];
+      for(const delta of distractorDeltas){
+        const candidate=x.next+delta;
+        if(candidate>=0&&candidate<=1000&&!options.includes(candidate)) options.push(candidate);
+        if(options.length===3) break;
+      }
+      if(options.length<3) throw new Error('Unable to build bounded pattern continuation options');
       q=qBase('numberPattern1000','symbol','Kuralı bozmadan diziyi hangi sayı devam ettirir?',answer,semanticChoices(answer,options.filter(v=>String(v)!==answer).map(String),rng),{
         taskKind:'pattern-continue-choice-'+task,taskLabel:'Doğru devamı seç',visual:{type:'sequence',items:[...x.seq,'?']},
         hint:rule,explain:'Kural aynı kaldığı için sonraki sayı '+x.next+'.'
