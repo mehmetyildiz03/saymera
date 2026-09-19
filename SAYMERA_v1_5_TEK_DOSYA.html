@@ -745,6 +745,49 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 /* A rotated full-width grid item otherwise covers the cards below it. */
 .pattern-regroup-flow>.pattern-transition-arrow{width:32px;height:32px;line-height:32px;justify-self:center;pointer-events:none}
 
+
+/* v1.10.0 — P2 odd/even reference lesson */
+.odd-even-lesson-stage{display:flex;flex-direction:column;min-height:100%;gap:10px}
+.odd-even-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:2px}
+.odd-even-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:7px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.odd-even-section-track span.active{background:var(--navy);border-color:var(--navy);color:white}
+.odd-even-lesson-visual{flex:1;min-height:0;display:flex;align-items:flex-start;justify-content:center;padding:8px 0}
+.odd-even-lesson-core{width:min(760px,100%);display:grid;gap:14px;justify-items:center}
+.odd-even-help{margin:0;color:var(--muted);font-size:11px;font-weight:800;line-height:1.45;text-align:center}
+.odd-even-help:empty{display:none}
+.odd-even-result{opacity:0;transform:translateY(5px);transition:.18s;min-height:42px;padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center;width:min(620px,100%)}
+.odd-even-result.revealed{opacity:1;transform:none}
+.odd-even-card-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:min(520px,100%)}
+.odd-even-choice-grid{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;width:100%}
+.odd-even-choice,.odd-even-classify-row button,.odd-even-digit-grid button{min-height:46px;padding:0 17px;border:1px solid var(--line);border-radius:14px;background:var(--paper-2);color:var(--navy);font-weight:900}
+.odd-even-choice.selected,.odd-even-classify-row button.selected,.odd-even-digit-grid button.selected{background:var(--teal-soft);border-color:#8bc8ba;color:#17695d;box-shadow:inset 0 0 0 2px rgba(47,153,135,.1)}
+.odd-even-choice.wrong,.odd-even-classify-row button.wrong{animation:lessonNudge .28s}
+.odd-even-hundred-safe{width:min(520px,100%);display:grid;gap:7px;justify-items:center;padding:14px;border:1px solid var(--line);border-radius:20px;background:var(--paper-2)}
+.odd-even-hundred-safe>strong{font-size:25px;color:var(--navy)}.odd-even-hundred-safe>small{color:var(--muted);font-weight:850}
+.odd-even-hundred-safe .lesson-amount-model{min-height:100px;gap:4px}
+.odd-even-hundred-safe .lesson-unit-ten{height:64px}
+.odd-even-place-focus{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(150px,.85fr);gap:12px;align-items:center;width:min(620px,100%)}
+.odd-even-place-focus .pattern-place-board{max-width:none}
+.odd-even-classify-list{display:grid;gap:9px;width:min(580px,100%)}
+.odd-even-classify-row{display:grid;grid-template-columns:minmax(90px,.6fr) minmax(180px,1fr);gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:17px;background:var(--paper-2)}
+.odd-even-classify-row>strong{font-size:25px;color:var(--navy);text-align:center}.odd-even-classify-row>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.odd-even-classify-row.complete{background:#f0f8f5;border-color:#a9d3c9}
+.odd-even-digit-grid{display:grid;grid-template-columns:repeat(5,minmax(48px,1fr));gap:8px;width:min(500px,100%)}
+.odd-even-digit-grid button{padding:0;font-size:20px}
+.odd-even-set-check{min-height:46px;padding:0 18px;border-radius:14px;background:var(--navy);color:white;font-weight:900}
+.odd-even-context-card{width:min(520px,100%);display:grid;justify-items:center;gap:7px;padding:16px;border:1px solid var(--line);border-radius:20px;background:var(--paper-2)}
+.odd-even-context-card strong{font-size:27px;color:var(--navy)}.odd-even-context-card span{font-size:20px;letter-spacing:.05em}.odd-even-context-card small{color:var(--muted);font-weight:850}
+@media(max-width:699px){
+  .odd-even-lesson-stage{min-height:calc(100dvh - 100px)}
+  .odd-even-section-track{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;width:100%;padding-bottom:2px}
+  .odd-even-section-track span{flex:0 0 auto}
+  .odd-even-place-focus{grid-template-columns:1fr}
+  .odd-even-classify-row{grid-template-columns:82px minmax(0,1fr);padding:8px}
+  .odd-even-classify-row>strong{font-size:22px}
+  .odd-even-choice,.odd-even-classify-row button{min-height:48px}
+  .odd-even-card-pair{gap:8px}
+}
+
 </style>
   <title>SAYMERA — Matematik Laboratuvarı</title>
 </head>
@@ -1034,6 +1077,21 @@ const P2_LESSON_CONTRACTS = {
         {id:'missing-number',label:'Eksik sayıyı bul',phase:'practice',representation:'symbol'},
         {id:'explain-pattern',label:'Basamak değişimini açıkla',phase:'reasoning',representation:'explain'},
         {id:'transfer-pattern',label:'Aynı kuralı yeni durumda kullan',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
+  },
+  oddEven1000:{
+    version:1,
+    unitId:'whole-numbers',
+    practice:{
+      sections:[
+        {id:'pair-model',label:'İkişerli eşleştir',phase:'model',representation:'build'},
+        {id:'see-leftover',label:'Artanı gör',phase:'representation',representation:'see'},
+        {id:'classify-parity',label:'Tek / çift sınıflandır',phase:'symbol',representation:'symbol'},
+        {id:'ones-rule',label:'Birlik basamağını kullan',phase:'practice',representation:'symbol'},
+        {id:'explain-parity',label:'Nedenini açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-parity',label:'Yeni durumda kullan',phase:'context',representation:'transfer'}
       ]
     },
     review:{enabled:true}
@@ -1401,7 +1459,7 @@ function runPedagogyStateAudit(state,now=Date.now()){
       reviewBeforeCompletion.length?'Erken tekrar: '+reviewBeforeCompletion.join(', '):'Tekrar kapıları doğru.'
     );
 
-    const referenceContracts=['number1000','compareOrder1000','numberPattern1000'];
+    const referenceContracts=['number1000','compareOrder1000','numberPattern1000','oddEven1000'];
     const incompleteContracts=referenceContracts.filter(id=>{
       const contract=lessonContractFor(id);
       return contract.provisional || (contract.practice?.sections?.length||0)<5;
@@ -1410,7 +1468,7 @@ function runPedagogyStateAudit(state,now=Date.now()){
       'reference-contracts',
       'Referans derslerin Öğren/Uygula sözleşmeleri tanımlı',
       incompleteContracts.length===0,
-      incompleteContracts.length?'Eksik sözleşme: '+incompleteContracts.join(', '):'Üç referans ders açık sözleşmeye sahip.'
+      incompleteContracts.length?'Eksik sözleşme: '+incompleteContracts.join(', '):'Dört referans ders açık sözleşmeye sahip.'
     );
 
 
@@ -1428,6 +1486,30 @@ function runPedagogyStateAudit(state,now=Date.now()){
       'P2 sayı örüntüsü yalnız 1, 10 ve 100 adımlarını kullanıyor',
       patternScopeClean,
       patternScopeClean?'Çarpımsal/ileri konu adımı yok.':'Örüntü kapsamı ±1/±10/±100 dışına çıktı.'
+    );
+
+    const oddRng=(()=>{let s=2609;return()=>((s=(s*1664525+1013904223)>>>0)/2**32)})();
+    const oddEndings=new Set();
+    let oddScopeClean=true, thousandEven=false;
+    for(let i=0;i<240;i++){
+      const q=generateLessonPracticeQuestion('oddEven1000','classify-parity',i%4,2,oddRng);
+      const n=Number(q.parityNumber);
+      if(Number.isFinite(n)) oddEndings.add(n%10);
+      if(n===1000&&q.answer==='Çift') thousandEven=true;
+      const text=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+      if(/asal|bölünebilir|çarpım|çarpma|katı|katına|faktör/i.test(text)) oddScopeClean=false;
+    }
+    add(
+      'odd-even-ending-coverage',
+      'P2 tek–çift uygulaması bütün birlik rakamlarını kapsıyor ve 1000’i çift sınıflandırıyor',
+      oddEndings.size===10&&thousandEven,
+      'Birlik rakamları: '+[...oddEndings].sort((a,b)=>a-b).join(', ')+' · 1000 çift: '+thousandEven
+    );
+    add(
+      'odd-even-future-topic-guard',
+      'P2 tek–çift akışı ilerideki çarpma/bölme/asal diline taşmıyor',
+      oddScopeClean,
+      oddScopeClean?'Eşleştirme ve birlik basamağı kapsamında.':'Tek–çift akışına ileri konu dili sızdı.'
     );
 
     let symbolGuard=true;
@@ -1896,7 +1978,8 @@ function shapePatternCases(){
 
 
 function oddEven1000Cases(){
-  const nums=[112,127,234,249,356,373,482,497,614,629,746,759,862,875,938,953];
+  // Cover every possible ones digit, zero endings and the upper endpoint 1000.
+  const nums=[110,121,232,343,454,565,676,787,898,909,240,351,462,573,684,795,806,917,528,639,1000];
   return nums.map(n=>({n,ones:n%10,parity:n%2===0?'Çift':'Tek',leftover:n%2}));
 }
 function wordAddSub2Cases(){
@@ -2897,34 +2980,42 @@ function genShapePattern1(rep,d,rng,concept){
 }
 
 
+function parityPairingStatement(z){
+  return z.leftover
+    ? String(z.n)+' sayısının birlikleri ikişerli eşleşince 1 birlik artar; '+z.n+' tektir.'
+    : String(z.n)+' sayısının birlikleri ikişerli eşleşince artan kalmaz; '+z.n+' çifttir.';
+}
 function genOddEven1000(rep,d,rng,concept){
   const c=concept?.skillId==='oddEven1000'?concept:createConceptInstance('oddEven1000',d,rng);
   const x=c.anchor;
-  if(rep==='build') return qTask('oddEven1000',rep,`${x.n} sayısının birliklerini ikişerli eşleştir. Kaç birlik eşsiz kalır?`,x.leftover,{kind:'manipulative',interaction:'parity-pair',expectedValue:String(x.leftover),checkLabel:'Eşleştirmeyi kontrol et'}, {
-    taskKind:'manipulative-build',taskLabel:'Birlikleri ikişerli eşleştir',visual:{type:'parity-pair-builder',n:x.n,ones:x.ones},hint:'Her dokunuşta iki birliği bir çift yap.',explain:x.leftover?`${x.n} için 1 birlik eşsiz kalır; sayı tektir.`:`${x.n} için eşsiz birlik kalmaz; sayı çifttir.`
+  if(rep==='build') return qTask('oddEven1000',rep,x.n+' sayısının birliklerini ikişerli eşleştir. Kaç birlik eşsiz kalır?',x.leftover,{kind:'manipulative',interaction:'parity-pair',expectedValue:String(x.leftover),checkLabel:'Eşleştirmeyi kontrol et'}, {
+    taskKind:'manipulative-build',taskLabel:'Birlikleri ikişerli eşleştir',visual:{type:'parity-pair-builder',n:x.n,ones:x.ones},hint:'Birlikleri ikişerli eşleştir; sonunda 0 ya da 1 birlik artabilir.',explain:parityPairingStatement(x)
   });
   if(rep==='see'){
-    const opts=shuffled([0,1,2].map((leftover,i)=>({value:leftover===x.leftover?'correct':`wrong-${i}`,visual:{type:'parity-card',n:x.n,ones:x.ones,leftover},ariaLabel:`${x.n} için ${leftover} eşsiz birlik modeli`})),rng);
-    return qTask('oddEven1000',rep,`${x.n} sayısının ikişerli eşleşmesini doğru gösteren model hangisi?`,'correct',{kind:'visual-choice',options:opts},{
-      taskKind:'visual-discrimination',taskLabel:'Eşleşme modelini ayırt et',visual:{type:'numbercard',n:x.n},hint:'Birlikleri ikişerli grupla; 0 ya da 1 birlik artabilir.',explain:`${x.n} ${x.parity.toLowerCase()} sayıdır.`
+    const opposite=shuffled(oddEven1000Cases().filter(z=>z.leftover!==x.leftover&&z.n!==x.n),rng).slice(0,2);
+    const opts=shuffled([
+      {value:'correct',visual:{type:'parity-card',n:x.n,ones:x.ones,leftover:x.leftover},ariaLabel:x.n+' için eşleştirme modeli'},
+      ...opposite.map((z,i)=>({value:'wrong-'+i,visual:{type:'parity-card',n:z.n,ones:z.ones,leftover:z.leftover},ariaLabel:z.n+' için eşleştirme modeli'}))
+    ],rng);
+    return qTask('oddEven1000',rep,x.leftover?'Hangi modelde ikişerli eşleştirmeden sonra 1 birlik artıyor?':'Hangi modelde ikişerli eşleştirmeden sonra artan kalmıyor?','correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Eşleşmede artanı görselde ayırt et',visual:{type:'numbercard',n:x.n},hint:'Her modelde ikişerli eşleşmenin sonunda turuncu artan birlik olup olmadığına bak.',explain:parityPairingStatement(x)
     });
   }
   if(rep==='symbol'){
     const y=c.symbol;
-    return qBase('oddEven1000',rep,`${y.n} sayısını sınıflandır.`,y.parity,semanticChoices(y.parity,[y.parity==='Çift'?'Tek':'Çift','Asal','Belirlenemez'],rng),{
-      taskKind:'symbol-entry',taskLabel:'Tek–çift sınıfını matematik diliyle yaz',visual:{type:'equation',text:String(y.n)},hint:'Birler basamağı 0,2,4,6,8 ise sayı çifttir.',explain:`${y.n} ${y.parity.toLowerCase()} sayıdır.`
+    return qBase('oddEven1000',rep,y.n+' sayısını tek veya çift olarak sınıflandır.',y.parity,semanticChoices(y.parity,[y.parity==='Çift'?'Tek':'Çift'],rng),{
+      taskKind:'symbol-entry',taskLabel:'Tek–çift sınıfını matematik diliyle yaz',visual:{type:'equation',text:String(y.n)},hint:'Birlik rakamını ikişerli eşleşme açısından düşün.',explain:parityPairingStatement(y)
     });
   }
   if(rep==='explain'){
-    const answer='Yüzlük ve onluklar 10’un katıdır; tek–çift durumunu birlik basamağının ikişerli eşleşmesi belirler';
-    return qBase('oddEven1000',rep,`${x.n} sayısının tek mi çift mi olduğunu neden yalnız birlik basamağından anlayabiliriz?`,answer,semanticChoices(answer,['Yüzlük basamağı her zaman çifttir diye','Sayıdaki rakamların toplamı her zaman yeterlidir','En büyük rakam tekse sayı da tektir'],rng),{
-      taskKind:'reasoning-choice',taskLabel:'Tek–çift kuralını gerekçelendir',visual:{type:'parity-card',n:x.n,ones:x.ones,leftover:x.leftover},hint:'10’un kendisi ikişerli eşleşebilir.',explain:answer+'.'
+    const answer='Her onluk 10 birliktir ve 10 birlik tamamen ikişerli eşleşir; yüzlükler de tam onluklardan oluşur; bu yüzden kararı birlik basamağı verir';
+    return qBase('oddEven1000',rep,x.n+' sayısının tek mi çift mi olduğunu neden birlik basamağından anlayabiliriz?',answer,semanticChoices(answer,['Yalnız en büyük rakama bakmak yeterlidir','Bütün rakamların tek ya da çift olması gerekir','Yüzlük basamağı tekse bütün sayı da tektir'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Tek–çift kuralını gerekçelendir',visual:{type:'parity-card',n:x.n,ones:x.ones,leftover:x.leftover},hint:'Bir onluğun 10 birliğini ikişerli eşleştirince artan kalıp kalmadığını düşün.',explain:answer+'.'
     });
   }
   const y=c.transfer;
-  const answer=y.parity==='Çift'?'Hayır':'Evet';
-  return qBase('oddEven1000',rep,`${y.n} öğrenci ikişerli sıraya geçiyor. Bir öğrenci eşsiz kalır mı?`,answer,semanticChoices(answer,[answer==='Evet'?'Hayır':'Evet','İki öğrenci kalır','Sayıya bakmadan bilinemaz'],rng),{
-    taskKind:'context-transfer',taskLabel:'Tek–çifti eşli sıra bağlamına taşı',visual:{type:'parity-card',n:y.n,ones:y.ones,leftover:y.leftover},hint:'İkişerli eşleşmede 1 kişi artıyorsa sayı tektir.',explain:y.leftover?'Bir öğrenci eşsiz kalır; sayı tektir.':'Kimse eşsiz kalmaz; sayı çifttir.'
+  return qTask('oddEven1000',rep,y.n+' öğrenci ikişerli sıraya geçiyor. Kaç öğrenci eşsiz kalır?',y.leftover,{kind:'number-input',placeholder:'0 ya da 1',maxLength:1,checkLabel:'Eşleşmeyi kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'Tek–çifti eşli sıra bağlamına taşı',visual:{type:'parity-card',n:y.n,ones:y.ones,leftover:y.leftover},hint:'Bütün miktarı çizmek yerine birlik rakamını ikişerli eşleştir.',explain:y.leftover?'1 öğrenci eşsiz kalır; sayı tektir.':'Eşsiz öğrenci kalmaz; sayı çifttir.'
   });
 }
 
@@ -4628,11 +4719,102 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
   q.patternRule=patternRulePhrase(appliedStep);
   return q;
 }
+function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const d=clamp(difficulty,1,4);
+  const all=oddEven1000Cases();
+  const concept=createConceptInstance('oddEven1000',d,rng);
+  const x=concept.anchor;
+  const task=taskIndex%4;
+  let q, chosen=x;
+
+  if(sectionId==='pair-model'){
+    const pairable=all.filter(z=>z.ones>=2&&z.ones<=9);
+    chosen=choice(pairable,rng);
+    q=qTask('oddEven1000','build',chosen.n+' sayısının birliklerini ikişerli eşleştir. Kaç birlik eşsiz kalır?',chosen.leftover,{kind:'manipulative',interaction:'parity-pair',expectedValue:String(chosen.leftover),checkLabel:'Eşleştirmeyi kontrol et'}, {
+      taskKind:'parity-pair-model-'+task,taskLabel:'Birlikleri gerçekten ikişerli eşleştir',visual:{type:'parity-pair-builder',n:chosen.n,ones:chosen.ones},hint:'Her adımda iki birliği bir çift yap. Sonunda 0 ya da 1 birlik kalabilir.',explain:parityPairingStatement(chosen)
+    });
+  }else if(sectionId==='see-leftover'){
+    chosen=task===0?all.find(z=>z.ones===0):task===1?all.find(z=>z.ones===1):x;
+    const answer=chosen.leftover?'1 birlik artar':'Artan kalmaz';
+    q=qBase('oddEven1000','see',chosen.n+' için ikişerli eşleşmede ne görürüz?',answer,semanticChoices(answer,[chosen.leftover?'Artan kalmaz':'1 birlik artar'],rng),{
+      taskKind:'parity-see-leftover-'+task,taskLabel:'Eşleşmede artan olup olmadığını gör',visual:{type:'parity-card',n:chosen.n,ones:chosen.ones,leftover:chosen.leftover},hint:'Turuncu artan birlik var mı diye bak.',explain:parityPairingStatement(chosen)
+    });
+  }else if(sectionId==='classify-parity'){
+    chosen=task===3?all.find(z=>z.n===1000):x;
+    q=qBase('oddEven1000','symbol',chosen.n+' sayısı tek mi çifttir?',chosen.parity,semanticChoices(chosen.parity,[chosen.parity==='Çift'?'Tek':'Çift'],rng),{
+      taskKind:'parity-classify-'+task,taskLabel:'Sayıyı Tek / Çift olarak sınıflandır',visual:{type:'numbercard',n:chosen.n},hint:'Birlik rakamını ikişerli eşleşme açısından düşün.',explain:parityPairingStatement(chosen)
+    });
+  }else if(sectionId==='ones-rule'){
+    if(task===0){
+      chosen=all.find(z=>z.n===573);
+      q=qBase('oddEven1000','symbol',chosen.n+' sayısının tek mi çift mi olduğuna karar verirken hangi basamağa bakmak yeterlidir?','Birlik',semanticChoices('Birlik',['Onluk','Yüzlük'],rng),{
+        taskKind:'parity-ones-place',taskLabel:'Tek–çift kararını birlik basamağına bağla',visual:{type:'base1000',...hto(chosen.n)},hint:'Yüzlük ve onlukların birlikleri tam çiftlere ayrılır.',explain:'Kararı birlik basamağı verir. '+parityPairingStatement(chosen)
+      });
+    }else if(task===1){
+      chosen=all.find(z=>z.n===240);
+      q=qBase('oddEven1000','symbol','240 sayısının birlik rakamı 0. Bu sayı nasıl sınıflandırılır?','Çift',semanticChoices('Çift',['Tek'],rng),{
+        taskKind:'parity-zero-ending',taskLabel:'0 ile biten sayıyı eşleşmeyle sınıflandır',visual:{type:'parity-card',n:240,ones:0,leftover:0},hint:'Birlik kalmadığında eşsiz birlik de kalmaz.',explain:'240’ın birlik rakamı 0; eşsiz birlik kalmaz. 240 çifttir.'
+      });
+    }else if(task===2){
+      chosen={n:249,ones:9,parity:'Tek',leftover:1};
+      q=qBase('oddEven1000','symbol','248 ve 249 sayılarından hangisi tektir?','249',semanticChoices('249',['248'],rng),{
+        taskKind:'parity-same-prefix',taskLabel:'Aynı yüzlük ve onlukta birlik farkını kullan',visual:{type:'sequence',items:[248,249]},hint:'Yüzlük ve onluk aynı; yalnız birlikleri karşılaştır.',explain:'248’in birlik rakamı 8 tam eşleşir; 249’un birlik rakamı 9 olduğunda 1 birlik artar. 249 tektir.'
+      });
+    }else{
+      chosen=all.find(z=>z.n===1000);
+      q=qBase('oddEven1000','symbol','1000 sayısı tek mi çifttir?','Çift',semanticChoices('Çift',['Tek'],rng),{
+        taskKind:'parity-thousand',taskLabel:'1000’i tek / çift olarak sınıflandır',visual:{type:'numbercard',n:1000},hint:'1000’in birlik rakamı 0’dır.',explain:'1000’in birlik rakamı 0; eşsiz birlik kalmaz. 1000 çifttir.'
+      });
+    }
+  }else if(sectionId==='explain-parity'){
+    if(task===0){
+      const answer='Onluklar ve yüzlükler tam ikişerli eşleşir; artanı birlikler belirler';
+      q=qBase('oddEven1000','explain','Üç basamaklı bir sayıda tek–çift kararını neden birlik basamağı verir?',answer,semanticChoices(answer,['En büyük rakam her zaman kararı verir','Yüzlük rakamı tekse sayı mutlaka tektir','Bütün rakamlar aynı olmalıdır'],rng),{
+        taskKind:'parity-explain-ones',taskLabel:'Birlik basamağı kuralını gerekçelendir',visual:{type:'base1000',...hto(573)},hint:'10 birlik tamamen ikişerli eşleşebilir.',explain:answer+'.'
+      });
+    }else if(task===1){
+      const answer='0 birlik varsa eşsiz birlik kalmaz';
+      q=qBase('oddEven1000','explain','430 neden çifttir?',answer,semanticChoices(answer,['3 tek rakam olduğu için sayı tektir','4 yüzlük olduğu için başka basamağa bakılmaz','0 sayısı hiçbir şey anlatmaz'],rng),{
+        taskKind:'parity-explain-zero',taskLabel:'0 ile biten sayının neden çift olduğunu açıkla',visual:{type:'parity-card',n:430,ones:0,leftover:0},hint:'Birlik basamağında eşleştirilecek artan nesne var mı?',explain:'430’da birlik sayısı 0. Eşsiz birlik kalmaz; 430 çifttir.'
+      });
+    }else if(task===2){
+      const answer='Bir birlik eklenince tam bir çift ya tamamlanır ya da yeni bir eşsiz birlik oluşur';
+      q=qBase('oddEven1000','explain','248 çiftken 249 neden tektir?',answer,semanticChoices(answer,['Yüzlük basamağı değiştiği için','Onluk basamağı 4 olduğu için','Bütün tek sayılar 9 ile biter'],rng),{
+        taskKind:'parity-explain-consecutive',taskLabel:'Ardışık sayılarda tek–çift değişimini açıkla',visual:{type:'sequence',items:[248,249]},hint:'248’in sonundaki eşleşmeye bir birlik daha ekle.',explain:answer+'.'
+      });
+    }else{
+      const answer='İkişerli eşleştirmede artan kalmıyorsa çift, 1 artıyorsa tektir';
+      q=qBase('oddEven1000','explain','Tek ve çift sayıların temel eşleştirme farkı nedir?',answer,semanticChoices(answer,['Çift sayılarda her zaman 0 rakamı vardır','Tek sayılarda yüzlük bulunmaz','Tek ve çift yalnız sayının büyüklüğünü anlatır'],rng),{
+        taskKind:'parity-explain-definition',taskLabel:'Tek–çift anlamını eşleştirmeyle açıkla',visual:{type:'parity-card',n:9,ones:9,leftover:1},hint:'İkişerli eşleşmenin sonunda ne kaldığına bak.',explain:answer+'.'
+      });
+    }
+  }else if(sectionId==='transfer-parity'){
+    chosen=concept.transfer;
+    const contexts=[
+      chosen.n+' öğrenci ikişerli sıraya geçiyor.',
+      chosen.n+' kart ikişerli zarflara yerleştiriliyor.',
+      chosen.n+' çorap ikişerli çiftler hâlinde düzenleniyor.',
+      chosen.n+' koltuk ikişerli yan yana gruplara ayrılıyor.'
+    ];
+    const answer=chosen.leftover?'Evet':'Hayır';
+    q=qBase('oddEven1000','transfer',contexts[task]+' Bir tane eşsiz kalır mı?',answer,semanticChoices(answer,[answer==='Evet'?'Hayır':'Evet'],rng),{
+      taskKind:'parity-transfer-'+task,taskLabel:'İkişerli eşleşmeyi yeni bağlama taşı',visual:{type:'parity-card',n:chosen.n,ones:chosen.ones,leftover:chosen.leftover},hint:'Bütün miktarı çizmek yerine birlik rakamının eşleşmesini düşün.',explain:chosen.leftover?'1 tane eşsiz kalır; sayı tektir.':'Eşsiz kalan olmaz; sayı çifttir.'
+    });
+  }else{
+    throw new Error('Unknown oddEven1000 practice section: '+sectionId);
+  }
+  q.parityNumber=chosen?.n??null;
+  q.parityValue=chosen?.parity??null;
+  q.parityLeftover=chosen?.leftover??null;
+  return q;
+}
+
 function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
   if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='numberPattern1000') q=numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='oddEven1000') q=oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else throw new Error('No section practice generator for '+skillId+'/'+sectionId);
   return lessonPracticeFinalize(q,sectionId,taskIndex);
 }
@@ -4870,7 +5052,7 @@ function representationGap(skillState){
 const STORAGE_KEY='saymera.math.v2';
 const INSPECTOR_ENABLED=new URLSearchParams(location.search).get('inspect')==='1';
 const $=s=>document.querySelector(s);
-const $$=s=>[...document.querySelectorAll(s)];
+const $=s=>[...document.querySelectorAll(s)];
 const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 
 const repDescriptions={
@@ -4911,7 +5093,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000']);
+const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -5008,7 +5190,7 @@ function renderNumber1000LessonStep(skill,index=null){
     });
   }else if(step.kind==='count'){
     let count=0;
-    $$('.lesson-count-token').forEach(btn=>btn.addEventListener('click',()=>{
+    $('.lesson-count-token').forEach(btn=>btn.addEventListener('click',()=>{
       if(btn.classList.contains('counted')) return;
       count++; btn.classList.add('counted');
       const value=count*step.stepValue;
@@ -5033,8 +5215,8 @@ function renderNumber1000LessonStep(skill,index=null){
       }
     });
   }else if(step.kind==='model-build'){
-    const seen=new Set(), slots=$$('#lessonDigitSlots span');
-    $$('.lesson-model-group').forEach(btn=>btn.addEventListener('click',()=>{
+    const seen=new Set(), slots=$('#lessonDigitSlots span');
+    $('.lesson-model-group').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.modelIndex); if(seen.has(i)) return;
       seen.add(i); btn.classList.add('revealed');
       const [label,count,digit]=step.groups[i];
@@ -5046,7 +5228,7 @@ function renderNumber1000LessonStep(skill,index=null){
     }));
   }else if(step.kind==='place-model'){
     const seen=new Set();
-    $$('.lesson-place-column').forEach(btn=>btn.addEventListener('click',()=>{
+    $('.lesson-place-column').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.placeIndex); if(seen.has(i)) return;
       seen.add(i); btn.classList.add('revealed'); btn.querySelector('b').textContent=btn.dataset.placeValue; btn.querySelector('small').textContent='değeri';
       const [digit,label,value]=step.values[i], left=step.values.length-seen.size;
@@ -5055,7 +5237,7 @@ function renderNumber1000LessonStep(skill,index=null){
     }));
   }else if(step.kind==='zero-place'){
     const seen=new Set();
-    $$('.lesson-zero-gap').forEach(gap=>gap.addEventListener('click',()=>{
+    $('.lesson-zero-gap').forEach(gap=>gap.addEventListener('click',()=>{
       if(seen.has(gap)) return;
       seen.add(gap); gap.classList.add('revealed');
       $('#lessonZeroExplain').textContent=seen.size===1?'Bu basamakta hiç '+gap.dataset.zeroName+' yok. Diğer boş basamağı da bul.':'0, o basamakta hiç parça olmadığını gösteriyor.';
@@ -5063,14 +5245,14 @@ function renderNumber1000LessonStep(skill,index=null){
     }));
   }else if(step.kind==='read-write'){
     const seen=new Set();
-    $$('.lesson-word-reveal').forEach(btn=>btn.addEventListener('click',()=>{
+    $('.lesson-word-reveal').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.wordIndex); if(seen.has(i)) return;
       seen.add(i); btn.classList.add('revealed'); btn.querySelector('span').textContent=btn.dataset.word;
       if(seen.size===step.wordParts.length){ $('#lessonReadCombined').textContent=step.wordParts.join(' '); $('#lessonReadCombined')?.classList.add('revealed'); revealLessonInsight(); next.disabled=false; }
     }));
   }else{
     let selectedChip=null, dragChip=null, dragStartX=0, dragStartY=0;
-    const chips=$$('.lesson-word-chip'), slots=$$('.lesson-word-slot');
+    const chips=$('.lesson-word-chip'), slots=$('.lesson-word-slot');
     const allPlaced=()=>slots.every(slot=>slot.classList.contains('filled'));
     const finishIfReady=()=>{ if(allPlaced()){ revealLessonInsight(); next.disabled=false; $('#lessonDragHelp').textContent='526 = beş yüz yirmi altı.'; } };
     const resetChipVisual=chip=>{ chip.style.transform=''; chip.style.zIndex=''; chip.classList.remove('dragging'); };
@@ -5189,7 +5371,7 @@ function renderCompareOrderLessonStep(skill,index=null){
 
   if(step.kind==='place-compare'){
     const a=compareDigits(step.a), b=compareDigits(step.b), seen=new Set();
-    $$('.compare-place-column').forEach(btn=>btn.addEventListener('click',()=>{
+    $('.compare-place-column').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.compareCol);
       if(seen.has(i)||!btn.classList.contains('ready')) return;
       seen.add(i); btn.classList.add('revealed'); btn.querySelector('small').textContent='karşılaştırıldı';
@@ -5207,7 +5389,7 @@ function renderCompareOrderLessonStep(skill,index=null){
     }));
   }else if(step.kind==='symbol-match'){
     let selected=null,drag=null,sx=0,sy=0;
-    const chips=$$('.compare-symbol-drag'), slots=$$('.compare-symbol-slot');
+    const chips=$('.compare-symbol-drag'), slots=$('.compare-symbol-slot');
     const place=(chip,slot)=>{
       if(!chip||!slot||slot.classList.contains('filled')) return false;
       const expected=slot.dataset.symbolSlot, value=chip.dataset.symbolValue;
@@ -5232,7 +5414,7 @@ function renderCompareOrderLessonStep(skill,index=null){
     $('#compareSymbolReset')?.addEventListener('click',()=>{ slots.forEach(slot=>{slot.classList.remove('filled','wrong');slot.querySelector('strong').textContent='?';}); chips.forEach(chip=>{chip.disabled=false;chip.classList.remove('placed','selected','dragging');chip.style.transform='';chip.dataset.justDragged='';}); selected=null;drag=null;next.disabled=true;$('#compareSymbolNote').textContent='İşareti sürükleyip doğru tanımın üzerine bırak.'; });
   }else if(step.kind==='symbol-bridge'){
     let selected=null,drag=null,sx=0,sy=0;
-    const slot=$('#compareBridgeSymbol'), chips=$$('.compare-bridge-chip');
+    const slot=$('#compareBridgeSymbol'), chips=$('.compare-bridge-chip');
     const place=chip=>{
       if(!chip||slot.classList.contains('revealed'))return false;
       if(chip.dataset.symbolValue!==slot.dataset.symbolSlot){ $('#compareBridgeHelp').textContent='Cümlede “küçüktür” deniyor. O anlamı taşıyan işareti seç.'; slot.classList.add('wrong');setTimeout(()=>slot.classList.remove('wrong'),320);return false; }
@@ -5248,7 +5430,7 @@ function renderCompareOrderLessonStep(skill,index=null){
     slot?.addEventListener('click',()=>{if(selected)place(selected);});
   }else{
     let selected=null,drag=null,sx=0,sy=0;
-    const chips=$$('.compare-order-chip'), slots=$$('.compare-order-slot');
+    const chips=$('.compare-order-chip'), slots=$('.compare-order-slot');
     const place=(chip,slot)=>{
       if(!chip||!slot||slot.classList.contains('filled')) return false;
       const idx=Number(slot.dataset.orderSlot), expected=step.ordered[idx], value=Number(chip.dataset.orderValue);
@@ -5350,7 +5532,7 @@ function revealPatternLessonResult(){
 }
 function wirePatternSingleDrop({chipSelector,slotSelector,onSuccess}){
   let selected=null,drag=null,sx=0,sy=0;
-  const chips=$$(chipSelector), slots=$$(slotSelector);
+  const chips=$(chipSelector), slots=$(slotSelector);
   const place=(chip,slot)=>{
     if(!chip||!slot||slot.classList.contains('filled')) return false;
     const value=chip.dataset.patternValue, expected=slot.dataset.patternValue;
@@ -5430,15 +5612,15 @@ function renderPattern1000LessonStep(skill,index=null){
       }
     });
   }else if(step.kind==='place-track'){
-    $$('.pattern-place-choice').forEach(btn=>btn.addEventListener('click',()=>{
+    $('.pattern-place-choice').forEach(btn=>btn.addEventListener('click',()=>{
       const index=Number(btn.dataset.placeChoice);
       if(index!==step.placeIndex){
         btn.classList.add('wrong');setTimeout(()=>btn.classList.remove('wrong'),320);
         $('#patternLessonHelp').textContent='Bu sütundaki rakamları dört sayıda da karşılaştır.';
         return;
       }
-      btn.classList.add('selected'); $$('.pattern-place-choice').forEach(x=>x.disabled=true);
-      $$('.pattern-place-board').forEach(board=>board.children[index]?.classList.add('changed'));
+      btn.classList.add('selected'); $('.pattern-place-choice').forEach(x=>x.disabled=true);
+      $('.pattern-place-board').forEach(board=>board.children[index]?.classList.add('changed'));
       $('#patternLessonHelp').textContent=''; revealPatternLessonResult(); next.disabled=false;
     }));
   }else if(step.kind==='rule-match'||step.kind==='same-rule'){
@@ -5459,6 +5641,116 @@ function renderPattern1000LessonStep(skill,index=null){
     }});
   }
   next?.addEventListener('click',()=>completePattern1000LessonStep(skill,at));
+}
+
+const ODD_EVEN1000_LESSON_VERSION=1;
+const ODD_EVEN1000_SECTIONS=['EŞLEŞTİR','ARTANI GÖR','BİRLİK','KURAL','SINIFLANDIR','TAŞI'];
+const ODD_EVEN1000_LESSON_STEPS=[
+  {id:'pair-six',section:'EŞLEŞTİR',kind:'pair',n:6,title:'6 nesneyi ikişerli eşleştir.',body:'Her seferinde iki nesneyi bir çift yap. Sonunda eşsiz nesne kalıp kalmadığını gör.',result:'6 nesne ikişerli eşleşti; artan kalmadı. 6 çifttir.'},
+  {id:'pair-seven',section:'EŞLEŞTİR',kind:'pair',n:7,title:'7 nesneyi aynı şekilde eşleştir.',body:'Yine ikişerli çiftler oluştur. Bu kez bütün nesnelerin eşleşip eşleşmediğini kontrol et.',result:'7 nesne ikişerli eşleşti; 1 nesne arttı. 7 tektir.'},
+  {id:'pair-contrast',section:'ARTANI GÖR',kind:'choice',correct:'9',options:['8','9'],title:'Aynı eşleştirme, farklı sonuç.',body:'8 ve 9’u karşılaştır. Hangisinde ikişerli eşleştirmeden sonra 1 nesne artar?',result:'8’de artan kalmaz; 9’da 1 nesne artar.'},
+  {id:'ten-is-pairable',section:'BİRLİK',kind:'pair',n:10,title:'Bir onluk da tamamen eşleşir.',body:'10 birliği ikişerli eşleştir. Bir onluk oluşturacak 10 birlik artan bırakır mı?',result:'10 birlik tamamen ikişerli eşleşir; artan kalmaz.'},
+  {id:'hundred-is-pairable',section:'BİRLİK',kind:'choice',correct:'Artan kalmaz',options:['Artan kalmaz','1 onluk artar'],title:'Bir yüzlük de tam onluklardan oluşur.',body:'1 yüzlükte 10 onluk vardır. Bu 10 onluğu ikişerli eşleştirdiğimizde ne olur?',result:'10 onluk tamamen eşleşir. Yüzlükler tek–çift kararında artan birlik oluşturmaz.'},
+  {id:'ones-decide',section:'BİRLİK',kind:'choice',correct:'Birlik',options:['Yüzlük','Onluk','Birlik'],n:243,title:'Kararı birlik basamağı verir.',body:'243’te yüzlük ve onluk grupları tam çiftler oluşturabilir. Eşsiz kalan olup olmadığını hangi basamak belirler?',result:'243’ün birlik rakamı 3’tür. 3 birlik ikişerli eşleşince 1 birlik artar; 243 tektir.'},
+  {id:'zero-one-boundary',section:'BİRLİK',kind:'multi-classify',numbers:[{n:430,parity:'Çift'},{n:431,parity:'Tek'}],title:'0 birlik ile 1 birlik arasındaki farkı gör.',body:'Yüzlük ve onluklar aynı. Yalnız birlik değiştiğinde tek–çift durumu nasıl değişiyor?',result:'430’da birlik 0: artan yok, çift. 431’de birlik 1: 1 artan var, tek.'},
+  {id:'even-endings',section:'KURAL',kind:'digit-set',digits:[0,2,4,6,8],title:'Artan bırakmayan birlik rakamlarını topla.',body:'0’dan 9’a kadar birlik rakamlarını düşün. İkişerli eşleşince artan bırakmayanların hepsini seç.',result:'0, 2, 4, 6 ve 8 birlik tam eşleşir. Bu rakamlarla biten sayılar çifttir.'},
+  {id:'odd-endings',section:'KURAL',kind:'digit-set',digits:[1,3,5,7,9],title:'1 artan bırakan birlik rakamlarını topla.',body:'Bu kez ikişerli eşleşince 1 birlik artıran rakamların hepsini seç.',result:'1, 3, 5, 7 ve 9 birlikten 1 birlik artar. Bu rakamlarla biten sayılar tektir.'},
+  {id:'classify-three-digit',section:'SINIFLANDIR',kind:'multi-classify',numbers:[{n:248,parity:'Çift'},{n:431,parity:'Tek'},{n:1000,parity:'Çift'}],title:'Şimdi büyük sayılarda yalnız birliklere bak.',body:'Her sayının birlik rakamını kullanarak Tek ya da Çift sınıfını seç.',result:'248 çift, 431 tek, 1000 çifttir. Sayının büyüklüğü değil, birliklerin eşleşmesi belirleyicidir.'},
+  {id:'consecutive-switch',section:'SINIFLANDIR',kind:'choice',correct:'249 tektir',options:['249 tektir','249 çifttir'],title:'Bir birlik eklemek tek–çift durumunu değiştirir.',body:'248 çifttir. Bir birlik ekleyip 249 yaptığımızda eşleşmede ne değişir?',result:'248’de artan yoktur. 249’da 1 birlik artar; 249 tektir.'},
+  {id:'pairing-transfer',section:'TAŞI',kind:'choice',correct:'Evet',options:['Evet','Hayır'],title:'Aynı fikri günlük bir duruma taşı.',body:'527 öğrenci ikişerli sıraya geçiyor. Bir öğrenci eşsiz kalır mı?',result:'527’nin birlik rakamı 7’dir. 7 birlik ikişerli eşleşince 1 artar; bir öğrenci eşsiz kalır.'}
+];
+function oddEven1000SectionTrack(step){
+  return '<div class="odd-even-section-track">'+ODD_EVEN1000_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function oddEvenChoiceButtons(step){
+  return '<div class="odd-even-choice-grid">'+step.options.map(value=>'<button type="button" class="odd-even-choice" data-odd-value="'+esc(value)+'" data-correct="'+(String(value)===String(step.correct)?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div>';
+}
+function oddEvenMultiClassify(step){
+  return '<div class="odd-even-classify-list">'+step.numbers.map((item,index)=>'<div class="odd-even-classify-row" data-parity-row="'+index+'"><strong>'+item.n+'</strong><div><button type="button" data-odd-parity="Çift" data-correct="'+(item.parity==='Çift'?'true':'false')+'">Çift</button><button type="button" data-odd-parity="Tek" data-correct="'+(item.parity==='Tek'?'true':'false')+'">Tek</button></div></div>').join('')+'</div>';
+}
+function oddEvenLessonVisual(step){
+  if(step.kind==='pair') return '<div class="odd-even-lesson-core">'+parityPairBuilder(step.n,step.n)+'<p class="odd-even-help" id="oddEvenHelp">“Bir çift oluştur” ile ikişerli eşleştir.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='pair-contrast') return '<div class="odd-even-lesson-core"><div class="odd-even-card-pair">'+parityCardVisual(8,8,0)+parityCardVisual(9,9,1)+'</div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">Eşsiz kalan turuncu birliği karşılaştır.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='hundred-is-pairable') return '<div class="odd-even-lesson-core"><div class="odd-even-hundred-safe"><strong>1 yüzlük</strong><small>10 onluk</small><div>'+amountModel('ten',10)+'</div></div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">10 onluğu ikişerli düşün.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='ones-decide') return '<div class="odd-even-lesson-core"><div class="odd-even-place-focus">'+patternPlaceBoard(step.n,2)+parityCardVisual(step.n,3,1)+'</div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">Tam onluklar eşleşir; artanı hangi basamak bırakabilir?</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='multi-classify') return '<div class="odd-even-lesson-core">'+oddEvenMultiClassify(step)+'<p class="odd-even-help" id="oddEvenHelp">Her sayıda birlik rakamını kullan.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='digit-set') return '<div class="odd-even-lesson-core"><div class="odd-even-digit-grid">'+Array.from({length:10},(_,digit)=>'<button type="button" data-odd-digit="'+digit+'" data-correct="'+(step.digits.includes(digit)?'true':'false')+'">'+digit+'</button>').join('')+'</div><button type="button" class="odd-even-set-check" id="oddEvenSetCheck">Seçimimi kontrol et</button><p class="odd-even-help" id="oddEvenHelp">Beş rakam seç.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='consecutive-switch') return '<div class="odd-even-lesson-core"><div class="odd-even-card-pair">'+parityCardVisual(248,8,0)+parityCardVisual(249,9,1)+'</div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">Bir birlik eklenince eşsiz kalan değişiyor mu?</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  if(step.id==='pairing-transfer') return '<div class="odd-even-lesson-core"><div class="odd-even-context-card"><strong>527 öğrenci</strong><span>👤👤 · 👤👤 · …</span><small>ikişerli sıra</small></div>'+oddEvenChoiceButtons(step)+'<p class="odd-even-help" id="oddEvenHelp">527’nin birlik rakamını eşleştir.</p><div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+  return '<div class="odd-even-lesson-core">'+oddEvenChoiceButtons(step)+'<div class="odd-even-result" id="oddEvenResult">'+esc(step.result)+'</div></div>';
+}
+function revealOddEvenResult(){ $('#oddEvenResult')?.classList.add('revealed'); }
+function wireOddEvenChoiceStep(step,next){
+  $('.odd-even-choice').forEach(button=>button.addEventListener('click',()=>{
+    if(button.disabled) return;
+    if(button.dataset.correct!=='true'){
+      button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
+      $('#oddEvenHelp').textContent='Birlikleri ikişerli eşleştirip artan olup olmadığına yeniden bak.';
+      return;
+    }
+    button.classList.add('selected'); $('.odd-even-choice').forEach(x=>x.disabled=true);
+    $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
+  }));
+}
+function wireOddEvenLessonStep(step,next){
+  if(step.kind==='pair'){
+    const root=$('.sg-parity-builder'), action=root?.querySelector('.sg-pair-action');
+    action?.addEventListener('click',()=>{
+      const free=[...root.querySelectorAll('.sg-pair-token:not(.paired)')];
+      if(free.length>=2){ free[0].classList.add('paired'); free[1].classList.add('paired'); }
+      const left=root.querySelectorAll('.sg-pair-token:not(.paired)').length;
+      $('#oddEvenHelp').textContent=left>=2?left+' birlik henüz eşleşmedi.':(left===1?'1 birlik eşsiz kaldı.':'Artan birlik kalmadı.');
+      if(left<2){ action.disabled=true; revealOddEvenResult(); next.disabled=false; }
+    });
+    return;
+  }
+  if(step.kind==='choice'){ wireOddEvenChoiceStep(step,next); return; }
+  if(step.kind==='multi-classify'){
+    $('.odd-even-classify-row').forEach(row=>row.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{
+      if(button.disabled) return;
+      if(button.dataset.correct!=='true'){
+        button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
+        $('#oddEvenHelp').textContent='Bu sayının birlik rakamını ikişerli eşleştir.';
+        return;
+      }
+      row.classList.add('complete'); button.classList.add('selected'); row.querySelectorAll('button').forEach(x=>x.disabled=true);
+      if($('.odd-even-classify-row:not(.complete)').length===0){ $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false; }
+    })));
+    return;
+  }
+  if(step.kind==='digit-set'){
+    $('[data-odd-digit]').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('selected')));
+    $('#oddEvenSetCheck')?.addEventListener('click',()=>{
+      const picked=$('[data-odd-digit].selected').map(button=>Number(button.dataset.oddDigit)).sort((a,b)=>a-b);
+      const expected=[...step.digits].sort((a,b)=>a-b);
+      const correct=picked.length===expected.length&&picked.every((value,index)=>value===expected[index]);
+      if(!correct){ $('#oddEvenHelp').textContent='Tam beş rakam seç. Her rakamı ikişerli eşleştirince artan kalıp kalmadığını düşün.'; return; }
+      $('[data-odd-digit]').forEach(button=>button.disabled=true); $('#oddEvenSetCheck').disabled=true;
+      $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
+    });
+  }
+}
+function completeOddEven1000LessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=ODD_EVEN1000_LESSON_VERSION;
+  if(next>=ODD_EVEN1000_LESSON_STEPS.length){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return;
+  }
+  saveState(); session.lessonStepIndex=next; renderOddEven1000LessonStep(skill,next);
+}
+function renderOddEven1000LessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(ODD_EVEN1000_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(ODD_EVEN1000_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=ODD_EVEN1000_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KONU ANLATIMI'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+ODD_EVEN1000_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/ODD_EVEN1000_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="odd-even-lesson-stage" data-odd-even-step="'+esc(step.id)+'">'+oddEven1000SectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · ADIM '+(at+1)+' / '+ODD_EVEN1000_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="odd-even-lesson-visual">'+oddEvenLessonVisual(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="oddEvenLessonNext" disabled>'+(at===ODD_EVEN1000_LESSON_STEPS.length-1?'Birlikte uygulamaya geç':'Sonraki adım')+' <b>→</b></button></div></div>';
+  const next=$('#oddEvenLessonNext'); wireOddEvenLessonStep(step,next);
+  next?.addEventListener('click',()=>completeOddEven1000LessonStep(skill,at));
 }
 
 function lessonBlueprintFor(skill){
@@ -5556,16 +5848,16 @@ function startPrimaryJourney(){
   startSession();
 }
 function bindNavigation(){
-  $$('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>navigate(btn.dataset.nav)));
+  $('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>navigate(btn.dataset.nav)));
   $('#profileChip').addEventListener('click',()=>openOnboarding(true));
   $('#bottomStart').addEventListener('click',startPrimaryJourney);
 }
 function navigate(name){
   const target=name==='map'?'atlas':name;
   activeScreen=target;
-  $$('.screen').forEach(x=>x.classList.remove('active'));
+  $('.screen').forEach(x=>x.classList.remove('active'));
   $(`#${target}Screen`)?.classList.add('active');
-  $$('.bottom-nav [data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===target));
+  $('.bottom-nav [data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===target));
   if(target==='parent') renderParent();
   if(target==='atlas') renderAtlas();
   if(target==='lessonCenter') renderLessonCenter();
@@ -5578,7 +5870,7 @@ function bindControls(){
   $('#closePractice').addEventListener('click',()=>closePractice(true));
   $('#speakButton').addEventListener('click',speakCurrent);
   $('#onboardingContinue').addEventListener('click',completeOnboarding);
-  $$('#onboardingLevels [data-profile]').forEach(btn=>btn.addEventListener('click',()=>selectOnboardingLevel(btn.dataset.profile)));
+  $('#onboardingLevels [data-profile]').forEach(btn=>btn.addEventListener('click',()=>selectOnboardingLevel(btn.dataset.profile)));
   $('#onboardingOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget && state.onboarded) closeOnboarding(); });
   $('#restHomeButton').addEventListener('click',()=>{ hideCooldown(); navigate('home'); });
   $('#parentSkipCooldown').addEventListener('click',()=>{ state.cooldownUntil=0; saveState(); hideCooldown(); renderAll(); showToast('Mola ebeveyn tarafından sonlandırıldı'); });
@@ -5620,7 +5912,7 @@ function closeOnboarding(){
 function selectOnboardingLevel(profile,announce=true){
   if(!PROFILE_META[profile]) return;
   selectedOnboardingProfile=profile;
-  $$('#onboardingLevels [data-profile]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.profile===profile));
+  $('#onboardingLevels [data-profile]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.profile===profile));
   if(announce) showToast(`${PROFILE_META[profile].label} başlangıç haritası seçildi`);
 }
 function completeOnboarding(){
@@ -5749,7 +6041,7 @@ function renderGrade2Atlas(){
     <div class="summary-card"><span>TEKRAR HAZIR</span><strong>${due}</strong><p>Zamanı gelen kısa geri çağırmalar.</p></div>`;
 
   $('#domainTabs').innerHTML=units.map((unit,index)=>`<button class="domain-tab ${unit.id===activeAtlasUnitId?'active':''}" data-atlas-unit-tab="${esc(unit.id)}" role="tab"><span>${index+1}</span>${esc(unit.label)}</button>`).join('');
-  $$('#domainTabs [data-atlas-unit-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  $('#domainTabs [data-atlas-unit-tab]').forEach(btn=>btn.addEventListener('click',()=>{
     activeAtlasUnitId=btn.dataset.atlasUnitTab;
     renderAtlas();
     requestAnimationFrame(()=>document.querySelector('[data-atlas-unit="'+CSS.escape(activeAtlasUnitId)+'"]')?.scrollIntoView({behavior:state.settings.calmMotion?'auto':'smooth',block:'start'}));
@@ -5784,11 +6076,11 @@ function renderGrade2Atlas(){
     </section>`;
   }).join('')+'</div>';
 
-  $$('[data-atlas-unit-toggle]').forEach(btn=>btn.addEventListener('click',()=>{
+  $('[data-atlas-unit-toggle]').forEach(btn=>btn.addEventListener('click',()=>{
     activeAtlasUnitId=btn.dataset.atlasUnitToggle;
     renderAtlas();
   }));
-  $$('[data-atlas-lesson]').forEach(btn=>btn.addEventListener('click',()=>openLessonCenter(btn.dataset.atlasLesson)));
+  $('[data-atlas-lesson]').forEach(btn=>btn.addEventListener('click',()=>openLessonCenter(btn.dataset.atlasLesson)));
 }
 function renderLegacyAtlas(){
   const summary=profileSummary(state);
@@ -5804,7 +6096,7 @@ function renderLegacyAtlas(){
   const domains=['Tümü',...new Set(list.map(s=>s.family))];
   if(!domains.includes(activeDomain)) activeDomain='Tümü';
   $('#domainTabs').innerHTML=domains.map(d=>`<button class="domain-tab ${d===activeDomain?'active':''}" data-domain="${esc(d)}" role="tab">${esc(d)}</button>`).join('');
-  $$('#domainTabs [data-domain]').forEach(btn=>btn.addEventListener('click',()=>{activeDomain=btn.dataset.domain;renderAtlas();}));
+  $('#domainTabs [data-domain]').forEach(btn=>btn.addEventListener('click',()=>{activeDomain=btn.dataset.domain;renderAtlas();}));
 
   const filtered=activeDomain==='Tümü'?list:list.filter(s=>s.family===activeDomain);
   $('#skillMap').innerHTML=filtered.map(skill=>{
@@ -5911,7 +6203,7 @@ function renderLessonCenter(){
     '</div>';
 
   $('#lessonLearnAction')?.addEventListener('click',()=>startLessonChannel(skill.id,'learn'));
-  $$('[data-practice-section]').forEach(btn=>btn.addEventListener('click',()=>{
+  $('[data-practice-section]').forEach(btn=>btn.addEventListener('click',()=>{
     if(btn.disabled) return;
     startLessonChannel(skill.id,'practice',btn.dataset.practiceSection);
   }));
@@ -6025,6 +6317,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='number1000') return NUMBER1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='compareOrder1000') return COMPARE_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='numberPattern1000') return PATTERN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='oddEven1000') return ODD_EVEN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -6138,6 +6431,21 @@ function inspectorUiAudit(){
     'P2 örüntü öğretimi çarpma/ritmik sayma konusuna taşmıyor',
     !PATTERN1000_LESSON_STEPS.some(step=>/[×x]|katına|çarp/i.test([step.title,step.body,step.result].join(' '))),
     'Bu ders ±1, ±10 ve ±100 basamak değişiminde kalır.'
+  );
+  const oddIds=ODD_EVEN1000_LESSON_STEPS.map(step=>step.id);
+  add(
+    'odd-even-teaching-order',
+    'Tek–çift öğretiminde eşleştirme anlamı birlik-rakamı kuralından önce geliyor',
+    oddIds.indexOf('pair-six')<oddIds.indexOf('ones-decide') &&
+      oddIds.indexOf('ones-decide')<oddIds.indexOf('even-endings') &&
+      oddIds.indexOf('even-endings')<oddIds.indexOf('classify-three-digit'),
+    oddIds.join(' → ')
+  );
+  add(
+    'odd-even-no-future-topics',
+    'Tek–çift öğretimi çarpma/bölme/asal diline taşmıyor',
+    !ODD_EVEN1000_LESSON_STEPS.some(step=>/[×÷]|asal|bölünebilir|çarpım|çarpma|katına|faktör/i.test([step.title,step.body,step.result].join(' '))),
+    'Pairing → birlik basamağı → Tek/Çift sınıflandırması.'
   );
   const probe=document.createElement('div');
   probe.style.cssText='position:fixed;left:-9999px;top:-9999px;visibility:hidden';
@@ -6543,6 +6851,7 @@ function renderLessonIntro(skill){
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
+  if(skill.id==='oddEven1000'){ renderOddEven1000LessonStep(skill); return; }
   currentQuestion=null;
   renderPracticeHeader(skill);
   const bp=lessonBlueprintFor(skill);
@@ -6564,7 +6873,7 @@ function renderLessonIntro(skill){
 function renderPatternRuleGate(q,rule){
   const options=[1,-1,10,-10,100,-100].map(step=>'Her adımda '+Math.abs(step)+' '+(step>0?'daha.':'daha az.'));
   $('#patternResponseGate').innerHTML='<p>Önce dizinin kuralını sözcükle söyle.</p><div class="pattern-rule-bank">'+options.map(value=>'<button type="button" class="pattern-rule-chip" data-rule-choice="'+esc(value)+'">'+esc(value)+'</button>').join('')+'</div><p id="patternRuleFeedback" aria-live="polite"></p>';
-  $$('[data-rule-choice]').forEach(button=>button.addEventListener('click',()=>{
+  $('[data-rule-choice]').forEach(button=>button.addEventListener('click',()=>{
     if(button.dataset.ruleChoice!==rule){
       if(!usedHint){usedHint=true;session.hints++;}
       $('#patternRuleFeedback').textContent='İki komşu sayıyı karşılaştır: miktar artıyor mu, azalıyor mu? Değişim 1, 10 veya 100 mü?';
@@ -6616,14 +6925,14 @@ function renderResponse(q){
   return `<div class="answers-grid">${(q.choices||[]).map(choice=>`<button class="answer-button" data-answer="${esc(choice)}">${esc(choice)}</button>`).join('')}</div>`;
 }
 function wireResponse(q){
-  $$('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>answerQuestion(btn.dataset.answer,btn)));
+  $('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>answerQuestion(btn.dataset.answer,btn)));
   if(q.response?.kind==='number-input'){
     const input=$('#numberAnswer');
     const max=Number(q.response.maxLength||3);
     const clean=()=>{ input.value=input.value.replace(/\D/g,'').slice(0,max); };
     input.addEventListener('input',clean);
     input.addEventListener('keydown',ev=>{ if(ev.key==='Enter'&&input.value) answerQuestion(input.value,$('#submitNumber')); });
-    $$('[data-digit]').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; input.value=(input.value+btn.dataset.digit).slice(0,max); input.focus(); }));
+    $('[data-digit]').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; input.value=(input.value+btn.dataset.digit).slice(0,max); input.focus(); }));
     $('[data-key="back"]')?.addEventListener('click',()=>{input.value=input.value.slice(0,-1);input.focus();});
     $('[data-key="clear"]')?.addEventListener('click',()=>{input.value='';input.focus();});
     $('#submitNumber')?.addEventListener('click',()=>{ if(!input.value){ showToast('Önce cevabını yaz'); input.focus(); return; } answerQuestion(input.value,$('#submitNumber')); });
@@ -6932,11 +7241,11 @@ function bindFractionPaint(root,q){
 
 function readManipulatorValue(q){
   const interaction=q.response?.interaction;
-  if(interaction==='twentyframe-build') return $$('.interactive-twentyframe .added').length;
-  if(interaction==='tenframe-complete') return $$('.complete-tenframe-builder .complete-token.moved').length;
-  if(interaction==='add-to-ten') return $$('.add-to-ten-builder .move-token.moved').length;
-  if(interaction==='balance-fill') return $$('.balance-fill-builder .balance-token.moved').length;
-  if(interaction==='story-add') return $$('.story-add-builder .story-add-token.moved').length;
+  if(interaction==='twentyframe-build') return $('.interactive-twentyframe .added').length;
+  if(interaction==='tenframe-complete') return $('.complete-tenframe-builder .complete-token.moved').length;
+  if(interaction==='add-to-ten') return $('.add-to-ten-builder .move-token.moved').length;
+  if(interaction==='balance-fill') return $('.balance-fill-builder .balance-token.moved').length;
+  if(interaction==='story-add') return $('.story-add-builder .story-add-token.moved').length;
   if(interaction==='pattern-step') return $('.pattern-step-builder .pattern-step-button.selected')?.dataset.step ?? null;
   if(interaction==='shape-properties'){
     const root=$('.shape-property-builder'); if(!root)return null; const selected=['straight','curves','structure'].map(group=>root.querySelector(`.property-chip.selected[data-group="${group}"]`)?.dataset.value); return selected.every(v=>v!=null)?selected.join('|'):null;
@@ -6949,21 +7258,21 @@ function readManipulatorValue(q){
   if(interaction==='length-align'){
     const root=$('.length-align-builder'); if(!root?.classList.contains('aligned'))return null; const selected=root.querySelector('.length-choice.selected')?.dataset.value; return selected?`aligned|${selected}`:null;
   }
-  if(interaction==='pictograph-row') return $$('.pictograph-row-builder .pic-build-cell.filled').length;
-  if(interaction==='remove-counters') return $$('.remove-counter-builder .remove-token.removed').length;
-  if(interaction==='bond-fill') return $$('.sg-bond-builder .sg-bond-token.selected').length;
-  if(interaction==='base10-build') return `${$$('.sg-base10-builder .sg-base10-ten.selected').length}|${$$('.sg-base10-builder .sg-base10-one.selected').length}`;
-  if(interaction==='base1000-build') return `${$$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
+  if(interaction==='pictograph-row') return $('.pictograph-row-builder .pic-build-cell.filled').length;
+  if(interaction==='remove-counters') return $('.remove-counter-builder .remove-token.removed').length;
+  if(interaction==='bond-fill') return $('.sg-bond-builder .sg-bond-token.selected').length;
+  if(interaction==='base10-build') return `${$('.sg-base10-builder .sg-base10-ten.selected').length}|${$('.sg-base10-builder .sg-base10-one.selected').length}`;
+  if(interaction==='base1000-build') return `${$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
   if(interaction==='fraction-shade'){ const root=$('.sg-fraction-shade-builder'); return syncFractionPaintSelection(root).count; }
-  if(interaction==='fraction-pair-build') return `${$$('.sg-fraction-pair-builder [data-side="left"] .sg-fraction-cell.selected').length}|${$$('.sg-fraction-pair-builder [data-side="right"] .sg-fraction-cell.selected').length}`;
-  if(interaction==='fraction-operation-build') return $$('.sg-fraction-operation-builder .sg-fraction-result .sg-fraction-cell.selected').length;
-  if(interaction==='parity-pair') return $$('.sg-parity-builder .sg-pair-token:not(.paired)').length;
+  if(interaction==='fraction-pair-build') return `${$('.sg-fraction-pair-builder [data-side="left"] .sg-fraction-cell.selected').length}|${$('.sg-fraction-pair-builder [data-side="right"] .sg-fraction-cell.selected').length}`;
+  if(interaction==='fraction-operation-build') return $('.sg-fraction-operation-builder .sg-fraction-result .sg-fraction-cell.selected').length;
+  if(interaction==='parity-pair') return $('.sg-parity-builder .sg-pair-token:not(.paired)').length;
   if(interaction==='two-step-plan'){
     const a=$('.sg-two-step-plan .sg-plan-op.selected[data-step="1"]')?.dataset.value, b=$('.sg-two-step-plan .sg-plan-op.selected[data-step="2"]')?.dataset.value;
     return a&&b?`${a}|${b}`:null;
   }
   if(interaction==='order-pair'){
-    const cards=[...$$('.sg-order-builder .sg-order-card[data-order]')].sort((a,b)=>Number(a.dataset.order)-Number(b.dataset.order)); return cards.length===2?cards.map(x=>x.dataset.value).join('|'):null;
+    const cards=[...$('.sg-order-builder .sg-order-card[data-order]')].sort((a,b)=>Number(a.dataset.order)-Number(b.dataset.order)); return cards.length===2?cards.map(x=>x.dataset.value).join('|'):null;
   }
   if(interaction==='ordinal-position') return $('.sg-ordinal-builder .sg-ordinal-slot.selected')?.dataset.value ?? null;
   if(interaction==='equal-groups'||interaction==='share-equally'){
@@ -6972,25 +7281,25 @@ function readManipulatorValue(q){
     if(total!==Number(root.dataset.total||0)||!counts.length||!counts.every(v=>v===counts[0])) return null;
     return interaction==='equal-groups'?total:counts[0];
   }
-  if(interaction==='money-make') return [...$$('.sg-money-builder .sg-money-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
-  if(interaction==='measure-make') return [...$$('.sg-measure-builder .sg-measure-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
-  if(interaction==='duration-compose') return [...$$('.sg-duration-builder .sg-duration-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='money-make') return [...$('.sg-money-builder .sg-money-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='measure-make') return [...$('.sg-measure-builder .sg-measure-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='duration-compose') return [...$('.sg-duration-builder .sg-duration-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
   if(interaction==='clock-minute-set'){ const root=$('.sg-clock-minute-set'); const h=root?.querySelector('.sg-hour-choice.selected')?.dataset.value; return h!=null?`${h}|${Number(root.dataset.minute||0)}`:null; }
   if(interaction==='cm-ruler') return $('.sg-cm-ruler-builder .sg-ruler-tick-button.selected')?.dataset.value ?? null;
   if(interaction==='shape-compose'){
-    const values=[...$$('.sg-shape-compose-builder .sg-compose-piece.selected')].map(b=>b.dataset.value).sort();
+    const values=[...$('.sg-shape-compose-builder .sg-compose-piece.selected')].map(b=>b.dataset.value).sort();
     return values.length?values.join('+'):null;
   }
-  if(interaction==='square-grid-copy'){ const cells=[...$$('.sg-square-grid-copy .sg-grid-copy-cell.selected')].map(b=>b.dataset.cell).sort(); return cells.length?cells.join('|'):null; }
-  if(interaction==='unit-measure') return $$('.sg-unit-builder .sg-unit-cell.selected').length;
+  if(interaction==='square-grid-copy'){ const cells=[...$('.sg-square-grid-copy .sg-grid-copy-cell.selected')].map(b=>b.dataset.cell).sort(); return cells.length?cells.join('|'):null; }
+  if(interaction==='unit-measure') return $('.sg-unit-builder .sg-unit-cell.selected').length;
   if(interaction==='clock-set'){
     const h=$('.sg-clock-set .sg-hour-choice.selected')?.dataset.value, m=$('.sg-clock-set .sg-minute-choice.selected')?.dataset.value; return h!=null&&m!=null?`${h}|${m}`:null;
   }
   if(interaction==='shape-pattern') return $('.sg-shape-pattern-builder .sg-shape-choice.selected')?.dataset.value ?? null;
   if(interaction==='p2-shape-pattern') return $('.p2-shape-pattern-builder .p2-shape-choice.selected')?.dataset.value ?? null;
   if(interaction==='solid-classify') return $('.p2-solid-classify-builder .p2-solid-bin.selected')?.dataset.value ?? null;
-  if(interaction==='scaled-pictograph-row') return $$('.p2-scaled-graph-builder .p2-graph-icon-button.selected').length;
-  if(interaction==='three-add') return $$('.sg-three-add-builder .sg-three-token.selected').length;
+  if(interaction==='scaled-pictograph-row') return $('.p2-scaled-graph-builder .p2-graph-icon-button.selected').length;
+  if(interaction==='three-add') return $('.sg-three-add-builder .sg-three-token.selected').length;
   return null;
 }
 function updateManipulatorStatus(q){
@@ -7073,12 +7382,12 @@ function answerQuestion(value,button){
   if(answered||!currentQuestion) return;
   answered=true;
   const q=currentQuestion; const correct=String(value)===String(q.answer);
-  $$('[data-answer]').forEach(b=>{
+  $('[data-answer]').forEach(b=>{
     b.disabled=true;
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-grid-copy-cell,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust,.p2-shape-choice,.p2-solid-bin,.p2-graph-icon-button').forEach(b=>b.disabled=true);
+  $('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-grid-copy-cell,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust,.p2-shape-choice,.p2-solid-bin,.p2-graph-icon-button').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;

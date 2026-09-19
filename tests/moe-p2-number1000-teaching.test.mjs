@@ -9,7 +9,7 @@ assert.equal(lc.lessonStepIndex,0); assert.equal(lc.lessonTaughtAt,0);
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8'); const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 for(const id of ['ten-bundle','count-tens','count-hundreds','hundred-sense','model-build','place-value','same-digit','zero-place','read-write','word-build']) assert.ok(app.includes("id:'"+id+"'"),'missing '+id);
 for(const copy of ['10 birlik = 1 onluk','10 onluk = 1 yüzlük','10 yüzlük = 1000','347 = 300 + 40 + 7','347 ↔ üç yüz kırk yedi']) assert.ok(app.includes(copy),'missing '+copy);
-assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000'])")); assert.ok(app.includes("if(!lessonFirst&&readiness)"),'number1000 must not open with a readiness quiz'); assert.ok(app.includes('lessonTaughtAt'));
+assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000','oddEven1000'])")); assert.ok(app.includes("if(!lessonFirst&&readiness)"),'number1000 must not open with a readiness quiz'); assert.ok(app.includes('lessonTaughtAt'));
 assert.ok(app.includes("$('.lesson-place-column').forEach"),'place-value teaching must bind all three concrete place-value columns');
 assert.ok(!app.includes('SINGAPUR P2 ·'),'child UI must not expose curriculum-engine jargon');
 assert.ok(!app.includes("?'Birleştir':step.kind==='read-write'?'Okunuşunu göster':'Değerleri keşfet'"),'place-value lesson must not present a misleading action button');

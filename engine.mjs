@@ -114,6 +114,21 @@ export const P2_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  oddEven1000:{
+    version:1,
+    unitId:'whole-numbers',
+    practice:{
+      sections:[
+        {id:'pair-model',label:'İkişerli eşleştir',phase:'model',representation:'build'},
+        {id:'see-leftover',label:'Artanı gör',phase:'representation',representation:'see'},
+        {id:'classify-parity',label:'Tek / çift sınıflandır',phase:'symbol',representation:'symbol'},
+        {id:'ones-rule',label:'Birlik basamağını kullan',phase:'practice',representation:'symbol'},
+        {id:'explain-parity',label:'Nedenini açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-parity',label:'Yeni durumda kullan',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -478,7 +493,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       reviewBeforeCompletion.length?'Erken tekrar: '+reviewBeforeCompletion.join(', '):'Tekrar kapıları doğru.'
     );
 
-    const referenceContracts=['number1000','compareOrder1000','numberPattern1000'];
+    const referenceContracts=['number1000','compareOrder1000','numberPattern1000','oddEven1000'];
     const incompleteContracts=referenceContracts.filter(id=>{
       const contract=lessonContractFor(id);
       return contract.provisional || (contract.practice?.sections?.length||0)<5;
@@ -487,7 +502,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'reference-contracts',
       'Referans derslerin Öğren/Uygula sözleşmeleri tanımlı',
       incompleteContracts.length===0,
-      incompleteContracts.length?'Eksik sözleşme: '+incompleteContracts.join(', '):'Üç referans ders açık sözleşmeye sahip.'
+      incompleteContracts.length?'Eksik sözleşme: '+incompleteContracts.join(', '):'Dört referans ders açık sözleşmeye sahip.'
     );
 
 
@@ -505,6 +520,30 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'P2 sayı örüntüsü yalnız 1, 10 ve 100 adımlarını kullanıyor',
       patternScopeClean,
       patternScopeClean?'Çarpımsal/ileri konu adımı yok.':'Örüntü kapsamı ±1/±10/±100 dışına çıktı.'
+    );
+
+    const oddRng=(()=>{let s=2609;return()=>((s=(s*1664525+1013904223)>>>0)/2**32)})();
+    const oddEndings=new Set();
+    let oddScopeClean=true, thousandEven=false;
+    for(let i=0;i<240;i++){
+      const q=generateLessonPracticeQuestion('oddEven1000','classify-parity',i%4,2,oddRng);
+      const n=Number(q.parityNumber);
+      if(Number.isFinite(n)) oddEndings.add(n%10);
+      if(n===1000&&q.answer==='Çift') thousandEven=true;
+      const text=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+      if(/asal|bölünebilir|çarpım|çarpma|katı|katına|faktör/i.test(text)) oddScopeClean=false;
+    }
+    add(
+      'odd-even-ending-coverage',
+      'P2 tek–çift uygulaması bütün birlik rakamlarını kapsıyor ve 1000’i çift sınıflandırıyor',
+      oddEndings.size===10&&thousandEven,
+      'Birlik rakamları: '+[...oddEndings].sort((a,b)=>a-b).join(', ')+' · 1000 çift: '+thousandEven
+    );
+    add(
+      'odd-even-future-topic-guard',
+      'P2 tek–çift akışı ilerideki çarpma/bölme/asal diline taşmıyor',
+      oddScopeClean,
+      oddScopeClean?'Eşleştirme ve birlik basamağı kapsamında.':'Tek–çift akışına ileri konu dili sızdı.'
     );
 
     let symbolGuard=true;
@@ -973,7 +1012,8 @@ function shapePatternCases(){
 
 
 function oddEven1000Cases(){
-  const nums=[112,127,234,249,356,373,482,497,614,629,746,759,862,875,938,953];
+  // Cover every possible ones digit, zero endings and the upper endpoint 1000.
+  const nums=[110,121,232,343,454,565,676,787,898,909,240,351,462,573,684,795,806,917,528,639,1000];
   return nums.map(n=>({n,ones:n%10,parity:n%2===0?'Çift':'Tek',leftover:n%2}));
 }
 function wordAddSub2Cases(){
@@ -1974,34 +2014,42 @@ function genShapePattern1(rep,d,rng,concept){
 }
 
 
+function parityPairingStatement(z){
+  return z.leftover
+    ? String(z.n)+' sayısının birlikleri ikişerli eşleşince 1 birlik artar; '+z.n+' tektir.'
+    : String(z.n)+' sayısının birlikleri ikişerli eşleşince artan kalmaz; '+z.n+' çifttir.';
+}
 function genOddEven1000(rep,d,rng,concept){
   const c=concept?.skillId==='oddEven1000'?concept:createConceptInstance('oddEven1000',d,rng);
   const x=c.anchor;
-  if(rep==='build') return qTask('oddEven1000',rep,`${x.n} sayısının birliklerini ikişerli eşleştir. Kaç birlik eşsiz kalır?`,x.leftover,{kind:'manipulative',interaction:'parity-pair',expectedValue:String(x.leftover),checkLabel:'Eşleştirmeyi kontrol et'}, {
-    taskKind:'manipulative-build',taskLabel:'Birlikleri ikişerli eşleştir',visual:{type:'parity-pair-builder',n:x.n,ones:x.ones},hint:'Her dokunuşta iki birliği bir çift yap.',explain:x.leftover?`${x.n} için 1 birlik eşsiz kalır; sayı tektir.`:`${x.n} için eşsiz birlik kalmaz; sayı çifttir.`
+  if(rep==='build') return qTask('oddEven1000',rep,x.n+' sayısının birliklerini ikişerli eşleştir. Kaç birlik eşsiz kalır?',x.leftover,{kind:'manipulative',interaction:'parity-pair',expectedValue:String(x.leftover),checkLabel:'Eşleştirmeyi kontrol et'}, {
+    taskKind:'manipulative-build',taskLabel:'Birlikleri ikişerli eşleştir',visual:{type:'parity-pair-builder',n:x.n,ones:x.ones},hint:'Birlikleri ikişerli eşleştir; sonunda 0 ya da 1 birlik artabilir.',explain:parityPairingStatement(x)
   });
   if(rep==='see'){
-    const opts=shuffled([0,1,2].map((leftover,i)=>({value:leftover===x.leftover?'correct':`wrong-${i}`,visual:{type:'parity-card',n:x.n,ones:x.ones,leftover},ariaLabel:`${x.n} için ${leftover} eşsiz birlik modeli`})),rng);
-    return qTask('oddEven1000',rep,`${x.n} sayısının ikişerli eşleşmesini doğru gösteren model hangisi?`,'correct',{kind:'visual-choice',options:opts},{
-      taskKind:'visual-discrimination',taskLabel:'Eşleşme modelini ayırt et',visual:{type:'numbercard',n:x.n},hint:'Birlikleri ikişerli grupla; 0 ya da 1 birlik artabilir.',explain:`${x.n} ${x.parity.toLowerCase()} sayıdır.`
+    const opposite=shuffled(oddEven1000Cases().filter(z=>z.leftover!==x.leftover&&z.n!==x.n),rng).slice(0,2);
+    const opts=shuffled([
+      {value:'correct',visual:{type:'parity-card',n:x.n,ones:x.ones,leftover:x.leftover},ariaLabel:x.n+' için eşleştirme modeli'},
+      ...opposite.map((z,i)=>({value:'wrong-'+i,visual:{type:'parity-card',n:z.n,ones:z.ones,leftover:z.leftover},ariaLabel:z.n+' için eşleştirme modeli'}))
+    ],rng);
+    return qTask('oddEven1000',rep,x.leftover?'Hangi modelde ikişerli eşleştirmeden sonra 1 birlik artıyor?':'Hangi modelde ikişerli eşleştirmeden sonra artan kalmıyor?','correct',{kind:'visual-choice',options:opts},{
+      taskKind:'visual-discrimination',taskLabel:'Eşleşmede artanı görselde ayırt et',visual:{type:'numbercard',n:x.n},hint:'Her modelde ikişerli eşleşmenin sonunda turuncu artan birlik olup olmadığına bak.',explain:parityPairingStatement(x)
     });
   }
   if(rep==='symbol'){
     const y=c.symbol;
-    return qBase('oddEven1000',rep,`${y.n} sayısını sınıflandır.`,y.parity,semanticChoices(y.parity,[y.parity==='Çift'?'Tek':'Çift','Asal','Belirlenemez'],rng),{
-      taskKind:'symbol-entry',taskLabel:'Tek–çift sınıfını matematik diliyle yaz',visual:{type:'equation',text:String(y.n)},hint:'Birler basamağı 0,2,4,6,8 ise sayı çifttir.',explain:`${y.n} ${y.parity.toLowerCase()} sayıdır.`
+    return qBase('oddEven1000',rep,y.n+' sayısını tek veya çift olarak sınıflandır.',y.parity,semanticChoices(y.parity,[y.parity==='Çift'?'Tek':'Çift'],rng),{
+      taskKind:'symbol-entry',taskLabel:'Tek–çift sınıfını matematik diliyle yaz',visual:{type:'equation',text:String(y.n)},hint:'Birlik rakamını ikişerli eşleşme açısından düşün.',explain:parityPairingStatement(y)
     });
   }
   if(rep==='explain'){
-    const answer='Yüzlük ve onluklar 10’un katıdır; tek–çift durumunu birlik basamağının ikişerli eşleşmesi belirler';
-    return qBase('oddEven1000',rep,`${x.n} sayısının tek mi çift mi olduğunu neden yalnız birlik basamağından anlayabiliriz?`,answer,semanticChoices(answer,['Yüzlük basamağı her zaman çifttir diye','Sayıdaki rakamların toplamı her zaman yeterlidir','En büyük rakam tekse sayı da tektir'],rng),{
-      taskKind:'reasoning-choice',taskLabel:'Tek–çift kuralını gerekçelendir',visual:{type:'parity-card',n:x.n,ones:x.ones,leftover:x.leftover},hint:'10’un kendisi ikişerli eşleşebilir.',explain:answer+'.'
+    const answer='Her onluk 10 birliktir ve 10 birlik tamamen ikişerli eşleşir; yüzlükler de tam onluklardan oluşur; bu yüzden kararı birlik basamağı verir';
+    return qBase('oddEven1000',rep,x.n+' sayısının tek mi çift mi olduğunu neden birlik basamağından anlayabiliriz?',answer,semanticChoices(answer,['Yalnız en büyük rakama bakmak yeterlidir','Bütün rakamların tek ya da çift olması gerekir','Yüzlük basamağı tekse bütün sayı da tektir'],rng),{
+      taskKind:'reasoning-choice',taskLabel:'Tek–çift kuralını gerekçelendir',visual:{type:'parity-card',n:x.n,ones:x.ones,leftover:x.leftover},hint:'Bir onluğun 10 birliğini ikişerli eşleştirince artan kalıp kalmadığını düşün.',explain:answer+'.'
     });
   }
   const y=c.transfer;
-  const answer=y.parity==='Çift'?'Hayır':'Evet';
-  return qBase('oddEven1000',rep,`${y.n} öğrenci ikişerli sıraya geçiyor. Bir öğrenci eşsiz kalır mı?`,answer,semanticChoices(answer,[answer==='Evet'?'Hayır':'Evet','İki öğrenci kalır','Sayıya bakmadan bilinemaz'],rng),{
-    taskKind:'context-transfer',taskLabel:'Tek–çifti eşli sıra bağlamına taşı',visual:{type:'parity-card',n:y.n,ones:y.ones,leftover:y.leftover},hint:'İkişerli eşleşmede 1 kişi artıyorsa sayı tektir.',explain:y.leftover?'Bir öğrenci eşsiz kalır; sayı tektir.':'Kimse eşsiz kalmaz; sayı çifttir.'
+  return qTask('oddEven1000',rep,y.n+' öğrenci ikişerli sıraya geçiyor. Kaç öğrenci eşsiz kalır?',y.leftover,{kind:'number-input',placeholder:'0 ya da 1',maxLength:1,checkLabel:'Eşleşmeyi kontrol et'}, {
+    taskKind:'context-transfer',taskLabel:'Tek–çifti eşli sıra bağlamına taşı',visual:{type:'parity-card',n:y.n,ones:y.ones,leftover:y.leftover},hint:'Bütün miktarı çizmek yerine birlik rakamını ikişerli eşleştir.',explain:y.leftover?'1 öğrenci eşsiz kalır; sayı tektir.':'Eşsiz öğrenci kalmaz; sayı çifttir.'
   });
 }
 
@@ -3705,11 +3753,102 @@ function numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng){
   q.patternRule=patternRulePhrase(appliedStep);
   return q;
 }
+function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const d=clamp(difficulty,1,4);
+  const all=oddEven1000Cases();
+  const concept=createConceptInstance('oddEven1000',d,rng);
+  const x=concept.anchor;
+  const task=taskIndex%4;
+  let q, chosen=x;
+
+  if(sectionId==='pair-model'){
+    const pairable=all.filter(z=>z.ones>=2&&z.ones<=9);
+    chosen=choice(pairable,rng);
+    q=qTask('oddEven1000','build',chosen.n+' sayısının birliklerini ikişerli eşleştir. Kaç birlik eşsiz kalır?',chosen.leftover,{kind:'manipulative',interaction:'parity-pair',expectedValue:String(chosen.leftover),checkLabel:'Eşleştirmeyi kontrol et'}, {
+      taskKind:'parity-pair-model-'+task,taskLabel:'Birlikleri gerçekten ikişerli eşleştir',visual:{type:'parity-pair-builder',n:chosen.n,ones:chosen.ones},hint:'Her adımda iki birliği bir çift yap. Sonunda 0 ya da 1 birlik kalabilir.',explain:parityPairingStatement(chosen)
+    });
+  }else if(sectionId==='see-leftover'){
+    chosen=task===0?all.find(z=>z.ones===0):task===1?all.find(z=>z.ones===1):x;
+    const answer=chosen.leftover?'1 birlik artar':'Artan kalmaz';
+    q=qBase('oddEven1000','see',chosen.n+' için ikişerli eşleşmede ne görürüz?',answer,semanticChoices(answer,[chosen.leftover?'Artan kalmaz':'1 birlik artar'],rng),{
+      taskKind:'parity-see-leftover-'+task,taskLabel:'Eşleşmede artan olup olmadığını gör',visual:{type:'parity-card',n:chosen.n,ones:chosen.ones,leftover:chosen.leftover},hint:'Turuncu artan birlik var mı diye bak.',explain:parityPairingStatement(chosen)
+    });
+  }else if(sectionId==='classify-parity'){
+    chosen=task===3?all.find(z=>z.n===1000):x;
+    q=qBase('oddEven1000','symbol',chosen.n+' sayısı tek mi çifttir?',chosen.parity,semanticChoices(chosen.parity,[chosen.parity==='Çift'?'Tek':'Çift'],rng),{
+      taskKind:'parity-classify-'+task,taskLabel:'Sayıyı Tek / Çift olarak sınıflandır',visual:{type:'numbercard',n:chosen.n},hint:'Birlik rakamını ikişerli eşleşme açısından düşün.',explain:parityPairingStatement(chosen)
+    });
+  }else if(sectionId==='ones-rule'){
+    if(task===0){
+      chosen=all.find(z=>z.n===573);
+      q=qBase('oddEven1000','symbol',chosen.n+' sayısının tek mi çift mi olduğuna karar verirken hangi basamağa bakmak yeterlidir?','Birlik',semanticChoices('Birlik',['Onluk','Yüzlük'],rng),{
+        taskKind:'parity-ones-place',taskLabel:'Tek–çift kararını birlik basamağına bağla',visual:{type:'base1000',...hto(chosen.n)},hint:'Yüzlük ve onlukların birlikleri tam çiftlere ayrılır.',explain:'Kararı birlik basamağı verir. '+parityPairingStatement(chosen)
+      });
+    }else if(task===1){
+      chosen=all.find(z=>z.n===240);
+      q=qBase('oddEven1000','symbol','240 sayısının birlik rakamı 0. Bu sayı nasıl sınıflandırılır?','Çift',semanticChoices('Çift',['Tek'],rng),{
+        taskKind:'parity-zero-ending',taskLabel:'0 ile biten sayıyı eşleşmeyle sınıflandır',visual:{type:'parity-card',n:240,ones:0,leftover:0},hint:'Birlik kalmadığında eşsiz birlik de kalmaz.',explain:'240’ın birlik rakamı 0; eşsiz birlik kalmaz. 240 çifttir.'
+      });
+    }else if(task===2){
+      chosen={n:249,ones:9,parity:'Tek',leftover:1};
+      q=qBase('oddEven1000','symbol','248 ve 249 sayılarından hangisi tektir?','249',semanticChoices('249',['248'],rng),{
+        taskKind:'parity-same-prefix',taskLabel:'Aynı yüzlük ve onlukta birlik farkını kullan',visual:{type:'sequence',items:[248,249]},hint:'Yüzlük ve onluk aynı; yalnız birlikleri karşılaştır.',explain:'248’in birlik rakamı 8 tam eşleşir; 249’un birlik rakamı 9 olduğunda 1 birlik artar. 249 tektir.'
+      });
+    }else{
+      chosen=all.find(z=>z.n===1000);
+      q=qBase('oddEven1000','symbol','1000 sayısı tek mi çifttir?','Çift',semanticChoices('Çift',['Tek'],rng),{
+        taskKind:'parity-thousand',taskLabel:'1000’i tek / çift olarak sınıflandır',visual:{type:'numbercard',n:1000},hint:'1000’in birlik rakamı 0’dır.',explain:'1000’in birlik rakamı 0; eşsiz birlik kalmaz. 1000 çifttir.'
+      });
+    }
+  }else if(sectionId==='explain-parity'){
+    if(task===0){
+      const answer='Onluklar ve yüzlükler tam ikişerli eşleşir; artanı birlikler belirler';
+      q=qBase('oddEven1000','explain','Üç basamaklı bir sayıda tek–çift kararını neden birlik basamağı verir?',answer,semanticChoices(answer,['En büyük rakam her zaman kararı verir','Yüzlük rakamı tekse sayı mutlaka tektir','Bütün rakamlar aynı olmalıdır'],rng),{
+        taskKind:'parity-explain-ones',taskLabel:'Birlik basamağı kuralını gerekçelendir',visual:{type:'base1000',...hto(573)},hint:'10 birlik tamamen ikişerli eşleşebilir.',explain:answer+'.'
+      });
+    }else if(task===1){
+      const answer='0 birlik varsa eşsiz birlik kalmaz';
+      q=qBase('oddEven1000','explain','430 neden çifttir?',answer,semanticChoices(answer,['3 tek rakam olduğu için sayı tektir','4 yüzlük olduğu için başka basamağa bakılmaz','0 sayısı hiçbir şey anlatmaz'],rng),{
+        taskKind:'parity-explain-zero',taskLabel:'0 ile biten sayının neden çift olduğunu açıkla',visual:{type:'parity-card',n:430,ones:0,leftover:0},hint:'Birlik basamağında eşleştirilecek artan nesne var mı?',explain:'430’da birlik sayısı 0. Eşsiz birlik kalmaz; 430 çifttir.'
+      });
+    }else if(task===2){
+      const answer='Bir birlik eklenince tam bir çift ya tamamlanır ya da yeni bir eşsiz birlik oluşur';
+      q=qBase('oddEven1000','explain','248 çiftken 249 neden tektir?',answer,semanticChoices(answer,['Yüzlük basamağı değiştiği için','Onluk basamağı 4 olduğu için','Bütün tek sayılar 9 ile biter'],rng),{
+        taskKind:'parity-explain-consecutive',taskLabel:'Ardışık sayılarda tek–çift değişimini açıkla',visual:{type:'sequence',items:[248,249]},hint:'248’in sonundaki eşleşmeye bir birlik daha ekle.',explain:answer+'.'
+      });
+    }else{
+      const answer='İkişerli eşleştirmede artan kalmıyorsa çift, 1 artıyorsa tektir';
+      q=qBase('oddEven1000','explain','Tek ve çift sayıların temel eşleştirme farkı nedir?',answer,semanticChoices(answer,['Çift sayılarda her zaman 0 rakamı vardır','Tek sayılarda yüzlük bulunmaz','Tek ve çift yalnız sayının büyüklüğünü anlatır'],rng),{
+        taskKind:'parity-explain-definition',taskLabel:'Tek–çift anlamını eşleştirmeyle açıkla',visual:{type:'parity-card',n:9,ones:9,leftover:1},hint:'İkişerli eşleşmenin sonunda ne kaldığına bak.',explain:answer+'.'
+      });
+    }
+  }else if(sectionId==='transfer-parity'){
+    chosen=concept.transfer;
+    const contexts=[
+      chosen.n+' öğrenci ikişerli sıraya geçiyor.',
+      chosen.n+' kart ikişerli zarflara yerleştiriliyor.',
+      chosen.n+' çorap ikişerli çiftler hâlinde düzenleniyor.',
+      chosen.n+' koltuk ikişerli yan yana gruplara ayrılıyor.'
+    ];
+    const answer=chosen.leftover?'Evet':'Hayır';
+    q=qBase('oddEven1000','transfer',contexts[task]+' Bir tane eşsiz kalır mı?',answer,semanticChoices(answer,[answer==='Evet'?'Hayır':'Evet'],rng),{
+      taskKind:'parity-transfer-'+task,taskLabel:'İkişerli eşleşmeyi yeni bağlama taşı',visual:{type:'parity-card',n:chosen.n,ones:chosen.ones,leftover:chosen.leftover},hint:'Bütün miktarı çizmek yerine birlik rakamının eşleşmesini düşün.',explain:chosen.leftover?'1 tane eşsiz kalır; sayı tektir.':'Eşsiz kalan olmaz; sayı çifttir.'
+    });
+  }else{
+    throw new Error('Unknown oddEven1000 practice section: '+sectionId);
+  }
+  q.parityNumber=chosen?.n??null;
+  q.parityValue=chosen?.parity??null;
+  q.parityLeftover=chosen?.leftover??null;
+  return q;
+}
+
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
   if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='numberPattern1000') q=numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='oddEven1000') q=oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else throw new Error('No section practice generator for '+skillId+'/'+sectionId);
   return lessonPracticeFinalize(q,sectionId,taskIndex);
 }
