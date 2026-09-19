@@ -36,8 +36,9 @@ function assertQuestionContract(q,skillId,rep){
   assert.ok(q.effort>0);
   assert.ok(q.response?.kind,`${skillId}/${rep} must declare a response kind`);
   if(q.response.kind==='choice'){
-    assert.equal(q.choices.length,4,`${skillId}/${rep} choice tasks must have 4 choices`);
-    assert.equal(new Set(q.choices).size,4,`${skillId}/${rep} choices must be unique`);
+    const expectedChoices=skillId==='oddEven1000'&&rep==='symbol'?2:4;
+    assert.equal(q.choices.length,expectedChoices,`${skillId}/${rep} choice tasks must have ${expectedChoices} choices`);
+    assert.equal(new Set(q.choices).size,expectedChoices,`${skillId}/${rep} choices must be unique`);
     assert.ok(q.choices.includes(String(q.answer)),`${skillId}/${rep} answer must be a choice`);
   } else if(q.response.kind==='visual-choice'){
     assert.ok(q.response.options.length>=3,`${skillId}/${rep} visual choice needs at least 3 models`);
