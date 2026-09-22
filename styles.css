@@ -777,3 +777,55 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .odd-even-choice,.odd-even-classify-row button{min-height:48px}
   .odd-even-card-pair{gap:8px}
 }
+
+
+/* v1.11.0 — hidden NEL preschool matching reference lesson */
+.nel-match-lesson-stage{width:min(820px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-match-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-match-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-match-section-track span.active{background:var(--rose-soft);border-color:#e5b7c6;color:#9b4e67}
+.nel-match-lesson-visual{flex:1;min-height:0;display:flex;align-items:flex-start;justify-content:center;padding:6px 0}
+.nel-match-core{width:min(700px,100%);display:grid;justify-items:center;gap:14px}
+.nel-match-target-card,.nel-match-question-target{display:grid;justify-items:center;gap:9px;padding:14px 18px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);min-width:150px}
+.nel-match-target-card small,.nel-match-question-target small{font-size:8px;font-weight:950;letter-spacing:.12em;color:var(--muted)}
+.nel-match-option-row,.nel-match-builder-options{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.nel-match-choice,.nel-match-builder-options button{min-height:118px;border:1px solid var(--line);border-radius:22px;background:var(--paper);box-shadow:0 5px 0 #e7e2d7;display:grid;place-items:center;padding:10px;transition:.14s}
+.nel-match-choice.selected,.nel-match-builder-options button.selected{background:var(--teal-soft);border-color:#9dcfc3;box-shadow:0 5px 0 #a8d7cc}
+.nel-match-choice.wrong,.nel-match-reason.wrong{animation:lessonNudge .28s}
+.nel-match-object{display:grid;place-items:center;width:86px;height:86px}
+.nel-match-object i{display:block;width:54px;height:54px;background:var(--blue);border-radius:50%;box-shadow:inset 0 -5px 0 rgba(25,54,75,.10)}
+.nel-match-object.red i{background:var(--coral)}.nel-match-object.yellow i{background:var(--sun)}.nel-match-object.green i{background:var(--green)}.nel-match-object.blue i{background:var(--blue)}
+.nel-match-object.square i{border-radius:13px}.nel-match-object.triangle i{width:0;height:0;background:transparent!important;border-left:29px solid transparent;border-right:29px solid transparent;border-bottom:52px solid currentColor;border-radius:0;box-shadow:none}
+.nel-match-object.triangle.red{color:var(--coral)}.nel-match-object.triangle.yellow{color:var(--sun)}.nel-match-object.triangle.green{color:var(--green)}.nel-match-object.triangle.blue{color:var(--blue)}
+.nel-match-object.small i{transform:scale(.72)}.nel-match-object.large i{transform:scale(1.14)}
+.nel-match-object.bar{width:130px;height:72px}.nel-match-object.bar i{height:24px;border-radius:999px}.nel-match-object.bar.length-short i{width:58px}.nel-match-object.bar.length-medium i{width:88px}.nel-match-object.bar.length-long i{width:122px}
+.nel-match-object.tower{width:78px;height:130px;align-items:end}.nel-match-object.tower i{width:30px;border-radius:12px 12px 5px 5px}.nel-match-object.tower.height-short i{height:54px}.nel-match-object.tower.height-medium i{height:84px}.nel-match-object.tower.height-tall i{height:118px}
+.nel-match-help{min-height:18px;margin:0;color:var(--muted);font-size:11px;font-weight:800;text-align:center}
+.nel-match-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(620px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}
+.nel-match-result.revealed{opacity:1;transform:none}
+.nel-match-pair-card,.nel-match-question-pair{display:flex;align-items:center;justify-content:center;gap:18px;padding:14px 20px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-match-pair-card>span,.nel-match-question-pair>span{font-size:22px;color:var(--muted);font-weight:950}
+.nel-match-reason-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;width:100%}
+.nel-match-reason{min-height:58px;padding:10px;border:1px solid var(--line);border-radius:16px;background:var(--paper);font-weight:900}
+.nel-match-reason.selected{background:var(--teal-soft);border-color:#9dcfc3}
+.nel-match-real-world{width:min(620px,100%);display:grid;grid-template-columns:42px 1fr;gap:9px 12px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-match-real-world span{width:36px;height:36px;border-radius:12px;background:var(--sun-soft);display:grid;place-items:center;font-weight:950;color:#80631d}.nel-match-real-world p{margin:0;font-size:12px;font-weight:850}
+.nel-match-done{min-height:50px;padding:0 18px;border-radius:16px;background:var(--navy);color:white;font-weight:930}
+.nel-match-visual-token{display:grid;place-items:center;min-height:100px}
+.nel-match-question-target{position:relative;z-index:1}
+.nel-match-question-pair{position:relative;z-index:1}
+.nel-match-builder{width:min(620px,100%);display:grid;gap:16px;position:relative;z-index:1}
+.nel-match-builder-options button{min-height:110px}
+.nel-match-context-visual{display:grid;justify-items:center;gap:12px;position:relative;z-index:1}.nel-match-context-visual>span{font-size:9px;font-weight:950;letter-spacing:.14em;color:var(--muted)}
+@media(max-width:699px){
+  .nel-match-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-match-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}
+  .nel-match-section-track span{flex:0 0 auto}
+  .nel-match-option-row,.nel-match-builder-options{grid-template-columns:repeat(3,minmax(86px,1fr));gap:7px}
+  .nel-match-choice,.nel-match-builder-options button{min-height:102px;padding:5px}
+  .nel-match-object{width:70px;height:70px}.nel-match-object i{width:46px;height:46px}
+  .nel-match-object.bar{width:92px}.nel-match-object.bar.length-long i{width:82px}.nel-match-object.bar.length-medium i{width:66px}.nel-match-object.bar.length-short i{width:46px}
+  .nel-match-object.tower{height:105px}.nel-match-object.tower.height-tall i{height:94px}.nel-match-object.tower.height-medium i{height:68px}.nel-match-object.tower.height-short i{height:44px}
+  .nel-match-reason-grid{grid-template-columns:1fr}
+  .nel-match-pair-card,.nel-match-question-pair{gap:7px;padding:10px}
+}
