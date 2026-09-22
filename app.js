@@ -1151,11 +1151,21 @@ const NEL_COMPARE_LESSON_STEPS=[
 function nelCompareSectionTrack(step){
   return '<div class="nel-compare-section-track">'+NEL_COMPARE_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
 }
-function nelComparePairMarkup(step,aligned=true){
+function nelComparePairMarkup(step,aligned=true,question=false){
+  if(step.attribute==='length'){
+    const classes=['nel-compare-pair','compare-length','nel-compare-length-board'];
+    if(aligned) classes.push('aligned');
+    if(question) classes.push('question-pair');
+    return '<div class="'+classes.join(' ')+'">'+
+      '<span class="nel-compare-origin-label">BAŞLANGIÇ</span>'+
+      '<div class="nel-compare-length-row left"><small>SOL</small><div class="nel-compare-length-track">'+nelMatchObjectMarkup(step.left,'soldaki çubuk')+'</div></div>'+
+      '<div class="nel-compare-length-row right"><small>SAĞ</small><div class="nel-compare-length-track">'+nelMatchObjectMarkup(step.right,'sağdaki çubuk')+'</div></div>'+
+    '</div>';
+  }
   const classes=['nel-compare-pair'];
   if(aligned) classes.push('aligned');
-  if(step.attribute==='length') classes.push('compare-length');
   if(step.attribute==='height') classes.push('compare-height');
+  if(question) classes.push('question-pair');
   return '<div class="'+classes.join(' ')+'">'+
     '<div class="nel-compare-card left"><small>SOL</small>'+nelMatchObjectMarkup(step.left,'soldaki nesne')+'</div>'+
     '<div class="nel-compare-divider">ve</div>'+
@@ -3222,15 +3232,7 @@ function nelSortTwoRulesVisual(v={}){
 }
 
 function nelComparePairVisual(v={}){
-  const classes=['nel-compare-pair','question-pair'];
-  if(v.aligned!==false) classes.push('aligned');
-  if(v.attribute==='length') classes.push('compare-length');
-  if(v.attribute==='height') classes.push('compare-height');
-  return '<div class="'+classes.join(' ')+'">'+
-    '<div class="nel-compare-card left"><small>SOL</small>'+nelMatchObjectMarkup(v.left||{},'soldaki nesne')+'</div>'+
-    '<div class="nel-compare-divider">ve</div>'+
-    '<div class="nel-compare-card right"><small>SAĞ</small>'+nelMatchObjectMarkup(v.right||{},'sağdaki nesne')+'</div>'+
-  '</div>';
+  return nelComparePairMarkup(v,v.aligned!==false,true);
 }
 function nelCompareBuilderVisual(v={}){
   const needs=!!v.requiresAlign;

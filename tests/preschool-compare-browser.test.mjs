@@ -33,8 +33,14 @@ async function completeLearnStep(page,id){
   const align=page.locator('#nelCompareAlign');
   if(await align.count()){
     assert.equal(await page.locator('.nel-compare-choice:enabled').count(),0,id+' choices must wait for alignment');
+    const tracks=page.locator('.nel-compare-length-track');
+    assert.equal(await tracks.count(),2,id+' must show both lengths on one comparison board');
+    const before=await tracks.evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().left));
+    assert.ok(Math.abs(before[0]-before[1])>8,id+' must begin visibly misaligned');
     await align.tap();
     assert.equal(await next.isDisabled(),true,id+' alignment alone cannot advance');
+    const after=await tracks.evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().left));
+    assert.ok(Math.abs(after[0]-after[1])<=1.5,id+' must share the same start line after alignment');
   }
   const wrong=page.locator('.nel-compare-choice[data-correct="false"]').first();
   if(await wrong.count()){

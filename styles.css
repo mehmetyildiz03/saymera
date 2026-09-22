@@ -902,20 +902,28 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .nel-compare-card{min-height:152px;display:grid;grid-template-rows:auto 1fr;justify-items:center;align-items:end;gap:5px;padding:10px;border-radius:18px;background:var(--paper)}
 .nel-compare-card small{align-self:start;font-size:8px;font-weight:950;letter-spacing:.12em;color:var(--muted)}
 .nel-compare-divider{align-self:center;text-align:center;color:var(--muted);font-size:10px;font-weight:900}
-.nel-compare-pair.compare-length .nel-compare-card{min-height:122px;align-items:center}
 .nel-compare-pair.compare-height .nel-compare-card{min-height:172px}
-.nel-compare-pair:not(.aligned).compare-length .nel-compare-card.right{transform:translateX(26px)}
 .nel-compare-pair:not(.aligned).compare-height .nel-compare-card.right{transform:translateY(-22px)}
 .nel-compare-pair .nel-compare-card{transition:transform .2s ease}
+.nel-compare-length-board{grid-template-columns:1fr;align-items:stretch;gap:8px;padding:12px 14px}
+.nel-compare-origin-label{justify-self:start;margin-left:52px;font-size:8px;font-weight:950;letter-spacing:.11em;color:var(--muted)}
+.nel-compare-length-row{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center}
+.nel-compare-length-row>small{text-align:center;font-size:8px;font-weight:950;letter-spacing:.11em;color:var(--muted)}
+.nel-compare-length-track{min-height:54px;display:flex;align-items:center;padding:4px 8px 4px 12px;border-left:3px solid var(--navy);border-radius:4px;background:rgba(255,255,255,.58);transition:transform .2s ease,border-color .2s ease}
+.nel-compare-length-row.right .nel-compare-length-track{border-left-color:var(--coral)}
+.nel-compare-length-board:not(.aligned) .nel-compare-length-row.right .nel-compare-length-track{transform:translateX(34px)}
+.nel-compare-length-board.aligned .nel-compare-length-row.right .nel-compare-length-track{transform:none}
+.nel-compare-length-track .nel-match-object.bar{width:150px;height:42px;place-items:center start}
+.nel-compare-length-track .nel-match-object.bar i{margin:0}
 .nel-compare-builder{width:min(700px,100%);display:grid;justify-items:center;gap:12px;position:relative;z-index:1}
-.nel-compare-builder.aligned .nel-compare-pair.compare-length .nel-compare-card.right{transform:none}
 .nel-compare-align{min-height:48px;padding:0 18px;border-radius:15px;background:var(--navy);color:white;font-weight:930}
 .nel-compare-align:disabled{opacity:.55}
 .nel-compare-choice-row{width:min(650px,100%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .nel-compare-choice{min-height:56px;padding:9px;border:1px solid var(--line);border-radius:16px;background:var(--paper);font-weight:900}
 .nel-compare-choice.selected{background:var(--teal-soft);border-color:#9dcfc3}
 .nel-compare-choice.wrong{animation:lessonNudge .28s;background:var(--coral-soft)}
-.nel-compare-choice:disabled{opacity:.48}\n.nel-compare-choice.selected:disabled{opacity:1}
+.nel-compare-choice:disabled{opacity:.48}
+.nel-compare-choice.selected:disabled{opacity:1}
 .nel-compare-help{min-height:18px;margin:0;color:var(--muted);font-size:11px;font-weight:800;text-align:center}
 .nel-compare-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(640px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}
 .nel-compare-result.revealed{opacity:1;transform:none}
@@ -932,11 +940,15 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-compare-section-track span{flex:0 0 auto}
   .nel-compare-pair{grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:4px;padding:8px}
   .nel-compare-card{min-height:126px;padding:6px}
-  .nel-compare-pair.compare-length .nel-compare-card{min-height:104px}
   .nel-compare-pair.compare-height .nel-compare-card{min-height:148px}
-  .nel-compare-pair:not(.aligned).compare-length .nel-compare-card.right{transform:translateX(14px)}
   .nel-compare-pair:not(.aligned).compare-height .nel-compare-card.right{transform:translateY(-14px)}
   .nel-compare-card .nel-match-object{transform:scale(.82)}
+  .nel-compare-length-board{padding:9px 8px}
+  .nel-compare-origin-label{margin-left:44px}
+  .nel-compare-length-row{grid-template-columns:34px minmax(0,1fr);gap:7px}
+  .nel-compare-length-track{min-height:48px;padding-left:9px}
+  .nel-compare-length-board:not(.aligned) .nel-compare-length-row.right .nel-compare-length-track{transform:translateX(20px)}
+  .nel-compare-length-track .nel-match-object.bar{width:120px;height:38px}
   .nel-compare-choice-row{grid-template-columns:1fr}
   .nel-compare-choice{min-height:48px}
 }
