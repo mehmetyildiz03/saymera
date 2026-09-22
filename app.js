@@ -836,7 +836,7 @@ function nelMatchLessonVisual(step){
 function revealNelMatchResult(){ $('#nelMatchResult')?.classList.add('revealed'); }
 function wireNelMatchLessonStep(step,next){
   if(step.kind==='choice'){
-    $('.nel-match-choice').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-match-choice').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.nelCorrect!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
@@ -852,21 +852,21 @@ function wireNelMatchLessonStep(step,next){
         return;
       }
       button.classList.add('selected');
-      $('.nel-match-choice').forEach(x=>x.disabled=true);
+      $$('.nel-match-choice').forEach(x=>x.disabled=true);
       $('#nelMatchHelp').textContent='';
       revealNelMatchResult(); next.disabled=false;
     }));
     return;
   }
   if(step.kind==='reason'){
-    $('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
         $('#nelMatchHelp').textContent='İki nesnede değişmeyen özelliği bul.';
         return;
       }
-      button.classList.add('selected'); $('.nel-match-reason').forEach(x=>x.disabled=true);
+      button.classList.add('selected'); $$('.nel-match-reason').forEach(x=>x.disabled=true);
       $('#nelMatchHelp').textContent=''; revealNelMatchResult(); next.disabled=false;
     }));
     return;
