@@ -7,7 +7,7 @@ import {
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 
-assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000','oddEven1000'])"),'numberPattern1000 must teach before checking');
+assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000'])"),'numberPattern1000 must teach before checking');
 assert.ok(app.includes('const PATTERN1000_LESSON_VERSION=3'),'number-pattern lesson must be versioned');
 assert.ok(app.includes("if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }"),'number-pattern must use dedicated lesson renderer');
 for(const id of ['one-more-model','ten-more-model','hundred-more-model','ten-less-model','place-change-track','ten-regroup-boundary','describe-up-rule','describe-down-rule','continue-after-rule','missing-middle','same-rule-transfer']){
