@@ -7,7 +7,7 @@
   <meta name="description" content="SAYMERA — çocuklar için kavramsal matematik laboratuvarı." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <style>
+<style>
 :root{
   --bg:#f5f3ec;
   --paper:#fffdf8;
@@ -840,7 +840,66 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-match-pair-card,.nel-match-question-pair{gap:7px;padding:10px}
 }
 
-  </style>
+
+/* v1.12.0 — hidden NEL preschool sorting reference lesson */
+.nel-sort-lesson-stage{width:min(840px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-sort-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-sort-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-sort-section-track span.active{background:var(--navy-soft);border-color:#c7d5df;color:var(--navy)}
+.nel-sort-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:4px 0}
+.nel-sort-lesson-core{width:min(720px,100%);display:grid;justify-items:center;gap:13px}
+.nel-sort-builder{width:min(700px,100%);display:grid;gap:13px;position:relative;z-index:1}
+.nel-sort-context-label{justify-self:center;padding:6px 9px;border-radius:999px;background:var(--sun-soft);font-size:8px;font-weight:950;letter-spacing:.11em;color:#80631d}
+.nel-sort-tray{min-height:118px;padding:12px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+.nel-sort-item{min-width:90px;min-height:92px;padding:4px;border:1px solid transparent;border-radius:18px;background:rgba(255,255,255,.72);display:grid;place-items:center;transition:.14s}
+.nel-sort-item.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(78,140,200,.13);transform:translateY(-2px)}
+.nel-sort-item.placed{min-width:72px;min-height:72px;background:transparent}
+.nel-sort-item.placed .nel-match-object{transform:scale(.82)}
+.nel-sort-bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;width:100%}
+.nel-sort-bin{min-height:162px;border:2px dashed #d4cec1;border-radius:24px;background:var(--paper);padding:9px;display:grid;grid-template-rows:auto 1fr;gap:7px;overflow:hidden}
+.nel-sort-bin-head{min-height:44px;border-radius:14px;background:var(--navy-soft);color:var(--navy);font-weight:950}
+.nel-sort-bin-head.wrong{animation:lessonNudge .28s;background:var(--coral-soft);color:#9d4c42}
+.nel-sort-bin-items{display:flex;justify-content:center;align-items:center;align-content:center;gap:3px;flex-wrap:wrap;min-height:82px}
+.nel-sort-help{min-height:18px;margin:0;color:var(--muted);font-size:11px;font-weight:800;text-align:center}
+.nel-sort-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(640px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}
+.nel-sort-result.revealed{opacity:1;transform:none}
+.nel-sort-display{width:min(650px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;position:relative;z-index:1}
+.nel-sort-static-bin{min-height:142px;padding:10px;border:1px solid var(--line);border-radius:21px;background:var(--paper-2);display:grid;grid-template-rows:auto 1fr;gap:6px}
+.nel-sort-static-bin>strong{text-align:center;font-size:11px;padding:6px 8px;border-radius:12px;background:var(--navy-soft);color:var(--navy)}
+.nel-sort-static-bin>div{display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap}
+.nel-sort-static-bin .nel-match-object{transform:scale(.72);margin:-7px}
+.nel-sort-rule-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:min(650px,100%)}
+.nel-sort-rule-choice{min-height:54px;padding:9px;border:1px solid var(--line);border-radius:16px;background:var(--paper);font-weight:900}
+.nel-sort-rule-choice.selected{background:var(--teal-soft);border-color:#9dcfc3}.nel-sort-rule-choice.wrong{animation:lessonNudge .28s}
+.nel-sort-two-rules{width:min(720px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;position:relative;z-index:1}
+.nel-sort-two-rules>div{display:grid;gap:6px;padding:9px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-sort-two-rules>div>small{text-align:center;font-size:8px;font-weight:950;letter-spacing:.11em;color:var(--muted)}
+.nel-sort-two-rules .nel-sort-display{gap:5px}.nel-sort-two-rules .nel-sort-static-bin{min-height:108px;padding:5px}.nel-sort-two-rules .nel-sort-static-bin .nel-match-object{transform:scale(.56);margin:-14px}
+.nel-sort-target-visual{width:min(700px,100%);display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;position:relative;z-index:1}
+.nel-sort-target-card{display:grid;justify-items:center;gap:6px;padding:12px;border:1px solid var(--line);border-radius:21px;background:var(--sun-soft)}
+.nel-sort-target-card small{font-size:8px;font-weight:950;letter-spacing:.11em;color:#80631d}
+.nel-sort-real-world{width:min(620px,100%);display:grid;grid-template-columns:42px 1fr;gap:9px 12px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-sort-real-world span{width:36px;height:36px;border-radius:12px;background:var(--sun-soft);display:grid;place-items:center;font-weight:950;color:#80631d}
+.nel-sort-real-world p{margin:0;font-size:12px;font-weight:850}.nel-sort-done{min-height:50px;padding:0 18px;border-radius:16px;background:var(--navy);color:white;font-weight:930}
+@media(max-width:699px){
+  .nel-sort-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-sort-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}
+  .nel-sort-section-track span{flex:0 0 auto}
+  .nel-sort-tray{min-height:104px;padding:7px;gap:3px}
+  .nel-sort-item{min-width:70px;min-height:78px;padding:1px}
+  .nel-sort-item .nel-match-object{transform:scale(.78)}
+  .nel-sort-item.placed{min-width:58px;min-height:58px}.nel-sort-item.placed .nel-match-object{transform:scale(.60)}
+  .nel-sort-bin{min-height:145px;padding:6px}.nel-sort-bin-head{min-height:42px}
+  .nel-sort-bin-items{min-height:72px;gap:0}
+  .nel-sort-rule-grid{grid-template-columns:1fr}
+  .nel-sort-two-rules{grid-template-columns:1fr}
+  .nel-sort-two-rules>div:nth-child(2){margin-top:0}
+  .nel-sort-target-visual{grid-template-columns:1fr}.nel-sort-target-card{width:140px;justify-self:center}
+  .nel-sort-display{gap:7px}.nel-sort-static-bin{min-height:118px;padding:6px}
+  .nel-sort-static-bin .nel-match-object{transform:scale(.60);margin:-12px}
+}
+
+</style>
   <title>SAYMERA — Matematik Laboratuvarı</title>
 </head>
 <body>
@@ -1041,7 +1100,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes',
+  'nelMatchAttributes','nelSortAttributes',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -1213,6 +1272,22 @@ const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelSortAttributes:{
+    version:1,
+    unitId:'nel-relationships-patterns',
+    pathId:'relationships-patterns',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'sort-colour-shape',label:'Renk ve şekle göre sınıfla',phase:'model',representation:'build'},
+        {id:'sort-size-measure',label:'Büyüklük ve ölçüye göre sınıfla',phase:'representation',representation:'see'},
+        {id:'resort-new-rule',label:'Aynı nesneleri başka kuralla yeniden sınıfla',phase:'symbol',representation:'symbol'},
+        {id:'explain-sort-rule',label:'Sınıflama kuralını söyle',phase:'reasoning',representation:'explain'},
+        {id:'transfer-sort',label:'Günlük hayatta sınıfla',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -1250,6 +1325,7 @@ const skill = (id, profile, label, family, accent, prerequisite = [], options = 
 const SKILLS = [
   // NEL v2 reference skills stay hidden until the complete preschool path is ready.
   skill('nelMatchAttributes','preschool','Aynı özelliği eşleştir','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
+  skill('nelSortAttributes','preschool','Özelliğe göre sınıfla','İlişkiler & Örüntüler','navy',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -1538,6 +1614,13 @@ function runPedagogyStateAudit(state,now=Date.now()){
       'İlk NEL v2 referans becerinin Öğren/Uygula sözleşmesi açık',
       !contract.provisional && contract.practice.sections.length===5,
       contract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const sortContract=lessonContractFor('nelSortAttributes');
+    add(
+      'nel-sort-reference-contract',
+      'NEL v2 sınıflama becerisinin Öğren/Uygula sözleşmesi açık',
+      !sortContract.provisional && sortContract.practice.sections.length===5,
+      sortContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -2187,6 +2270,74 @@ function nelMatchReason(attribute){
   }[attribute]||'Ortak bir özellikleri var.';
 }
 
+function nelSortItems(){
+  return {
+    blueCircleSmall:{id:'sort-blue-circle-small',shape:'circle',tone:'blue',size:'small',length:'medium',height:'medium'},
+    blueSquareLarge:{id:'sort-blue-square-large',shape:'square',tone:'blue',size:'large',length:'medium',height:'medium'},
+    blueTriangleSmall:{id:'sort-blue-triangle-small',shape:'triangle',tone:'blue',size:'small',length:'medium',height:'medium'},
+    blueCircleLarge2:{id:'sort-blue-circle-large-2',shape:'circle',tone:'blue',size:'large',length:'medium',height:'medium'},
+    redCircleLarge:{id:'sort-red-circle-large',shape:'circle',tone:'red',size:'large',length:'medium',height:'medium'},
+    redSquareSmall:{id:'sort-red-square-small',shape:'square',tone:'red',size:'small',length:'medium',height:'medium'},
+    redTriangleLarge:{id:'sort-red-triangle-large',shape:'triangle',tone:'red',size:'large',length:'medium',height:'medium'},
+    redSquareLarge2:{id:'sort-red-square-large-2',shape:'square',tone:'red',size:'large',length:'medium',height:'medium'},
+    shortBlueBar:{id:'sort-short-blue-bar',shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+    shortRedBar:{id:'sort-short-red-bar',shape:'bar',tone:'red',size:'medium',length:'short',height:'medium'},
+    shortYellowBar:{id:'sort-short-yellow-bar',shape:'bar',tone:'yellow',size:'medium',length:'short',height:'medium'},
+    longBlueBar:{id:'sort-long-blue-bar',shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium'},
+    longRedBar:{id:'sort-long-red-bar',shape:'bar',tone:'red',size:'medium',length:'long',height:'medium'},
+    longGreenBar:{id:'sort-long-green-bar',shape:'bar',tone:'green',size:'medium',length:'long',height:'medium'},
+    lowBlueTower:{id:'sort-low-blue-tower',shape:'tower',tone:'blue',size:'medium',length:'medium',height:'short'},
+    lowRedTower:{id:'sort-low-red-tower',shape:'tower',tone:'red',size:'medium',length:'medium',height:'short'},
+    lowGreenTower:{id:'sort-low-green-tower',shape:'tower',tone:'green',size:'medium',length:'medium',height:'short'},
+    tallBlueTower:{id:'sort-tall-blue-tower',shape:'tower',tone:'blue',size:'medium',length:'medium',height:'tall'},
+    tallYellowTower:{id:'sort-tall-yellow-tower',shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'},
+    tallGreenTower:{id:'sort-tall-green-tower',shape:'tower',tone:'green',size:'medium',length:'medium',height:'tall'}
+  };
+}
+function nelSortCases(){
+  const i=nelSortItems();
+  const sharedColourShape=[i.blueCircleSmall,i.blueSquareLarge,i.blueCircleLarge2,i.redCircleLarge,i.redSquareSmall,i.redSquareLarge2];
+  return [
+    {
+      id:'sort-tone',attribute:'tone',attributeLabel:'renk',ruleLabel:'Renge göre',
+      bins:[{value:'blue',label:'Mavi'},{value:'red',label:'Kırmızı'}],
+      items:sharedColourShape
+    },
+    {
+      id:'sort-shape',attribute:'shape',attributeLabel:'şekil',ruleLabel:'Şekle göre',
+      bins:[{value:'circle',label:'Daire'},{value:'square',label:'Kare'}],
+      items:sharedColourShape
+    },
+    {
+      id:'sort-size',attribute:'size',attributeLabel:'büyüklük',ruleLabel:'Büyüklüğe göre',
+      bins:[{value:'small',label:'Küçük'},{value:'large',label:'Büyük'}],
+      items:[i.blueCircleSmall,i.redSquareSmall,i.blueTriangleSmall,i.blueSquareLarge,i.redCircleLarge,i.redTriangleLarge]
+    },
+    {
+      id:'sort-length',attribute:'length',attributeLabel:'uzunluk',ruleLabel:'Uzunluğa göre',
+      bins:[{value:'short',label:'Kısa'},{value:'long',label:'Uzun'}],
+      items:[i.shortBlueBar,i.shortRedBar,i.shortYellowBar,i.longBlueBar,i.longRedBar,i.longGreenBar]
+    },
+    {
+      id:'sort-height',attribute:'height',attributeLabel:'yükseklik',ruleLabel:'Yüksekliğe göre',
+      bins:[{value:'short',label:'Alçak'},{value:'tall',label:'Yüksek'}],
+      items:[i.lowBlueTower,i.lowRedTower,i.lowGreenTower,i.tallBlueTower,i.tallYellowTower,i.tallGreenTower]
+    }
+  ];
+}
+function nelSortExpected(sortCase){
+  return sortCase.items
+    .map(item=>item.id+':'+String(item[sortCase.attribute]))
+    .sort()
+    .join('|');
+}
+function nelSortCaseForAttribute(attribute){
+  return nelSortCases().find(c=>c.attribute===attribute)||nelSortCases()[0];
+}
+function nelSortRuleDistractors(correct){
+  return ['Renge göre','Şekle göre','Büyüklüğe göre','Uzunluğa göre','Yüksekliğe göre'].filter(x=>x!==correct);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2396,6 +2547,7 @@ function createConceptInstance(skillId,difficulty=1,rng=Math.random){
     return {version:2,skillId,conceptKey,difficulty:d,anchor,symbol,transfer};
   };
   if(skillId==='nelMatchAttributes') return make('nel-matching-by-attribute',nelMatchCases());
+  if(skillId==='nelSortAttributes') return make('nel-sorting-by-attribute',nelSortCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2483,6 +2635,59 @@ function genNelMatchAttributes(rep,d,rng,concept){
   return qTask('nelMatchAttributes','transfer','Oyuncak kutusunda hedef oyuncağa aynı '+y.attributeLabel+' sahip olanı seç.','correct',{kind:'visual-choice',options:y.options.map(item=>({value:item.id===y.answer.id?'correct':item.id,visual:{type:'nel-match-token',item},ariaLabel:'oyuncak eşleştirme seçeneği'}))},{
     taskKind:'nel-match-transfer',taskLabel:'Eşleştirmeyi günlük duruma taşı',visual:{type:'nel-match-context',target:y.target,attributeLabel:y.attributeLabel},
     hint:'Oyuncakların '+y.attributeLabel+' karşılaştır.',explain:nelMatchReason(y.attribute)
+  });
+}
+
+
+function genNelSortAttributes(rep,d,rng,concept){
+  const c=concept?.skillId==='nelSortAttributes'?concept:createConceptInstance('nelSortAttributes',d,rng);
+  const x=c.anchor;
+  const expected=nelSortExpected(x);
+
+  if(rep==='build'){
+    return qTask('nelSortAttributes','build','Nesneleri '+x.attributeLabel+' özelliğine göre iki gruba ayır.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Gruplarımı kontrol et'},{
+      taskKind:'nel-sort-build',taskLabel:'Nesneleri bir özelliğe göre sınıfla',
+      visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Her nesne için yalnız '+x.attributeLabel+' özelliğine bak.',explain:'Nesneler '+x.ruleLabel.toLowerCase()+' iki gruba ayrıldı.'
+    });
+  }
+
+  if(rep==='see'){
+    return qBase('nelSortAttributes','see','Bu iki grup hangi kurala göre oluşturulmuş?',x.ruleLabel,semanticChoices(x.ruleLabel,nelSortRuleDistractors(x.ruleLabel),rng),{
+      taskKind:'nel-sort-see',taskLabel:'Sınıflama kuralını görselden fark et',
+      visual:{type:'nel-sort-display',attribute:x.attribute,bins:x.bins,items:x.items},
+      hint:'Aynı kutudaki nesnelerin ortak özelliğini ara.',explain:'Gruplama '+x.ruleLabel.toLowerCase()+' yapılmış.'
+    });
+  }
+
+  if(rep==='symbol'){
+    const y=c.symbol;
+    const target=y.items[0];
+    const targetBin=String(target[y.attribute]);
+    const answer=y.bins.find(bin=>bin.value===targetBin)?.label||targetBin;
+    return qBase('nelSortAttributes','symbol','Hedef nesne hangi gruba konmalı?',answer,semanticChoices(answer,y.bins.map(bin=>bin.label).filter(label=>label!==answer),rng),{
+      taskKind:'nel-sort-show',taskLabel:'Nesnenin ait olduğu grubu göster',
+      visual:{type:'nel-sort-target',attribute:y.attribute,attributeLabel:y.attributeLabel,bins:y.bins,items:y.items,target},
+      hint:'Bu görevde '+y.attributeLabel+' özelliğine bak.',explain:'Hedef nesne '+answer.toLowerCase()+' grubuna gider.'
+    });
+  }
+
+  if(rep==='explain'){
+    const tone=nelSortCaseForAttribute('tone'), shape=nelSortCaseForAttribute('shape');
+    const answer='Aynı nesnelerin birden fazla özelliği vardır.';
+    return qBase('nelSortAttributes','explain','Aynı nesneler neden farklı iki kuralla yeniden sınıflanabilir?',answer,semanticChoices(answer,['Nesneler sınıflanınca özelliklerini kaybeder.','Her nesnenin yalnız bir özelliği vardır.','Grupların kuralı önemli değildir.'],rng),{
+      taskKind:'nel-sort-explain',taskLabel:'Yeniden sınıflamanın nedenini açıkla',
+      visual:{type:'nel-sort-two-rules',first:{attribute:tone.attribute,bins:tone.bins,items:tone.items.slice(0,4)},second:{attribute:shape.attribute,bins:shape.bins,items:shape.items.slice(0,4)}},
+      hint:'Bir nesnenin hem rengi hem şekli olabilir.',explain:answer
+    });
+  }
+
+  const y=c.transfer;
+  const transferExpected=nelSortExpected(y);
+  return qTask('nelSortAttributes','transfer','Oyuncakları '+y.attributeLabel+' özelliğine göre kutulara ayır.',transferExpected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:transferExpected,checkLabel:'Kutularımı kontrol et'},{
+    taskKind:'nel-sort-transfer',taskLabel:'Sınıflamayı günlük bir duruma taşı',
+    visual:{type:'nel-sort-builder',context:'toy-box',attribute:y.attribute,attributeLabel:y.attributeLabel,bins:y.bins,items:y.items},
+    hint:'Kutulara koyarken yalnız '+y.attributeLabel+' özelliğini kullan.',explain:'Aynı sınıflama fikri oyuncakları düzenlerken de kullanılabilir.'
   });
 }
 
@@ -4226,6 +4431,7 @@ function genData2(rep,d,rng){
 }
 const GENERATORS={
   nelMatchAttributes:genNelMatchAttributes,
+  nelSortAttributes:genNelSortAttributes,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -5037,6 +5243,82 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 }
 
 
+
+function nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelSortCases();
+  const caseFor=attribute=>cases.find(c=>c.attribute===attribute)||cases[0];
+  let x;
+
+  if(sectionId==='sort-colour-shape'){
+    x=taskIndex%2===0?caseFor('tone'):caseFor('shape');
+    const expected=nelSortExpected(x);
+    return qTask('nelSortAttributes','build','Nesneleri '+x.attributeLabel+' özelliğine göre sınıfla.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Sınıflamamı kontrol et'},{
+      taskKind:'nel-practice-sort-colour-shape-'+taskIndex,taskLabel:'Renk veya şekle göre sınıfla',
+      visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Bu görevde yalnız '+x.attributeLabel+' özelliğini kullan.',explain:'Gruplar '+x.ruleLabel.toLowerCase()+' oluşturuldu.'
+    });
+  }
+
+  if(sectionId==='sort-size-measure'){
+    const attrs=['size','length','height'];
+    x=caseFor(attrs[taskIndex%attrs.length]);
+    if(taskIndex%2===0){
+      const expected=nelSortExpected(x);
+      return qTask('nelSortAttributes','see','Nesneleri '+x.attributeLabel+' özelliğine göre iki gruba ayır.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Gruplarımı kontrol et'},{
+        taskKind:'nel-practice-sort-size-measure-'+taskIndex,taskLabel:'Büyüklük veya ölçü özelliğine göre sınıfla',
+        visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+        hint:'Nesnelerin '+x.attributeLabel+' özelliğini karşılaştır.',explain:'Gruplama '+x.ruleLabel.toLowerCase()+' yapıldı.'
+      });
+    }
+    return qBase('nelSortAttributes','see','Bu gruplama hangi özelliğe göre yapılmış?',x.ruleLabel,semanticChoices(x.ruleLabel,nelSortRuleDistractors(x.ruleLabel),rng),{
+      taskKind:'nel-practice-see-rule-'+taskIndex,taskLabel:'Sınıflama kuralını gör',
+      visual:{type:'nel-sort-display',attribute:x.attribute,bins:x.bins,items:x.items},
+      hint:'Aynı kutudaki nesnelerin ortak yönünü ara.',explain:'Kural '+x.ruleLabel.toLowerCase()+'.'
+    });
+  }
+
+  if(sectionId==='resort-new-rule'){
+    const first=caseFor('tone'), second=caseFor('shape');
+    const useSecond=taskIndex%2===0;
+    x=useSecond?second:first;
+    const expected=nelSortExpected(x);
+    return qTask('nelSortAttributes','symbol','Aynı nesneleri bu kez '+x.attributeLabel+' özelliğine göre yeniden sınıfla.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Yeni gruplarımı kontrol et'},{
+      taskKind:'nel-practice-resort-'+taskIndex,taskLabel:'Aynı nesneleri yeni kuralla yeniden sınıfla',
+      visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Eski kuralı bırak; şimdi yalnız '+x.attributeLabel+' özelliğine bak.',explain:'Aynı nesneler başka bir ortak özelliğe göre yeniden sınıflanabilir.'
+    });
+  }
+
+  if(sectionId==='explain-sort-rule'){
+    if(taskIndex%2===0){
+      x=cases[taskIndex%cases.length];
+      return qBase('nelSortAttributes','explain','Bu gruplamanın kuralını nasıl anlatırsın?',x.ruleLabel,semanticChoices(x.ruleLabel,nelSortRuleDistractors(x.ruleLabel),rng),{
+        taskKind:'nel-practice-explain-rule-'+taskIndex,taskLabel:'Sınıflama kuralını söyle',
+        visual:{type:'nel-sort-display',attribute:x.attribute,bins:x.bins,items:x.items},
+        hint:'Kutuların içindeki ortak özelliği adlandır.',explain:'Bu gruplama '+x.ruleLabel.toLowerCase()+' yapılmış.'
+      });
+    }
+    const answer='Aynı nesnelerin birden fazla özelliği vardır.';
+    return qBase('nelSortAttributes','explain','Aynı nesneleri renklerine göre de şekillerine göre de sınıflayabilmemizin nedeni nedir?',answer,semanticChoices(answer,['Her nesne yalnız bir gruba girebilir.','Sınıflama kuralı rastgele seçilir.','Renk ile şekil aynı özelliktir.'],rng),{
+      taskKind:'nel-practice-explain-flexibility-'+taskIndex,taskLabel:'Farklı sınıflama kurallarını açıkla',
+      visual:{type:'nel-sort-two-rules',first:caseFor('tone'),second:caseFor('shape')},
+      hint:'Bir nesnenin aynı anda hem rengi hem şekli vardır.',explain:answer
+    });
+  }
+
+  if(sectionId==='transfer-sort'){
+    x=cases[(taskIndex+2)%cases.length];
+    const expected=nelSortExpected(x);
+    return qTask('nelSortAttributes','transfer','Oyun sonrası nesneleri '+x.attributeLabel+' özelliğine göre kutulara yerleştir.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Düzenimi kontrol et'},{
+      taskKind:'nel-practice-transfer-sort-'+taskIndex,taskLabel:'Sınıflamayı günlük düzenlemeye taşı',
+      visual:{type:'nel-sort-builder',context:'cleanup',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Her kutu için tek bir ortak özellik kullan.',explain:'Sınıflama günlük eşyaları düzenlemek için de kullanılabilir.'
+    });
+  }
+
+  throw new Error('Unknown nelSortAttributes practice section: '+sectionId);
+}
+
 function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelMatchCases();
   const by=attribute=>cases.filter(c=>c.attribute===attribute);
@@ -5085,7 +5367,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelMatchAttributes') q=nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelSortAttributes') q=nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelMatchAttributes') q=nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='numberPattern1000') q=numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -5140,6 +5423,7 @@ function selectNextSkill(state, session, now=Date.now(), rng=Math.random){
 
 const CONCEPT_KEYS={
   nelMatchAttributes:'nel-matching-by-attribute',
+  nelSortAttributes:'nel-sorting-by-attribute',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
@@ -5325,7 +5609,6 @@ function representationGap(skillState){
 }
 
 
-
 const STORAGE_KEY='saymera.math.v2';
 const INSPECTOR_ENABLED=new URLSearchParams(location.search).get('inspect')==='1';
 const $=s=>document.querySelector(s);
@@ -5370,7 +5653,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -6225,6 +6508,185 @@ function renderNelMatchLessonStep(skill,index=null){
   next?.addEventListener('click',()=>completeNelMatchLessonStep(skill,at));
 }
 
+
+const NEL_SORT_LESSON_VERSION=1;
+const NEL_SORT_SECTIONS=['SINIFLA','KURALI DEĞİŞTİR','ANLAT','TAŞI'];
+const NEL_SORT_SHARED_ITEMS=[
+  {id:'lesson-blue-circle',shape:'circle',tone:'blue',size:'small',length:'medium',height:'medium'},
+  {id:'lesson-blue-square',shape:'square',tone:'blue',size:'large',length:'medium',height:'medium'},
+  {id:'lesson-red-circle',shape:'circle',tone:'red',size:'large',length:'medium',height:'medium'},
+  {id:'lesson-red-square',shape:'square',tone:'red',size:'small',length:'medium',height:'medium'}
+];
+const NEL_SORT_LENGTH_ITEMS=[
+  {id:'lesson-short-blue',shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+  {id:'lesson-short-red',shape:'bar',tone:'red',size:'medium',length:'short',height:'medium'},
+  {id:'lesson-long-blue',shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium'},
+  {id:'lesson-long-green',shape:'bar',tone:'green',size:'medium',length:'long',height:'medium'}
+];
+const NEL_SORT_HEIGHT_ITEMS=[
+  {id:'lesson-low-blue',shape:'tower',tone:'blue',size:'medium',length:'medium',height:'short'},
+  {id:'lesson-low-red',shape:'tower',tone:'red',size:'medium',length:'medium',height:'short'},
+  {id:'lesson-tall-yellow',shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'},
+  {id:'lesson-tall-green',shape:'tower',tone:'green',size:'medium',length:'medium',height:'tall'}
+];
+const NEL_SORT_LESSON_STEPS=[
+  {
+    id:'sort-colour',section:'SINIFLA',kind:'sort',attribute:'tone',attributeLabel:'renk',
+    bins:[{value:'blue',label:'Mavi'},{value:'red',label:'Kırmızı'}],items:NEL_SORT_SHARED_ITEMS,
+    title:'Aynı renkte olanları bir araya getir.',body:'Her nesneye bak ve yalnız rengini kullanarak iki grup oluştur.',
+    result:'Nesneler renklerine göre iki gruba ayrıldı.'
+  },
+  {
+    id:'resort-shape',section:'KURALI DEĞİŞTİR',kind:'sort',attribute:'shape',attributeLabel:'şekil',
+    bins:[{value:'circle',label:'Daire'},{value:'square',label:'Kare'}],items:NEL_SORT_SHARED_ITEMS,
+    title:'Aynı nesneler, yeni bir kural.',body:'Az önce renge göre ayırdığın aynı nesneleri şimdi şekillerine göre yeniden sınıfla.',
+    result:'Aynı nesneler bu kez şekillerine göre yeniden gruplandı.'
+  },
+  {
+    id:'resort-size',section:'KURALI DEĞİŞTİR',kind:'sort',attribute:'size',attributeLabel:'büyüklük',
+    bins:[{value:'small',label:'Küçük'},{value:'large',label:'Büyük'}],items:NEL_SORT_SHARED_ITEMS,
+    title:'Bir üçüncü özellik daha var.',body:'Aynı dört nesneyi bu kez büyüklüklerine göre iki gruba ayır.',
+    result:'Bir nesnenin rengi, şekli ve büyüklüğü aynı anda olabilir; kural değişince grubu da değişebilir.'
+  },
+  {
+    id:'sort-length',section:'SINIFLA',kind:'sort',attribute:'length',attributeLabel:'uzunluk',
+    bins:[{value:'short',label:'Kısa'},{value:'long',label:'Uzun'}],items:NEL_SORT_LENGTH_ITEMS,
+    title:'Uzunluğa göre sınıfla.',body:'Çubukların renkleri farklı olabilir. Bu kez yalnız yatay uzunluğa bak.',
+    result:'Kısa olanlar bir grupta, uzun olanlar başka grupta.'
+  },
+  {
+    id:'sort-height',section:'SINIFLA',kind:'sort',attribute:'height',attributeLabel:'yükseklik',
+    bins:[{value:'short',label:'Alçak'},{value:'tall',label:'Yüksek'}],items:NEL_SORT_HEIGHT_ITEMS,
+    title:'Yüksekliğe göre sınıfla.',body:'Kulelerin yalnız yüksekliğini karşılaştır.',
+    result:'Alçak ve yüksek nesneler ayrı gruplarda.'
+  },
+  {
+    id:'discover-rule',section:'ANLAT',kind:'rule',attribute:'shape',attributeLabel:'şekil',
+    bins:[{value:'circle',label:'Daire'},{value:'square',label:'Kare'}],items:NEL_SORT_SHARED_ITEMS,
+    correct:'Şekle göre',options:['Renge göre','Şekle göre','Büyüklüğe göre'],
+    title:'Kuralı sen bul.',body:'Gruplara bak. Bu nesneler hangi ortak özelliğe göre ayrılmış?',
+    result:'Bir sınıflamayı anlamak için aynı gruptaki ortak özelliği ararız.'
+  },
+  {
+    id:'explain-resort',section:'ANLAT',kind:'reason',
+    correct:'Aynı nesnenin birden fazla özelliği vardır.',
+    options:['Aynı nesnenin birden fazla özelliği vardır.','Her nesnenin yalnız bir özelliği vardır.','Gruplama kuralı önemli değildir.'],
+    title:'Neden yeniden sınıflayabildik?',body:'Aynı dört nesneyi renk, şekil ve büyüklüğe göre farklı biçimlerde ayırdık.',
+    result:'Bir nesnenin birden fazla özelliği vardır; hangi özelliği seçtiğimiz sınıflama kuralını belirler.'
+  },
+  {
+    id:'real-world-sort',section:'TAŞI',kind:'real-world',
+    title:'Şimdi kendi çevrende sınıfla.',body:'Yakınında en az dört nesne bul. Tek bir özellik seç: renk, şekil, büyüklük, uzunluk veya yükseklik. Nesneleri o kurala göre iki gruba ayır ve kuralını söyle.',
+    result:'Sınıflama, nesneleri seçtiğin ortak bir özelliğe göre düzenlemektir.'
+  }
+];
+
+function nelSortSectionTrack(step){
+  return '<div class="nel-sort-section-track">'+NEL_SORT_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelSortLessonCore(step){
+  if(step.kind==='sort'){
+    return '<div class="nel-sort-lesson-core">'+
+      nelSortBuilderVisual({attribute:step.attribute,attributeLabel:step.attributeLabel,bins:step.bins,items:step.items,lesson:true})+
+      '<p class="nel-sort-help" id="nelSortHelp">Önce bir nesneye, sonra gideceği kutuya dokun.</p>'+
+      '<div class="nel-sort-result" id="nelSortResult">'+esc(step.result)+'</div>'+
+    '</div>';
+  }
+  if(step.kind==='rule'){
+    return '<div class="nel-sort-lesson-core">'+
+      nelSortDisplayVisual({attribute:step.attribute,bins:step.bins,items:step.items})+
+      '<div class="nel-sort-rule-grid">'+step.options.map(value=>'<button type="button" class="nel-sort-rule-choice" data-nel-sort-rule="'+esc(value)+'" data-correct="'+(value===step.correct?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div>'+
+      '<p class="nel-sort-help" id="nelSortHelp"></p>'+
+      '<div class="nel-sort-result" id="nelSortResult">'+esc(step.result)+'</div>'+
+    '</div>';
+  }
+  if(step.kind==='reason'){
+    const tone={attribute:'tone',bins:[{value:'blue',label:'Mavi'},{value:'red',label:'Kırmızı'}],items:NEL_SORT_SHARED_ITEMS};
+    const shape={attribute:'shape',bins:[{value:'circle',label:'Daire'},{value:'square',label:'Kare'}],items:NEL_SORT_SHARED_ITEMS};
+    return '<div class="nel-sort-lesson-core">'+
+      nelSortTwoRulesVisual({first:tone,second:shape})+
+      '<div class="nel-sort-rule-grid">'+step.options.map(value=>'<button type="button" class="nel-sort-rule-choice" data-nel-sort-rule="'+esc(value)+'" data-correct="'+(value===step.correct?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div>'+
+      '<p class="nel-sort-help" id="nelSortHelp"></p>'+
+      '<div class="nel-sort-result" id="nelSortResult">'+esc(step.result)+'</div>'+
+    '</div>';
+  }
+  return '<div class="nel-sort-lesson-core">'+
+    '<div class="nel-sort-real-world"><span>1</span><p>Dört veya daha çok nesne seç.</p><span>2</span><p>Tek bir ortak özellik seç.</p><span>3</span><p>İki grup oluştur ve kuralını söyle.</p></div>'+
+    '<button type="button" class="nel-sort-done" id="nelSortDone">Sınıflamamı yaptım</button>'+
+    '<div class="nel-sort-result" id="nelSortResult">'+esc(step.result)+'</div>'+
+  '</div>';
+}
+function revealNelSortResult(){ $('#nelSortResult')?.classList.add('revealed'); }
+function wireNelSortLessonStep(step,next){
+  if(step.kind==='sort'){
+    const root=$('.nel-sort-builder');
+    let selected=null;
+    root?.querySelectorAll('[data-nel-sort-item]').forEach(item=>item.addEventListener('click',()=>{
+      if(item.classList.contains('placed')) return;
+      root.querySelectorAll('[data-nel-sort-item]').forEach(x=>x.classList.remove('selected'));
+      item.classList.add('selected'); selected=item;
+      $('#nelSortHelp').textContent='Şimdi bu nesnenin gideceği kutuya dokun.';
+    }));
+    root?.querySelectorAll('[data-nel-sort-bin]').forEach(bin=>bin.addEventListener('click',()=>{
+      if(!selected){ $('#nelSortHelp').textContent='Önce bir nesne seç.'; return; }
+      if(selected.dataset.nelSortCorrect!==bin.dataset.nelSortBin){
+        bin.classList.add('wrong'); setTimeout(()=>bin.classList.remove('wrong'),300);
+        $('#nelSortHelp').textContent='Bu kutunun kuralıyla nesnenin '+step.attributeLabel+' özelliğini yeniden karşılaştır.';
+        return;
+      }
+      const target=root.querySelector('[data-nel-sort-bin-items="'+CSS.escape(bin.dataset.nelSortBin)+'"]');
+      selected.classList.remove('selected'); selected.classList.add('placed'); selected.disabled=true;
+      target?.appendChild(selected); selected=null;
+      const remaining=root.querySelectorAll('[data-nel-sort-item]:not(.placed)').length;
+      $('#nelSortHelp').textContent=remaining?remaining+' nesne daha var.':'Bütün nesneler seçilen kurala göre gruplandı.';
+      if(!remaining){ revealNelSortResult(); next.disabled=false; }
+    }));
+    return;
+  }
+  if(step.kind==='rule'||step.kind==='reason'){
+    $('.nel-sort-rule-choice').forEach(button=>button.addEventListener('click',()=>{
+      if(button.dataset.correct!=='true'){
+        button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),300);
+        $('#nelSortHelp').textContent=step.kind==='rule'?'Aynı kutudaki nesnelerin ortak özelliğine bak.':'Bir nesnenin aynı anda kaç farklı özelliği olabilir?';
+        return;
+      }
+      button.classList.add('selected'); $('.nel-sort-rule-choice').forEach(x=>x.disabled=true);
+      $('#nelSortHelp').textContent=''; revealNelSortResult(); next.disabled=false;
+    }));
+    return;
+  }
+  $('#nelSortDone')?.addEventListener('click',()=>{
+    $('#nelSortDone').disabled=true; revealNelSortResult(); next.disabled=false;
+  });
+}
+function completeNelSortLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=NEL_SORT_LESSON_VERSION;
+  if(next>=NEL_SORT_LESSON_STEPS.length){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return;
+  }
+  saveState(); session.lessonStepIndex=next; renderNelSortLessonStep(skill,next);
+}
+function renderNelSortLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(NEL_SORT_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_SORT_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_SORT_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KEŞFET'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_SORT_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/NEL_SORT_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-sort-lesson-stage" data-nel-sort-step="'+esc(step.id)+'">'+
+    nelSortSectionTrack(step)+
+    '<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_SORT_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div>'+
+    '<div class="nel-sort-lesson-visual">'+nelSortLessonCore(step)+'</div>'+
+    '<div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelSortLessonNext" disabled>'+(at===NEL_SORT_LESSON_STEPS.length-1?'Sınıflama oyunlarına geç':'Sonraki keşif')+' <b>→</b></button></div>'+
+  '</div>';
+  const next=$('#nelSortLessonNext'); wireNelSortLessonStep(step,next);
+  next?.addEventListener('click',()=>completeNelSortLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -6795,6 +7257,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='numberPattern1000') return PATTERN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='oddEven1000') return ODD_EVEN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelMatchAttributes') return NEL_MATCH_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelSortAttributes') return NEL_SORT_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -6935,8 +7398,8 @@ function inspectorUiAudit(){
   probe.remove();
   add('touch-drop','Sürükle-bırak hedefi pointer-capture’dan bağımsız çözülüyor',typeof dropTargetAtPoint==='function','getBoundingClientRect tabanlı hedefleme');
   if(state.profile==='preschool'){
-    const nelText=NEL_MATCH_LESSON_STEPS.map(step=>[step.title,step.body,step.result].join(' ')).join(' ');
-    add('nel-no-primary-symbols','NEL eşleştirme dersi formal < > + − = öğretimine taşmıyor',!/[<>+−=]/.test(nelText),'Okul öncesi ortak özellik dilinde kalır.');
+    const nelText=[...NEL_MATCH_LESSON_STEPS,...NEL_SORT_LESSON_STEPS].map(step=>[step.title,step.body,step.result].join(' ')).join(' ');
+    add('nel-no-primary-symbols','NEL eşleştirme/sınıflama dersleri formal < > + − = öğretimine taşmıyor',!/[<>+−=]/.test(nelText),'Okul öncesi ortak özellik ve sınıflama dilinde kalır.');
   }
   return checks;
 }
@@ -7149,6 +7612,12 @@ function startSession(){
     focus.state.learningCycle.lessonVersion=NEL_MATCH_LESSON_VERSION;
     saveState();
   }
+  if(focus.skill.id==='nelSortAttributes'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NEL_SORT_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=NEL_SORT_LESSON_VERSION;
+    saveState();
+  }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -7336,6 +7805,7 @@ function renderPracticeHeader(skill){
 }
 function renderLessonIntro(skill){
   if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }
+  if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -7437,6 +7907,24 @@ function wireResponse(q){
 function wireManipulator(q){
   const interaction=q.response?.interaction;
   if(!interaction) return;
+  if(interaction==='nel-sort-bin'){
+    const root=$('.nel-sort-builder');
+    let selected=null;
+    root?.querySelectorAll('[data-nel-sort-item]').forEach(item=>item.addEventListener('click',()=>{
+      if(answered) return;
+      root.querySelectorAll('[data-nel-sort-item]').forEach(x=>x.classList.remove('selected'));
+      item.classList.add('selected'); selected=item;
+      updateManipulatorStatus(q);
+    }));
+    root?.querySelectorAll('[data-nel-sort-bin]').forEach(bin=>bin.addEventListener('click',()=>{
+      if(answered||!selected) return;
+      const target=root.querySelector('[data-nel-sort-bin-items="'+CSS.escape(bin.dataset.nelSortBin)+'"]');
+      selected.dataset.assigned=bin.dataset.nelSortBin;
+      selected.classList.remove('selected'); selected.classList.add('placed');
+      target?.appendChild(selected); selected=null;
+      updateManipulatorStatus(q);
+    }));
+  }
   if(interaction==='nel-match-pair'){
     const root=$('.nel-match-builder');
     root?.querySelectorAll('[data-nel-match-value]').forEach(button=>button.addEventListener('click',()=>{
@@ -7737,6 +8225,12 @@ function bindFractionPaint(root,q){
 
 function readManipulatorValue(q){
   const interaction=q.response?.interaction;
+  if(interaction==='nel-sort-bin'){
+    const root=$('.nel-sort-builder'); if(!root) return null;
+    const items=[...root.querySelectorAll('[data-nel-sort-item]')];
+    if(!items.length||items.some(item=>!item.dataset.assigned)) return null;
+    return items.map(item=>item.dataset.nelSortItem+':'+item.dataset.assigned).sort().join('|');
+  }
   if(interaction==='nel-match-pair') return $('.nel-match-builder [data-nel-match-value].selected')?.dataset.nelMatchValue ?? null;
   if(interaction==='twentyframe-build') return $('.interactive-twentyframe .added').length;
   if(interaction==='tenframe-complete') return $('.complete-tenframe-builder .complete-token.moved').length;
@@ -7802,7 +8296,11 @@ function readManipulatorValue(q){
 function updateManipulatorStatus(q){
   const node=$('#manipulatorStatus'); if(!node)return;
   const value=readManipulatorValue(q)??0;
-  if(q.response?.interaction==='nel-match-pair') node.textContent=value?'Bir eş seçtin. Şimdi kontrol et.':'Hedefe uygun eşi seç.';
+  if(q.response?.interaction==='nel-sort-bin'){
+    const root=$('.nel-sort-builder'), total=root?.querySelectorAll('[data-nel-sort-item]').length||0, placed=root?.querySelectorAll('[data-nel-sort-item][data-assigned]').length||0;
+    node.textContent=placed===total&&total?'Bütün nesneler kutularda. Şimdi kontrol et.':placed+' / '+total+' nesne sınıflandı.';
+  }
+  else if(q.response?.interaction==='nel-match-pair') node.textContent=value?'Bir eş seçtin. Şimdi kontrol et.':'Hedefe uygun eşi seç.';
   else if(q.response?.interaction==='twentyframe-build') node.textContent=`Kurduğun miktar: ${value}`;
   else if(q.response?.interaction==='tenframe-complete') node.textContent=`Yerleştirdiğin taş: ${value}`;
   else if(q.response?.interaction==='add-to-ten') node.textContent=`İlk çerçeveye taşıdığın: ${value}`;
@@ -8108,9 +8606,44 @@ function nelMatchContextVisual(v={}){
   return '<div class="nel-match-context-visual"><span>OYUNCAK KUTUSU</span>'+nelMatchTargetVisual(v.target,v.attributeLabel||'özellik')+'</div>';
 }
 
+
+function nelSortGroupedItems(v={},binValue){
+  return (v.items||[]).filter(item=>String(item?.[v.attribute])===String(binValue));
+}
+function nelSortDisplayVisual(v={}){
+  return '<div class="nel-sort-display">'+(v.bins||[]).map(bin=>
+    '<div class="nel-sort-static-bin"><strong>'+esc(bin.label)+'</strong><div>'+
+      nelSortGroupedItems(v,bin.value).map(item=>nelMatchObjectMarkup(item,'sınıflanmış nesne')).join('')+
+    '</div></div>'
+  ).join('')+'</div>';
+}
+function nelSortBuilderVisual(v={}){
+  const context=v.context?'<span class="nel-sort-context-label">'+esc(v.context==='toy-box'?'OYUNCAK KUTUSU':'TOPARLAMA ZAMANI')+'</span>':'';
+  return '<div class="nel-sort-builder" data-sort-attribute="'+esc(v.attribute||'')+'">'+context+
+    '<div class="nel-sort-tray">'+(v.items||[]).map(item=>
+      '<button type="button" class="nel-sort-item" data-nel-sort-item="'+esc(item.id||'')+'" data-nel-sort-correct="'+esc(item?.[v.attribute]??'')+'" aria-label="sınıflanacak nesne">'+nelMatchObjectMarkup(item,'sınıflanacak nesne')+'</button>'
+    ).join('')+'</div>'+
+    '<div class="nel-sort-bins">'+(v.bins||[]).map(bin=>
+      '<div class="nel-sort-bin"><button type="button" class="nel-sort-bin-head" data-nel-sort-bin="'+esc(bin.value)+'">'+esc(bin.label)+'</button><div class="nel-sort-bin-items" data-nel-sort-bin-items="'+esc(bin.value)+'"></div></div>'
+    ).join('')+'</div>'+
+  '</div>';
+}
+function nelSortTargetVisual(v={}){
+  const others=(v.items||[]).filter(item=>item.id!==v.target?.id);
+  return '<div class="nel-sort-target-visual"><div class="nel-sort-target-card"><small>HEDEF</small>'+nelMatchObjectMarkup(v.target||{},'hedef nesne')+'</div>'+
+    nelSortDisplayVisual({attribute:v.attribute,bins:v.bins,items:others})+'</div>';
+}
+function nelSortTwoRulesVisual(v={}){
+  return '<div class="nel-sort-two-rules"><div><small>1. KURAL</small>'+nelSortDisplayVisual(v.first||{})+'</div><div><small>2. KURAL</small>'+nelSortDisplayVisual(v.second||{})+'</div></div>';
+}
+
 function renderVisual(v,q){
   if(!v) return `<div style="position:relative;z-index:1;text-align:center;color:var(--muted);font-size:11px;max-width:360px">Bu pencerede görsel model yerine dil ve akıl yürütme kullanılıyor.</div>`;
   switch(v.type){
+    case 'nel-sort-builder': return nelSortBuilderVisual(v);
+    case 'nel-sort-display': return nelSortDisplayVisual(v);
+    case 'nel-sort-target': return nelSortTargetVisual(v);
+    case 'nel-sort-two-rules': return nelSortTwoRulesVisual(v);
     case 'nel-match-token': return nelMatchTokenVisual(v.item);
     case 'nel-match-target': return nelMatchTargetVisual(v.target,v.attributeLabel);
     case 'nel-match-pair-card': return nelMatchPairCardVisual(v.left,v.right);
@@ -8727,6 +9260,6 @@ function renderClock(hour,minute){
 
 function registerSW(){ if('serviceWorker' in navigator && (location.protocol==='http:'||location.protocol==='https:')) navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
 
-  </script>
+</script>
 </body>
 </html>
