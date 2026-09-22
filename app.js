@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -1082,6 +1082,169 @@ function renderNelSortLessonStep(skill,index=null){
   next?.addEventListener('click',()=>completeNelSortLessonStep(skill,at));
 }
 
+const NEL_COMPARE_LESSON_VERSION=1;
+const NEL_COMPARE_SECTIONS=['KARŞILAŞTIR','HİZALA','ANLAT','TAŞI'];
+const NEL_COMPARE_LESSON_STEPS=[
+  {
+    id:'compare-size',section:'KARŞILAŞTIR',kind:'choice',attribute:'size',attributeLabel:'büyüklük',
+    left:{shape:'circle',tone:'red',size:'large',length:'medium',height:'medium'},
+    right:{shape:'circle',tone:'blue',size:'small',length:'medium',height:'medium'},
+    correct:'left',options:[['left','Soldaki daha büyük'],['right','Sağdaki daha büyük'],['equal','Aynı büyüklükte']],
+    title:'Hangisi daha büyük?',body:'Renkleri farklı olabilir. Bu kez yalnız büyüklüklerine bak.',
+    result:'Soldaki nesne daha büyük.'
+  },
+  {
+    id:'compare-small',section:'KARŞILAŞTIR',kind:'choice',attribute:'size',attributeLabel:'büyüklük',
+    left:{shape:'square',tone:'green',size:'large',length:'medium',height:'medium'},
+    right:{shape:'square',tone:'yellow',size:'small',length:'medium',height:'medium'},
+    correct:'right',options:[['left','Soldaki daha küçük'],['right','Sağdaki daha küçük'],['equal','Aynı büyüklükte']],
+    title:'Şimdi daha küçük olanı bul.',body:'İki karenin büyüklüğünü karşılaştır ve daha küçük olanı seç.',
+    result:'Sağdaki nesne daha küçük.'
+  },
+  {
+    id:'compare-length-align',section:'HİZALA',kind:'align-choice',attribute:'length',attributeLabel:'uzunluk',requiresAlign:true,
+    left:{shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+    right:{shape:'bar',tone:'red',size:'medium',length:'long',height:'medium'},
+    correct:'right',options:[['left','Soldaki daha uzun'],['right','Sağdaki daha uzun'],['equal','Aynı uzunlukta']],
+    title:'Önce başlangıçları hizala.',body:'Uzunlukları adil karşılaştırmak için iki çubuğu aynı başlangıç çizgisine getir.',
+    result:'Başlangıçlar aynı hizadayken sağdaki çubuk daha uzun.'
+  },
+  {
+    id:'compare-length-same',section:'KARŞILAŞTIR',kind:'choice',attribute:'length',attributeLabel:'uzunluk',
+    left:{shape:'bar',tone:'green',size:'medium',length:'long',height:'medium'},
+    right:{shape:'bar',tone:'yellow',size:'medium',length:'long',height:'medium'},
+    correct:'equal',options:[['left','Soldaki daha uzun'],['right','Sağdaki daha uzun'],['equal','Aynı uzunlukta']],
+    title:'Her karşılaştırmada biri daha uzun olmak zorunda değil.',body:'Çubukların renklerini yok say ve uzunluklarına bak.',
+    result:'İki çubuk aynı uzunlukta.'
+  },
+  {
+    id:'compare-height',section:'KARŞILAŞTIR',kind:'choice',attribute:'height',attributeLabel:'yükseklik',
+    left:{shape:'tower',tone:'green',size:'medium',length:'medium',height:'short'},
+    right:{shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'},
+    correct:'right',options:[['left','Soldaki daha yüksek'],['right','Sağdaki daha yüksek'],['equal','Aynı yükseklikte']],
+    title:'Hangisi daha yüksek?',body:'Kulelerin tabanlarını aynı çizgide düşün ve tepe noktalarını karşılaştır.',
+    result:'Sağdaki kule daha yüksek.'
+  },
+  {
+    id:'name-attribute',section:'ANLAT',kind:'reason',attribute:'length',attributeLabel:'uzunluk',
+    left:{shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+    right:{shape:'bar',tone:'red',size:'medium',length:'long',height:'medium'},
+    correct:'length',options:[['size','Büyüklüklerine göre'],['length','Uzunluklarına göre'],['height','Yüksekliklerine göre']],
+    title:'Neye göre karşılaştırdığını söyle.',body:'Bu iki çubuk için baktığımız ortak özelliği seç.',
+    result:'Burada uzunluklarını karşılaştırıyoruz.'
+  },
+  {
+    id:'fair-compare',section:'ANLAT',kind:'reason',attribute:'length',attributeLabel:'uzunluk',misaligned:true,
+    left:{shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+    right:{shape:'bar',tone:'red',size:'medium',length:'long',height:'medium'},
+    correct:'align',options:[['align','Başlangıçlarını aynı hizaya getiririm'],['colour','Renklerini aynı yaparım'],['move','Birini daha yakına getiririm']],
+    title:'Adil bir uzunluk karşılaştırması nasıl yapılır?',body:'Başlangıç noktaları farklıysa gözümüz yanılabilir.',
+    result:'Uzunlukları karşılaştırmadan önce başlangıç noktalarını aynı hizaya getiririz.'
+  },
+  {
+    id:'real-world-compare',section:'TAŞI',kind:'real-world',
+    title:'Karşılaştırmayı çevrene taşı.',body:'Yakınında iki nesne bul. Büyüklük, uzunluk veya yükseklikten birini seç. Nesneleri o özelliğe göre karşılaştır ve “daha …” ya da “aynı …” diye anlat.',
+    result:'Karşılaştırırken önce hangi özelliğe baktığını seçmek gerekir.'
+  }
+];
+
+function nelCompareSectionTrack(step){
+  return '<div class="nel-compare-section-track">'+NEL_COMPARE_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelComparePairMarkup(step,aligned=true,question=false){
+  if(step.attribute==='length'){
+    const classes=['nel-compare-pair','compare-length','nel-compare-length-board'];
+    if(aligned) classes.push('aligned');
+    if(question) classes.push('question-pair');
+    return '<div class="'+classes.join(' ')+'">'+
+      '<span class="nel-compare-origin-label">BAŞLANGIÇ</span>'+
+      '<div class="nel-compare-length-row left"><small>SOL</small><div class="nel-compare-length-track">'+nelMatchObjectMarkup(step.left,'soldaki çubuk')+'</div></div>'+
+      '<div class="nel-compare-length-row right"><small>SAĞ</small><div class="nel-compare-length-track">'+nelMatchObjectMarkup(step.right,'sağdaki çubuk')+'</div></div>'+
+    '</div>';
+  }
+  const classes=['nel-compare-pair'];
+  if(aligned) classes.push('aligned');
+  if(step.attribute==='height') classes.push('compare-height');
+  if(question) classes.push('question-pair');
+  return '<div class="'+classes.join(' ')+'">'+
+    '<div class="nel-compare-card left"><small>SOL</small>'+nelMatchObjectMarkup(step.left,'soldaki nesne')+'</div>'+
+    '<div class="nel-compare-divider">ve</div>'+
+    '<div class="nel-compare-card right"><small>SAĞ</small>'+nelMatchObjectMarkup(step.right,'sağdaki nesne')+'</div>'+
+  '</div>';
+}
+function nelCompareLessonCore(step){
+  if(step.kind==='real-world'){
+    return '<div class="nel-compare-lesson-core">'+
+      '<div class="nel-compare-real-world"><span>1</span><p>İki nesne seç.</p><span>2</span><p>Tek bir özellik seç.</p><span>3</span><p>“Daha…” veya “aynı…” diye karşılaştır.</p></div>'+
+      '<button type="button" class="nel-compare-done" id="nelCompareDone">Karşılaştırmamı yaptım</button>'+
+      '<div class="nel-compare-result" id="nelCompareResult">'+esc(step.result)+'</div>'+
+    '</div>';
+  }
+  const needAlign=step.kind==='align-choice';
+  const aligned=!needAlign && !step.misaligned;
+  return '<div class="nel-compare-lesson-core">'+
+    nelComparePairMarkup(step,aligned)+
+    (needAlign?'<button type="button" class="nel-compare-align" id="nelCompareAlign">Başlangıçları hizala</button>':'')+
+    '<div class="nel-compare-choice-row">'+step.options.map(([value,label])=>'<button type="button" class="nel-compare-choice" data-nel-compare-choice="'+esc(value)+'" data-correct="'+(value===step.correct?'true':'false')+'" '+(needAlign?'disabled':'')+'>'+esc(label)+'</button>').join('')+'</div>'+
+    '<p class="nel-compare-help" id="nelCompareHelp">'+(needAlign?'Önce başlangıçları hizala.':'')+'</p>'+
+    '<div class="nel-compare-result" id="nelCompareResult">'+esc(step.result)+'</div>'+
+  '</div>';
+}
+function revealNelCompareResult(){ $('#nelCompareResult')?.classList.add('revealed'); }
+function wireNelCompareLessonStep(step,next){
+  if(step.kind==='real-world'){
+    $('#nelCompareDone')?.addEventListener('click',()=>{
+      $('#nelCompareDone').disabled=true; revealNelCompareResult(); next.disabled=false;
+    });
+    return;
+  }
+  if(step.kind==='align-choice'){
+    $('#nelCompareAlign')?.addEventListener('click',()=>{
+      const pair=$('.nel-compare-pair'); pair?.classList.add('aligned');
+      $('#nelCompareAlign').disabled=true;
+      $$('.nel-compare-choice').forEach(button=>button.disabled=false);
+      $('#nelCompareHelp').textContent='Şimdi uçları karşılaştır.';
+    });
+  }
+  $$('.nel-compare-choice').forEach(button=>button.addEventListener('click',()=>{
+    if(button.disabled) return;
+    if(button.dataset.correct!=='true'){
+      button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),300);
+      $('#nelCompareHelp').textContent=step.attribute==='length'?'Başlangıç ve bitiş noktalarına birlikte bak.':'Yalnız seçilen özelliği karşılaştır.';
+      return;
+    }
+    button.classList.add('selected'); $$('.nel-compare-choice').forEach(x=>{x.disabled=true;x.classList.remove('wrong');});
+    $('#nelCompareHelp').textContent=''; revealNelCompareResult(); next.disabled=false;
+  }));
+}
+function completeNelCompareLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=NEL_COMPARE_LESSON_VERSION;
+  if(next>=NEL_COMPARE_LESSON_STEPS.length){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return;
+  }
+  saveState(); session.lessonStepIndex=next; renderNelCompareLessonStep(skill,next);
+}
+function renderNelCompareLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(NEL_COMPARE_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_COMPARE_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_COMPARE_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KEŞFET'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_COMPARE_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/NEL_COMPARE_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-compare-lesson-stage" data-nel-compare-step="'+esc(step.id)+'">'+
+    nelCompareSectionTrack(step)+
+    '<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_COMPARE_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div>'+
+    '<div class="nel-compare-lesson-visual">'+nelCompareLessonCore(step)+'</div>'+
+    '<div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelCompareLessonNext" disabled>'+(at===NEL_COMPARE_LESSON_STEPS.length-1?'Karşılaştırma oyunlarına geç':'Sonraki keşif')+' <b>→</b></button></div>'+
+  '</div>';
+  const next=$('#nelCompareLessonNext'); wireNelCompareLessonStep(step,next);
+  next?.addEventListener('click',()=>completeNelCompareLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -1653,6 +1816,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='oddEven1000') return ODD_EVEN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelMatchAttributes') return NEL_MATCH_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelSortAttributes') return NEL_SORT_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelCompareAttributes') return NEL_COMPARE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -2013,6 +2177,12 @@ function startSession(){
     focus.state.learningCycle.lessonVersion=NEL_SORT_LESSON_VERSION;
     saveState();
   }
+  if(focus.skill.id==='nelCompareAttributes'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NEL_COMPARE_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=NEL_COMPARE_LESSON_VERSION;
+    saveState();
+  }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -2201,6 +2371,7 @@ function renderPracticeHeader(skill){
 function renderLessonIntro(skill){
   if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }
   if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }
+  if(skill.id==='nelCompareAttributes'){ renderNelCompareLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -2319,6 +2490,20 @@ function wireManipulator(q){
       target?.appendChild(selected); selected=null;
       if(root.querySelectorAll('[data-nel-sort-item]:not([data-assigned])').length===0) root.classList.add('complete');
       updateManipulatorStatus(q);
+    }));
+  }
+  if(interaction==='nel-compare-pair'){
+    const root=$('.nel-compare-builder');
+    root?.querySelector('.nel-compare-align')?.addEventListener('click',()=>{
+      if(answered)return;
+      root.classList.add('aligned');
+      root.querySelectorAll('[data-nel-compare-value]').forEach(button=>button.disabled=false);
+      updateManipulatorStatus(q);
+    });
+    root?.querySelectorAll('[data-nel-compare-value]').forEach(button=>button.addEventListener('click',()=>{
+      if(answered||button.disabled)return;
+      root.querySelectorAll('[data-nel-compare-value]').forEach(x=>x.classList.remove('selected'));
+      button.classList.add('selected'); updateManipulatorStatus(q);
     }));
   }
   if(interaction==='nel-match-pair'){
@@ -2627,6 +2812,14 @@ function readManipulatorValue(q){
     if(!items.length||items.some(item=>!item.dataset.assigned)) return null;
     return items.map(item=>item.dataset.nelSortItem+':'+item.dataset.assigned).sort().join('|');
   }
+  if(interaction==='nel-compare-pair'){
+    const root=$('.nel-compare-builder'); if(!root) return null;
+    const requiresAlign=root.dataset.requiresAlign==='true';
+    if(requiresAlign&&!root.classList.contains('aligned')) return null;
+    const value=root.querySelector('[data-nel-compare-value].selected')?.dataset.nelCompareValue;
+    if(value==null) return null;
+    return (requiresAlign?'aligned|':'')+value;
+  }
   if(interaction==='nel-match-pair') return $('.nel-match-builder [data-nel-match-value].selected')?.dataset.nelMatchValue ?? null;
   if(interaction==='twentyframe-build') return $('.interactive-twentyframe .added').length;
   if(interaction==='tenframe-complete') return $$('.complete-tenframe-builder .complete-token.moved').length;
@@ -2695,6 +2888,11 @@ function updateManipulatorStatus(q){
   if(q.response?.interaction==='nel-sort-bin'){
     const root=$('.nel-sort-builder'), total=root?.querySelectorAll('[data-nel-sort-item]').length||0, placed=root?.querySelectorAll('[data-nel-sort-item][data-assigned]').length||0;
     node.textContent=placed===total&&total?'Bütün nesneler kutularda. Şimdi kontrol et.':placed+' / '+total+' nesne sınıflandı.';
+  }
+  else if(q.response?.interaction==='nel-compare-pair'){
+    const root=$('.nel-compare-builder'), requiresAlign=root?.dataset.requiresAlign==='true';
+    if(requiresAlign&&!root?.classList.contains('aligned')) node.textContent='Önce başlangıçları hizala.';
+    else node.textContent=value?'Bir karşılaştırma seçtin. Şimdi kontrol et.':'Doğru karşılaştırma cümlesini seç.';
   }
   else if(q.response?.interaction==='nel-match-pair') node.textContent=value?'Bir eş seçtin. Şimdi kontrol et.':'Hedefe uygun eşi seç.';
   else if(q.response?.interaction==='twentyframe-build') node.textContent=`Kurduğun miktar: ${value}`;
@@ -3033,9 +3231,27 @@ function nelSortTwoRulesVisual(v={}){
   return '<div class="nel-sort-two-rules"><div><small>1. KURAL</small>'+nelSortDisplayVisual(v.first||{})+'</div><div><small>2. KURAL</small>'+nelSortDisplayVisual(v.second||{})+'</div></div>';
 }
 
+function nelComparePairVisual(v={}){
+  return nelComparePairMarkup(v,v.aligned!==false,true);
+}
+function nelCompareBuilderVisual(v={}){
+  const needs=!!v.requiresAlign;
+  return '<div class="nel-compare-builder '+(needs?'requires-align':'aligned')+'" data-requires-align="'+(needs?'true':'false')+'">'+
+    nelComparePairVisual({...v,aligned:!needs})+
+    (needs?'<button type="button" class="nel-compare-align">Başlangıçları hizala</button>':'')+
+    '<div class="nel-compare-choice-row">'+['left','right','equal'].map(value=>'<button type="button" class="nel-compare-choice" data-nel-compare-value="'+value+'" '+(needs?'disabled':'')+'>'+esc(v.labels?.[value]||value)+'</button>').join('')+'</div>'+
+  '</div>';
+}
+function nelCompareContextVisual(v={}){
+  return '<div class="nel-compare-context"><span>GÜNLÜK KARŞILAŞTIRMA · '+esc((v.attributeLabel||'özellik').toUpperCase())+'</span>'+nelComparePairVisual({...v,aligned:true})+'</div>';
+}
+
 function renderVisual(v,q){
   if(!v) return `<div style="position:relative;z-index:1;text-align:center;color:var(--muted);font-size:11px;max-width:360px">Bu pencerede görsel model yerine dil ve akıl yürütme kullanılıyor.</div>`;
   switch(v.type){
+    case 'nel-compare-builder': return nelCompareBuilderVisual(v);
+    case 'nel-compare-pair': return nelComparePairVisual(v);
+    case 'nel-compare-context': return nelCompareContextVisual(v);
     case 'nel-sort-builder': return nelSortBuilderVisual(v);
     case 'nel-sort-display': return nelSortDisplayVisual(v);
     case 'nel-sort-target': return nelSortTargetVisual(v);
