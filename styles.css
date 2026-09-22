@@ -829,3 +829,62 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-match-reason-grid{grid-template-columns:1fr}
   .nel-match-pair-card,.nel-match-question-pair{gap:7px;padding:10px}
 }
+
+
+/* v1.12.0 — hidden NEL preschool sorting reference lesson */
+.nel-sort-lesson-stage{width:min(840px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-sort-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-sort-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-sort-section-track span.active{background:var(--navy-soft);border-color:#c7d5df;color:var(--navy)}
+.nel-sort-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:4px 0}
+.nel-sort-lesson-core{width:min(720px,100%);display:grid;justify-items:center;gap:13px}
+.nel-sort-builder{width:min(700px,100%);display:grid;gap:13px;position:relative;z-index:1}
+.nel-sort-context-label{justify-self:center;padding:6px 9px;border-radius:999px;background:var(--sun-soft);font-size:8px;font-weight:950;letter-spacing:.11em;color:#80631d}
+.nel-sort-tray{min-height:118px;padding:12px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+.nel-sort-item{min-width:90px;min-height:92px;padding:4px;border:1px solid transparent;border-radius:18px;background:rgba(255,255,255,.72);display:grid;place-items:center;transition:.14s}
+.nel-sort-item.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(78,140,200,.13);transform:translateY(-2px)}
+.nel-sort-item.placed{min-width:72px;min-height:72px;background:transparent}
+.nel-sort-item.placed .nel-match-object{transform:scale(.82)}
+.nel-sort-bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;width:100%}
+.nel-sort-bin{min-height:162px;border:2px dashed #d4cec1;border-radius:24px;background:var(--paper);padding:9px;display:grid;grid-template-rows:auto 1fr;gap:7px;overflow:hidden}
+.nel-sort-bin-head{min-height:44px;border-radius:14px;background:var(--navy-soft);color:var(--navy);font-weight:950}
+.nel-sort-bin-head.wrong{animation:lessonNudge .28s;background:var(--coral-soft);color:#9d4c42}
+.nel-sort-bin-items{display:flex;justify-content:center;align-items:center;align-content:center;gap:3px;flex-wrap:wrap;min-height:82px}
+.nel-sort-help{min-height:18px;margin:0;color:var(--muted);font-size:11px;font-weight:800;text-align:center}
+.nel-sort-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(640px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}
+.nel-sort-result.revealed{opacity:1;transform:none}
+.nel-sort-display{width:min(650px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;position:relative;z-index:1}
+.nel-sort-static-bin{min-height:142px;padding:10px;border:1px solid var(--line);border-radius:21px;background:var(--paper-2);display:grid;grid-template-rows:auto 1fr;gap:6px}
+.nel-sort-static-bin>strong{text-align:center;font-size:11px;padding:6px 8px;border-radius:12px;background:var(--navy-soft);color:var(--navy)}
+.nel-sort-static-bin>div{display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap}
+.nel-sort-static-bin .nel-match-object{transform:scale(.72);margin:-7px}
+.nel-sort-rule-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:min(650px,100%)}
+.nel-sort-rule-choice{min-height:54px;padding:9px;border:1px solid var(--line);border-radius:16px;background:var(--paper);font-weight:900}
+.nel-sort-rule-choice.selected{background:var(--teal-soft);border-color:#9dcfc3}.nel-sort-rule-choice.wrong{animation:lessonNudge .28s}
+.nel-sort-two-rules{width:min(720px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;position:relative;z-index:1}
+.nel-sort-two-rules>div{display:grid;gap:6px;padding:9px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-sort-two-rules>div>small{text-align:center;font-size:8px;font-weight:950;letter-spacing:.11em;color:var(--muted)}
+.nel-sort-two-rules .nel-sort-display{gap:5px}.nel-sort-two-rules .nel-sort-static-bin{min-height:108px;padding:5px}.nel-sort-two-rules .nel-sort-static-bin .nel-match-object{transform:scale(.56);margin:-14px}
+.nel-sort-target-visual{width:min(700px,100%);display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;position:relative;z-index:1}
+.nel-sort-target-card{display:grid;justify-items:center;gap:6px;padding:12px;border:1px solid var(--line);border-radius:21px;background:var(--sun-soft)}
+.nel-sort-target-card small{font-size:8px;font-weight:950;letter-spacing:.11em;color:#80631d}
+.nel-sort-real-world{width:min(620px,100%);display:grid;grid-template-columns:42px 1fr;gap:9px 12px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-sort-real-world span{width:36px;height:36px;border-radius:12px;background:var(--sun-soft);display:grid;place-items:center;font-weight:950;color:#80631d}
+.nel-sort-real-world p{margin:0;font-size:12px;font-weight:850}.nel-sort-done{min-height:50px;padding:0 18px;border-radius:16px;background:var(--navy);color:white;font-weight:930}
+@media(max-width:699px){
+  .nel-sort-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-sort-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}
+  .nel-sort-section-track span{flex:0 0 auto}
+  .nel-sort-tray{min-height:104px;padding:7px;gap:3px}
+  .nel-sort-item{min-width:70px;min-height:78px;padding:1px}
+  .nel-sort-item .nel-match-object{transform:scale(.78)}
+  .nel-sort-item.placed{min-width:58px;min-height:58px}.nel-sort-item.placed .nel-match-object{transform:scale(.60)}
+  .nel-sort-bin{min-height:145px;padding:6px}.nel-sort-bin-head{min-height:42px}
+  .nel-sort-bin-items{min-height:72px;gap:0}
+  .nel-sort-rule-grid{grid-template-columns:1fr}
+  .nel-sort-two-rules{grid-template-columns:1fr}
+  .nel-sort-two-rules>div:nth-child(2){margin-top:0}
+  .nel-sort-target-visual{grid-template-columns:1fr}.nel-sort-target-card{width:140px;justify-self:center}
+  .nel-sort-display{gap:7px}.nel-sort-static-bin{min-height:118px;padding:6px}
+  .nel-sort-static-bin .nel-match-object{transform:scale(.60);margin:-12px}
+}

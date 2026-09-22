@@ -1198,9 +1198,11 @@ function nelSortItems(){
     blueCircleSmall:{id:'sort-blue-circle-small',shape:'circle',tone:'blue',size:'small',length:'medium',height:'medium'},
     blueSquareLarge:{id:'sort-blue-square-large',shape:'square',tone:'blue',size:'large',length:'medium',height:'medium'},
     blueTriangleSmall:{id:'sort-blue-triangle-small',shape:'triangle',tone:'blue',size:'small',length:'medium',height:'medium'},
+    blueCircleLarge2:{id:'sort-blue-circle-large-2',shape:'circle',tone:'blue',size:'large',length:'medium',height:'medium'},
     redCircleLarge:{id:'sort-red-circle-large',shape:'circle',tone:'red',size:'large',length:'medium',height:'medium'},
     redSquareSmall:{id:'sort-red-square-small',shape:'square',tone:'red',size:'small',length:'medium',height:'medium'},
     redTriangleLarge:{id:'sort-red-triangle-large',shape:'triangle',tone:'red',size:'large',length:'medium',height:'medium'},
+    redSquareLarge2:{id:'sort-red-square-large-2',shape:'square',tone:'red',size:'large',length:'medium',height:'medium'},
     shortBlueBar:{id:'sort-short-blue-bar',shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
     shortRedBar:{id:'sort-short-red-bar',shape:'bar',tone:'red',size:'medium',length:'short',height:'medium'},
     shortYellowBar:{id:'sort-short-yellow-bar',shape:'bar',tone:'yellow',size:'medium',length:'short',height:'medium'},
@@ -1217,16 +1219,17 @@ function nelSortItems(){
 }
 function nelSortCases(){
   const i=nelSortItems();
+  const sharedColourShape=[i.blueCircleSmall,i.blueSquareLarge,i.blueCircleLarge2,i.redCircleLarge,i.redSquareSmall,i.redSquareLarge2];
   return [
     {
       id:'sort-tone',attribute:'tone',attributeLabel:'renk',ruleLabel:'Renge göre',
       bins:[{value:'blue',label:'Mavi'},{value:'red',label:'Kırmızı'}],
-      items:[i.blueCircleSmall,i.blueSquareLarge,i.blueTriangleSmall,i.redCircleLarge,i.redSquareSmall,i.redTriangleLarge]
+      items:sharedColourShape
     },
     {
       id:'sort-shape',attribute:'shape',attributeLabel:'şekil',ruleLabel:'Şekle göre',
       bins:[{value:'circle',label:'Daire'},{value:'square',label:'Kare'}],
-      items:[i.blueCircleSmall,i.redCircleLarge,{...i.blueCircleSmall,id:'sort-yellow-circle-small',tone:'yellow'},i.blueSquareLarge,i.redSquareSmall,{...i.redSquareSmall,id:'sort-green-square-small',tone:'green'}]
+      items:sharedColourShape
     },
     {
       id:'sort-size',attribute:'size',attributeLabel:'büyüklük',ruleLabel:'Büyüklüğe göre',
