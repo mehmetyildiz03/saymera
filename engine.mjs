@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -211,6 +211,22 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelCompareAttributes:{
+    version:1,
+    unitId:'nel-relationships-patterns',
+    pathId:'relationships-patterns',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'compare-size',label:'Büyük ve küçük karşılaştır',phase:'model',representation:'build'},
+        {id:'compare-length',label:'Uzun ve kısa karşılaştır',phase:'representation',representation:'see'},
+        {id:'compare-height',label:'Yüksek ve alçak karşılaştır',phase:'symbol',representation:'symbol'},
+        {id:'explain-compare',label:'Neye göre karşılaştırdığını söyle',phase:'reasoning',representation:'explain'},
+        {id:'transfer-compare',label:'Günlük hayatta karşılaştır',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -249,6 +265,7 @@ export const SKILLS = [
   // NEL v2 reference skills stay hidden until the complete preschool path is ready.
   skill('nelMatchAttributes','preschool','Aynı özelliği eşleştir','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelSortAttributes','preschool','Özelliğe göre sınıfla','İlişkiler & Örüntüler','navy',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
+  skill('nelCompareAttributes','preschool','Özelliğe göre karşılaştır','İlişkiler & Örüntüler','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -544,6 +561,13 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'NEL v2 sınıflama becerisinin Öğren/Uygula sözleşmesi açık',
       !sortContract.provisional && sortContract.practice.sections.length===5,
       sortContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const compareContract=lessonContractFor('nelCompareAttributes');
+    add(
+      'nel-compare-reference-contract',
+      'NEL v2 karşılaştırma becerisinin Öğren/Uygula sözleşmesi açık',
+      !compareContract.provisional && compareContract.practice.sections.length===5,
+      compareContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -1261,6 +1285,57 @@ function nelSortRuleDistractors(correct){
   return ['Renge göre','Şekle göre','Büyüklüğe göre','Uzunluğa göre','Yüksekliğe göre'].filter(x=>x!==correct);
 }
 
+function nelCompareCases(){
+  const sizeLabels={left:'Soldaki daha büyük',right:'Sağdaki daha büyük',equal:'Aynı büyüklükte'};
+  const lengthLabels={left:'Soldaki daha uzun',right:'Sağdaki daha uzun',equal:'Aynı uzunlukta'};
+  const heightLabels={left:'Soldaki daha yüksek',right:'Sağdaki daha yüksek',equal:'Aynı yükseklikte'};
+  const size=(id,leftSize,rightSize,answer,leftTone='blue',rightTone='red')=>({
+    id,attribute:'size',attributeLabel:'büyüklük',attributeAnswer:'Büyüklüklerine göre',
+    left:{id:id+'-left',shape:'circle',tone:leftTone,size:leftSize,length:'medium',height:'medium'},
+    right:{id:id+'-right',shape:'circle',tone:rightTone,size:rightSize,length:'medium',height:'medium'},
+    answer,labels:sizeLabels,requiresAlign:false
+  });
+  const length=(id,leftLength,rightLength,answer,leftTone='blue',rightTone='red')=>({
+    id,attribute:'length',attributeLabel:'uzunluk',attributeAnswer:'Uzunluklarına göre',
+    left:{id:id+'-left',shape:'bar',tone:leftTone,size:'medium',length:leftLength,height:'medium'},
+    right:{id:id+'-right',shape:'bar',tone:rightTone,size:'medium',length:rightLength,height:'medium'},
+    answer,labels:lengthLabels,requiresAlign:true
+  });
+  const height=(id,leftHeight,rightHeight,answer,leftTone='green',rightTone='yellow')=>({
+    id,attribute:'height',attributeLabel:'yükseklik',attributeAnswer:'Yüksekliklerine göre',
+    left:{id:id+'-left',shape:'tower',tone:leftTone,size:'medium',length:'medium',height:leftHeight},
+    right:{id:id+'-right',shape:'tower',tone:rightTone,size:'medium',length:'medium',height:rightHeight},
+    answer,labels:heightLabels,requiresAlign:false
+  });
+  return [
+    size('compare-size-right','small','large','right'),
+    size('compare-size-left','large','small','left','red','blue'),
+    size('compare-size-equal','large','large','equal','green','yellow'),
+    length('compare-length-right','short','long','right'),
+    length('compare-length-left','long','short','left','red','blue'),
+    length('compare-length-equal','long','long','equal','green','yellow'),
+    height('compare-height-right','short','tall','right'),
+    height('compare-height-left','tall','short','left','blue','green'),
+    height('compare-height-equal','tall','tall','equal','red','yellow')
+  ];
+}
+function nelCompareCasesFor(attribute){
+  return nelCompareCases().filter(c=>c.attribute===attribute);
+}
+function nelCompareAnswerLabel(compareCase){
+  return compareCase.labels[compareCase.answer];
+}
+function nelCompareChoiceLabels(compareCase){
+  return ['left','right','equal'].map(key=>compareCase.labels[key]);
+}
+function nelCompareExpected(compareCase){
+  return (compareCase.requiresAlign?'aligned|':'')+compareCase.answer;
+}
+function nelCompareExplain(compareCase){
+  if(compareCase.answer==='equal') return compareCase.labels.equal+'.';
+  return nelCompareAnswerLabel(compareCase)+'.';
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1471,6 +1546,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   };
   if(skillId==='nelMatchAttributes') return make('nel-matching-by-attribute',nelMatchCases());
   if(skillId==='nelSortAttributes') return make('nel-sorting-by-attribute',nelSortCases());
+  if(skillId==='nelCompareAttributes') return make('nel-comparing-by-attribute',nelCompareCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -1611,6 +1687,52 @@ function genNelSortAttributes(rep,d,rng,concept){
     taskKind:'nel-sort-transfer',taskLabel:'Sınıflamayı günlük bir duruma taşı',
     visual:{type:'nel-sort-builder',context:'toy-box',attribute:y.attribute,attributeLabel:y.attributeLabel,bins:y.bins,items:y.items},
     hint:'Kutulara koyarken yalnız '+y.attributeLabel+' özelliğini kullan.',explain:'Aynı sınıflama fikri oyuncakları düzenlerken de kullanılabilir.'
+  });
+}
+
+function genNelCompareAttributes(rep,d,rng,concept){
+  const c=concept?.skillId==='nelCompareAttributes'?concept:createConceptInstance('nelCompareAttributes',d,rng);
+  const x=c.anchor;
+  const label=nelCompareAnswerLabel(x);
+  const choices=nelCompareChoiceLabels(x);
+  if(rep==='build'){
+    const expected=nelCompareExpected(x);
+    return qTask('nelCompareAttributes','build','İki nesneyi '+x.attributeLabel+' özelliğine göre karşılaştır.',expected,{kind:'manipulative',interaction:'nel-compare-pair',expectedValue:expected,checkLabel:'Karşılaştırmamı kontrol et'},{
+      taskKind:'nel-compare-build',taskLabel:'İki nesneyi doğrudan karşılaştır',
+      visual:{type:'nel-compare-builder',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,labels:x.labels,requiresAlign:x.requiresAlign},
+      hint:x.requiresAlign?'Başlangıç noktalarını aynı hizaya getir; sonra uçlara bak.':'Yalnız '+x.attributeLabel+' özelliğine bak.',
+      explain:nelCompareExplain(x)
+    });
+  }
+  if(rep==='see'){
+    return qBase('nelCompareAttributes','see','Bu iki nesne için doğru karşılaştırma hangisi?',label,semanticChoices(label,choices.filter(v=>v!==label),rng),{
+      taskKind:'nel-compare-see',taskLabel:'Karşılaştırma ilişkisini gör',
+      visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
+      hint:'İki nesnenin yalnız '+x.attributeLabel+' özelliğini karşılaştır.',explain:nelCompareExplain(x)
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol, answer=nelCompareAnswerLabel(y);
+    return qBase('nelCompareAttributes','symbol','Doğru karşılaştırma cümlesini göster.',answer,semanticChoices(answer,nelCompareChoiceLabels(y).filter(v=>v!==answer),rng),{
+      taskKind:'nel-compare-show',taskLabel:'Karşılaştırma cümlesini göster',
+      visual:{type:'nel-compare-pair',left:y.left,right:y.right,attribute:y.attribute,attributeLabel:y.attributeLabel,aligned:true},
+      hint:'İlişkiyi bir karşılaştırma cümlesiyle göster.',explain:nelCompareExplain(y)
+    });
+  }
+  if(rep==='explain'){
+    const answer=x.attributeAnswer;
+    const wrong=['Büyüklüklerine göre','Uzunluklarına göre','Yüksekliklerine göre'].filter(v=>v!==answer);
+    return qBase('nelCompareAttributes','explain','Bu karşılaştırmada hangi özelliğe bakıyoruz?',answer,semanticChoices(answer,wrong,rng),{
+      taskKind:'nel-compare-explain',taskLabel:'Karşılaştırma özelliğini açıkla',
+      visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
+      hint:'Renk ve şekil değişse bile hangi ölçüye baktığını söyle.',explain:answer+' karşılaştırıyoruz.'
+    });
+  }
+  const y=c.transfer, answer=nelCompareAnswerLabel(y);
+  return qBase('nelCompareAttributes','transfer','Günlük nesnelerde aynı '+y.attributeLabel+' özelliğini karşılaştırırsan hangisini söylersin?',answer,semanticChoices(answer,nelCompareChoiceLabels(y).filter(v=>v!==answer),rng),{
+    taskKind:'nel-compare-transfer',taskLabel:'Karşılaştırmayı günlük bir duruma taşı',
+    visual:{type:'nel-compare-context',left:y.left,right:y.right,attribute:y.attribute,attributeLabel:y.attributeLabel,aligned:true},
+    hint:'Nesnelerin türü değil, seçtiğin '+y.attributeLabel+' özelliği önemli.',explain:nelCompareExplain(y)
   });
 }
 
@@ -3355,6 +3477,7 @@ function genData2(rep,d,rng){
 const GENERATORS={
   nelMatchAttributes:genNelMatchAttributes,
   nelSortAttributes:genNelSortAttributes,
+  nelCompareAttributes:genNelCompareAttributes,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -4167,6 +4290,70 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 
 
+function nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const by=attribute=>nelCompareCasesFor(attribute);
+  let x;
+  if(sectionId==='compare-size'){
+    x=by('size')[taskIndex%by('size').length];
+    const expected=nelCompareExpected(x);
+    return qTask('nelCompareAttributes','build','Hangisi daha büyük, yoksa aynı büyüklükte mi?',expected,{kind:'manipulative',interaction:'nel-compare-pair',expectedValue:expected,checkLabel:'Karşılaştırmamı kontrol et'},{
+      taskKind:'nel-practice-compare-size-'+taskIndex,taskLabel:'Büyüklük karşılaştır',
+      visual:{type:'nel-compare-builder',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,labels:x.labels,requiresAlign:false},
+      hint:'Renge değil, iki nesnenin kapladığı büyüklüğe bak.',explain:nelCompareExplain(x)
+    });
+  }
+  if(sectionId==='compare-length'){
+    x=by('length')[taskIndex%by('length').length];
+    const expected=nelCompareExpected(x);
+    return qTask('nelCompareAttributes','see','Çubukları aynı başlangıçtan hizala ve uzunluklarını karşılaştır.',expected,{kind:'manipulative',interaction:'nel-compare-pair',expectedValue:expected,checkLabel:'Uzunlukları kontrol et'},{
+      taskKind:'nel-practice-compare-length-'+taskIndex,taskLabel:'Uzunluğu hizalayarak karşılaştır',
+      visual:{type:'nel-compare-builder',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,labels:x.labels,requiresAlign:true},
+      hint:'Önce başlangıçları hizala; sonra hangi ucun daha ileri gittiğine bak.',explain:nelCompareExplain(x)
+    });
+  }
+  if(sectionId==='compare-height'){
+    x=by('height')[taskIndex%by('height').length];
+    const answer=nelCompareAnswerLabel(x);
+    return qBase('nelCompareAttributes','symbol','Kulelerin yüksekliği için doğru cümleyi göster.',answer,semanticChoices(answer,nelCompareChoiceLabels(x).filter(v=>v!==answer),rng),{
+      taskKind:'nel-practice-compare-height-'+taskIndex,taskLabel:'Yükseklik ilişkisini göster',
+      visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
+      hint:'Tabanları aynı çizgide düşün ve tepelere bak.',explain:nelCompareExplain(x)
+    });
+  }
+  if(sectionId==='explain-compare'){
+    const attrs=['size','length','height'];
+    x=by(attrs[taskIndex%attrs.length])[taskIndex%3];
+    if(taskIndex%2===0){
+      const answer=x.attributeAnswer;
+      const wrong=['Büyüklüklerine göre','Uzunluklarına göre','Yüksekliklerine göre'].filter(v=>v!==answer);
+      return qBase('nelCompareAttributes','explain','Bu iki nesneyi hangi özelliklerine göre karşılaştırıyoruz?',answer,semanticChoices(answer,wrong,rng),{
+        taskKind:'nel-practice-explain-attribute-'+taskIndex,taskLabel:'Karşılaştırma özelliğini adlandır',
+        visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
+        hint:'Renk veya nesne türü yerine ölçülen ortak özelliği söyle.',explain:answer+' karşılaştırıyoruz.'
+      });
+    }
+    const lengthCase=by('length')[taskIndex%by('length').length];
+    const answer='Başlangıçlarını aynı hizaya getirmek gerekir.';
+    return qBase('nelCompareAttributes','explain','İki uzunluğu adil karşılaştırmadan önce ne yapmalıyız?',answer,semanticChoices(answer,['Renklerini aynı yapmak gerekir.','Birini daha yakına getirmek gerekir.','Nesnelerin adını değiştirmek gerekir.'],rng),{
+      taskKind:'nel-practice-explain-fair-'+taskIndex,taskLabel:'Adil uzunluk karşılaştırmasını açıkla',
+      visual:{type:'nel-compare-pair',left:lengthCase.left,right:lengthCase.right,attribute:'length',attributeLabel:'uzunluk',aligned:false},
+      hint:'Başlangıç noktaları farklıysa gözün yanıltılabilir.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-compare'){
+    const attrs=['size','length','height'];
+    x=by(attrs[taskIndex%attrs.length])[(taskIndex+1)%3];
+    const answer=nelCompareAnswerLabel(x);
+    const context=x.attribute==='length'?'İki kurdele':x.attribute==='height'?'İki kule':'İki oyuncak';
+    return qBase('nelCompareAttributes','transfer',context+' için '+x.attributeLabel+' özelliğini karşılaştır. Hangisini söylersin?',answer,semanticChoices(answer,nelCompareChoiceLabels(x).filter(v=>v!==answer),rng),{
+      taskKind:'nel-practice-transfer-compare-'+taskIndex,taskLabel:'Karşılaştırmayı günlük nesnelere taşı',
+      visual:{type:'nel-compare-context',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
+      hint:'Yalnız seçilen '+x.attributeLabel+' özelliğine bak.',explain:nelCompareExplain(x)
+    });
+  }
+  throw new Error('Unknown nelCompareAttributes practice section: '+sectionId);
+}
+
 function nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelSortCases();
   const caseFor=attribute=>cases.find(c=>c.attribute===attribute)||cases[0];
@@ -4290,7 +4477,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelSortAttributes') q=nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelCompareAttributes') q=nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelSortAttributes') q=nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelMatchAttributes') q=nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -4347,6 +4535,7 @@ export function selectNextSkill(state, session, now=Date.now(), rng=Math.random)
 const CONCEPT_KEYS={
   nelMatchAttributes:'nel-matching-by-attribute',
   nelSortAttributes:'nel-sorting-by-attribute',
+  nelCompareAttributes:'nel-comparing-by-attribute',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
