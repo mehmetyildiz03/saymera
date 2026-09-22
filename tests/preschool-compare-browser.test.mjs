@@ -39,6 +39,7 @@ async function completeLearnStep(page,id){
     assert.ok(Math.abs(before[0]-before[1])>8,id+' must begin visibly misaligned');
     await align.tap();
     assert.equal(await next.isDisabled(),true,id+' alignment alone cannot advance');
+    await page.waitForTimeout(260);
     const after=await tracks.evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().left));
     assert.ok(Math.abs(after[0]-after[1])<=1.5,id+' must share the same start line after alignment');
   }
