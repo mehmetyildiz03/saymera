@@ -7076,13 +7076,13 @@ function resetProgress(){
 }
 
 function dueReviewItems(){
-  const allowed=new Set(skillsFor(state.profile).map(s=>s.id));
+  const allowed=new Set(runtimeSkillsForProfile(state.profile).map(s=>s.id));
   const now=Date.now();
   return state.reviewQueue.filter(x=>allowed.has(x.skillId) && x.dueAt<=now && x.stage==='next-day').sort((a,b)=>a.dueAt-b.dueAt);
 }
 function dueSameSessionReview(includeFuture=false){
   if(!session) return null;
-  const allowed=new Set(skillsFor(state.profile).map(s=>s.id));
+  const allowed=new Set(runtimeSkillsForProfile(state.profile).map(s=>s.id));
   return state.reviewQueue
     .filter(x=>allowed.has(x.skillId)&&x.stage==='same-session'&&x.dueQuestion!=null&&(includeFuture||x.dueQuestion<=session.questionIndex))
     .sort((a,b)=>a.dueQuestion-b.dueQuestion)[0]||null;
