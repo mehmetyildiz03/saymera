@@ -7038,18 +7038,18 @@ function wireNelCompareLessonStep(step,next){
     $('#nelCompareAlign')?.addEventListener('click',()=>{
       const pair=$('.nel-compare-pair'); pair?.classList.add('aligned');
       $('#nelCompareAlign').disabled=true;
-      $('.nel-compare-choice').forEach(button=>button.disabled=false);
+      $$('.nel-compare-choice').forEach(button=>button.disabled=false);
       $('#nelCompareHelp').textContent='Şimdi uçları karşılaştır.';
     });
   }
-  $('.nel-compare-choice').forEach(button=>button.addEventListener('click',()=>{
+  $$('.nel-compare-choice').forEach(button=>button.addEventListener('click',()=>{
     if(button.disabled) return;
     if(button.dataset.correct!=='true'){
       button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),300);
       $('#nelCompareHelp').textContent=step.attribute==='length'?'Başlangıç ve bitiş noktalarına birlikte bak.':'Yalnız seçilen özelliği karşılaştır.';
       return;
     }
-    button.classList.add('selected'); $('.nel-compare-choice').forEach(x=>x.disabled=true);
+    button.classList.add('selected'); $$('.nel-compare-choice').forEach(x=>x.disabled=true);
     $('#nelCompareHelp').textContent=''; revealNelCompareResult(); next.disabled=false;
   }));
 }
