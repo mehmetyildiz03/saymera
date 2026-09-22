@@ -23,6 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
+  'nelMatchAttributes',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -132,6 +133,71 @@ export const P2_LESSON_CONTRACTS = {
   }
 };
 
+
+export const PRESCHOOL_NEL_PATHS = [
+  {
+    id:'relationships-patterns',
+    label:'İlişkiler & Örüntüler',
+    skillIds:['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns']
+  },
+  {
+    id:'counting-number-sense',
+    label:'Sayma & Sayı Hissi',
+    skillIds:['nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10']
+  },
+  {
+    id:'shapes-space',
+    label:'Şekil & Uzam',
+    skillIds:['nelBasicShapes','nelShapeAttributes','nelShapeCompose','nelSpatialRelations']
+  }
+];
+
+export const PRESCHOOL_NEL_KSD_MAP = {
+  '2.1':['nelMatchAttributes','nelSortAttributes','nelCompareAttributes'],
+  '2.2':['nelOrderAttributes'],
+  '2.3':['nelPatterns'],
+  '2.4':['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns'],
+  '3.1':['nelRoteCount20'],
+  '3.2':['nelReliableCount10'],
+  '3.3':['nelConservation10'],
+  '3.4':['nelNumberRepresentations10'],
+  '3.5':['nelNumberRepresentations10'],
+  '3.6':['nelNumeralFormation10'],
+  '3.7':['nelCompareQuantities10'],
+  '3.8':['nelPartWhole10'],
+  '4.1':['nelBasicShapes'],
+  '4.2':['nelShapeAttributes'],
+  '4.3':['nelShapeCompose'],
+  '4.4':['nelSpatialRelations']
+};
+
+export const PRESCHOOL_TO_P1_BRIDGES = {
+  number20:['nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10'],
+  numberBonds10:['nelPartWhole10'],
+  compareOrder100:['nelCompareQuantities10'],
+  numberPattern1:['nelPatterns'],
+  shapes1:['nelBasicShapes','nelShapeAttributes','nelShapeCompose','nelSpatialRelations']
+};
+
+export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
+  nelMatchAttributes:{
+    version:1,
+    unitId:'nel-relationships-patterns',
+    pathId:'relationships-patterns',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'match-exact',label:'Aynısını bul',phase:'model',representation:'build'},
+        {id:'match-colour-shape',label:'Renk ve şekle bak',phase:'representation',representation:'see'},
+        {id:'match-size-measure',label:'Büyüklük ve ölçüyü karşılaştır',phase:'symbol',representation:'symbol'},
+        {id:'explain-match',label:'Neden eş olduğunu söyle',phase:'reasoning',representation:'explain'},
+        {id:'transfer-match',label:'Günlük hayatta eşleştir',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
+  }
+};
+
 export function curriculumSequenceFor(profile){
   if(!CURRICULUM_SEQUENCED_PROFILES.has(profile)) return [];
   const byId=new Map(skillsFor(profile).map(s=>[s.id,s]));
@@ -162,8 +228,10 @@ export const PROFILE_META = {
   grade2: { label: '2. sınıf', age: '7–8 yaş', effortBudget: 7.5, cooldownMinutes: 7 },
 };
 
-const skill = (id, profile, label, family, accent, prerequisite = []) => ({ id, profile, label, family, accent, prerequisite });
+const skill = (id, profile, label, family, accent, prerequisite = [], options = {}) => ({ id, profile, label, family, accent, prerequisite, ...options });
 export const SKILLS = [
+  // NEL v2 reference skills stay hidden until the complete preschool path is ready.
+  skill('nelMatchAttributes','preschool','Aynı özelliği eşleştir','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -225,7 +293,9 @@ export const SKILLS = [
   skill('pictureGraphScale2','grade2','Ölçekli resimli grafikleri okuma','Veri','amber'),
 ];
 
-export function skillsFor(profile){ return SKILLS.filter(s => s.profile === profile); }
+export function skillsFor(profile,{includeHidden=false}={}){
+  return SKILLS.filter(s => s.profile === profile && (includeHidden || !s.hidden));
+}
 
 
 export function curriculumUnitsFor(profile){
@@ -240,7 +310,7 @@ export function curriculumUnitForSkill(skillId){
   return P2_CURRICULUM_UNITS.find(unit=>unit.lessons.includes(skillId))||null;
 }
 export function lessonContractFor(skillId){
-  const explicit=P2_LESSON_CONTRACTS[skillId];
+  const explicit=P2_LESSON_CONTRACTS[skillId]||PRESCHOOL_NEL_LESSON_CONTRACTS[skillId];
   if(explicit) return {skillId,...explicit,provisional:false};
   const unit=curriculumUnitForSkill(skillId);
   return {
@@ -427,6 +497,31 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       !practiceSectionCompletionAllowed(3,3,true),
     'Tamamlama: en az 4 görev, en az 3 doğru ve son cevap doğru.'
   );
+
+  if(state.profile==='preschool'){
+    const expectedKsd=['2.1','2.2','2.3','2.4','3.1','3.2','3.3','3.4','3.5','3.6','3.7','3.8','4.1','4.2','4.3','4.4'];
+    const missingKsd=expectedKsd.filter(code=>!(PRESCHOOL_NEL_KSD_MAP[code]?.length));
+    add(
+      'nel-ksd-coverage',
+      'NEL Numeracy KSD 2.1–2.4, 3.1–3.8 ve 4.1–4.4 ürün becerilerine eşlenmiş',
+      missingKsd.length===0,
+      missingKsd.length?'Eksik KSD: '+missingKsd.join(', '):'16 resmi KSD grubu eşlenmiş.'
+    );
+    const p1WithPreschoolPrereq=SKILLS.filter(skill=>skill.profile==='grade1'&&(skill.prerequisite||[]).some(id=>SKILLS.find(s=>s.id===id)?.profile==='preschool'));
+    add(
+      'p1-no-preschool-hard-gate',
+      'P1, okul öncesi tamamlanmasına hard prerequisite ile bağlanmıyor',
+      p1WithPreschoolPrereq.length===0,
+      p1WithPreschoolPrereq.length?'Bağlı: '+p1WithPreschoolPrereq.map(s=>s.id).join(', '):'P1 kendi başlangıcını koruyor.'
+    );
+    const contract=lessonContractFor('nelMatchAttributes');
+    add(
+      'nel-match-reference-contract',
+      'İlk NEL v2 referans becerinin Öğren/Uygula sözleşmesi açık',
+      !contract.provisional && contract.practice.sections.length===5,
+      contract.practice.sections.map(section=>section.id).join(' → ')
+    );
+  }
 
   if(state.profile==='grade2'){
     const flattened=P2_CURRICULUM_UNITS.flatMap(unit=>unit.lessons);
@@ -1034,6 +1129,46 @@ function wordAddSub2Cases(){
   });
 }
 
+
+function nelMatchItems(){
+  return {
+    blueCircleSmall:{id:'blue-circle-small',shape:'circle',tone:'blue',size:'small'},
+    blueCircleLarge:{id:'blue-circle-large',shape:'circle',tone:'blue',size:'large'},
+    redCircleLarge:{id:'red-circle-large',shape:'circle',tone:'red',size:'large'},
+    redSquareSmall:{id:'red-square-small',shape:'square',tone:'red',size:'small'},
+    blueSquareLarge:{id:'blue-square-large',shape:'square',tone:'blue',size:'large'},
+    yellowTriangleSmall:{id:'yellow-triangle-small',shape:'triangle',tone:'yellow',size:'small'},
+    greenTriangleLarge:{id:'green-triangle-large',shape:'triangle',tone:'green',size:'large'},
+    shortBlueBar:{id:'short-blue-bar',shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+    longRedBar:{id:'long-red-bar',shape:'bar',tone:'red',size:'medium',length:'long',height:'medium'},
+    longBlueBar:{id:'long-blue-bar',shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium'},
+    lowGreenBar:{id:'low-green-bar',shape:'tower',tone:'green',size:'medium',length:'medium',height:'short'},
+    tallYellowBar:{id:'tall-yellow-bar',shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'},
+    tallBlueBar:{id:'tall-blue-bar',shape:'tower',tone:'blue',size:'medium',length:'medium',height:'tall'}
+  };
+}
+function nelMatchCases(){
+  const i=nelMatchItems();
+  return [
+    {id:'exact-1',attribute:'exact',attributeLabel:'her özelliği',target:i.blueCircleSmall,answer:i.blueCircleSmall,options:[i.blueCircleSmall,i.redSquareSmall,i.blueCircleLarge]},
+    {id:'colour-1',attribute:'tone',attributeLabel:'rengi',target:i.blueCircleSmall,answer:i.blueSquareLarge,options:[i.blueSquareLarge,i.redCircleLarge,i.yellowTriangleSmall]},
+    {id:'shape-1',attribute:'shape',attributeLabel:'şekli',target:i.redCircleLarge,answer:i.blueCircleSmall,options:[i.blueCircleSmall,i.redSquareSmall,i.greenTriangleLarge]},
+    {id:'size-1',attribute:'size',attributeLabel:'büyüklüğü',target:i.blueCircleLarge,answer:i.greenTriangleLarge,options:[i.greenTriangleLarge,i.redSquareSmall,i.yellowTriangleSmall]},
+    {id:'length-1',attribute:'length',attributeLabel:'uzunluğu',target:i.longRedBar,answer:i.longBlueBar,options:[i.longBlueBar,i.shortBlueBar,i.tallBlueBar]},
+    {id:'height-1',attribute:'height',attributeLabel:'yüksekliği',target:i.tallYellowBar,answer:i.tallBlueBar,options:[i.tallBlueBar,i.lowGreenBar,i.longBlueBar]}
+  ];
+}
+function nelMatchReason(attribute){
+  return {
+    exact:'Aynı nesnenin bütün özellikleri uyuşuyor.',
+    tone:'Renkleri aynı.',
+    shape:'Şekilleri aynı.',
+    size:'Büyüklükleri aynı.',
+    length:'Uzunlukları aynı.',
+    height:'Yükseklikleri aynı.'
+  }[attribute]||'Ortak bir özellikleri var.';
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1242,6 +1377,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
     const [anchor,symbol,transfer]=pickDifferent(cases,3,rng);
     return {version:2,skillId,conceptKey,difficulty:d,anchor,symbol,transfer};
   };
+  if(skillId==='nelMatchAttributes') return make('nel-matching-by-attribute',nelMatchCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -1292,6 +1428,44 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='pictureGraphScale2') return make('p2-scaled-picture-graphs',scaledPictureGraphCases());
   if(skillId==='shapes2') return make('solid-properties-and-invariance',shapes2Cases());
   return null;
+}
+
+
+function genNelMatchAttributes(rep,d,rng,concept){
+  const c=concept?.skillId==='nelMatchAttributes'?concept:createConceptInstance('nelMatchAttributes',d,rng);
+  const x=c.anchor;
+  const distractors=nelMatchCases().filter(z=>z.attribute!==x.attribute).map(z=>nelMatchReason(z.attribute));
+  if(rep==='build'){
+    return qTask('nelMatchAttributes','build','Hedefteki nesnenin aynısını eşleştir.',x.answer.id,{kind:'manipulative',interaction:'nel-match-pair',expectedValue:x.answer.id,checkLabel:'Eşimi kontrol et'},{
+      taskKind:'nel-match-build',taskLabel:'Aynı nesneyi eşleştir',visual:{type:'nel-match-builder',target:x.target,options:x.options,attribute:x.attribute},
+      hint:'Renk, şekil ve büyüklüğün hepsine bak.',explain:nelMatchReason('exact')
+    });
+  }
+  if(rep==='see'){
+    return qTask('nelMatchAttributes','see','Hedefle aynı '+x.attributeLabel+' olan nesneyi bul.','correct',{kind:'visual-choice',options:x.options.map(item=>({value:item.id===x.answer.id?'correct':item.id,visual:{type:'nel-match-token',item},ariaLabel:'eşleştirme seçeneği'}))},{
+      taskKind:'nel-match-see',taskLabel:'Ortak özelliği görselde ayırt et',visual:{type:'nel-match-target',target:x.target,attributeLabel:x.attributeLabel},
+      hint:'Yalnız '+x.attributeLabel+' karşılaştır.',explain:nelMatchReason(x.attribute)
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelMatchAttributes','symbol','Aynı '+y.attributeLabel+' olanı göster.','correct',{kind:'visual-choice',options:y.options.map(item=>({value:item.id===y.answer.id?'correct':item.id,visual:{type:'nel-match-token',item},ariaLabel:'gösterme seçeneği'}))},{
+      taskKind:'nel-match-show',taskLabel:'Eş olan nesneyi göster',visual:{type:'nel-match-target',target:y.target,attributeLabel:y.attributeLabel},
+      hint:'Hedefteki '+y.attributeLabel+' aklında tut.',explain:nelMatchReason(y.attribute)
+    });
+  }
+  if(rep==='explain'){
+    const answer=nelMatchReason(x.attribute);
+    return qBase('nelMatchAttributes','explain','Bu iki nesne neden eş olabilir?',answer,semanticChoices(answer,distractors,rng),{
+      taskKind:'nel-match-explain',taskLabel:'Eşleştirme nedenini açıkla',visual:{type:'nel-match-pair-card',left:x.target,right:x.answer},
+      hint:'İkisinde ortak olan özelliği söyle.',explain:answer
+    });
+  }
+  const y=c.transfer;
+  return qTask('nelMatchAttributes','transfer','Oyuncak kutusunda hedef oyuncağa aynı '+y.attributeLabel+' sahip olanı seç.','correct',{kind:'visual-choice',options:y.options.map(item=>({value:item.id===y.answer.id?'correct':item.id,visual:{type:'nel-match-token',item},ariaLabel:'oyuncak eşleştirme seçeneği'}))},{
+    taskKind:'nel-match-transfer',taskLabel:'Eşleştirmeyi günlük duruma taşı',visual:{type:'nel-match-context',target:y.target,attributeLabel:y.attributeLabel},
+    hint:'Oyuncakların '+y.attributeLabel+' karşılaştır.',explain:nelMatchReason(y.attribute)
+  });
 }
 
 function genSubitize(rep,d,rng){
@@ -3033,6 +3207,7 @@ function genData2(rep,d,rng){
   return qBase('data2',rep,`${cats[idx]} günü grafikte kaç birim gösterilmiş?`,ans,numericChoices(ans,3,rng),{visual:{type:'bar-chart',cats,vals,highlight:idx},hint:'İlgili sütunun yüksekliğini sayı çizgisiyle eşleştir.',explain:`${cats[idx]} sütunu ${ans} birim yüksekliğinde.`});
 }
 const GENERATORS={
+  nelMatchAttributes:genNelMatchAttributes,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -3843,9 +4018,57 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   return q;
 }
 
+
+function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelMatchCases();
+  const by=attribute=>cases.filter(c=>c.attribute===attribute);
+  let x;
+  if(sectionId==='match-exact'){
+    x=by('exact')[0];
+    return qTask('nelMatchAttributes','build','Aynı nesneyi bulup eşleştir.',x.answer.id,{kind:'manipulative',interaction:'nel-match-pair',expectedValue:x.answer.id,checkLabel:'Eşimi kontrol et'},{
+      taskKind:'nel-practice-exact-'+taskIndex,taskLabel:'Aynı nesneyi eşleştir',visual:{type:'nel-match-builder',target:x.target,options:x.options,attribute:'exact'},
+      hint:'Renk, şekil ve büyüklüğün hepsi aynı olmalı.',explain:nelMatchReason('exact')
+    });
+  }
+  if(sectionId==='match-colour-shape'){
+    x=taskIndex%2===0?by('tone')[0]:by('shape')[0];
+    return qTask('nelMatchAttributes','see','Aynı '+x.attributeLabel+' olanı bul.','correct',{kind:'visual-choice',options:x.options.map(item=>({value:item.id===x.answer.id?'correct':item.id,visual:{type:'nel-match-token',item}}))},{
+      taskKind:'nel-practice-colour-shape-'+taskIndex,taskLabel:'Renk veya şekil eşini bul',visual:{type:'nel-match-target',target:x.target,attributeLabel:x.attributeLabel},
+      hint:'Bu görevde yalnız '+x.attributeLabel+' önemli.',explain:nelMatchReason(x.attribute)
+    });
+  }
+  if(sectionId==='match-size-measure'){
+    const attrs=['size','length','height'];
+    const attr=attrs[taskIndex%attrs.length];
+    x=by(attr)[0];
+    return qTask('nelMatchAttributes','symbol','Aynı '+x.attributeLabel+' olanı göster.','correct',{kind:'visual-choice',options:x.options.map(item=>({value:item.id===x.answer.id?'correct':item.id,visual:{type:'nel-match-token',item}}))},{
+      taskKind:'nel-practice-size-measure-'+taskIndex,taskLabel:'Büyüklük, uzunluk veya yükseklik eşini göster',visual:{type:'nel-match-target',target:x.target,attributeLabel:x.attributeLabel},
+      hint:'Hedefin '+x.attributeLabel+' ile seçenekleri karşılaştır.',explain:nelMatchReason(x.attribute)
+    });
+  }
+  if(sectionId==='explain-match'){
+    x=cases[taskIndex%cases.length];
+    const answer=nelMatchReason(x.attribute);
+    const wrong=cases.filter(z=>z.attribute!==x.attribute).map(z=>nelMatchReason(z.attribute));
+    return qBase('nelMatchAttributes','explain','Bu eşleştirmeyi hangi ortak özellik açıklar?',answer,semanticChoices(answer,wrong,rng),{
+      taskKind:'nel-practice-explain-'+taskIndex,taskLabel:'Ortak özelliği söyle',visual:{type:'nel-match-pair-card',left:x.target,right:x.answer},
+      hint:'Renk, şekil, büyüklük, uzunluk veya yüksekliği karşılaştır.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-match'){
+    x=cases[(taskIndex+1)%cases.length];
+    return qTask('nelMatchAttributes','transfer','Günlük bir kutuda hedefle aynı '+x.attributeLabel+' olan eşi seç.','correct',{kind:'visual-choice',options:x.options.map(item=>({value:item.id===x.answer.id?'correct':item.id,visual:{type:'nel-match-token',item}}))},{
+      taskKind:'nel-practice-transfer-'+taskIndex,taskLabel:'Eşleştirmeyi yeni nesnelere taşı',visual:{type:'nel-match-context',target:x.target,attributeLabel:x.attributeLabel},
+      hint:'Nesne değişse de ortak özellik aynı kalabilir.',explain:nelMatchReason(x.attribute)
+    });
+  }
+  throw new Error('Unknown nelMatchAttributes practice section: '+sectionId);
+}
+
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelMatchAttributes') q=nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='numberPattern1000') q=numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='oddEven1000') q=oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -3898,6 +4121,7 @@ export function selectNextSkill(state, session, now=Date.now(), rng=Math.random)
 }
 
 const CONCEPT_KEYS={
+  nelMatchAttributes:'nel-matching-by-attribute',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',

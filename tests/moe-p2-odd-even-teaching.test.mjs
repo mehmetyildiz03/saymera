@@ -8,7 +8,7 @@ import {
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 
-assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000','oddEven1000'])"),'oddEven1000 must teach before checking');
+assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000'])"),'oddEven1000 must teach before checking');
 assert.ok(app.includes('const ODD_EVEN1000_LESSON_VERSION=1'),'odd/even lesson must be versioned');
 assert.ok(app.includes("if(skill.id==='oddEven1000'){ renderOddEven1000LessonStep(skill); return; }"),'odd/even must use a dedicated lesson renderer');
 assert.deepEqual(P2_LESSON_CONTRACTS.oddEven1000.practice.sections.map(x=>x.id),[

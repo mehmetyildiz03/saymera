@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -708,6 +708,201 @@ function renderOddEven1000LessonStep(skill,index=null){
   next?.addEventListener('click',()=>completeOddEven1000LessonStep(skill,at));
 }
 
+
+const NEL_MATCH_LESSON_VERSION=1;
+const NEL_MATCH_SECTIONS=['EŞLEŞTİR','ÖZELLİĞE BAK','ANLAT','TAŞI'];
+const NEL_MATCH_LESSON_STEPS=[
+  {
+    id:'same-object',section:'EŞLEŞTİR',kind:'choice',attribute:'exact',
+    target:{shape:'circle',tone:'blue',size:'small'},
+    options:[
+      {shape:'circle',tone:'blue',size:'small',correct:true},
+      {shape:'circle',tone:'blue',size:'large'},
+      {shape:'square',tone:'red',size:'small'}
+    ],
+    title:'Aynısını bul.',body:'Hedefin rengine, şekline ve büyüklüğüne birlikte bak.',
+    result:'İki nesnenin rengi, şekli ve büyüklüğü aynı.'
+  },
+  {
+    id:'same-colour',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'tone',
+    target:{shape:'circle',tone:'blue',size:'small'},
+    options:[
+      {shape:'square',tone:'blue',size:'large',correct:true},
+      {shape:'circle',tone:'red',size:'small'},
+      {shape:'triangle',tone:'yellow',size:'small'}
+    ],
+    title:'Bu kez yalnız renge bak.',body:'Şekli ve büyüklüğü farklı olabilir. Hedefle aynı renkte olanı seç.',
+    result:'Şekilleri farklı olsa da ikisinin rengi aynı.'
+  },
+  {
+    id:'same-shape',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'shape',
+    target:{shape:'circle',tone:'red',size:'large'},
+    options:[
+      {shape:'circle',tone:'blue',size:'small',correct:true},
+      {shape:'square',tone:'red',size:'large'},
+      {shape:'triangle',tone:'green',size:'large'}
+    ],
+    title:'Renk değişse de şekil aynı kalabilir.',body:'Hedefle aynı şekle sahip olanı bul.',
+    result:'Renkleri ve büyüklükleri farklı; ama ikisi de daire.'
+  },
+  {
+    id:'same-size',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'size',
+    target:{shape:'circle',tone:'blue',size:'large'},
+    options:[
+      {shape:'triangle',tone:'green',size:'large',correct:true},
+      {shape:'square',tone:'red',size:'small'},
+      {shape:'circle',tone:'yellow',size:'small'}
+    ],
+    title:'Şimdi büyüklüğü karşılaştır.',body:'Şekli ve rengi görmezden gel. Hedefle aynı büyüklükte olanı seç.',
+    result:'Şekilleri farklı olsa da iki nesne aynı büyüklükte.'
+  },
+  {
+    id:'same-length',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'length',
+    target:{shape:'bar',tone:'red',size:'medium',length:'long',height:'medium'},
+    options:[
+      {shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium',correct:true},
+      {shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+      {shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'}
+    ],
+    title:'Uzunluk da bir eşleştirme özelliğidir.',body:'Renkler farklı. Yatay uzunlukları karşılaştır.',
+    result:'İki çubuğun rengi farklı; uzunlukları aynı.'
+  },
+  {
+    id:'same-height',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'height',
+    target:{shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'},
+    options:[
+      {shape:'tower',tone:'blue',size:'medium',length:'medium',height:'tall',correct:true},
+      {shape:'tower',tone:'green',size:'medium',length:'medium',height:'short'},
+      {shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium'}
+    ],
+    title:'Yüksekliği karşılaştır.',body:'Hedefle aynı yüksekliğe sahip olanı seç.',
+    result:'İki nesnenin yüksekliği aynı.'
+  },
+  {
+    id:'explain-match',section:'ANLAT',kind:'reason',
+    left:{shape:'circle',tone:'red',size:'large'},right:{shape:'circle',tone:'blue',size:'small'},
+    correct:'Şekilleri aynı.',options:['Renkleri aynı.','Şekilleri aynı.','Büyüklükleri aynı.'],
+    title:'Neden eş olduklarını söyle.',body:'İki nesnenin ortak özelliğini bul.',
+    result:'İkisinin de şekli daire. Ortak özellikleri şekilleri.'
+  },
+  {
+    id:'real-world-match',section:'TAŞI',kind:'real-world',
+    title:'Şimdi eşleştirmeyi ekrandan çıkar.',body:'Yakınında iki nesne bul. Renk, şekil, büyüklük, uzunluk veya yükseklikten bir ortak özellik seç ve neden eş olduklarını söyle.',
+    result:'Eşleştirme, nesnelerin ortak bir özelliğini fark etmektir.'
+  }
+];
+
+function nelMatchObjectMarkup(item={},label=''){
+  const shape=item.shape||'circle', tone=item.tone||'blue', size=item.size||'medium';
+  const length=item.length||'medium', height=item.height||'medium';
+  const aria=label||[tone,shape,size,length,height].join(' ');
+  return '<span class="nel-match-object '+esc(shape)+' '+esc(tone)+' '+esc(size)+' length-'+esc(length)+' height-'+esc(height)+'" role="img" aria-label="'+esc(aria)+'"><i></i></span>';
+}
+function nelMatchSectionTrack(step){
+  return '<div class="nel-match-section-track">'+NEL_MATCH_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelMatchChoiceVisual(step){
+  return '<div class="nel-match-core">'+
+    '<div class="nel-match-target-card"><small>HEDEF</small>'+nelMatchObjectMarkup(step.target,'hedef nesne')+'</div>'+
+    '<div class="nel-match-option-row">'+step.options.map((item,index)=>'<button type="button" class="nel-match-choice" data-nel-correct="'+(item.correct?'true':'false')+'" aria-label="'+(index+1)+'. seçenek">'+nelMatchObjectMarkup(item,'eşleştirme seçeneği')+'</button>').join('')+'</div>'+
+    '<p class="nel-match-help" id="nelMatchHelp"></p>'+
+    '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div>'+
+  '</div>';
+}
+function nelMatchReasonVisual(step){
+  return '<div class="nel-match-core">'+
+    '<div class="nel-match-pair-card">'+nelMatchObjectMarkup(step.left,'sol nesne')+'<span>↔</span>'+nelMatchObjectMarkup(step.right,'sağ nesne')+'</div>'+
+    '<div class="nel-match-reason-grid">'+step.options.map(value=>'<button type="button" class="nel-match-reason" data-nel-reason="'+esc(value)+'" data-correct="'+(value===step.correct?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div>'+
+    '<p class="nel-match-help" id="nelMatchHelp"></p>'+
+    '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div>'+
+  '</div>';
+}
+function nelMatchRealWorldVisual(step){
+  return '<div class="nel-match-core">'+
+    '<div class="nel-match-real-world">'+
+      '<span>1</span><p>İki nesne seç.</p>'+
+      '<span>2</span><p>Ortak bir özellik bul.</p>'+
+      '<span>3</span><p>“Bunlar eş çünkü…” diye anlat.</p>'+
+    '</div>'+
+    '<button type="button" class="nel-match-done" id="nelMatchDone">Eşimi buldum</button>'+
+    '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div>'+
+  '</div>';
+}
+function nelMatchLessonVisual(step){
+  if(step.kind==='reason') return nelMatchReasonVisual(step);
+  if(step.kind==='real-world') return nelMatchRealWorldVisual(step);
+  return nelMatchChoiceVisual(step);
+}
+function revealNelMatchResult(){ $('#nelMatchResult')?.classList.add('revealed'); }
+function wireNelMatchLessonStep(step,next){
+  if(step.kind==='choice'){
+    $$('.nel-match-choice').forEach(button=>button.addEventListener('click',()=>{
+      if(button.disabled) return;
+      if(button.dataset.nelCorrect!=='true'){
+        button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
+        const copy={
+          exact:'Hedefteki üç özelliği birlikte karşılaştır: renk, şekil ve büyüklük.',
+          tone:'Bu görevde yalnız renge bak.',
+          shape:'Bu görevde yalnız şekle bak.',
+          size:'Bu görevde yalnız büyüklüğe bak.',
+          length:'Çubukların yatay uzunluğunu karşılaştır.',
+          height:'Nesnelerin yüksekliğini karşılaştır.'
+        };
+        $('#nelMatchHelp').textContent=copy[step.attribute]||'Ortak özelliğe yeniden bak.';
+        return;
+      }
+      button.classList.add('selected');
+      $$('.nel-match-choice').forEach(x=>x.disabled=true);
+      $('#nelMatchHelp').textContent='';
+      revealNelMatchResult(); next.disabled=false;
+    }));
+    return;
+  }
+  if(step.kind==='reason'){
+    $$('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
+      if(button.disabled) return;
+      if(button.dataset.correct!=='true'){
+        button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
+        $('#nelMatchHelp').textContent='İki nesnede değişmeyen özelliği bul.';
+        return;
+      }
+      button.classList.add('selected'); $$('.nel-match-reason').forEach(x=>x.disabled=true);
+      $('#nelMatchHelp').textContent=''; revealNelMatchResult(); next.disabled=false;
+    }));
+    return;
+  }
+  $('#nelMatchDone')?.addEventListener('click',()=>{
+    $('#nelMatchDone').disabled=true; revealNelMatchResult(); next.disabled=false;
+  });
+}
+function completeNelMatchLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id), lc=ss.learningCycle, next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=NEL_MATCH_LESSON_VERSION;
+  if(next>=NEL_MATCH_LESSON_STEPS.length){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now(); saveState(); session.planIndex++; loadPlanItem(); return;
+  }
+  saveState(); session.lessonStepIndex=next; renderNelMatchLessonStep(skill,next);
+}
+function renderNelMatchLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(NEL_MATCH_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_MATCH_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_MATCH_LESSON_STEPS[at];
+  session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KEŞFET'; $('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_MATCH_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/NEL_MATCH_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-match-lesson-stage" data-nel-match-step="'+esc(step.id)+'">'+
+    nelMatchSectionTrack(step)+
+    '<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_MATCH_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div>'+
+    '<div class="nel-match-lesson-visual">'+nelMatchLessonVisual(step)+'</div>'+
+    '<div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelMatchLessonNext" disabled>'+(at===NEL_MATCH_LESSON_STEPS.length-1?'Eşleştirme oyunlarına geç':'Sonraki keşif')+' <b>→</b></button></div>'+
+  '</div>';
+  const next=$('#nelMatchLessonNext'); wireNelMatchLessonStep(step,next);
+  next?.addEventListener('click',()=>completeNelMatchLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -739,6 +934,10 @@ let holdTimer=null;
 let holdStartedAt=0;
 let toastTimer=null;
 let selectedOnboardingProfile=state.profile;
+
+function runtimeSkillsForProfile(profile=state.profile){
+  return skillsFor(profile,{includeHidden:!!inspectorSandbox});
+}
 
 init();
 
@@ -950,7 +1149,7 @@ function renderHome(){
 }
 
 function atlasSkillLabel(skillId){
-  return skillsFor(state.profile).find(skill=>skill.id===skillId)?.label||'önceki ders';
+  return runtimeSkillsForProfile(state.profile).find(skill=>skill.id===skillId)?.label||'önceki ders';
 }
 function atlasLessonStatusCopy(snapshot){
   if(snapshot.access.status==='completed'){
@@ -965,7 +1164,7 @@ function atlasLessonStatusCopy(snapshot){
   return {label:'Açık',detail:'Bu derse geçebilirsin.',mark:'○'};
 }
 function openLessonCenter(skillId){
-  const skill=skillsFor(state.profile).find(item=>item.id===skillId);
+  const skill=runtimeSkillsForProfile(state.profile).find(item=>item.id===skillId);
   if(!skill) return;
   const access=lessonAccessState(state,skillId);
   if(access.status==='locked'){
@@ -1074,7 +1273,7 @@ const PRACTICE_SECTION_BASE_TASKS=4;
 const PRACTICE_SECTION_MAX_TASKS=6;
 
 function lessonSkill(){
-  return activeLessonSkillId?skillsFor(state.profile).find(skill=>skill.id===activeLessonSkillId)||null:null;
+  return activeLessonSkillId?runtimeSkillsForProfile(state.profile).find(skill=>skill.id===activeLessonSkillId)||null:null;
 }
 function reviewTimingCopy(review){
   if(review.status==='due') return 'Hazır';
@@ -1193,7 +1392,7 @@ function dueReviewPlanForSkill(skillId){
   }));
 }
 function startLessonChannel(skillId,channel,sectionId=null,options={}){
-  const skill=skillsFor(state.profile).find(item=>item.id===skillId);
+  const skill=runtimeSkillsForProfile(state.profile).find(item=>item.id===skillId);
   if(!skill) return;
   const snapshot=lessonProgressSnapshot(state,skillId);
   if(snapshot.access.status==='locked'){ showToast('Bu ders henüz açılmadı.'); return; }
@@ -1266,13 +1465,14 @@ function exitInspectorSandbox(){
   showToast('Test sandboxı kapandı · gerçek ilerleme değişmedi');
 }
 function inspectorSkillList(){
-  return skillsFor(state.profile);
+  return skillsFor(state.profile,{includeHidden:true});
 }
 function inspectorLessonSteps(skillId){
   if(skillId==='number1000') return NUMBER1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='compareOrder1000') return COMPARE_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='numberPattern1000') return PATTERN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='oddEven1000') return ODD_EVEN1000_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelMatchAttributes') return NEL_MATCH_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -1412,6 +1612,10 @@ function inspectorUiAudit(){
   add('ten-grid','Onluk model 10 eş bölme sözleşmesini taşıyor',ten.includes('100% 10%'),ten);
   probe.remove();
   add('touch-drop','Sürükle-bırak hedefi pointer-capture’dan bağımsız çözülüyor',typeof dropTargetAtPoint==='function','getBoundingClientRect tabanlı hedefleme');
+  if(state.profile==='preschool'){
+    const nelText=NEL_MATCH_LESSON_STEPS.map(step=>[step.title,step.body,step.result].join(' ')).join(' ');
+    add('nel-no-primary-symbols','NEL eşleştirme dersi formal < > + − = öğretimine taşmıyor',!/[<>+−=]/.test(nelText),'Okul öncesi ortak özellik dilinde kalır.');
+  }
   return checks;
 }
 function inspectorStateSummary(skillId){
@@ -1550,13 +1754,13 @@ function resetProgress(){
 }
 
 function dueReviewItems(){
-  const allowed=new Set(skillsFor(state.profile).map(s=>s.id));
+  const allowed=new Set(runtimeSkillsForProfile(state.profile).map(s=>s.id));
   const now=Date.now();
   return state.reviewQueue.filter(x=>allowed.has(x.skillId) && x.dueAt<=now && x.stage==='next-day').sort((a,b)=>a.dueAt-b.dueAt);
 }
 function dueSameSessionReview(includeFuture=false){
   if(!session) return null;
-  const allowed=new Set(skillsFor(state.profile).map(s=>s.id));
+  const allowed=new Set(runtimeSkillsForProfile(state.profile).map(s=>s.id));
   return state.reviewQueue
     .filter(x=>allowed.has(x.skillId)&&x.stage==='same-session'&&x.dueQuestion!=null&&(includeFuture||x.dueQuestion<=session.questionIndex))
     .sort((a,b)=>a.dueQuestion-b.dueQuestion)[0]||null;
@@ -1578,7 +1782,7 @@ function buildSessionPlan(focus,{includeDueReview=true}={}){
   const plan=[];
   const due=includeDueReview?dueReviewItems()[0]:null;
   if(due){
-    const s=skillsFor(state.profile).find(x=>x.id===due.skillId);
+    const s=runtimeSkillsForProfile(state.profile).find(x=>x.id===due.skillId);
     if(s) plan.push({
       skillId:s.id,
       representation:due.representation,
@@ -1611,12 +1815,18 @@ function startSession(){
   if(!state.onboarded){ openOnboarding(); return; }
   const lessonLaunch=pendingLessonLaunch; pendingLessonLaunch=null;
   const requestedSkillId=lessonLaunch?.skillId||pendingAtlasSkillId; pendingAtlasSkillId=null;
-  const requestedSkill=requestedSkillId?skillsFor(state.profile).find(s=>s.id===requestedSkillId):null;
+  const requestedSkill=requestedSkillId?runtimeSkillsForProfile(state.profile).find(s=>s.id===requestedSkillId):null;
   const requestedFocus=requestedSkill?{skill:requestedSkill,state:ensureSkillState(state,requestedSkill.id)}:null;
-  const compareSkill=state.profile==='grade2'?skillsFor(state.profile).find(s=>s.id==='compareOrder1000'):null;
+  const compareSkill=state.profile==='grade2'?runtimeSkillsForProfile(state.profile).find(s=>s.id==='compareOrder1000'):null;
   const compareState=compareSkill?ensureSkillState(state,'compareOrder1000'):null;
   const replayCompareRevision=!!(compareSkill&&compareState?.learningCycle?.firstCycleCompletedAt&&compareState.learningCycle.lessonVersion!==COMPARE_ORDER_LESSON_VERSION&&(!requestedSkillId||requestedSkillId==='compareOrder1000'));
   const focus=requestedFocus||(replayCompareRevision?{skill:compareSkill,state:compareState}:pickFocus()); if(!focus){ showToast('Bu seviye için içerik bulunamadı'); return; }
+  if(focus.skill.id==='nelMatchAttributes'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NEL_MATCH_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=NEL_MATCH_LESSON_VERSION;
+    saveState();
+  }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -1670,7 +1880,7 @@ function maybeInjectBridgeReview(force=false){
   // General remediation is bounded, but prerequisite support and the final
   // completion recovery are hard gates and may never be dropped by that bound.
   if(session.bridgeAdds>=4&&!critical) return;
-  const skill=skillsFor(state.profile).find(s=>s.id===review.skillId); if(!skill) return;
+  const skill=runtimeSkillsForProfile(state.profile).find(s=>s.id===review.skillId); if(!skill) return;
   const already=session.plan.slice(session.planIndex).some(x=>x.reviewItem?.id===review.id);
   if(!already){
     session.plan.splice(session.planIndex,0,{
@@ -1702,7 +1912,7 @@ function loadPlanItem(){
   maybeInjectBridgeReview(atPlanEnd);
   if(session.planIndex>=session.plan.length){ finishSession(); return; }
   currentSelection=session.plan[session.planIndex];
-  const skill=skillsFor(state.profile).find(s=>s.id===currentSelection.skillId);
+  const skill=runtimeSkillsForProfile(state.profile).find(s=>s.id===currentSelection.skillId);
   if(!skill){ session.planIndex++; loadPlanItem(); return; }
   const ss=ensureSkillState(state,skill.id);
   currentSelection.skill=skill;
@@ -1803,6 +2013,7 @@ function renderPracticeHeader(skill){
   $('#practiceProgress').style.width=`${Math.round(session.planIndex/Math.max(1,total)*100)}%`;
 }
 function renderLessonIntro(skill){
+  if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -1904,6 +2115,14 @@ function wireResponse(q){
 function wireManipulator(q){
   const interaction=q.response?.interaction;
   if(!interaction) return;
+  if(interaction==='nel-match-pair'){
+    const root=$('.nel-match-builder');
+    root?.querySelectorAll('[data-nel-match-value]').forEach(button=>button.addEventListener('click',()=>{
+      if(answered) return;
+      root.querySelectorAll('[data-nel-match-value]').forEach(x=>x.classList.remove('selected'));
+      button.classList.add('selected'); updateManipulatorStatus(q);
+    }));
+  }
   if(interaction==='twentyframe-build'){
     const root=$('.interactive-twentyframe');
     root?.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
@@ -2196,7 +2415,8 @@ function bindFractionPaint(root,q){
 
 function readManipulatorValue(q){
   const interaction=q.response?.interaction;
-  if(interaction==='twentyframe-build') return $$('.interactive-twentyframe .added').length;
+  if(interaction==='nel-match-pair') return $('.nel-match-builder [data-nel-match-value].selected')?.dataset.nelMatchValue ?? null;
+  if(interaction==='twentyframe-build') return $('.interactive-twentyframe .added').length;
   if(interaction==='tenframe-complete') return $$('.complete-tenframe-builder .complete-token.moved').length;
   if(interaction==='add-to-ten') return $$('.add-to-ten-builder .move-token.moved').length;
   if(interaction==='balance-fill') return $$('.balance-fill-builder .balance-token.moved').length;
@@ -2260,7 +2480,8 @@ function readManipulatorValue(q){
 function updateManipulatorStatus(q){
   const node=$('#manipulatorStatus'); if(!node)return;
   const value=readManipulatorValue(q)??0;
-  if(q.response?.interaction==='twentyframe-build') node.textContent=`Kurduğun miktar: ${value}`;
+  if(q.response?.interaction==='nel-match-pair') node.textContent=value?'Bir eş seçtin. Şimdi kontrol et.':'Hedefe uygun eşi seç.';
+  else if(q.response?.interaction==='twentyframe-build') node.textContent=`Kurduğun miktar: ${value}`;
   else if(q.response?.interaction==='tenframe-complete') node.textContent=`Yerleştirdiğin taş: ${value}`;
   else if(q.response?.interaction==='add-to-ten') node.textContent=`İlk çerçeveye taşıdığın: ${value}`;
   else if(q.response?.interaction==='balance-fill') node.textContent=`Sağ tarafa eklediğin: ${value}`;
@@ -2437,7 +2658,7 @@ function finishSession(){
   // Hard invariant: a first learning cycle cannot be presented as completed
   // until a successful consolidation/recovery has actually closed the cycle.
   if(session.requiresLearningCompletion){
-    const gateSkill=skillsFor(state.profile).find(s=>s.id===session.focusSkillId);
+    const gateSkill=runtimeSkillsForProfile(state.profile).find(s=>s.id===session.focusSkillId);
     const gateState=gateSkill?ensureSkillState(state,gateSkill.id):null;
     if(gateState&&!gateState.learningCycle?.firstCycleCompletedAt){
       maybeInjectBridgeReview(true);
@@ -2465,7 +2686,7 @@ function finishSession(){
   saveState();
 
   if(ended.lessonCenterReturn){
-    const focusSkill=skillsFor(state.profile).find(s=>s.id===ended.focusSkillId);
+    const focusSkill=runtimeSkillsForProfile(state.profile).find(s=>s.id===ended.focusSkillId);
     const channel=ended.lessonChannel;
     const heading=channel==='learn'?'Konu anlatımı':channel==='practice'?(ended.practiceSectionLabel||'Uygulama bölümü'):'Tekrar';
     let detail='';
@@ -2486,7 +2707,7 @@ function finishSession(){
   }
 
   const attempts=ended.correct+ended.wrong; const rate=attempts?Math.round(ended.correct/attempts*100):0;
-  const focusSkill=skillsFor(state.profile).find(s=>s.id===ended.focusSkillId); const focusState=focusSkill?ensureSkillState(state,focusSkill.id):null;
+  const focusSkill=runtimeSkillsForProfile(state.profile).find(s=>s.id===ended.focusSkillId); const focusState=focusSkill?ensureSkillState(state,focusSkill.id):null;
   $('#practiceProgress').style.width='100%';
   $('#practiceCounter').textContent=`${ended.questionIndex} / ${ended.questionIndex}`;
   $('#practiceContent').innerHTML=`<section class="session-end">
@@ -2547,9 +2768,32 @@ function speak(text){
   speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='tr-TR'; u.rate=.91; u.pitch=1.02; speechSynthesis.speak(u);
 }
 
+
+function nelMatchTokenVisual(item={}){ return '<div class="nel-match-visual-token">'+nelMatchObjectMarkup(item,'eşleştirme nesnesi')+'</div>'; }
+function nelMatchTargetVisual(target={},attributeLabel='özelliği'){
+  return '<div class="nel-match-question-target"><small>HEDEF · '+esc(attributeLabel.toUpperCase())+'</small>'+nelMatchObjectMarkup(target,'hedef nesne')+'</div>';
+}
+function nelMatchPairCardVisual(left={},right={}){
+  return '<div class="nel-match-question-pair">'+nelMatchObjectMarkup(left,'birinci nesne')+'<span>↔</span>'+nelMatchObjectMarkup(right,'ikinci nesne')+'</div>';
+}
+function nelMatchBuilderVisual(v={}){
+  return '<div class="nel-match-builder" data-attribute="'+esc(v.attribute||'exact')+'">'+
+    '<div class="nel-match-question-target"><small>HEDEF</small>'+nelMatchObjectMarkup(v.target,'hedef nesne')+'</div>'+
+    '<div class="nel-match-builder-options">'+(v.options||[]).map(item=>'<button type="button" data-nel-match-value="'+esc(item.id||'')+'">'+nelMatchObjectMarkup(item,'eşleştirme seçeneği')+'</button>').join('')+'</div>'+
+  '</div>';
+}
+function nelMatchContextVisual(v={}){
+  return '<div class="nel-match-context-visual"><span>OYUNCAK KUTUSU</span>'+nelMatchTargetVisual(v.target,v.attributeLabel||'özellik')+'</div>';
+}
+
 function renderVisual(v,q){
   if(!v) return `<div style="position:relative;z-index:1;text-align:center;color:var(--muted);font-size:11px;max-width:360px">Bu pencerede görsel model yerine dil ve akıl yürütme kullanılıyor.</div>`;
   switch(v.type){
+    case 'nel-match-token': return nelMatchTokenVisual(v.item);
+    case 'nel-match-target': return nelMatchTargetVisual(v.target,v.attributeLabel);
+    case 'nel-match-pair-card': return nelMatchPairCardVisual(v.left,v.right);
+    case 'nel-match-builder': return nelMatchBuilderVisual(v);
+    case 'nel-match-context': return nelMatchContextVisual(v);
     case 'dots': return `<div class="visual-dots">${Array.from({length:v.n},()=>'<i class="dot"></i>').join('')}</div>`;
     case 'objects': return `<div class="visual-objects">${Array.from({length:v.n},(_,i)=>`<i class="object-token" style="--r:${(i%3-1)*5}deg"></i>`).join('')}</div>`;
     case 'buttons': return `<div class="visual-objects">${Array.from({length:v.n},()=>'<i class="object-token"></i>').join('')}<span style="font-size:26px;color:var(--muted)">…</span></div>`;
