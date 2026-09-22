@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes',
+  'nelMatchAttributes','nelSortAttributes',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -195,6 +195,22 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelSortAttributes:{
+    version:1,
+    unitId:'nel-relationships-patterns',
+    pathId:'relationships-patterns',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'sort-colour-shape',label:'Renk ve şekle göre sınıfla',phase:'model',representation:'build'},
+        {id:'sort-size-measure',label:'Büyüklük ve ölçüye göre sınıfla',phase:'representation',representation:'see'},
+        {id:'resort-new-rule',label:'Aynı nesneleri başka kuralla yeniden sınıfla',phase:'symbol',representation:'symbol'},
+        {id:'explain-sort-rule',label:'Sınıflama kuralını söyle',phase:'reasoning',representation:'explain'},
+        {id:'transfer-sort',label:'Günlük hayatta sınıfla',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -232,6 +248,7 @@ const skill = (id, profile, label, family, accent, prerequisite = [], options = 
 export const SKILLS = [
   // NEL v2 reference skills stay hidden until the complete preschool path is ready.
   skill('nelMatchAttributes','preschool','Aynı özelliği eşleştir','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
+  skill('nelSortAttributes','preschool','Özelliğe göre sınıfla','İlişkiler & Örüntüler','navy',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -520,6 +537,13 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'İlk NEL v2 referans becerinin Öğren/Uygula sözleşmesi açık',
       !contract.provisional && contract.practice.sections.length===5,
       contract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const sortContract=lessonContractFor('nelSortAttributes');
+    add(
+      'nel-sort-reference-contract',
+      'NEL v2 sınıflama becerisinin Öğren/Uygula sözleşmesi açık',
+      !sortContract.provisional && sortContract.practice.sections.length===5,
+      sortContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -1169,6 +1193,74 @@ function nelMatchReason(attribute){
   }[attribute]||'Ortak bir özellikleri var.';
 }
 
+function nelSortItems(){
+  return {
+    blueCircleSmall:{id:'sort-blue-circle-small',shape:'circle',tone:'blue',size:'small',length:'medium',height:'medium'},
+    blueSquareLarge:{id:'sort-blue-square-large',shape:'square',tone:'blue',size:'large',length:'medium',height:'medium'},
+    blueTriangleSmall:{id:'sort-blue-triangle-small',shape:'triangle',tone:'blue',size:'small',length:'medium',height:'medium'},
+    blueCircleLarge2:{id:'sort-blue-circle-large-2',shape:'circle',tone:'blue',size:'large',length:'medium',height:'medium'},
+    redCircleLarge:{id:'sort-red-circle-large',shape:'circle',tone:'red',size:'large',length:'medium',height:'medium'},
+    redSquareSmall:{id:'sort-red-square-small',shape:'square',tone:'red',size:'small',length:'medium',height:'medium'},
+    redTriangleLarge:{id:'sort-red-triangle-large',shape:'triangle',tone:'red',size:'large',length:'medium',height:'medium'},
+    redSquareLarge2:{id:'sort-red-square-large-2',shape:'square',tone:'red',size:'large',length:'medium',height:'medium'},
+    shortBlueBar:{id:'sort-short-blue-bar',shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
+    shortRedBar:{id:'sort-short-red-bar',shape:'bar',tone:'red',size:'medium',length:'short',height:'medium'},
+    shortYellowBar:{id:'sort-short-yellow-bar',shape:'bar',tone:'yellow',size:'medium',length:'short',height:'medium'},
+    longBlueBar:{id:'sort-long-blue-bar',shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium'},
+    longRedBar:{id:'sort-long-red-bar',shape:'bar',tone:'red',size:'medium',length:'long',height:'medium'},
+    longGreenBar:{id:'sort-long-green-bar',shape:'bar',tone:'green',size:'medium',length:'long',height:'medium'},
+    lowBlueTower:{id:'sort-low-blue-tower',shape:'tower',tone:'blue',size:'medium',length:'medium',height:'short'},
+    lowRedTower:{id:'sort-low-red-tower',shape:'tower',tone:'red',size:'medium',length:'medium',height:'short'},
+    lowGreenTower:{id:'sort-low-green-tower',shape:'tower',tone:'green',size:'medium',length:'medium',height:'short'},
+    tallBlueTower:{id:'sort-tall-blue-tower',shape:'tower',tone:'blue',size:'medium',length:'medium',height:'tall'},
+    tallYellowTower:{id:'sort-tall-yellow-tower',shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'},
+    tallGreenTower:{id:'sort-tall-green-tower',shape:'tower',tone:'green',size:'medium',length:'medium',height:'tall'}
+  };
+}
+function nelSortCases(){
+  const i=nelSortItems();
+  const sharedColourShape=[i.blueCircleSmall,i.blueSquareLarge,i.blueCircleLarge2,i.redCircleLarge,i.redSquareSmall,i.redSquareLarge2];
+  return [
+    {
+      id:'sort-tone',attribute:'tone',attributeLabel:'renk',ruleLabel:'Renge göre',
+      bins:[{value:'blue',label:'Mavi'},{value:'red',label:'Kırmızı'}],
+      items:sharedColourShape
+    },
+    {
+      id:'sort-shape',attribute:'shape',attributeLabel:'şekil',ruleLabel:'Şekle göre',
+      bins:[{value:'circle',label:'Daire'},{value:'square',label:'Kare'}],
+      items:sharedColourShape
+    },
+    {
+      id:'sort-size',attribute:'size',attributeLabel:'büyüklük',ruleLabel:'Büyüklüğe göre',
+      bins:[{value:'small',label:'Küçük'},{value:'large',label:'Büyük'}],
+      items:[i.blueCircleSmall,i.redSquareSmall,i.blueTriangleSmall,i.blueSquareLarge,i.redCircleLarge,i.redTriangleLarge]
+    },
+    {
+      id:'sort-length',attribute:'length',attributeLabel:'uzunluk',ruleLabel:'Uzunluğa göre',
+      bins:[{value:'short',label:'Kısa'},{value:'long',label:'Uzun'}],
+      items:[i.shortBlueBar,i.shortRedBar,i.shortYellowBar,i.longBlueBar,i.longRedBar,i.longGreenBar]
+    },
+    {
+      id:'sort-height',attribute:'height',attributeLabel:'yükseklik',ruleLabel:'Yüksekliğe göre',
+      bins:[{value:'short',label:'Alçak'},{value:'tall',label:'Yüksek'}],
+      items:[i.lowBlueTower,i.lowRedTower,i.lowGreenTower,i.tallBlueTower,i.tallYellowTower,i.tallGreenTower]
+    }
+  ];
+}
+function nelSortExpected(sortCase){
+  return sortCase.items
+    .map(item=>item.id+':'+String(item[sortCase.attribute]))
+    .sort()
+    .join('|');
+}
+function nelSortCaseForAttribute(attribute){
+  return nelSortCases().find(c=>c.attribute===attribute)||nelSortCases()[0];
+}
+function nelSortRuleDistractors(correct){
+  return ['Renge göre','Şekle göre','Büyüklüğe göre','Uzunluğa göre','Yüksekliğe göre'].filter(x=>x!==correct);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1378,6 +1470,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
     return {version:2,skillId,conceptKey,difficulty:d,anchor,symbol,transfer};
   };
   if(skillId==='nelMatchAttributes') return make('nel-matching-by-attribute',nelMatchCases());
+  if(skillId==='nelSortAttributes') return make('nel-sorting-by-attribute',nelSortCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -1465,6 +1558,59 @@ function genNelMatchAttributes(rep,d,rng,concept){
   return qTask('nelMatchAttributes','transfer','Oyuncak kutusunda hedef oyuncağa aynı '+y.attributeLabel+' sahip olanı seç.','correct',{kind:'visual-choice',options:y.options.map(item=>({value:item.id===y.answer.id?'correct':item.id,visual:{type:'nel-match-token',item},ariaLabel:'oyuncak eşleştirme seçeneği'}))},{
     taskKind:'nel-match-transfer',taskLabel:'Eşleştirmeyi günlük duruma taşı',visual:{type:'nel-match-context',target:y.target,attributeLabel:y.attributeLabel},
     hint:'Oyuncakların '+y.attributeLabel+' karşılaştır.',explain:nelMatchReason(y.attribute)
+  });
+}
+
+
+function genNelSortAttributes(rep,d,rng,concept){
+  const c=concept?.skillId==='nelSortAttributes'?concept:createConceptInstance('nelSortAttributes',d,rng);
+  const x=c.anchor;
+  const expected=nelSortExpected(x);
+
+  if(rep==='build'){
+    return qTask('nelSortAttributes','build','Nesneleri '+x.attributeLabel+' özelliğine göre iki gruba ayır.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Gruplarımı kontrol et'},{
+      taskKind:'nel-sort-build',taskLabel:'Nesneleri bir özelliğe göre sınıfla',
+      visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Her nesne için yalnız '+x.attributeLabel+' özelliğine bak.',explain:'Nesneler '+x.ruleLabel.toLowerCase()+' iki gruba ayrıldı.'
+    });
+  }
+
+  if(rep==='see'){
+    return qBase('nelSortAttributes','see','Bu iki grup hangi kurala göre oluşturulmuş?',x.ruleLabel,semanticChoices(x.ruleLabel,nelSortRuleDistractors(x.ruleLabel),rng),{
+      taskKind:'nel-sort-see',taskLabel:'Sınıflama kuralını görselden fark et',
+      visual:{type:'nel-sort-display',attribute:x.attribute,bins:x.bins,items:x.items},
+      hint:'Aynı kutudaki nesnelerin ortak özelliğini ara.',explain:'Gruplama '+x.ruleLabel.toLowerCase()+' yapılmış.'
+    });
+  }
+
+  if(rep==='symbol'){
+    const y=c.symbol;
+    const target=y.items[0];
+    const targetBin=String(target[y.attribute]);
+    const answer=y.bins.find(bin=>bin.value===targetBin)?.label||targetBin;
+    return qBase('nelSortAttributes','symbol','Hedef nesne hangi gruba konmalı?',answer,semanticChoices(answer,y.bins.map(bin=>bin.label).filter(label=>label!==answer),rng),{
+      taskKind:'nel-sort-show',taskLabel:'Nesnenin ait olduğu grubu göster',
+      visual:{type:'nel-sort-target',attribute:y.attribute,attributeLabel:y.attributeLabel,bins:y.bins,items:y.items,target},
+      hint:'Bu görevde '+y.attributeLabel+' özelliğine bak.',explain:'Hedef nesne '+answer.toLowerCase()+' grubuna gider.'
+    });
+  }
+
+  if(rep==='explain'){
+    const tone=nelSortCaseForAttribute('tone'), shape=nelSortCaseForAttribute('shape');
+    const answer='Aynı nesnelerin birden fazla özelliği vardır.';
+    return qBase('nelSortAttributes','explain','Aynı nesneler neden farklı iki kuralla yeniden sınıflanabilir?',answer,semanticChoices(answer,['Nesneler sınıflanınca özelliklerini kaybeder.','Her nesnenin yalnız bir özelliği vardır.','Grupların kuralı önemli değildir.'],rng),{
+      taskKind:'nel-sort-explain',taskLabel:'Yeniden sınıflamanın nedenini açıkla',
+      visual:{type:'nel-sort-two-rules',first:{attribute:tone.attribute,bins:tone.bins,items:tone.items.slice(0,4)},second:{attribute:shape.attribute,bins:shape.bins,items:shape.items.slice(0,4)}},
+      hint:'Bir nesnenin hem rengi hem şekli olabilir.',explain:answer
+    });
+  }
+
+  const y=c.transfer;
+  const transferExpected=nelSortExpected(y);
+  return qTask('nelSortAttributes','transfer','Oyuncakları '+y.attributeLabel+' özelliğine göre kutulara ayır.',transferExpected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:transferExpected,checkLabel:'Kutularımı kontrol et'},{
+    taskKind:'nel-sort-transfer',taskLabel:'Sınıflamayı günlük bir duruma taşı',
+    visual:{type:'nel-sort-builder',context:'toy-box',attribute:y.attribute,attributeLabel:y.attributeLabel,bins:y.bins,items:y.items},
+    hint:'Kutulara koyarken yalnız '+y.attributeLabel+' özelliğini kullan.',explain:'Aynı sınıflama fikri oyuncakları düzenlerken de kullanılabilir.'
   });
 }
 
@@ -3208,6 +3354,7 @@ function genData2(rep,d,rng){
 }
 const GENERATORS={
   nelMatchAttributes:genNelMatchAttributes,
+  nelSortAttributes:genNelSortAttributes,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -4019,6 +4166,82 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 }
 
 
+
+function nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelSortCases();
+  const caseFor=attribute=>cases.find(c=>c.attribute===attribute)||cases[0];
+  let x;
+
+  if(sectionId==='sort-colour-shape'){
+    x=taskIndex%2===0?caseFor('tone'):caseFor('shape');
+    const expected=nelSortExpected(x);
+    return qTask('nelSortAttributes','build','Nesneleri '+x.attributeLabel+' özelliğine göre sınıfla.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Sınıflamamı kontrol et'},{
+      taskKind:'nel-practice-sort-colour-shape-'+taskIndex,taskLabel:'Renk veya şekle göre sınıfla',
+      visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Bu görevde yalnız '+x.attributeLabel+' özelliğini kullan.',explain:'Gruplar '+x.ruleLabel.toLowerCase()+' oluşturuldu.'
+    });
+  }
+
+  if(sectionId==='sort-size-measure'){
+    const attrs=['size','length','height'];
+    x=caseFor(attrs[taskIndex%attrs.length]);
+    if(taskIndex%2===0){
+      const expected=nelSortExpected(x);
+      return qTask('nelSortAttributes','see','Nesneleri '+x.attributeLabel+' özelliğine göre iki gruba ayır.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Gruplarımı kontrol et'},{
+        taskKind:'nel-practice-sort-size-measure-'+taskIndex,taskLabel:'Büyüklük veya ölçü özelliğine göre sınıfla',
+        visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+        hint:'Nesnelerin '+x.attributeLabel+' özelliğini karşılaştır.',explain:'Gruplama '+x.ruleLabel.toLowerCase()+' yapıldı.'
+      });
+    }
+    return qBase('nelSortAttributes','see','Bu gruplama hangi özelliğe göre yapılmış?',x.ruleLabel,semanticChoices(x.ruleLabel,nelSortRuleDistractors(x.ruleLabel),rng),{
+      taskKind:'nel-practice-see-rule-'+taskIndex,taskLabel:'Sınıflama kuralını gör',
+      visual:{type:'nel-sort-display',attribute:x.attribute,bins:x.bins,items:x.items},
+      hint:'Aynı kutudaki nesnelerin ortak yönünü ara.',explain:'Kural '+x.ruleLabel.toLowerCase()+'.'
+    });
+  }
+
+  if(sectionId==='resort-new-rule'){
+    const first=caseFor('tone'), second=caseFor('shape');
+    const useSecond=taskIndex%2===0;
+    x=useSecond?second:first;
+    const expected=nelSortExpected(x);
+    return qTask('nelSortAttributes','symbol','Aynı nesneleri bu kez '+x.attributeLabel+' özelliğine göre yeniden sınıfla.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Yeni gruplarımı kontrol et'},{
+      taskKind:'nel-practice-resort-'+taskIndex,taskLabel:'Aynı nesneleri yeni kuralla yeniden sınıfla',
+      visual:{type:'nel-sort-builder',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Eski kuralı bırak; şimdi yalnız '+x.attributeLabel+' özelliğine bak.',explain:'Aynı nesneler başka bir ortak özelliğe göre yeniden sınıflanabilir.'
+    });
+  }
+
+  if(sectionId==='explain-sort-rule'){
+    if(taskIndex%2===0){
+      x=cases[taskIndex%cases.length];
+      return qBase('nelSortAttributes','explain','Bu gruplamanın kuralını nasıl anlatırsın?',x.ruleLabel,semanticChoices(x.ruleLabel,nelSortRuleDistractors(x.ruleLabel),rng),{
+        taskKind:'nel-practice-explain-rule-'+taskIndex,taskLabel:'Sınıflama kuralını söyle',
+        visual:{type:'nel-sort-display',attribute:x.attribute,bins:x.bins,items:x.items},
+        hint:'Kutuların içindeki ortak özelliği adlandır.',explain:'Bu gruplama '+x.ruleLabel.toLowerCase()+' yapılmış.'
+      });
+    }
+    const answer='Aynı nesnelerin birden fazla özelliği vardır.';
+    return qBase('nelSortAttributes','explain','Aynı nesneleri renklerine göre de şekillerine göre de sınıflayabilmemizin nedeni nedir?',answer,semanticChoices(answer,['Her nesne yalnız bir gruba girebilir.','Sınıflama kuralı rastgele seçilir.','Renk ile şekil aynı özelliktir.'],rng),{
+      taskKind:'nel-practice-explain-flexibility-'+taskIndex,taskLabel:'Farklı sınıflama kurallarını açıkla',
+      visual:{type:'nel-sort-two-rules',first:caseFor('tone'),second:caseFor('shape')},
+      hint:'Bir nesnenin aynı anda hem rengi hem şekli vardır.',explain:answer
+    });
+  }
+
+  if(sectionId==='transfer-sort'){
+    x=cases[(taskIndex+2)%cases.length];
+    const expected=nelSortExpected(x);
+    return qTask('nelSortAttributes','transfer','Oyun sonrası nesneleri '+x.attributeLabel+' özelliğine göre kutulara yerleştir.',expected,{kind:'manipulative',interaction:'nel-sort-bin',expectedValue:expected,checkLabel:'Düzenimi kontrol et'},{
+      taskKind:'nel-practice-transfer-sort-'+taskIndex,taskLabel:'Sınıflamayı günlük düzenlemeye taşı',
+      visual:{type:'nel-sort-builder',context:'cleanup',attribute:x.attribute,attributeLabel:x.attributeLabel,bins:x.bins,items:x.items},
+      hint:'Her kutu için tek bir ortak özellik kullan.',explain:'Sınıflama günlük eşyaları düzenlemek için de kullanılabilir.'
+    });
+  }
+
+  throw new Error('Unknown nelSortAttributes practice section: '+sectionId);
+}
+
 function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelMatchCases();
   const by=attribute=>cases.filter(c=>c.attribute===attribute);
@@ -4067,7 +4290,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelMatchAttributes') q=nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelSortAttributes') q=nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelMatchAttributes') q=nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='number1000') q=number1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='compareOrder1000') q=compareOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='numberPattern1000') q=numberPattern1000PracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -4122,6 +4346,7 @@ export function selectNextSkill(state, session, now=Date.now(), rng=Math.random)
 
 const CONCEPT_KEYS={
   nelMatchAttributes:'nel-matching-by-attribute',
+  nelSortAttributes:'nel-sorting-by-attribute',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
