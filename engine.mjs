@@ -1705,7 +1705,7 @@ function genNelCompareAttributes(rep,d,rng,concept){
     });
   }
   if(rep==='see'){
-    return qBase('nelCompareAttributes','see','Bu iki nesne için doğru karşılaştırma hangisi?',label,semanticChoices(label,choices.filter(v=>v!==label),rng),{
+    return qBase('nelCompareAttributes','see','Bu iki nesne için doğru karşılaştırma hangisi?',label,semanticChoices(label,[...choices.filter(v=>v!==label),'Karşılaştırmak için bilgi eksik'],rng),{
       taskKind:'nel-compare-see',taskLabel:'Karşılaştırma ilişkisini gör',
       visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
       hint:'İki nesnenin yalnız '+x.attributeLabel+' özelliğini karşılaştır.',explain:nelCompareExplain(x)
@@ -1713,7 +1713,7 @@ function genNelCompareAttributes(rep,d,rng,concept){
   }
   if(rep==='symbol'){
     const y=c.symbol, answer=nelCompareAnswerLabel(y);
-    return qBase('nelCompareAttributes','symbol','Doğru karşılaştırma cümlesini göster.',answer,semanticChoices(answer,nelCompareChoiceLabels(y).filter(v=>v!==answer),rng),{
+    return qBase('nelCompareAttributes','symbol','Doğru karşılaştırma cümlesini göster.',answer,semanticChoices(answer,[...nelCompareChoiceLabels(y).filter(v=>v!==answer),'Karşılaştırmak için bilgi eksik'],rng),{
       taskKind:'nel-compare-show',taskLabel:'Karşılaştırma cümlesini göster',
       visual:{type:'nel-compare-pair',left:y.left,right:y.right,attribute:y.attribute,attributeLabel:y.attributeLabel,aligned:true},
       hint:'İlişkiyi bir karşılaştırma cümlesiyle göster.',explain:nelCompareExplain(y)
@@ -1721,7 +1721,7 @@ function genNelCompareAttributes(rep,d,rng,concept){
   }
   if(rep==='explain'){
     const answer=x.attributeAnswer;
-    const wrong=['Büyüklüklerine göre','Uzunluklarına göre','Yüksekliklerine göre'].filter(v=>v!==answer);
+    const wrong=[...['Büyüklüklerine göre','Uzunluklarına göre','Yüksekliklerine göre'].filter(v=>v!==answer),'Renklerine göre'];
     return qBase('nelCompareAttributes','explain','Bu karşılaştırmada hangi özelliğe bakıyoruz?',answer,semanticChoices(answer,wrong,rng),{
       taskKind:'nel-compare-explain',taskLabel:'Karşılaştırma özelliğini açıkla',
       visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
@@ -1729,7 +1729,7 @@ function genNelCompareAttributes(rep,d,rng,concept){
     });
   }
   const y=c.transfer, answer=nelCompareAnswerLabel(y);
-  return qBase('nelCompareAttributes','transfer','Günlük nesnelerde aynı '+y.attributeLabel+' özelliğini karşılaştırırsan hangisini söylersin?',answer,semanticChoices(answer,nelCompareChoiceLabels(y).filter(v=>v!==answer),rng),{
+  return qBase('nelCompareAttributes','transfer','Günlük nesnelerde aynı '+y.attributeLabel+' özelliğini karşılaştırırsan hangisini söylersin?',answer,semanticChoices(answer,[...nelCompareChoiceLabels(y).filter(v=>v!==answer),'Karşılaştırmak için bilgi eksik'],rng),{
     taskKind:'nel-compare-transfer',taskLabel:'Karşılaştırmayı günlük bir duruma taşı',
     visual:{type:'nel-compare-context',left:y.left,right:y.right,attribute:y.attribute,attributeLabel:y.attributeLabel,aligned:true},
     hint:'Nesnelerin türü değil, seçtiğin '+y.attributeLabel+' özelliği önemli.',explain:nelCompareExplain(y)
@@ -4314,7 +4314,7 @@ function nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng){
   if(sectionId==='compare-height'){
     x=by('height')[taskIndex%by('height').length];
     const answer=nelCompareAnswerLabel(x);
-    return qBase('nelCompareAttributes','symbol','Kulelerin yüksekliği için doğru cümleyi göster.',answer,semanticChoices(answer,nelCompareChoiceLabels(x).filter(v=>v!==answer),rng),{
+    return qBase('nelCompareAttributes','symbol','Kulelerin yüksekliği için doğru cümleyi göster.',answer,semanticChoices(answer,[...nelCompareChoiceLabels(x).filter(v=>v!==answer),'Karşılaştırmak için bilgi eksik'],rng),{
       taskKind:'nel-practice-compare-height-'+taskIndex,taskLabel:'Yükseklik ilişkisini göster',
       visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
       hint:'Tabanları aynı çizgide düşün ve tepelere bak.',explain:nelCompareExplain(x)
@@ -4325,7 +4325,7 @@ function nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng){
     x=by(attrs[taskIndex%attrs.length])[taskIndex%3];
     if(taskIndex%2===0){
       const answer=x.attributeAnswer;
-      const wrong=['Büyüklüklerine göre','Uzunluklarına göre','Yüksekliklerine göre'].filter(v=>v!==answer);
+      const wrong=[...['Büyüklüklerine göre','Uzunluklarına göre','Yüksekliklerine göre'].filter(v=>v!==answer),'Renklerine göre'];
       return qBase('nelCompareAttributes','explain','Bu iki nesneyi hangi özelliklerine göre karşılaştırıyoruz?',answer,semanticChoices(answer,wrong,rng),{
         taskKind:'nel-practice-explain-attribute-'+taskIndex,taskLabel:'Karşılaştırma özelliğini adlandır',
         visual:{type:'nel-compare-pair',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
@@ -4345,7 +4345,7 @@ function nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng){
     x=by(attrs[taskIndex%attrs.length])[(taskIndex+1)%3];
     const answer=nelCompareAnswerLabel(x);
     const context=x.attribute==='length'?'İki kurdele':x.attribute==='height'?'İki kule':'İki oyuncak';
-    return qBase('nelCompareAttributes','transfer',context+' için '+x.attributeLabel+' özelliğini karşılaştır. Hangisini söylersin?',answer,semanticChoices(answer,nelCompareChoiceLabels(x).filter(v=>v!==answer),rng),{
+    return qBase('nelCompareAttributes','transfer',context+' için '+x.attributeLabel+' özelliğini karşılaştır. Hangisini söylersin?',answer,semanticChoices(answer,[...nelCompareChoiceLabels(x).filter(v=>v!==answer),'Karşılaştırmak için bilgi eksik'],rng),{
       taskKind:'nel-practice-transfer-compare-'+taskIndex,taskLabel:'Karşılaştırmayı günlük nesnelere taşı',
       visual:{type:'nel-compare-context',left:x.left,right:x.right,attribute:x.attribute,attributeLabel:x.attributeLabel,aligned:true},
       hint:'Yalnız seçilen '+x.attributeLabel+' özelliğine bak.',explain:nelCompareExplain(x)
