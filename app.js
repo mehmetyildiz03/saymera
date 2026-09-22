@@ -1203,7 +1203,7 @@ function wireNelCompareLessonStep(step,next){
       $('#nelCompareHelp').textContent=step.attribute==='length'?'Başlangıç ve bitiş noktalarına birlikte bak.':'Yalnız seçilen özelliği karşılaştır.';
       return;
     }
-    button.classList.add('selected'); $$('.nel-compare-choice').forEach(x=>x.disabled=true);
+    button.classList.add('selected'); $('.nel-compare-choice').forEach(x=>{x.disabled=true;x.classList.remove('wrong');});
     $('#nelCompareHelp').textContent=''; revealNelCompareResult(); next.disabled=false;
   }));
 }

@@ -915,7 +915,7 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .nel-compare-choice{min-height:56px;padding:9px;border:1px solid var(--line);border-radius:16px;background:var(--paper);font-weight:900}
 .nel-compare-choice.selected{background:var(--teal-soft);border-color:#9dcfc3}
 .nel-compare-choice.wrong{animation:lessonNudge .28s;background:var(--coral-soft)}
-.nel-compare-choice:disabled{opacity:.48}
+.nel-compare-choice:disabled{opacity:.48}\n.nel-compare-choice.selected:disabled{opacity:1}
 .nel-compare-help{min-height:18px;margin:0;color:var(--muted);font-size:11px;font-weight:800;text-align:center}
 .nel-compare-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(640px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}
 .nel-compare-result.revealed{opacity:1;transform:none}
