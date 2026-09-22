@@ -851,6 +851,7 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .nel-sort-builder{width:min(700px,100%);display:grid;gap:13px;position:relative;z-index:1}
 .nel-sort-context-label{justify-self:center;padding:6px 9px;border-radius:999px;background:var(--sun-soft);font-size:8px;font-weight:950;letter-spacing:.11em;color:#80631d}
 .nel-sort-tray{min-height:118px;padding:12px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+.nel-sort-builder.complete .nel-sort-tray{display:none}
 .nel-sort-item{min-width:90px;min-height:92px;padding:4px;border:1px solid transparent;border-radius:18px;background:rgba(255,255,255,.72);display:grid;place-items:center;transition:.14s}
 .nel-sort-item.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(78,140,200,.13);transform:translateY(-2px)}
 .nel-sort-item.placed{min-width:72px;min-height:72px;background:transparent}
@@ -6639,7 +6640,7 @@ function wireNelSortLessonStep(step,next){
       target?.appendChild(selected); selected=null;
       const remaining=root.querySelectorAll('[data-nel-sort-item]:not(.placed)').length;
       $('#nelSortHelp').textContent=remaining?remaining+' nesne daha var.':'Bütün nesneler seçilen kurala göre gruplandı.';
-      if(!remaining){ revealNelSortResult(); next.disabled=false; }
+      if(!remaining){ root.classList.add('complete'); revealNelSortResult(); next.disabled=false; }
     }));
     return;
   }
@@ -7922,6 +7923,7 @@ function wireManipulator(q){
       selected.dataset.assigned=bin.dataset.nelSortBin;
       selected.classList.remove('selected'); selected.classList.add('placed');
       target?.appendChild(selected); selected=null;
+      if(root.querySelectorAll('[data-nel-sort-item]:not([data-assigned])').length===0) root.classList.add('complete');
       updateManipulatorStatus(q);
     }));
   }

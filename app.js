@@ -1034,7 +1034,7 @@ function wireNelSortLessonStep(step,next){
       target?.appendChild(selected); selected=null;
       const remaining=root.querySelectorAll('[data-nel-sort-item]:not(.placed)').length;
       $('#nelSortHelp').textContent=remaining?remaining+' nesne daha var.':'Bütün nesneler seçilen kurala göre gruplandı.';
-      if(!remaining){ revealNelSortResult(); next.disabled=false; }
+      if(!remaining){ root.classList.add('complete'); revealNelSortResult(); next.disabled=false; }
     }));
     return;
   }
@@ -2317,6 +2317,7 @@ function wireManipulator(q){
       selected.dataset.assigned=bin.dataset.nelSortBin;
       selected.classList.remove('selected'); selected.classList.add('placed');
       target?.appendChild(selected); selected=null;
+      if(root.querySelectorAll('[data-nel-sort-item]:not([data-assigned])').length===0) root.classList.add('complete');
       updateManipulatorStatus(q);
     }));
   }
