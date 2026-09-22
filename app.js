@@ -1039,13 +1039,13 @@ function wireNelSortLessonStep(step,next){
     return;
   }
   if(step.kind==='rule'||step.kind==='reason'){
-    $('.nel-sort-rule-choice').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-sort-rule-choice').forEach(button=>button.addEventListener('click',()=>{
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),300);
         $('#nelSortHelp').textContent=step.kind==='rule'?'Aynı kutudaki nesnelerin ortak özelliğine bak.':'Bir nesnenin aynı anda kaç farklı özelliği olabilir?';
         return;
       }
-      button.classList.add('selected'); $('.nel-sort-rule-choice').forEach(x=>x.disabled=true);
+      button.classList.add('selected'); $$('.nel-sort-rule-choice').forEach(x=>x.disabled=true);
       $('#nelSortHelp').textContent=''; revealNelSortResult(); next.disabled=false;
     }));
     return;

@@ -5612,7 +5612,7 @@ function representationGap(skillState){
 const STORAGE_KEY='saymera.math.v2';
 const INSPECTOR_ENABLED=new URLSearchParams(location.search).get('inspect')==='1';
 const $=s=>document.querySelector(s);
-const $=s=>[...document.querySelectorAll(s)];
+const $$=s=>[...document.querySelectorAll(s)];
 const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 
 const repDescriptions={
@@ -5750,7 +5750,7 @@ function renderNumber1000LessonStep(skill,index=null){
     });
   }else if(step.kind==='count'){
     let count=0;
-    $('.lesson-count-token').forEach(btn=>btn.addEventListener('click',()=>{
+    $$('.lesson-count-token').forEach(btn=>btn.addEventListener('click',()=>{
       if(btn.classList.contains('counted')) return;
       count++; btn.classList.add('counted');
       const value=count*step.stepValue;
@@ -5775,8 +5775,8 @@ function renderNumber1000LessonStep(skill,index=null){
       }
     });
   }else if(step.kind==='model-build'){
-    const seen=new Set(), slots=$('#lessonDigitSlots span');
-    $('.lesson-model-group').forEach(btn=>btn.addEventListener('click',()=>{
+    const seen=new Set(), slots=$$('#lessonDigitSlots span');
+    $$('.lesson-model-group').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.modelIndex); if(seen.has(i)) return;
       seen.add(i); btn.classList.add('revealed');
       const [label,count,digit]=step.groups[i];
@@ -5788,7 +5788,7 @@ function renderNumber1000LessonStep(skill,index=null){
     }));
   }else if(step.kind==='place-model'){
     const seen=new Set();
-    $('.lesson-place-column').forEach(btn=>btn.addEventListener('click',()=>{
+    $$('.lesson-place-column').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.placeIndex); if(seen.has(i)) return;
       seen.add(i); btn.classList.add('revealed'); btn.querySelector('b').textContent=btn.dataset.placeValue; btn.querySelector('small').textContent='değeri';
       const [digit,label,value]=step.values[i], left=step.values.length-seen.size;
@@ -5797,7 +5797,7 @@ function renderNumber1000LessonStep(skill,index=null){
     }));
   }else if(step.kind==='zero-place'){
     const seen=new Set();
-    $('.lesson-zero-gap').forEach(gap=>gap.addEventListener('click',()=>{
+    $$('.lesson-zero-gap').forEach(gap=>gap.addEventListener('click',()=>{
       if(seen.has(gap)) return;
       seen.add(gap); gap.classList.add('revealed');
       $('#lessonZeroExplain').textContent=seen.size===1?'Bu basamakta hiç '+gap.dataset.zeroName+' yok. Diğer boş basamağı da bul.':'0, o basamakta hiç parça olmadığını gösteriyor.';
@@ -5805,14 +5805,14 @@ function renderNumber1000LessonStep(skill,index=null){
     }));
   }else if(step.kind==='read-write'){
     const seen=new Set();
-    $('.lesson-word-reveal').forEach(btn=>btn.addEventListener('click',()=>{
+    $$('.lesson-word-reveal').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.wordIndex); if(seen.has(i)) return;
       seen.add(i); btn.classList.add('revealed'); btn.querySelector('span').textContent=btn.dataset.word;
       if(seen.size===step.wordParts.length){ $('#lessonReadCombined').textContent=step.wordParts.join(' '); $('#lessonReadCombined')?.classList.add('revealed'); revealLessonInsight(); next.disabled=false; }
     }));
   }else{
     let selectedChip=null, dragChip=null, dragStartX=0, dragStartY=0;
-    const chips=$('.lesson-word-chip'), slots=$('.lesson-word-slot');
+    const chips=$$('.lesson-word-chip'), slots=$$('.lesson-word-slot');
     const allPlaced=()=>slots.every(slot=>slot.classList.contains('filled'));
     const finishIfReady=()=>{ if(allPlaced()){ revealLessonInsight(); next.disabled=false; $('#lessonDragHelp').textContent='526 = beş yüz yirmi altı.'; } };
     const resetChipVisual=chip=>{ chip.style.transform=''; chip.style.zIndex=''; chip.classList.remove('dragging'); };
@@ -5931,7 +5931,7 @@ function renderCompareOrderLessonStep(skill,index=null){
 
   if(step.kind==='place-compare'){
     const a=compareDigits(step.a), b=compareDigits(step.b), seen=new Set();
-    $('.compare-place-column').forEach(btn=>btn.addEventListener('click',()=>{
+    $$('.compare-place-column').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.compareCol);
       if(seen.has(i)||!btn.classList.contains('ready')) return;
       seen.add(i); btn.classList.add('revealed'); btn.querySelector('small').textContent='karşılaştırıldı';
@@ -5949,7 +5949,7 @@ function renderCompareOrderLessonStep(skill,index=null){
     }));
   }else if(step.kind==='symbol-match'){
     let selected=null,drag=null,sx=0,sy=0;
-    const chips=$('.compare-symbol-drag'), slots=$('.compare-symbol-slot');
+    const chips=$$('.compare-symbol-drag'), slots=$$('.compare-symbol-slot');
     const place=(chip,slot)=>{
       if(!chip||!slot||slot.classList.contains('filled')) return false;
       const expected=slot.dataset.symbolSlot, value=chip.dataset.symbolValue;
@@ -5974,7 +5974,7 @@ function renderCompareOrderLessonStep(skill,index=null){
     $('#compareSymbolReset')?.addEventListener('click',()=>{ slots.forEach(slot=>{slot.classList.remove('filled','wrong');slot.querySelector('strong').textContent='?';}); chips.forEach(chip=>{chip.disabled=false;chip.classList.remove('placed','selected','dragging');chip.style.transform='';chip.dataset.justDragged='';}); selected=null;drag=null;next.disabled=true;$('#compareSymbolNote').textContent='İşareti sürükleyip doğru tanımın üzerine bırak.'; });
   }else if(step.kind==='symbol-bridge'){
     let selected=null,drag=null,sx=0,sy=0;
-    const slot=$('#compareBridgeSymbol'), chips=$('.compare-bridge-chip');
+    const slot=$('#compareBridgeSymbol'), chips=$$('.compare-bridge-chip');
     const place=chip=>{
       if(!chip||slot.classList.contains('revealed'))return false;
       if(chip.dataset.symbolValue!==slot.dataset.symbolSlot){ $('#compareBridgeHelp').textContent='Cümlede “küçüktür” deniyor. O anlamı taşıyan işareti seç.'; slot.classList.add('wrong');setTimeout(()=>slot.classList.remove('wrong'),320);return false; }
@@ -5990,7 +5990,7 @@ function renderCompareOrderLessonStep(skill,index=null){
     slot?.addEventListener('click',()=>{if(selected)place(selected);});
   }else{
     let selected=null,drag=null,sx=0,sy=0;
-    const chips=$('.compare-order-chip'), slots=$('.compare-order-slot');
+    const chips=$$('.compare-order-chip'), slots=$$('.compare-order-slot');
     const place=(chip,slot)=>{
       if(!chip||!slot||slot.classList.contains('filled')) return false;
       const idx=Number(slot.dataset.orderSlot), expected=step.ordered[idx], value=Number(chip.dataset.orderValue);
@@ -6092,7 +6092,7 @@ function revealPatternLessonResult(){
 }
 function wirePatternSingleDrop({chipSelector,slotSelector,onSuccess}){
   let selected=null,drag=null,sx=0,sy=0;
-  const chips=$(chipSelector), slots=$(slotSelector);
+  const chips=$$(chipSelector), slots=$$(slotSelector);
   const place=(chip,slot)=>{
     if(!chip||!slot||slot.classList.contains('filled')) return false;
     const value=chip.dataset.patternValue, expected=slot.dataset.patternValue;
@@ -6172,15 +6172,15 @@ function renderPattern1000LessonStep(skill,index=null){
       }
     });
   }else if(step.kind==='place-track'){
-    $('.pattern-place-choice').forEach(btn=>btn.addEventListener('click',()=>{
+    $$('.pattern-place-choice').forEach(btn=>btn.addEventListener('click',()=>{
       const index=Number(btn.dataset.placeChoice);
       if(index!==step.placeIndex){
         btn.classList.add('wrong');setTimeout(()=>btn.classList.remove('wrong'),320);
         $('#patternLessonHelp').textContent='Bu sütundaki rakamları dört sayıda da karşılaştır.';
         return;
       }
-      btn.classList.add('selected'); $('.pattern-place-choice').forEach(x=>x.disabled=true);
-      $('.pattern-place-board').forEach(board=>board.children[index]?.classList.add('changed'));
+      btn.classList.add('selected'); $$('.pattern-place-choice').forEach(x=>x.disabled=true);
+      $$('.pattern-place-board').forEach(board=>board.children[index]?.classList.add('changed'));
       $('#patternLessonHelp').textContent=''; revealPatternLessonResult(); next.disabled=false;
     }));
   }else if(step.kind==='rule-match'||step.kind==='same-rule'){
@@ -6241,14 +6241,14 @@ function oddEvenLessonVisual(step){
 }
 function revealOddEvenResult(){ $('#oddEvenResult')?.classList.add('revealed'); }
 function wireOddEvenChoiceStep(step,next){
-  $('.odd-even-choice').forEach(button=>button.addEventListener('click',()=>{
+  $$('.odd-even-choice').forEach(button=>button.addEventListener('click',()=>{
     if(button.disabled) return;
     if(button.dataset.correct!=='true'){
       button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
       $('#oddEvenHelp').textContent='Birlikleri ikişerli eşleştirip artan olup olmadığına yeniden bak.';
       return;
     }
-    button.classList.add('selected'); $('.odd-even-choice').forEach(x=>x.disabled=true);
+    button.classList.add('selected'); $$('.odd-even-choice').forEach(x=>x.disabled=true);
     $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
   }));
 }
@@ -6266,7 +6266,7 @@ function wireOddEvenLessonStep(step,next){
   }
   if(step.kind==='choice'){ wireOddEvenChoiceStep(step,next); return; }
   if(step.kind==='multi-classify'){
-    $('.odd-even-classify-row').forEach(row=>row.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{
+    $$('.odd-even-classify-row').forEach(row=>row.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
@@ -6274,18 +6274,18 @@ function wireOddEvenLessonStep(step,next){
         return;
       }
       row.classList.add('complete'); button.classList.add('selected'); row.querySelectorAll('button').forEach(x=>x.disabled=true);
-      if($('.odd-even-classify-row:not(.complete)').length===0){ $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false; }
+      if($$('.odd-even-classify-row:not(.complete)').length===0){ $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false; }
     })));
     return;
   }
   if(step.kind==='digit-set'){
-    $('[data-odd-digit]').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('selected')));
+    $$('[data-odd-digit]').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('selected')));
     $('#oddEvenSetCheck')?.addEventListener('click',()=>{
-      const picked=$('[data-odd-digit].selected').map(button=>Number(button.dataset.oddDigit)).sort((a,b)=>a-b);
+      const picked=$$('[data-odd-digit].selected').map(button=>Number(button.dataset.oddDigit)).sort((a,b)=>a-b);
       const expected=[...step.digits].sort((a,b)=>a-b);
       const correct=picked.length===expected.length&&picked.every((value,index)=>value===expected[index]);
       if(!correct){ $('#oddEvenHelp').textContent='Tam beş rakam seç. Her rakamı ikişerli eşleştirince artan kalıp kalmadığını düşün.'; return; }
-      $('[data-odd-digit]').forEach(button=>button.disabled=true); $('#oddEvenSetCheck').disabled=true;
+      $$('[data-odd-digit]').forEach(button=>button.disabled=true); $('#oddEvenSetCheck').disabled=true;
       $('#oddEvenHelp').textContent=''; revealOddEvenResult(); next.disabled=false;
     });
   }
@@ -6441,7 +6441,7 @@ function nelMatchLessonVisual(step){
 function revealNelMatchResult(){ $('#nelMatchResult')?.classList.add('revealed'); }
 function wireNelMatchLessonStep(step,next){
   if(step.kind==='choice'){
-    $('.nel-match-choice').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-match-choice').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.nelCorrect!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
@@ -6457,21 +6457,21 @@ function wireNelMatchLessonStep(step,next){
         return;
       }
       button.classList.add('selected');
-      $('.nel-match-choice').forEach(x=>x.disabled=true);
+      $$('.nel-match-choice').forEach(x=>x.disabled=true);
       $('#nelMatchHelp').textContent='';
       revealNelMatchResult(); next.disabled=false;
     }));
     return;
   }
   if(step.kind==='reason'){
-    $('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
         $('#nelMatchHelp').textContent='İki nesnede değişmeyen özelliği bul.';
         return;
       }
-      button.classList.add('selected'); $('.nel-match-reason').forEach(x=>x.disabled=true);
+      button.classList.add('selected'); $$('.nel-match-reason').forEach(x=>x.disabled=true);
       $('#nelMatchHelp').textContent=''; revealNelMatchResult(); next.disabled=false;
     }));
     return;
@@ -6644,13 +6644,13 @@ function wireNelSortLessonStep(step,next){
     return;
   }
   if(step.kind==='rule'||step.kind==='reason'){
-    $('.nel-sort-rule-choice').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-sort-rule-choice').forEach(button=>button.addEventListener('click',()=>{
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),300);
         $('#nelSortHelp').textContent=step.kind==='rule'?'Aynı kutudaki nesnelerin ortak özelliğine bak.':'Bir nesnenin aynı anda kaç farklı özelliği olabilir?';
         return;
       }
-      button.classList.add('selected'); $('.nel-sort-rule-choice').forEach(x=>x.disabled=true);
+      button.classList.add('selected'); $$('.nel-sort-rule-choice').forEach(x=>x.disabled=true);
       $('#nelSortHelp').textContent=''; revealNelSortResult(); next.disabled=false;
     }));
     return;
@@ -6786,16 +6786,16 @@ function startPrimaryJourney(){
   startSession();
 }
 function bindNavigation(){
-  $('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>navigate(btn.dataset.nav)));
+  $$('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>navigate(btn.dataset.nav)));
   $('#profileChip').addEventListener('click',()=>openOnboarding(true));
   $('#bottomStart').addEventListener('click',startPrimaryJourney);
 }
 function navigate(name){
   const target=name==='map'?'atlas':name;
   activeScreen=target;
-  $('.screen').forEach(x=>x.classList.remove('active'));
+  $$('.screen').forEach(x=>x.classList.remove('active'));
   $(`#${target}Screen`)?.classList.add('active');
-  $('.bottom-nav [data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===target));
+  $$('.bottom-nav [data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===target));
   if(target==='parent') renderParent();
   if(target==='atlas') renderAtlas();
   if(target==='lessonCenter') renderLessonCenter();
@@ -6808,7 +6808,7 @@ function bindControls(){
   $('#closePractice').addEventListener('click',()=>closePractice(true));
   $('#speakButton').addEventListener('click',speakCurrent);
   $('#onboardingContinue').addEventListener('click',completeOnboarding);
-  $('#onboardingLevels [data-profile]').forEach(btn=>btn.addEventListener('click',()=>selectOnboardingLevel(btn.dataset.profile)));
+  $$('#onboardingLevels [data-profile]').forEach(btn=>btn.addEventListener('click',()=>selectOnboardingLevel(btn.dataset.profile)));
   $('#onboardingOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget && state.onboarded) closeOnboarding(); });
   $('#restHomeButton').addEventListener('click',()=>{ hideCooldown(); navigate('home'); });
   $('#parentSkipCooldown').addEventListener('click',()=>{ state.cooldownUntil=0; saveState(); hideCooldown(); renderAll(); showToast('Mola ebeveyn tarafından sonlandırıldı'); });
@@ -6850,7 +6850,7 @@ function closeOnboarding(){
 function selectOnboardingLevel(profile,announce=true){
   if(!PROFILE_META[profile]) return;
   selectedOnboardingProfile=profile;
-  $('#onboardingLevels [data-profile]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.profile===profile));
+  $$('#onboardingLevels [data-profile]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.profile===profile));
   if(announce) showToast(`${PROFILE_META[profile].label} başlangıç haritası seçildi`);
 }
 function completeOnboarding(){
@@ -6979,7 +6979,7 @@ function renderGrade2Atlas(){
     <div class="summary-card"><span>TEKRAR HAZIR</span><strong>${due}</strong><p>Zamanı gelen kısa geri çağırmalar.</p></div>`;
 
   $('#domainTabs').innerHTML=units.map((unit,index)=>`<button class="domain-tab ${unit.id===activeAtlasUnitId?'active':''}" data-atlas-unit-tab="${esc(unit.id)}" role="tab"><span>${index+1}</span>${esc(unit.label)}</button>`).join('');
-  $('#domainTabs [data-atlas-unit-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  $$('#domainTabs [data-atlas-unit-tab]').forEach(btn=>btn.addEventListener('click',()=>{
     activeAtlasUnitId=btn.dataset.atlasUnitTab;
     renderAtlas();
     requestAnimationFrame(()=>document.querySelector('[data-atlas-unit="'+CSS.escape(activeAtlasUnitId)+'"]')?.scrollIntoView({behavior:state.settings.calmMotion?'auto':'smooth',block:'start'}));
@@ -7014,11 +7014,11 @@ function renderGrade2Atlas(){
     </section>`;
   }).join('')+'</div>';
 
-  $('[data-atlas-unit-toggle]').forEach(btn=>btn.addEventListener('click',()=>{
+  $$('[data-atlas-unit-toggle]').forEach(btn=>btn.addEventListener('click',()=>{
     activeAtlasUnitId=btn.dataset.atlasUnitToggle;
     renderAtlas();
   }));
-  $('[data-atlas-lesson]').forEach(btn=>btn.addEventListener('click',()=>openLessonCenter(btn.dataset.atlasLesson)));
+  $$('[data-atlas-lesson]').forEach(btn=>btn.addEventListener('click',()=>openLessonCenter(btn.dataset.atlasLesson)));
 }
 function renderLegacyAtlas(){
   const summary=profileSummary(state);
@@ -7034,7 +7034,7 @@ function renderLegacyAtlas(){
   const domains=['Tümü',...new Set(list.map(s=>s.family))];
   if(!domains.includes(activeDomain)) activeDomain='Tümü';
   $('#domainTabs').innerHTML=domains.map(d=>`<button class="domain-tab ${d===activeDomain?'active':''}" data-domain="${esc(d)}" role="tab">${esc(d)}</button>`).join('');
-  $('#domainTabs [data-domain]').forEach(btn=>btn.addEventListener('click',()=>{activeDomain=btn.dataset.domain;renderAtlas();}));
+  $$('#domainTabs [data-domain]').forEach(btn=>btn.addEventListener('click',()=>{activeDomain=btn.dataset.domain;renderAtlas();}));
 
   const filtered=activeDomain==='Tümü'?list:list.filter(s=>s.family===activeDomain);
   $('#skillMap').innerHTML=filtered.map(skill=>{
@@ -7141,7 +7141,7 @@ function renderLessonCenter(){
     '</div>';
 
   $('#lessonLearnAction')?.addEventListener('click',()=>startLessonChannel(skill.id,'learn'));
-  $('[data-practice-section]').forEach(btn=>btn.addEventListener('click',()=>{
+  $$('[data-practice-section]').forEach(btn=>btn.addEventListener('click',()=>{
     if(btn.disabled) return;
     startLessonChannel(skill.id,'practice',btn.dataset.practiceSection);
   }));
@@ -7831,7 +7831,7 @@ function renderLessonIntro(skill){
 function renderPatternRuleGate(q,rule){
   const options=[1,-1,10,-10,100,-100].map(step=>'Her adımda '+Math.abs(step)+' '+(step>0?'daha.':'daha az.'));
   $('#patternResponseGate').innerHTML='<p>Önce dizinin kuralını sözcükle söyle.</p><div class="pattern-rule-bank">'+options.map(value=>'<button type="button" class="pattern-rule-chip" data-rule-choice="'+esc(value)+'">'+esc(value)+'</button>').join('')+'</div><p id="patternRuleFeedback" aria-live="polite"></p>';
-  $('[data-rule-choice]').forEach(button=>button.addEventListener('click',()=>{
+  $$('[data-rule-choice]').forEach(button=>button.addEventListener('click',()=>{
     if(button.dataset.ruleChoice!==rule){
       if(!usedHint){usedHint=true;session.hints++;}
       $('#patternRuleFeedback').textContent='İki komşu sayıyı karşılaştır: miktar artıyor mu, azalıyor mu? Değişim 1, 10 veya 100 mü?';
@@ -7883,14 +7883,14 @@ function renderResponse(q){
   return `<div class="answers-grid">${(q.choices||[]).map(choice=>`<button class="answer-button" data-answer="${esc(choice)}">${esc(choice)}</button>`).join('')}</div>`;
 }
 function wireResponse(q){
-  $('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>answerQuestion(btn.dataset.answer,btn)));
+  $$('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>answerQuestion(btn.dataset.answer,btn)));
   if(q.response?.kind==='number-input'){
     const input=$('#numberAnswer');
     const max=Number(q.response.maxLength||3);
     const clean=()=>{ input.value=input.value.replace(/\D/g,'').slice(0,max); };
     input.addEventListener('input',clean);
     input.addEventListener('keydown',ev=>{ if(ev.key==='Enter'&&input.value) answerQuestion(input.value,$('#submitNumber')); });
-    $('[data-digit]').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; input.value=(input.value+btn.dataset.digit).slice(0,max); input.focus(); }));
+    $$('[data-digit]').forEach(btn=>btn.addEventListener('click',()=>{ if(answered)return; input.value=(input.value+btn.dataset.digit).slice(0,max); input.focus(); }));
     $('[data-key="back"]')?.addEventListener('click',()=>{input.value=input.value.slice(0,-1);input.focus();});
     $('[data-key="clear"]')?.addEventListener('click',()=>{input.value='';input.focus();});
     $('#submitNumber')?.addEventListener('click',()=>{ if(!input.value){ showToast('Önce cevabını yaz'); input.focus(); return; } answerQuestion(input.value,$('#submitNumber')); });
@@ -8233,10 +8233,10 @@ function readManipulatorValue(q){
   }
   if(interaction==='nel-match-pair') return $('.nel-match-builder [data-nel-match-value].selected')?.dataset.nelMatchValue ?? null;
   if(interaction==='twentyframe-build') return $('.interactive-twentyframe .added').length;
-  if(interaction==='tenframe-complete') return $('.complete-tenframe-builder .complete-token.moved').length;
-  if(interaction==='add-to-ten') return $('.add-to-ten-builder .move-token.moved').length;
-  if(interaction==='balance-fill') return $('.balance-fill-builder .balance-token.moved').length;
-  if(interaction==='story-add') return $('.story-add-builder .story-add-token.moved').length;
+  if(interaction==='tenframe-complete') return $$('.complete-tenframe-builder .complete-token.moved').length;
+  if(interaction==='add-to-ten') return $$('.add-to-ten-builder .move-token.moved').length;
+  if(interaction==='balance-fill') return $$('.balance-fill-builder .balance-token.moved').length;
+  if(interaction==='story-add') return $$('.story-add-builder .story-add-token.moved').length;
   if(interaction==='pattern-step') return $('.pattern-step-builder .pattern-step-button.selected')?.dataset.step ?? null;
   if(interaction==='shape-properties'){
     const root=$('.shape-property-builder'); if(!root)return null; const selected=['straight','curves','structure'].map(group=>root.querySelector(`.property-chip.selected[data-group="${group}"]`)?.dataset.value); return selected.every(v=>v!=null)?selected.join('|'):null;
@@ -8249,21 +8249,21 @@ function readManipulatorValue(q){
   if(interaction==='length-align'){
     const root=$('.length-align-builder'); if(!root?.classList.contains('aligned'))return null; const selected=root.querySelector('.length-choice.selected')?.dataset.value; return selected?`aligned|${selected}`:null;
   }
-  if(interaction==='pictograph-row') return $('.pictograph-row-builder .pic-build-cell.filled').length;
-  if(interaction==='remove-counters') return $('.remove-counter-builder .remove-token.removed').length;
-  if(interaction==='bond-fill') return $('.sg-bond-builder .sg-bond-token.selected').length;
-  if(interaction==='base10-build') return `${$('.sg-base10-builder .sg-base10-ten.selected').length}|${$('.sg-base10-builder .sg-base10-one.selected').length}`;
-  if(interaction==='base1000-build') return `${$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
+  if(interaction==='pictograph-row') return $$('.pictograph-row-builder .pic-build-cell.filled').length;
+  if(interaction==='remove-counters') return $$('.remove-counter-builder .remove-token.removed').length;
+  if(interaction==='bond-fill') return $$('.sg-bond-builder .sg-bond-token.selected').length;
+  if(interaction==='base10-build') return `${$$('.sg-base10-builder .sg-base10-ten.selected').length}|${$$('.sg-base10-builder .sg-base10-one.selected').length}`;
+  if(interaction==='base1000-build') return `${$$('.sg-base1000-builder .sg-base1000-hundred.selected').length}|${$$('.sg-base1000-builder .sg-base1000-ten.selected').length}|${$$('.sg-base1000-builder .sg-base1000-one.selected').length}`;
   if(interaction==='fraction-shade'){ const root=$('.sg-fraction-shade-builder'); return syncFractionPaintSelection(root).count; }
-  if(interaction==='fraction-pair-build') return `${$('.sg-fraction-pair-builder [data-side="left"] .sg-fraction-cell.selected').length}|${$('.sg-fraction-pair-builder [data-side="right"] .sg-fraction-cell.selected').length}`;
-  if(interaction==='fraction-operation-build') return $('.sg-fraction-operation-builder .sg-fraction-result .sg-fraction-cell.selected').length;
-  if(interaction==='parity-pair') return $('.sg-parity-builder .sg-pair-token:not(.paired)').length;
+  if(interaction==='fraction-pair-build') return `${$$('.sg-fraction-pair-builder [data-side="left"] .sg-fraction-cell.selected').length}|${$$('.sg-fraction-pair-builder [data-side="right"] .sg-fraction-cell.selected').length}`;
+  if(interaction==='fraction-operation-build') return $$('.sg-fraction-operation-builder .sg-fraction-result .sg-fraction-cell.selected').length;
+  if(interaction==='parity-pair') return $$('.sg-parity-builder .sg-pair-token:not(.paired)').length;
   if(interaction==='two-step-plan'){
     const a=$('.sg-two-step-plan .sg-plan-op.selected[data-step="1"]')?.dataset.value, b=$('.sg-two-step-plan .sg-plan-op.selected[data-step="2"]')?.dataset.value;
     return a&&b?`${a}|${b}`:null;
   }
   if(interaction==='order-pair'){
-    const cards=[...$('.sg-order-builder .sg-order-card[data-order]')].sort((a,b)=>Number(a.dataset.order)-Number(b.dataset.order)); return cards.length===2?cards.map(x=>x.dataset.value).join('|'):null;
+    const cards=[...$$('.sg-order-builder .sg-order-card[data-order]')].sort((a,b)=>Number(a.dataset.order)-Number(b.dataset.order)); return cards.length===2?cards.map(x=>x.dataset.value).join('|'):null;
   }
   if(interaction==='ordinal-position') return $('.sg-ordinal-builder .sg-ordinal-slot.selected')?.dataset.value ?? null;
   if(interaction==='equal-groups'||interaction==='share-equally'){
@@ -8272,25 +8272,25 @@ function readManipulatorValue(q){
     if(total!==Number(root.dataset.total||0)||!counts.length||!counts.every(v=>v===counts[0])) return null;
     return interaction==='equal-groups'?total:counts[0];
   }
-  if(interaction==='money-make') return [...$('.sg-money-builder .sg-money-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
-  if(interaction==='measure-make') return [...$('.sg-measure-builder .sg-measure-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
-  if(interaction==='duration-compose') return [...$('.sg-duration-builder .sg-duration-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='money-make') return [...$$('.sg-money-builder .sg-money-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='measure-make') return [...$$('.sg-measure-builder .sg-measure-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
+  if(interaction==='duration-compose') return [...$$('.sg-duration-builder .sg-duration-token.selected')].reduce((sum,b)=>sum+Number(b.dataset.value||0),0);
   if(interaction==='clock-minute-set'){ const root=$('.sg-clock-minute-set'); const h=root?.querySelector('.sg-hour-choice.selected')?.dataset.value; return h!=null?`${h}|${Number(root.dataset.minute||0)}`:null; }
   if(interaction==='cm-ruler') return $('.sg-cm-ruler-builder .sg-ruler-tick-button.selected')?.dataset.value ?? null;
   if(interaction==='shape-compose'){
-    const values=[...$('.sg-shape-compose-builder .sg-compose-piece.selected')].map(b=>b.dataset.value).sort();
+    const values=[...$$('.sg-shape-compose-builder .sg-compose-piece.selected')].map(b=>b.dataset.value).sort();
     return values.length?values.join('+'):null;
   }
-  if(interaction==='square-grid-copy'){ const cells=[...$('.sg-square-grid-copy .sg-grid-copy-cell.selected')].map(b=>b.dataset.cell).sort(); return cells.length?cells.join('|'):null; }
-  if(interaction==='unit-measure') return $('.sg-unit-builder .sg-unit-cell.selected').length;
+  if(interaction==='square-grid-copy'){ const cells=[...$$('.sg-square-grid-copy .sg-grid-copy-cell.selected')].map(b=>b.dataset.cell).sort(); return cells.length?cells.join('|'):null; }
+  if(interaction==='unit-measure') return $$('.sg-unit-builder .sg-unit-cell.selected').length;
   if(interaction==='clock-set'){
     const h=$('.sg-clock-set .sg-hour-choice.selected')?.dataset.value, m=$('.sg-clock-set .sg-minute-choice.selected')?.dataset.value; return h!=null&&m!=null?`${h}|${m}`:null;
   }
   if(interaction==='shape-pattern') return $('.sg-shape-pattern-builder .sg-shape-choice.selected')?.dataset.value ?? null;
   if(interaction==='p2-shape-pattern') return $('.p2-shape-pattern-builder .p2-shape-choice.selected')?.dataset.value ?? null;
   if(interaction==='solid-classify') return $('.p2-solid-classify-builder .p2-solid-bin.selected')?.dataset.value ?? null;
-  if(interaction==='scaled-pictograph-row') return $('.p2-scaled-graph-builder .p2-graph-icon-button.selected').length;
-  if(interaction==='three-add') return $('.sg-three-add-builder .sg-three-token.selected').length;
+  if(interaction==='scaled-pictograph-row') return $$('.p2-scaled-graph-builder .p2-graph-icon-button.selected').length;
+  if(interaction==='three-add') return $$('.sg-three-add-builder .sg-three-token.selected').length;
   return null;
 }
 function updateManipulatorStatus(q){
@@ -8378,12 +8378,12 @@ function answerQuestion(value,button){
   if(answered||!currentQuestion) return;
   answered=true;
   const q=currentQuestion; const correct=String(value)===String(q.answer);
-  $('[data-answer]').forEach(b=>{
+  $$('[data-answer]').forEach(b=>{
     b.disabled=true;
     b.classList.toggle('correct',b.dataset.answer===String(q.answer));
     if(b!==button&&b.dataset.answer!==String(q.answer)) b.classList.add('dimmed');
   });
-  $('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-grid-copy-cell,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust,.p2-shape-choice,.p2-solid-bin,.p2-graph-icon-button').forEach(b=>b.disabled=true);
+  $$('.number-keypad button,#submitNumber,#checkManipulator,.interactive-twentyframe button,.complete-token,.move-token,.remove-token,.balance-token,.story-add-token,.pattern-step-button,.property-chip,.align-lengths,.length-choice,.pic-build-cell,.sg-bond-token,.sg-base10-ten,.sg-base10-one,.sg-order-card,.sg-ordinal-slot,.sg-group-add,.sg-group-remove,.sg-money-token,.sg-ruler-tick-button,.sg-compose-piece,.sg-grid-copy-cell,.sg-unit-cell,.sg-hour-choice,.sg-minute-choice,.sg-shape-choice,.solid-property-chip,.sg-three-token,.sg-base1000-hundred,.sg-base1000-ten,.sg-base1000-one,.sg-pair-action,.sg-plan-op,.sg-fraction-cell,.sg-measure-token,.sg-duration-token,.sg-minute-adjust,.p2-shape-choice,.p2-solid-bin,.p2-graph-icon-button').forEach(b=>b.disabled=true);
   $('#numberAnswer')?.setAttribute('disabled','');
   if(button){ if(!correct) button.classList.add('wrong'); else button.classList.add('correct'); }
   const before=ensureSkillState(state,q.skillId).stable;
