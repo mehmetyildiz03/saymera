@@ -15,8 +15,8 @@ assert.deepEqual(PRESCHOOL_NEL_PATHS.map(p=>p.id),['relationships-patterns','cou
 const expectedKsd=['2.1','2.2','2.3','2.4','3.1','3.2','3.3','3.4','3.5','3.6','3.7','3.8','4.1','4.2','4.3','4.4'];
 for(const code of expectedKsd) assert.ok(PRESCHOOL_NEL_KSD_MAP[code]?.length,'missing NEL KSD mapping '+code);
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(skillsFor('grade1',{includeHidden:true}).some(skill=>(skill.prerequisite||[]).some(id=>preschoolIds.has(id))),false,'P1 must not hard-require preschool completion');
@@ -54,6 +54,11 @@ assert.equal(roteContract.practice.sections.length,5);
 assert.deepEqual(roteContract.practice.sections.map(s=>s.id),['recite-forward-10','recite-forward-20','continue-from-middle','explain-stable-order','transfer-rhyme-game']);
 assert.deepEqual(roteContract.evidenceLabels,{build:'Kur',see:'Dinle',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
+const reliableContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelReliableCount10;
+assert.equal(reliableContract.practice.sections.length,5);
+assert.deepEqual(reliableContract.practice.sections.map(s=>s.id),['one-to-one-count','stable-order-count','cardinality-count','order-irrelevance','transfer-daily-count']);
+assert.deepEqual(reliableContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
 const lessonIds=['same-object','same-colour','same-shape','same-size','same-length','same-height','explain-match','real-world-match'];
 for(const id of lessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL matching Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }"));
@@ -62,7 +67,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
@@ -80,6 +85,11 @@ const roteLessonIds=['chant-1-5','build-2-5','chant-6-10','continue-7-10','chant
 for(const id of roteLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL rote-count Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelRoteCount20'){ renderNelRoteLessonStep(skill); return; }"));
 assert.ok(app.includes("data-rote-speech"),'rote counting must expose audio-first controls instead of requiring number-word reading');
+
+const reliableLessonIds=['one-word-one-object','move-count-five','stable-order-next','fixed-count-six','count-to-ten','cardinality-seven','order-left-right','order-eight','four-principles','real-world-reliable'];
+for(const id of reliableLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL reliable-count Learn step '+id);
+assert.ok(app.includes("if(skill.id==='nelReliableCount10'){ renderNelReliableLessonStep(skill); return; }"));
+assert.ok(app.includes("nelReliableReadOrderProof"),'order-irrelevance must be proven by two counting passes, not explained only in copy');
 
 let seed=711;
 const rng=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
@@ -152,6 +162,19 @@ for(const section of roteContract.practice.sections){
   }
 }
 
+for(const section of reliableContract.practice.sections){
+  const qs=Array.from({length:10},(_,i)=>generateLessonPracticeQuestion('nelReliableCount10',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelReliableCount10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    const childText=[q.prompt,q.hint,q.explain].join(' ');
+    assert.equal(forbiddenSymbols.some(symbol=>childText.includes(symbol)),false,'NEL reliable counting must stay concrete and verbal: '+childText);
+    assert.equal(q.response.kind,'manipulative','reliable counting must require observable child action');
+    assert.ok(['nel-reliable-count-set','nel-reliable-next-word','nel-reliable-cardinality','nel-reliable-order-proof'].includes(q.response.interaction),'unexpected reliable-count interaction: '+q.response.interaction);
+    assert.equal((q.visual?.items?.length||0)>10,false,'reliable counting must never exceed 10 objects');
+  }
+}
+
 const orderSize=generateLessonPracticeQuestion('nelOrderAttributes','order-size',0,1,rng);
 const orderReverse=generateLessonPracticeQuestion('nelOrderAttributes','reverse-order',0,1,rng);
 const orderEvent=generateLessonPracticeQuestion('nelOrderAttributes','transfer-event-sequence',0,1,rng);
@@ -186,6 +209,19 @@ assert.equal(roteExplain.response.interaction,'nel-rote-phrase-choice');
 assert.equal(roteTransfer.response.interaction,'nel-rote-audio-choice');
 assert.equal(String(roteTo20.answer),'rote-20','forward-to-20 practice must explicitly reach the NEL endpoint 20');
 
+const reliableOne=generateLessonPracticeQuestion('nelReliableCount10','one-to-one-count',0,1,rng);
+const reliableStable=generateLessonPracticeQuestion('nelReliableCount10','stable-order-count',0,1,rng);
+const reliableCard=generateLessonPracticeQuestion('nelReliableCount10','cardinality-count',0,1,rng);
+const reliableOrder=generateLessonPracticeQuestion('nelReliableCount10','order-irrelevance',0,1,rng);
+const reliableTransfer=generateLessonPracticeQuestion('nelReliableCount10','transfer-daily-count',0,1,rng);
+assert.equal(reliableOne.response.interaction,'nel-reliable-count-set');
+assert.equal(reliableStable.response.interaction,'nel-reliable-next-word');
+assert.equal(reliableCard.response.interaction,'nel-reliable-cardinality');
+assert.equal(reliableOrder.response.interaction,'nel-reliable-order-proof');
+assert.equal(reliableTransfer.response.interaction,'nel-reliable-count-set');
+assert.match(String(reliableCard.response.expectedValue),/^\d+\|rote-\d+$/,'cardinality must connect the completed count to the final spoken number name');
+assert.match(String(reliableOrder.response.expectedValue),/^(\d+)\|\1\|same$/,'order irrelevance must preserve the same total across both directions');
+
 const sizeQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-size',0,1,rng);
 const lengthQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-length',0,1,rng);
 const heightQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-height',0,1,rng);
@@ -212,11 +248,11 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract']){
+for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
 assert.ok(contract.includes('Kur · Gör · Göster · Anlat · Taşı'));
 assert.ok(contract.includes('Preschool is foundational but is **not a hard prerequisite for P1**.'));
 
-console.log('NEL preschool contract: PASS (3 paths; 16 KSD groups; hidden Path A + first Path B rote-count reference; no P1 hard gate)');
+console.log('NEL preschool contract: PASS (3 paths; 16 KSD groups; hidden Path A + rote and reliable counting references; no P1 hard gate)');
