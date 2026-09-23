@@ -1802,7 +1802,7 @@ function nelReliableObjectMarkup(item={},label='sayılacak nesne'){
   return '<span class="nel-reliable-object-visual '+esc(item.kind||'counter')+' '+esc(item.tone||'blue')+'" role="img" aria-label="'+esc(label)+'">'+esc(item.symbol||'●')+'</span>';
 }
 function nelReliableCountSetVisual(v={}){
-  const context={counter-tray:'SAYMA TEPSİSİ','move-to-mat':'SAYMA ALANI','snack-plate':'ATIŞTIRMALIK TABAĞI','daily-give':'GÜNLÜK SAYMA'}[v.context]||'NESNELERİ SAY';
+  const context={'counter-tray':'SAYMA TEPSİSİ','move-to-mat':'SAYMA ALANI','snack-plate':'ATIŞTIRMALIK TABAĞI','daily-give':'GÜNLÜK SAYMA'}[v.context]||'NESNELERİ SAY';
   return '<div class="nel-reliable-count-set" data-context="'+esc(v.context||'')+'"><span class="nel-reliable-context">'+esc(context)+'</span>'+
     '<div class="nel-reliable-object-grid">'+(v.items||[]).map(item=>'<button type="button" class="nel-reliable-object" data-reliable-item="'+esc(item.id)+'">'+nelReliableObjectMarkup(item)+'</button>').join('')+'</div>'+
     '<div class="nel-reliable-count-rail"><small>SÖYLENEN SAYI ADLARI</small><div data-reliable-rail></div></div>'+
