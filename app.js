@@ -1597,16 +1597,16 @@ function wireNelPatternLessonStep(step,next){
     return;
   }
   if(step.kind==='extend'){
-    $('.nel-pattern-choice').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-pattern-choice').forEach(button=>button.addEventListener('click',()=>{
       if(button.dataset.correct!=='true'){button.classList.add('wrong');setTimeout(()=>button.classList.remove('wrong'),300);$('#nelPatternHelp').textContent='Tek tek son parçaya değil, baştan tekrar eden küçük birime bak.';return;}
-      button.classList.add('selected');$('.nel-pattern-choice').forEach(x=>x.disabled=true);$('#nelPatternHelp').textContent='';revealNelPatternResult();next.disabled=false;
+      button.classList.add('selected');$$('.nel-pattern-choice').forEach(x=>x.disabled=true);$('#nelPatternHelp').textContent='';revealNelPatternResult();next.disabled=false;
     }));
     return;
   }
   if(step.kind==='describe'){
-    $('.nel-pattern-reason').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-pattern-reason').forEach(button=>button.addEventListener('click',()=>{
       if(button.dataset.correct!=='true'){button.classList.add('wrong');setTimeout(()=>button.classList.remove('wrong'),300);$('#nelPatternHelp').textContent='Örüntünün nerede yeniden başladığını bul; o küçük parçayı sırayla anlat.';return;}
-      button.classList.add('selected');$('.nel-pattern-reason').forEach(x=>x.disabled=true);$('#nelPatternHelp').textContent='';revealNelPatternResult();next.disabled=false;
+      button.classList.add('selected');$$('.nel-pattern-reason').forEach(x=>x.disabled=true);$('#nelPatternHelp').textContent='';revealNelPatternResult();next.disabled=false;
     }));
     return;
   }
