@@ -1499,7 +1499,8 @@ function nelPatternExpected(patternCase){ return patternCase.fullItems.map(item=
 function nelPatternUnitExpected(patternCase){ return patternCase.unitItems.map(item=>item.id).join('|'); }
 function nelPatternChoiceOptions(patternCase,rng){
   const correct=patternCase.nextItem;
-  const items=Object.values(patternCase.palette);
+  const distractor={id:'pattern-red-triangle-distractor',shape:'triangle',tone:'red',size:'medium',length:'medium',height:'medium',name:'kırmızı üçgen'};
+  const items=[...Object.values(patternCase.palette),distractor];
   return shuffled(items.map(item=>({
     value:item.id,
     visual:{type:'nel-pattern-token',item},
@@ -1514,7 +1515,7 @@ function nelPatternActionData(patternCase){
   const labels={A:'Alkış',B:'Dize dokun',C:'Kolları aç'};
   const display=patternCase.displayKeys.map(key=>labels[key]);
   const answer=labels[patternCase.nextKey];
-  return {display,answer,options:['Alkış','Dize dokun','Kolları aç']};
+  return {display,answer,options:['Alkış','Dize dokun','Kolları aç','Zıpla']};
 }
 
 function number1000Cases(){
