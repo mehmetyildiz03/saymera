@@ -1716,7 +1716,7 @@ function bindNelRoteSequenceRoot(root,onChange,blocked=()=>false){
     const slot=[...root.querySelectorAll('.nel-rote-slot')].find(x=>!x.classList.contains('filled'));if(!slot)return;
     const index=Number(slot.dataset.roteSlot);card.dataset.orderIndex=String(index);card.classList.add('placed');button.disabled=true;slot.classList.add('filled');slot.appendChild(card);onChange?.();
   }));
-  root.querySelector('.nel-rote-reset')?.addEventListener('click',()=>{if(blocked())return;nelRoteResetSequenceRoot(root);bindNelRoteSequenceRoot(root,onChange,blocked);onChange?.();});
+  root.querySelector('.nel-rote-reset')?.addEventListener('click',()=>{if(blocked())return;nelRoteResetSequenceRoot(root);onChange?.();});
 }
 function bindNelRoteChoiceRoot(root,onChange,blocked=()=>false){
   if(!root)return;bindNelRoteSpeech(root);
