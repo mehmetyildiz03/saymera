@@ -1144,6 +1144,11 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-rote-real-world{padding:13px}
 }
 
+/* v1.17.0 reliable-count Practice needs natural-height content so rich counting controls never cover the response row */
+.practice-content.reliable-count-practice{overflow:auto;display:block}
+.reliable-count-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start;padding-bottom:18px}
+.reliable-count-question-stage .reliable-count-stage{height:auto;max-height:none;overflow:hidden;place-items:start center}
+
 /* v1.17.0 — hidden NEL preschool reliable counting reference lesson */
 .nel-reliable-lesson-stage{width:min(880px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-reliable-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
