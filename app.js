@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -1436,6 +1436,201 @@ function renderNelOrderLessonStep(skill,index=null){
   const next=$('#nelOrderLessonNext');wireNelOrderLessonStep(step,next);next?.addEventListener('click',()=>completeNelOrderLessonStep(skill,at));
 }
 
+
+const NEL_PATTERN_LESSON_VERSION=1;
+const NEL_PATTERN_SECTIONS=['FARK ET','KOPYALA / UZAT','KUR','ANLAT','TAŞI'];
+const NEL_PATTERN_PALETTE={
+  A:{id:'lesson-pattern-blue-circle',shape:'circle',tone:'blue',size:'medium',length:'medium',height:'medium',name:'mavi daire'},
+  B:{id:'lesson-pattern-yellow-triangle',shape:'triangle',tone:'yellow',size:'medium',length:'medium',height:'medium',name:'sarı üçgen'},
+  C:{id:'lesson-pattern-green-square',shape:'square',tone:'green',size:'medium',length:'medium',height:'medium',name:'yeşil kare'}
+};
+const NEL_PATTERN_ALT_PALETTE={
+  A:{id:'lesson-pattern-red-square',shape:'square',tone:'red',size:'medium',length:'medium',height:'medium',name:'kırmızı kare'},
+  B:{id:'lesson-pattern-blue-circle-2',shape:'circle',tone:'blue',size:'medium',length:'medium',height:'medium',name:'mavi daire'},
+  C:{id:'lesson-pattern-yellow-triangle-2',shape:'triangle',tone:'yellow',size:'medium',length:'medium',height:'medium',name:'sarı üçgen'}
+};
+function nelPatternLessonItems(code,repetitions,palette=NEL_PATTERN_PALETTE){
+  return Array.from({length:repetitions},()=>code.split('')).flat().map(key=>({...palette[key],patternKey:key}));
+}
+function nelPatternLessonExpected(items){ return items.map(item=>item.id).join('|'); }
+function nelPatternLessonExtend(code,palette=NEL_PATTERN_PALETTE){
+  const full=nelPatternLessonItems(code,2,palette);
+  return {items:full.slice(0,-1),answer:full.at(-1),palette:Object.values(palette)};
+}
+const NEL_PATTERN_AB=nelPatternLessonItems('AB',3);
+const NEL_PATTERN_ABB=nelPatternLessonExtend('ABB',NEL_PATTERN_ALT_PALETTE);
+const NEL_PATTERN_AAB=nelPatternLessonExtend('AAB');
+const NEL_PATTERN_AABB=nelPatternLessonExtend('AABB',NEL_PATTERN_ALT_PALETTE);
+const NEL_PATTERN_ABC=nelPatternLessonExtend('ABC');
+const NEL_PATTERN_CREATE_SIMPLE=nelPatternLessonItems('ABB',2,NEL_PATTERN_ALT_PALETTE);
+const NEL_PATTERN_CREATE_COMPLEX=nelPatternLessonItems('AABB',2);
+const NEL_PATTERN_LESSON_STEPS=[
+  {
+    id:'recognise-ab',section:'FARK ET',kind:'describe',items:NEL_PATTERN_AB,
+    title:'Tekrar eden küçük parçayı fark et.',body:'Baştan sona bak. Örüntünün yeniden başlayan en küçük parçasını sözcüklerle seç.',
+    correct:'Mavi daire, sarı üçgen tekrar ediyor.',
+    options:['Mavi daire, sarı üçgen tekrar ediyor.','Üç mavi daire sonra üç sarı üçgen geliyor.','Renkler ve şekiller rastgele değişiyor.'],
+    result:'Tekrar birimi mavi daire ve sarı üçgen. Aynı küçük parça yeniden başlıyor.'
+  },
+  {
+    id:'copy-ab',section:'KOPYALA / UZAT',kind:'copy',targetItems:NEL_PATTERN_AB,palette:Object.values(NEL_PATTERN_PALETTE),slots:NEL_PATTERN_AB.length,expected:nelPatternLessonExpected(NEL_PATTERN_AB),
+    title:'Örüntüyü aynı sırayla kopyala.',body:'Paletten parçalara dokunarak üstteki örüntünün aynısını alttaki boş yerlere kur.',
+    result:'Kopyada hem parçalar hem de tekrar sırası aynı kaldı.'
+  },
+  {
+    id:'extend-abb',section:'KOPYALA / UZAT',kind:'extend',items:NEL_PATTERN_ABB.items,answer:NEL_PATTERN_ABB.answer,palette:NEL_PATTERN_ABB.palette,
+    title:'ABB örüntüsünü devam ettir.',body:'Tekrar eden küçük parçayı bul; boşluğa gelecek parçayı seç.',
+    result:'Bir kırmızı kare ve iki mavi daireden oluşan parça yeniden tekrar ediyor.'
+  },
+  {
+    id:'extend-aab',section:'KOPYALA / UZAT',kind:'extend',items:NEL_PATTERN_AAB.items,answer:NEL_PATTERN_AAB.answer,palette:NEL_PATTERN_AAB.palette,
+    title:'AAB örüntüsünü devam ettir.',body:'Bu kez aynı parçadan iki tane geliyor, sonra üçüncü parça değişiyor. Tekrarın nereye döndüğünü izle.',
+    result:'İki mavi daire ve bir sarı üçgen birlikte tekrar birimini oluşturuyor.'
+  },
+  {
+    id:'create-simple',section:'KUR',kind:'create',unitItems:NEL_PATTERN_CREATE_SIMPLE.slice(0,3),palette:Object.values(NEL_PATTERN_ALT_PALETTE),slots:NEL_PATTERN_CREATE_SIMPLE.length,expected:nelPatternLessonExpected(NEL_PATTERN_CREATE_SIMPLE),
+    title:'Basit bir örüntüyü sen kur.',body:'Gösterilen tekrar birimini iki kez kur. Hazır diziyi seçmiyorsun; parçaları sırayla sen yerleştiriyorsun.',
+    result:'Aynı tekrar birimini iki kez kullanarak örüntüyü kendin oluşturdun.'
+  },
+  {
+    id:'extend-aabb',section:'KOPYALA / UZAT',kind:'extend',items:NEL_PATTERN_AABB.items,answer:NEL_PATTERN_AABB.answer,palette:NEL_PATTERN_AABB.palette,
+    title:'Daha uzun tekrar birimini fark et.',body:'İki aynı parça, ardından iki başka parça geliyor. Tekrarın tamamını görmeden karar verme.',
+    result:'AABB yapısında dört parçalık birim yeniden başlıyor.'
+  },
+  {
+    id:'extend-abc',section:'KOPYALA / UZAT',kind:'extend',items:NEL_PATTERN_ABC.items,answer:NEL_PATTERN_ABC.answer,palette:NEL_PATTERN_ABC.palette,
+    title:'Üç farklı parçalı örüntüyü uzat.',body:'Üç farklı parça aynı sırayla yeniden geliyor. Boşluğa gelecek olanı seç.',
+    result:'ABC yapısında üç farklı parça aynı sırayla tekrar ediyor.'
+  },
+  {
+    id:'create-complex',section:'KUR',kind:'create',unitItems:NEL_PATTERN_CREATE_COMPLEX.slice(0,4),palette:Object.values(NEL_PATTERN_PALETTE),slots:NEL_PATTERN_CREATE_COMPLEX.length,expected:nelPatternLessonExpected(NEL_PATTERN_CREATE_COMPLEX),
+    title:'Daha karmaşık örüntüyü sen oluştur.',body:'Dört parçalık tekrar birimini iki kez kur. Her parçayı paletten kendin seç.',
+    result:'Daha uzun bir tekrar birimini koruyarak karmaşık örüntü oluşturdun.'
+  },
+  {
+    id:'describe-pattern',section:'ANLAT',kind:'describe',items:nelPatternLessonItems('ABC',2),
+    title:'Örüntünün kuralını anlat.',body:'Sıradaki parçayı tahmin etmek yerine, hangi küçük parçanın tekrar ettiğini söyle.',
+    correct:'Mavi daire, sarı üçgen, yeşil kare tekrar ediyor.',
+    options:['Mavi daire, sarı üçgen, yeşil kare tekrar ediyor.','Mavi daire ve sarı üçgen birlikte kalıyor; kare rastgele geliyor.','Her turda yalnız renk değişiyor.'],
+    result:'Kuralı söylemek, örüntünün tekrar eden birimini açıkça anlatmaktır.'
+  },
+  {
+    id:'real-world-pattern',section:'TAŞI',kind:'real-world',
+    title:'Örüntüyü ekrandan çıkar.',body:'Yakınında iki ya da üç farklı nesne bul veya alkış–dize dokun gibi hareketler seç. Bir tekrar birimi oluştur, en az iki kez tekrar et ve kuralını söyle.',
+    result:'Aynı örüntü yapısı farklı nesne, ses ve hareketlerle yeniden kurulabilir.'
+  }
+];
+
+function nelPatternSectionTrack(step){
+  return '<div class="nel-pattern-section-track">'+NEL_PATTERN_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelPatternTokenVisual(item={},label=''){
+  return '<div class="nel-pattern-token">'+nelMatchObjectMarkup(item,label||item.name||'örüntü parçası')+'<small>'+esc(item.name||'parça')+'</small></div>';
+}
+function nelPatternStripVisual(v={}){
+  const items=v.items||[];
+  return '<div class="nel-pattern-strip '+(v.gap?'has-gap':'')+'">'+items.map((item,index)=>
+    '<div class="nel-pattern-strip-item '+(v.markUnit&&index<v.markUnit?'unit':'')+'">'+nelPatternTokenVisual(item,item.name||'örüntü parçası')+'</div>'
+  ).join('')+(v.gap?'<div class="nel-pattern-gap" aria-label="sıradaki parça">?</div>':'')+'</div>';
+}
+function nelPatternBuilderVisual(v={}){
+  const palette=v.palette||[], slots=Math.max(1,Number(v.slots)||0);
+  const reference=v.targetItems?.length?'<div class="nel-pattern-builder-reference"><small>KOPYALANACAK ÖRÜNTÜ</small>'+nelPatternStripVisual({items:v.targetItems})+'</div>':
+    v.unitItems?.length?'<div class="nel-pattern-builder-reference"><small>TEKRAR BİRİMİ</small>'+nelPatternStripVisual({items:v.unitItems})+(v.rule?'<p>'+esc(v.rule)+'</p>':'')+'</div>':'';
+  return '<div class="nel-pattern-builder">'+reference+
+    '<div class="nel-pattern-palette" aria-label="örüntü parçaları">'+palette.map(item=>'<button type="button" class="nel-pattern-palette-item" data-nel-pattern-value="'+esc(item.id||'')+'">'+nelPatternTokenVisual(item,item.name||'örüntü parçası')+'</button>').join('')+'</div>'+
+    '<div class="nel-pattern-slots">'+Array.from({length:slots},(_,index)=>'<div class="nel-pattern-slot" data-pattern-slot="'+index+'"><span>'+(index+1)+'</span><div class="nel-pattern-slot-content"></div></div>').join('')+'</div>'+
+    '<button type="button" class="nel-pattern-reset">Temizle</button>'+
+  '</div>';
+}
+function nelPatternActionsVisual(v={}){
+  return '<div class="nel-pattern-actions">'+(v.items||[]).map((item,index)=>'<span><b>'+(index+1)+'</b>'+esc(item)+'</span>').join('')+'<span class="gap"><b>?</b>Sıradaki</span></div>';
+}
+function nelPatternReadRoot(root){
+  if(!root)return null;
+  const slots=[...root.querySelectorAll('[data-pattern-slot]')];
+  if(!slots.length||slots.some(slot=>!slot.dataset.patternValue)) return null;
+  return slots.map(slot=>slot.dataset.patternValue).join('|');
+}
+function nelPatternResetRoot(root){
+  if(!root)return;
+  root.querySelectorAll('[data-pattern-slot]').forEach(slot=>{delete slot.dataset.patternValue;slot.classList.remove('filled');const content=slot.querySelector('.nel-pattern-slot-content');if(content)content.innerHTML='';});
+  root.classList.remove('complete','wrong');
+}
+function bindNelPatternRoot(root,onChange,blocked=()=>false){
+  if(!root)return;
+  root.querySelectorAll('[data-nel-pattern-value]').forEach(button=>button.addEventListener('click',()=>{
+    if(blocked())return;
+    const slot=[...root.querySelectorAll('[data-pattern-slot]')].find(x=>!x.dataset.patternValue);
+    if(!slot)return;
+    slot.dataset.patternValue=button.dataset.nelPatternValue;
+    slot.classList.add('filled');
+    const content=slot.querySelector('.nel-pattern-slot-content');
+    const token=button.querySelector('.nel-pattern-token');
+    if(content&&token) content.innerHTML=token.outerHTML;
+    onChange?.();
+  }));
+  root.querySelector('.nel-pattern-reset')?.addEventListener('click',()=>{if(blocked())return;nelPatternResetRoot(root);onChange?.();});
+}
+function nelPatternLessonCore(step){
+  if(step.kind==='copy'||step.kind==='create'){
+    return '<div class="nel-pattern-lesson-core">'+nelPatternBuilderVisual({targetItems:step.targetItems,unitItems:step.unitItems,palette:step.palette,slots:step.slots})+'<p class="nel-pattern-help" id="nelPatternHelp">'+(step.kind==='copy'?'Üstteki sırayı aynen kur.':'Tekrar birimini iki kez kur.')+'</p><div class="nel-pattern-result" id="nelPatternResult">'+esc(step.result)+'</div></div>';
+  }
+  if(step.kind==='extend'){
+    return '<div class="nel-pattern-lesson-core">'+nelPatternStripVisual({items:step.items,gap:true})+'<div class="nel-pattern-choice-row">'+step.palette.map(item=>'<button type="button" class="nel-pattern-choice" data-correct="'+(item.id===step.answer.id?'true':'false')+'">'+nelPatternTokenVisual(item,item.name)+'</button>').join('')+'</div><p class="nel-pattern-help" id="nelPatternHelp"></p><div class="nel-pattern-result" id="nelPatternResult">'+esc(step.result)+'</div></div>';
+  }
+  if(step.kind==='describe'){
+    return '<div class="nel-pattern-lesson-core">'+nelPatternStripVisual({items:step.items,markUnit:step.id==='recognise-ab'?2:3})+'<div class="nel-pattern-reason-grid">'+step.options.map(value=>'<button type="button" class="nel-pattern-reason" data-correct="'+(value===step.correct?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div><p class="nel-pattern-help" id="nelPatternHelp"></p><div class="nel-pattern-result" id="nelPatternResult">'+esc(step.result)+'</div></div>';
+  }
+  return '<div class="nel-pattern-lesson-core"><div class="nel-pattern-real-world"><span>1</span><p>İki ya da üç farklı nesne veya hareket seç.</p><span>2</span><p>Küçük bir tekrar birimi oluştur.</p><span>3</span><p>Birimi en az iki kez tekrar et ve kuralını söyle.</p></div><button type="button" class="nel-pattern-done" id="nelPatternDone">Örüntümü kurdum</button><div class="nel-pattern-result" id="nelPatternResult">'+esc(step.result)+'</div></div>';
+}
+function revealNelPatternResult(){ $('#nelPatternResult')?.classList.add('revealed'); }
+function wireNelPatternLessonStep(step,next){
+  if(step.kind==='copy'||step.kind==='create'){
+    const root=$('.nel-pattern-builder');
+    bindNelPatternRoot(root,()=>{
+      const value=nelPatternReadRoot(root);
+      if(!value){$('#nelPatternHelp').textContent='Boş yerleri sırayla doldur.';return;}
+      if(value!==step.expected){root.classList.add('wrong');$('#nelPatternHelp').textContent='Tekrar eden küçük parçayı ve sırasını yeniden kontrol et. Temizleyip tekrar kurabilirsin.';return;}
+      root.classList.remove('wrong');root.classList.add('complete');root.querySelectorAll('button').forEach(x=>x.disabled=true);$('#nelPatternHelp').textContent='';revealNelPatternResult();next.disabled=false;
+    });
+    return;
+  }
+  if(step.kind==='extend'){
+    $('.nel-pattern-choice').forEach(button=>button.addEventListener('click',()=>{
+      if(button.dataset.correct!=='true'){button.classList.add('wrong');setTimeout(()=>button.classList.remove('wrong'),300);$('#nelPatternHelp').textContent='Tek tek son parçaya değil, baştan tekrar eden küçük birime bak.';return;}
+      button.classList.add('selected');$('.nel-pattern-choice').forEach(x=>x.disabled=true);$('#nelPatternHelp').textContent='';revealNelPatternResult();next.disabled=false;
+    }));
+    return;
+  }
+  if(step.kind==='describe'){
+    $('.nel-pattern-reason').forEach(button=>button.addEventListener('click',()=>{
+      if(button.dataset.correct!=='true'){button.classList.add('wrong');setTimeout(()=>button.classList.remove('wrong'),300);$('#nelPatternHelp').textContent='Örüntünün nerede yeniden başladığını bul; o küçük parçayı sırayla anlat.';return;}
+      button.classList.add('selected');$('.nel-pattern-reason').forEach(x=>x.disabled=true);$('#nelPatternHelp').textContent='';revealNelPatternResult();next.disabled=false;
+    }));
+    return;
+  }
+  $('#nelPatternDone')?.addEventListener('click',()=>{$('#nelPatternDone').disabled=true;revealNelPatternResult();next.disabled=false;});
+}
+function completeNelPatternLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_PATTERN_LESSON_VERSION;
+  if(next>=NEL_PATTERN_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}
+  saveState();session.lessonStepIndex=next;renderNelPatternLessonStep(skill,next);
+}
+function renderNelPatternLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(NEL_PATTERN_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_PATTERN_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_PATTERN_LESSON_STEPS[at];
+  session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_PATTERN_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/NEL_PATTERN_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-pattern-lesson-stage" data-nel-pattern-step="'+esc(step.id)+'">'+nelPatternSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_PATTERN_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-pattern-lesson-visual">'+nelPatternLessonCore(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelPatternLessonNext" disabled>'+(at===NEL_PATTERN_LESSON_STEPS.length-1?'Örüntü oyunlarına geç':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelPatternLessonNext');wireNelPatternLessonStep(step,next);next?.addEventListener('click',()=>completeNelPatternLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -2009,6 +2204,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelSortAttributes') return NEL_SORT_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelCompareAttributes') return NEL_COMPARE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelOrderAttributes') return NEL_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelPatterns') return NEL_PATTERN_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -2381,6 +2577,12 @@ function startSession(){
     focus.state.learningCycle.lessonVersion=NEL_ORDER_LESSON_VERSION;
     saveState();
   }
+  if(focus.skill.id==='nelPatterns'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NEL_PATTERN_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=NEL_PATTERN_LESSON_VERSION;
+    saveState();
+  }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -2571,6 +2773,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }
   if(skill.id==='nelCompareAttributes'){ renderNelCompareLessonStep(skill); return; }
   if(skill.id==='nelOrderAttributes'){ renderNelOrderLessonStep(skill); return; }
+  if(skill.id==='nelPatterns'){ renderNelPatternLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -2672,6 +2875,10 @@ function wireResponse(q){
 function wireManipulator(q){
   const interaction=q.response?.interaction;
   if(!interaction) return;
+  if(interaction==='nel-pattern-build'){
+    const root=$('.nel-pattern-builder');
+    bindNelPatternRoot(root,()=>updateManipulatorStatus(q),()=>answered);
+  }
   if(interaction==='nel-order-sequence'){
     const root=$('.nel-order-builder');
     bindNelOrderRoot(root,()=>updateManipulatorStatus(q),()=>answered);
@@ -3009,6 +3216,7 @@ function bindFractionPaint(root,q){
 
 function readManipulatorValue(q){
   const interaction=q.response?.interaction;
+  if(interaction==='nel-pattern-build') return nelPatternReadRoot($('.nel-pattern-builder'));
   if(interaction==='nel-order-sequence') return nelOrderReadRoot($('.nel-order-builder'));
   if(interaction==='nel-sort-bin'){
     const root=$('.nel-sort-builder'); if(!root) return null;
@@ -3089,7 +3297,11 @@ function readManipulatorValue(q){
 function updateManipulatorStatus(q){
   const node=$('#manipulatorStatus'); if(!node)return;
   const value=readManipulatorValue(q)??0;
-  if(q.response?.interaction==='nel-order-sequence'){
+  if(q.response?.interaction==='nel-pattern-build'){
+    const root=$('.nel-pattern-builder'),total=root?.querySelectorAll('[data-pattern-slot]').length||0,placed=root?.querySelectorAll('[data-pattern-slot][data-pattern-value]').length||0;
+    node.textContent=placed===total&&total?'Örüntü hazır. Şimdi kontrol et.':placed+' / '+total+' parça yerleştirildi.';
+  }
+  else if(q.response?.interaction==='nel-order-sequence'){
     const root=$('.nel-order-builder'),total=root?.querySelectorAll('[data-nel-order-item]').length||0,placed=root?.querySelectorAll('[data-nel-order-item][data-order-index]').length||0;
     node.textContent=placed===total&&total?'Sıra hazır. Şimdi kontrol et.':placed+' / '+total+' kart sıraya yerleştirildi.';
   }
@@ -3457,6 +3669,10 @@ function nelCompareContextVisual(v={}){
 function renderVisual(v,q){
   if(!v) return `<div style="position:relative;z-index:1;text-align:center;color:var(--muted);font-size:11px;max-width:360px">Bu pencerede görsel model yerine dil ve akıl yürütme kullanılıyor.</div>`;
   switch(v.type){
+    case 'nel-pattern-token': return nelPatternTokenVisual(v.item||{},v.item?.name||'örüntü parçası');
+    case 'nel-pattern-strip': return nelPatternStripVisual(v);
+    case 'nel-pattern-builder': return nelPatternBuilderVisual(v);
+    case 'nel-pattern-actions': return nelPatternActionsVisual(v);
     case 'nel-order-builder': return nelOrderBuilderVisual(v);
     case 'nel-order-preview': return nelOrderPreviewVisual(v);
     case 'nel-order-rule-card': return nelOrderRuleCardVisual(v);
