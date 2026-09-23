@@ -2120,12 +2120,12 @@ function genNelRoteCount20(rep,d,rng,concept){
       hint:'Ezbere saymada nesne miktarını değil, sayı adlarının değişmeyen sırasını düşünüyoruz.',explain:'Sayı adları her seferinde aynı sırayla söylenir.'
     });
   }
-  const y=c.transfer.direction==='backward'?c.transfer:nelRoteCases().find(z=>z.id==='backward-10-6');
+  const y=c.transfer.direction==='forward'?c.transfer:nelRoteCases().find(z=>z.id==='forward-16-20');
   const prefix=y.items.slice(0,-1), answer=y.items.at(-1);
-  return qTask('nelRoteCount20','transfer','Hareket oyununda geriye doğru sayı adlarını söylüyorsun. Sıradaki hangisi?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Oyundaki sıramı kontrol et'},{
+  return qTask('nelRoteCount20','transfer','Hareket oyununda sayı adlarını ileri doğru sürdürüyorsun. Sıradaki hangisi?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Oyundaki sıramı kontrol et'},{
     taskKind:'nel-rote-transfer-game',taskLabel:'Sayı adlarının sırasını harekete taşı',
-    visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'GERİYE SAYMA OYUNU'},
-    hint:'Her harekette geriye doğru bir önceki sayı adını söyle.',explain:'Sayı adlarının sabit sırası oyun, tekerleme ve hareketlerde de kullanılabilir.'
+    visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'HAREKETLE İLERİ SAY'},
+    hint:'Her harekette sayı adlarının ileri doğru sabit sırasını sürdür.',explain:'Sayı adlarının sabit sırası oyun, tekerleme ve hareketlerde de kullanılabilir.'
   });
 }
 
@@ -4715,26 +4715,18 @@ function nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
     });
   }
   if(sectionId==='explain-stable-order'){
-    if(taskIndex%2===0){
-      return qTask('nelRoteCount20','explain','Ezbere saymayı doğru anlatan cümleyi dinle ve seç.','stable',{kind:'manipulative',interaction:'nel-rote-phrase-choice',expectedValue:'stable',checkLabel:'Açıklamamı kontrol et'},{
-        taskKind:'nel-practice-rote-explain-'+taskIndex,taskLabel:'Sabit sayı adı sırasını açıkla',
-        visual:{type:'nel-rote-phrase-choice',options:nelRotePhraseOptions()},
-        hint:'Burada nesne miktarı değil, sayı sözcüklerinin değişmeyen sırası önemli.',explain:'Ezbere saymada sayı adlarını sabit sırayla söyleriz.'
-      });
-    }
-    const y=backward[taskIndex%backward.length], items=y.items.slice(0,4);
-    return qTask('nelRoteCount20','explain','Geriye sayma sırasını dinle ve doğru sıraya koy.',nelRoteExpected(items),{kind:'manipulative',interaction:'nel-rote-sequence',expectedValue:nelRoteExpected(items),checkLabel:'Geriye sıramı kontrol et'},{
-      taskKind:'nel-practice-rote-backward-'+taskIndex,taskLabel:'Geriye doğru sayı adı sırasını koru',
-      visual:{type:'nel-rote-sequence-builder',items:nelRoteScramble(items,rng),direction:'backward'},
-      hint:'Geriye sayarken de sayı adlarının sırası sabittir.',explain:'Sayı adları geriye doğru da düzenli bir sıra izler.'
+    return qTask('nelRoteCount20','explain','Ezbere saymayı doğru anlatan cümleyi dinle ve seç.','stable',{kind:'manipulative',interaction:'nel-rote-phrase-choice',expectedValue:'stable',checkLabel:'Açıklamamı kontrol et'},{
+      taskKind:'nel-practice-rote-explain-'+taskIndex,taskLabel:'Sabit sayı adı sırasını açıkla',
+      visual:{type:'nel-rote-phrase-choice',options:nelRotePhraseOptions()},
+      hint:'Burada nesne miktarı değil, sayı sözcüklerinin değişmeyen sırası önemli.',explain:'Ezbere saymada sayı adlarını sabit sırayla söyleriz.'
     });
   }
   if(sectionId==='transfer-rhyme-game'){
-    const y=taskIndex%2===0?forward[4]:backward[0], prefix=y.items.slice(0,-1), answer=y.items.at(-1);
-    return qTask('nelRoteCount20','transfer','Alkış veya adım oyununda bu sayı adı sırasını sürdür. Sonraki hangisi?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Oyundaki sıramı kontrol et'},{
+    const y=forward[(taskIndex+3)%forward.length], prefix=y.items.slice(0,-1), answer=y.items.at(-1);
+    return qTask('nelRoteCount20','transfer','Alkış veya adım oyununda bu sayı adı sırasını ileri doğru sürdür. Sonraki hangisi?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Oyundaki sıramı kontrol et'},{
       taskKind:'nel-practice-rote-transfer-'+taskIndex,taskLabel:'Sayma sırasını tekerleme ve harekete taşı',
-      visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:taskIndex%2===0?'ALKIŞLA İLERİ SAY':'ADIMLA GERİ SAY'},
-      hint:'Hareket değişse de sayı adlarının konuşma sırası aynı kalır.',explain:'Ezbere sayma tekerleme, şarkı ve hareket oyunlarında kullanılabilir.'
+      visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'HAREKETLE İLERİ SAY'},
+      hint:'Hareket değişse de sayı adlarının ileri doğru konuşma sırası aynı kalır.',explain:'Ezbere sayma tekerleme, şarkı ve hareket oyunlarında kullanılabilir.'
     });
   }
   throw new Error('Unknown nelRoteCount20 practice section: '+sectionId);
