@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -1245,6 +1245,197 @@ function renderNelCompareLessonStep(skill,index=null){
   next?.addEventListener('click',()=>completeNelCompareLessonStep(skill,at));
 }
 
+const NEL_ORDER_LESSON_VERSION=1;
+const NEL_ORDER_SECTIONS=['SIRALA','YÖNÜ DEĞİŞTİR','ANLAT','OLAY SIRASI','TAŞI'];
+const NEL_ORDER_SIZE_ITEMS=[
+  {id:'lesson-order-size-small',shape:'circle',tone:'blue',size:'small',length:'medium',height:'medium'},
+  {id:'lesson-order-size-medium',shape:'circle',tone:'yellow',size:'medium',length:'medium',height:'medium'},
+  {id:'lesson-order-size-large',shape:'circle',tone:'red',size:'large',length:'medium',height:'medium'}
+];
+const NEL_ORDER_LENGTH_ITEMS=[
+  {id:'lesson-order-length-short',shape:'bar',tone:'green',size:'medium',length:'short',height:'medium'},
+  {id:'lesson-order-length-medium',shape:'bar',tone:'yellow',size:'medium',length:'medium',height:'medium'},
+  {id:'lesson-order-length-long',shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium'}
+];
+const NEL_ORDER_HEIGHT_ITEMS=[
+  {id:'lesson-order-height-low',shape:'tower',tone:'red',size:'medium',length:'medium',height:'short'},
+  {id:'lesson-order-height-mid',shape:'tower',tone:'blue',size:'medium',length:'medium',height:'medium'},
+  {id:'lesson-order-height-tall',shape:'tower',tone:'green',size:'medium',length:'medium',height:'tall'}
+];
+const NEL_ORDER_EVENT_ITEMS=[
+  {id:'lesson-event-wet',kind:'event',label:'Ellerini ıslat'},
+  {id:'lesson-event-soap',kind:'event',label:'Sabunla'},
+  {id:'lesson-event-rinse',kind:'event',label:'Durula'}
+];
+const NEL_ORDER_LESSON_STEPS=[
+  {
+    id:'order-size',section:'SIRALA',kind:'order',attribute:'size',attributeLabel:'büyüklük',directionLabel:'küçükten büyüğe',
+    items:[NEL_ORDER_SIZE_ITEMS[2],NEL_ORDER_SIZE_ITEMS[0],NEL_ORDER_SIZE_ITEMS[1]],
+    expected:NEL_ORDER_SIZE_ITEMS.map(x=>x.id).join('|'),
+    title:'Üç nesneyi küçükten büyüğe sırala.',body:'Tek tek karşılaştır ve en küçükten başlayarak üç yeri doldur.',
+    result:'Büyüklük arttıkça sıra küçük, orta ve büyük olarak ilerledi.'
+  },
+  {
+    id:'reverse-size',section:'YÖNÜ DEĞİŞTİR',kind:'order',attribute:'size',attributeLabel:'büyüklük',directionLabel:'büyükten küçüğe',
+    items:[NEL_ORDER_SIZE_ITEMS[0],NEL_ORDER_SIZE_ITEMS[2],NEL_ORDER_SIZE_ITEMS[1]],
+    expected:[...NEL_ORDER_SIZE_ITEMS].reverse().map(x=>x.id).join('|'),
+    title:'Aynı nesneleri bu kez ters yönde sırala.',body:'Nesneler değişmedi. Yalnız sıralama yönünü büyükten küçüğe çevir.',
+    result:'Aynı üç nesne seçilen yöne göre ters sıraya konabilir.'
+  },
+  {
+    id:'order-length',section:'SIRALA',kind:'order',attribute:'length',attributeLabel:'uzunluk',directionLabel:'kısadan uzuna',
+    items:[NEL_ORDER_LENGTH_ITEMS[1],NEL_ORDER_LENGTH_ITEMS[2],NEL_ORDER_LENGTH_ITEMS[0]],
+    expected:NEL_ORDER_LENGTH_ITEMS.map(x=>x.id).join('|'),
+    title:'Çubukları kısadan uzuna sırala.',body:'Renkleri yok say. Yalnız yatay uzunluklarını karşılaştır.',
+    result:'Çubuklar kısa, orta ve uzun olarak sıralandı.'
+  },
+  {
+    id:'order-height',section:'SIRALA',kind:'order',attribute:'height',attributeLabel:'yükseklik',directionLabel:'alçaktan yükseğe',
+    items:[NEL_ORDER_HEIGHT_ITEMS[2],NEL_ORDER_HEIGHT_ITEMS[0],NEL_ORDER_HEIGHT_ITEMS[1]],
+    expected:NEL_ORDER_HEIGHT_ITEMS.map(x=>x.id).join('|'),
+    title:'Kuleleri alçaktan yükseğe sırala.',body:'Tabanları aynı çizgide düşün ve tepelerinin yüksekliğine bak.',
+    result:'Kuleler alçak, orta ve yüksek olarak sıralandı.'
+  },
+  {
+    id:'choose-order',section:'ANLAT',kind:'choose',
+    title:'Hangi sıra gerçekten küçükten büyüğe gidiyor?',body:'Her satıra baştan sona bak. Büyüklüğün düzenli arttığı sırayı seç.',
+    options:[
+      {id:'correct',correct:true,items:NEL_ORDER_SIZE_ITEMS},
+      {id:'reverse',items:[...NEL_ORDER_SIZE_ITEMS].reverse()},
+      {id:'swap',items:[NEL_ORDER_SIZE_ITEMS[0],NEL_ORDER_SIZE_ITEMS[2],NEL_ORDER_SIZE_ITEMS[1]]}
+    ],
+    result:'Doğru sırada büyüklük küçükten büyüğe doğru ilerler.'
+  },
+  {
+    id:'explain-order',section:'ANLAT',kind:'reason',
+    title:'Bu sırayı hangi özelliğe göre kurduk?',body:'Üç çubuğu kısadan uzuna sıraladık. Kuralı adlandır.',
+    items:NEL_ORDER_LENGTH_ITEMS,correct:'Uzunluklarına göre',
+    options:['Uzunluklarına göre','Renklerine göre','Şekillerinin adına göre'],
+    result:'Sıralama kuralı uzunluktu; renk sıralamayı belirlemedi.'
+  },
+  {
+    id:'event-order',section:'OLAY SIRASI',kind:'order',attribute:'event',attributeLabel:'olay sırası',directionLabel:'önce-sonra sırasına',
+    items:[NEL_ORDER_EVENT_ITEMS[1],NEL_ORDER_EVENT_ITEMS[2],NEL_ORDER_EVENT_ITEMS[0]],
+    expected:NEL_ORDER_EVENT_ITEMS.map(x=>x.id).join('|'),
+    title:'Olayları önce-sonra sırasına koy.',body:'Ellerini yıkarken ilk ne olur, sonra ne olur, en son ne olur?',
+    result:'Bir olay dizisi de nesneler gibi anlamlı bir sıraya konabilir.'
+  },
+  {
+    id:'real-world-order',section:'TAŞI',kind:'real-world',
+    title:'Şimdi sıralamayı ekrandan çıkar.',body:'Yakınında üç nesne bul. Büyüklük, uzunluk veya yükseklikten birini seç; nesneleri bir uçtan öbür uca sırala ve hangi yönde sıraladığını söyle.',
+    result:'Sıralama, üç veya daha fazla şeyi seçilen bir özelliğe ya da olayların önce-sonra ilişkisine göre düzenlemektir.'
+  }
+];
+
+function nelOrderItemMarkup(item={},label=''){
+  if(item.kind==='event') return '<span class="nel-order-event-card" role="img" aria-label="'+esc(label||item.label||'olay kartı')+'"><b>'+esc(item.label||'Olay')+'</b></span>';
+  return nelMatchObjectMarkup(item,label||'sıralama nesnesi');
+}
+function nelOrderSectionTrack(step){
+  return '<div class="nel-order-section-track">'+NEL_ORDER_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelOrderReadRoot(root){
+  if(!root) return null;
+  const items=[...root.querySelectorAll('[data-nel-order-item][data-order-index]')].sort((a,b)=>Number(a.dataset.orderIndex)-Number(b.dataset.orderIndex));
+  const total=root.querySelectorAll('[data-nel-order-item]').length;
+  if(!total||items.length!==total) return null;
+  return items.map(item=>item.dataset.nelOrderItem).join('|');
+}
+function nelOrderResetRoot(root){
+  if(!root) return;
+  const pool=root.querySelector('.nel-order-pool');
+  const items=[...root.querySelectorAll('[data-nel-order-item]')].sort((a,b)=>Number(a.dataset.sourceIndex)-Number(b.dataset.sourceIndex));
+  items.forEach(item=>{delete item.dataset.orderIndex;item.classList.remove('placed','selected');item.disabled=false;pool?.appendChild(item);});
+  root.querySelectorAll('.nel-order-slot').forEach(slot=>slot.classList.remove('filled'));
+  root.classList.remove('complete','wrong');
+}
+function bindNelOrderRoot(root,onChange,blocked=()=>false){
+  if(!root) return;
+  root.querySelectorAll('[data-nel-order-item]').forEach(item=>item.addEventListener('click',()=>{
+    if(blocked()||item.dataset.orderIndex) return;
+    const placed=root.querySelectorAll('[data-nel-order-item][data-order-index]').length;
+    const slot=root.querySelector('.nel-order-slot[data-slot-index="'+(placed+1)+'"]');
+    if(!slot) return;
+    item.dataset.orderIndex=String(placed+1);item.classList.add('placed');slot.classList.add('filled');slot.appendChild(item);onChange?.();
+  }));
+  root.querySelector('.nel-order-reset')?.addEventListener('click',()=>{if(blocked())return;nelOrderResetRoot(root);onChange?.();});
+}
+function nelOrderBuilderVisual(v={}){
+  const items=v.items||[];
+  return '<div class="nel-order-builder" data-order-kind="'+esc(v.kind||'attribute')+'">'+
+    (v.context?'<span class="nel-order-context">'+esc(v.context==='daily'?'GÜNLÜK OLAY SIRASI':'SIRALAMA')+'</span>':'')+
+    '<div class="nel-order-direction">'+esc((v.directionLabel||'sıraya').toUpperCase())+'</div>'+
+    '<div class="nel-order-pool">'+items.map((item,index)=>'<button type="button" class="nel-order-item" data-nel-order-item="'+esc(item.id||'')+'" data-source-index="'+index+'" aria-label="'+esc(item.label||'sıralanacak nesne')+'">'+nelOrderItemMarkup(item,item.label||'sıralanacak nesne')+'</button>').join('')+'</div>'+
+    '<div class="nel-order-sequence">'+items.map((_,index)=>'<div class="nel-order-slot" data-slot-index="'+(index+1)+'"><span>'+(index+1)+'</span></div>').join('')+'</div>'+
+    '<button type="button" class="nel-order-reset">Sırayı temizle</button>'+
+  '</div>';
+}
+function nelOrderPreviewVisual(v={}){
+  const items=v.items||[];
+  return '<div class="nel-order-preview '+(v.kind==='event'?'event':'')+'">'+items.map((item,index)=>'<div><small>'+(index+1)+'</small>'+nelOrderItemMarkup(item,item.label||((index+1)+'. nesne'))+'</div>').join('')+'</div>';
+}
+function nelOrderRuleCardVisual(v={}){
+  return '<div class="nel-order-rule-card"><small>SIRALAMA KURALI</small><strong>'+esc(v.directionLabel||'Sıraya koy')+'</strong><span>'+esc(v.attributeLabel||'özellik')+'</span></div>';
+}
+function nelOrderLessonCore(step){
+  if(step.kind==='order') return '<div class="nel-order-lesson-core">'+nelOrderBuilderVisual({kind:step.attribute==='event'?'event':'attribute',attribute:step.attribute,attributeLabel:step.attributeLabel,directionLabel:step.directionLabel,items:step.items})+'<p class="nel-order-help" id="nelOrderHelp">Kartlara sırayla dokun.</p><div class="nel-order-result" id="nelOrderResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='choose') return '<div class="nel-order-lesson-core"><div class="nel-order-option-grid">'+step.options.map(opt=>'<button type="button" class="nel-order-option" data-correct="'+(opt.correct?'true':'false')+'">'+nelOrderPreviewVisual({kind:'attribute',items:opt.items})+'</button>').join('')+'</div><p class="nel-order-help" id="nelOrderHelp"></p><div class="nel-order-result" id="nelOrderResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='reason') return '<div class="nel-order-lesson-core">'+nelOrderPreviewVisual({kind:'attribute',items:step.items})+'<div class="nel-order-reason-grid">'+step.options.map(value=>'<button type="button" class="nel-order-reason" data-correct="'+(value===step.correct?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div><p class="nel-order-help" id="nelOrderHelp"></p><div class="nel-order-result" id="nelOrderResult">'+esc(step.result)+'</div></div>';
+  return '<div class="nel-order-lesson-core"><div class="nel-order-real-world"><span>1</span><p>Üç nesne seç.</p><span>2</span><p>Tek bir özellik seç.</p><span>3</span><p>Bir yönde sırala ve kuralını söyle.</p></div><button type="button" class="nel-order-done" id="nelOrderDone">Sıralamamı yaptım</button><div class="nel-order-result" id="nelOrderResult">'+esc(step.result)+'</div></div>';
+}
+function revealNelOrderResult(){ $('#nelOrderResult')?.classList.add('revealed'); }
+function wireNelOrderLessonStep(step,next){
+  if(step.kind==='order'){
+    const root=$('.nel-order-builder');
+    bindNelOrderRoot(root,()=>{
+      const value=nelOrderReadRoot(root);
+      if(!value){$('#nelOrderHelp').textContent='Kartlara seçtiğin sırayla dokun.';return;}
+      if(value!==step.expected){
+        root.classList.add('wrong');
+        $('#nelOrderHelp').textContent=step.attribute==='event'?'İlk, sonra ve en son olanı yeniden düşün.':'Sıranın yönünü ve yalnız '+step.attributeLabel+' özelliğini yeniden kontrol et.';
+        return;
+      }
+      root.classList.remove('wrong');root.classList.add('complete');
+      root.querySelectorAll('[data-nel-order-item],.nel-order-reset').forEach(x=>x.disabled=true);
+      $('#nelOrderHelp').textContent='';revealNelOrderResult();next.disabled=false;
+    });
+    return;
+  }
+  if(step.kind==='choose'){
+    $$('.nel-order-option').forEach(button=>button.addEventListener('click',()=>{
+      if(button.dataset.correct!=='true'){button.classList.add('wrong');setTimeout(()=>button.classList.remove('wrong'),300);$('#nelOrderHelp').textContent='Baştan sona büyüklük düzenli artıyor mu?';return;}
+      button.classList.add('selected');$$('.nel-order-option').forEach(x=>x.disabled=true);$('#nelOrderHelp').textContent='';revealNelOrderResult();next.disabled=false;
+    }));
+    return;
+  }
+  if(step.kind==='reason'){
+    $$('.nel-order-reason').forEach(button=>button.addEventListener('click',()=>{
+      if(button.dataset.correct!=='true'){button.classList.add('wrong');setTimeout(()=>button.classList.remove('wrong'),300);$('#nelOrderHelp').textContent='Nesnelerin renklerini değil, sırada değişen ölçüyü düşün.';return;}
+      button.classList.add('selected');$$('.nel-order-reason').forEach(x=>x.disabled=true);$('#nelOrderHelp').textContent='';revealNelOrderResult();next.disabled=false;
+    }));
+    return;
+  }
+  $('#nelOrderDone')?.addEventListener('click',()=>{$('#nelOrderDone').disabled=true;revealNelOrderResult();next.disabled=false;});
+}
+function completeNelOrderLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_ORDER_LESSON_VERSION;
+  if(next>=NEL_ORDER_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}
+  saveState();session.lessonStepIndex=next;renderNelOrderLessonStep(skill,next);
+}
+function renderNelOrderLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id);
+  const saved=Math.min(NEL_ORDER_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_ORDER_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_ORDER_LESSON_STEPS[at];
+  session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';
+  $('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_ORDER_LESSON_STEPS.length;
+  $('#practiceProgress').style.width=Math.round((at+1)/NEL_ORDER_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-order-lesson-stage" data-nel-order-step="'+esc(step.id)+'">'+nelOrderSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_ORDER_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-order-lesson-visual">'+nelOrderLessonCore(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelOrderLessonNext" disabled>'+(at===NEL_ORDER_LESSON_STEPS.length-1?'Sıralama oyunlarına geç':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelOrderLessonNext');wireNelOrderLessonStep(step,next);next?.addEventListener('click',()=>completeNelOrderLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -1817,6 +2008,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelMatchAttributes') return NEL_MATCH_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelSortAttributes') return NEL_SORT_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelCompareAttributes') return NEL_COMPARE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelOrderAttributes') return NEL_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -2183,6 +2375,12 @@ function startSession(){
     focus.state.learningCycle.lessonVersion=NEL_COMPARE_LESSON_VERSION;
     saveState();
   }
+  if(focus.skill.id==='nelOrderAttributes'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NEL_ORDER_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;
+    focus.state.learningCycle.lessonTaughtAt=0;
+    focus.state.learningCycle.lessonVersion=NEL_ORDER_LESSON_VERSION;
+    saveState();
+  }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -2372,6 +2570,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }
   if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }
   if(skill.id==='nelCompareAttributes'){ renderNelCompareLessonStep(skill); return; }
+  if(skill.id==='nelOrderAttributes'){ renderNelOrderLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -2473,6 +2672,10 @@ function wireResponse(q){
 function wireManipulator(q){
   const interaction=q.response?.interaction;
   if(!interaction) return;
+  if(interaction==='nel-order-sequence'){
+    const root=$('.nel-order-builder');
+    bindNelOrderRoot(root,()=>updateManipulatorStatus(q),()=>answered);
+  }
   if(interaction==='nel-sort-bin'){
     const root=$('.nel-sort-builder');
     let selected=null;
@@ -2806,6 +3009,7 @@ function bindFractionPaint(root,q){
 
 function readManipulatorValue(q){
   const interaction=q.response?.interaction;
+  if(interaction==='nel-order-sequence') return nelOrderReadRoot($('.nel-order-builder'));
   if(interaction==='nel-sort-bin'){
     const root=$('.nel-sort-builder'); if(!root) return null;
     const items=[...root.querySelectorAll('[data-nel-sort-item]')];
@@ -2885,7 +3089,11 @@ function readManipulatorValue(q){
 function updateManipulatorStatus(q){
   const node=$('#manipulatorStatus'); if(!node)return;
   const value=readManipulatorValue(q)??0;
-  if(q.response?.interaction==='nel-sort-bin'){
+  if(q.response?.interaction==='nel-order-sequence'){
+    const root=$('.nel-order-builder'),total=root?.querySelectorAll('[data-nel-order-item]').length||0,placed=root?.querySelectorAll('[data-nel-order-item][data-order-index]').length||0;
+    node.textContent=placed===total&&total?'Sıra hazır. Şimdi kontrol et.':placed+' / '+total+' kart sıraya yerleştirildi.';
+  }
+  else if(q.response?.interaction==='nel-sort-bin'){
     const root=$('.nel-sort-builder'), total=root?.querySelectorAll('[data-nel-sort-item]').length||0, placed=root?.querySelectorAll('[data-nel-sort-item][data-assigned]').length||0;
     node.textContent=placed===total&&total?'Bütün nesneler kutularda. Şimdi kontrol et.':placed+' / '+total+' nesne sınıflandı.';
   }
@@ -3249,6 +3457,9 @@ function nelCompareContextVisual(v={}){
 function renderVisual(v,q){
   if(!v) return `<div style="position:relative;z-index:1;text-align:center;color:var(--muted);font-size:11px;max-width:360px">Bu pencerede görsel model yerine dil ve akıl yürütme kullanılıyor.</div>`;
   switch(v.type){
+    case 'nel-order-builder': return nelOrderBuilderVisual(v);
+    case 'nel-order-preview': return nelOrderPreviewVisual(v);
+    case 'nel-order-rule-card': return nelOrderRuleCardVisual(v);
     case 'nel-compare-builder': return nelCompareBuilderVisual(v);
     case 'nel-compare-pair': return nelComparePairVisual(v);
     case 'nel-compare-context': return nelCompareContextVisual(v);
