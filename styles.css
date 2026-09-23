@@ -1083,3 +1083,64 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-pattern-actions{gap:4px}.nel-pattern-actions span{min-width:82px;min-height:54px}
 }
 
+/* v1.16.0 — hidden NEL preschool rote counting reference lesson */
+.nel-rote-lesson-stage{width:min(860px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-rote-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-rote-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-rote-section-track span.active{background:var(--blue-soft);border-color:#afc9df;color:#315f82}
+.nel-rote-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:4px 0}
+.nel-rote-lesson-core{width:min(760px,100%);display:grid;justify-items:center;gap:13px}
+.nel-rote-chant{width:min(690px,100%);padding:16px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:grid;justify-items:center;gap:10px;position:relative;z-index:1}
+.nel-rote-chant>span{font-size:8px;font-weight:950;letter-spacing:.11em;color:#315f82}
+.nel-rote-play-chain,.nel-rote-listen{min-height:46px;border-radius:14px;border:1px solid #afc9df;background:var(--blue-soft);color:#315f82;font-weight:930;padding:0 14px}
+.nel-rote-chain-words{width:100%;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
+.nel-rote-chain-words small{padding:6px 8px;border-radius:999px;background:var(--paper);border:1px solid var(--line);font-size:9px;font-weight:900;color:var(--navy)}
+.nel-rote-chain-words i{font-style:normal;color:var(--muted);font-weight:900}
+.nel-rote-sequence-builder{width:min(720px,100%);display:grid;justify-items:center;gap:10px;position:relative;z-index:1}
+.nel-rote-pool{width:100%;min-height:128px;display:flex;justify-content:center;align-items:stretch;gap:8px;flex-wrap:wrap;padding:10px;border:1px solid var(--line);border-radius:20px;background:var(--paper-2)}
+.nel-rote-pool-card{width:min(148px,calc(50% - 6px));min-height:112px;display:grid}
+.nel-rote-audio-card{width:100%;height:100%;display:grid;align-content:center;justify-items:center;gap:6px;padding:8px;border:1px solid var(--line);border-radius:17px;background:var(--paper)}
+.nel-rote-audio-card small{font-size:10px;font-weight:900;color:var(--muted);text-align:center;line-height:1.25}
+.nel-rote-audio-card .nel-rote-listen{width:100%}
+.nel-rote-place,.nel-rote-select,.nel-rote-reset{min-height:42px;padding:0 12px;border-radius:13px;border:1px solid var(--line);background:var(--paper);font-size:9px;font-weight:930;color:var(--navy)}
+.nel-rote-place{background:var(--navy);color:#fff;border-color:var(--navy)}
+.nel-rote-slots{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.nel-rote-slot{min-height:116px;border:2px dashed #cbd7df;border-radius:18px;background:var(--paper);position:relative;display:grid;place-items:center;padding:5px;overflow:hidden}
+.nel-rote-slot>span{position:absolute;top:5px;left:6px;width:22px;height:22px;border-radius:999px;background:var(--blue-soft);display:grid;place-items:center;font-size:8px;font-weight:950;color:#315f82;z-index:2}
+.nel-rote-slot .nel-rote-pool-card{width:100%;min-height:0;height:100%}
+.nel-rote-slot .nel-rote-audio-card{padding:4px}
+.nel-rote-slot .nel-rote-place{display:none}
+.nel-rote-slot.filled{border-style:solid;border-color:#afc9df;background:#f4f9fc}
+.nel-rote-sequence-builder.wrong .nel-rote-slots{animation:lessonNudge .28s}
+.nel-rote-sequence-builder.complete .nel-rote-slot{border-color:#9dcfc3;background:#f2faf7}
+.nel-rote-audio-choice,.nel-rote-phrase-choice{width:min(720px,100%);display:grid;gap:12px;justify-items:center;position:relative;z-index:1}
+.nel-rote-option-grid{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.nel-rote-option{min-height:124px;padding:7px;border:1px solid var(--line);border-radius:18px;background:var(--paper-2);display:grid;gap:6px}
+.nel-rote-option.selected,.nel-rote-phrase.selected{background:var(--teal-soft);border-color:#9dcfc3}
+.nel-rote-option .nel-rote-audio-card{min-height:78px}
+.nel-rote-option .nel-rote-select{background:var(--navy);color:#fff;border-color:var(--navy)}
+.nel-rote-phrase-grid{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.nel-rote-phrase{min-height:138px;padding:10px;border:1px solid var(--line);border-radius:18px;background:var(--paper-2);display:grid;align-content:start;gap:8px}
+.nel-rote-phrase p{margin:0;font-size:10px;line-height:1.35;font-weight:850;color:var(--navy)}
+.nel-rote-phrase .nel-rote-select{align-self:end}
+.nel-rote-help{min-height:18px;margin:0;font-size:11px;font-weight:800;color:var(--muted);text-align:center}
+.nel-rote-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(660px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}
+.nel-rote-result.revealed{opacity:1;transform:none}
+.nel-rote-done{min-height:50px;padding:0 18px;border-radius:16px;background:var(--navy);color:white;font-weight:930}
+.nel-rote-real-world{width:min(620px,100%);display:grid;grid-template-columns:42px 1fr;gap:9px 12px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-rote-real-world span{width:36px;height:36px;border-radius:12px;background:var(--blue-soft);display:grid;place-items:center;font-weight:950;color:#315f82}
+.nel-rote-real-world p{margin:0;font-size:12px;font-weight:850}
+.visual-stage .nel-rote-audio-choice,.visual-stage .nel-rote-phrase-choice,.visual-stage .nel-rote-sequence-builder{align-self:stretch}
+@media(max-width:699px){
+  .nel-rote-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-rote-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}
+  .nel-rote-section-track span{flex:0 0 auto}
+  .nel-rote-chant{padding:11px}.nel-rote-chain-words{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px}.nel-rote-chain-words small{flex:0 0 auto}
+  .nel-rote-pool{min-height:112px;padding:7px;gap:5px}.nel-rote-pool-card{width:min(132px,calc(50% - 4px));min-height:100px}
+  .nel-rote-audio-card{padding:5px;gap:4px}.nel-rote-audio-card small{font-size:8px}.nel-rote-play-chain,.nel-rote-listen{min-height:42px;padding:0 10px;font-size:9px}
+  .nel-rote-slots{gap:4px}.nel-rote-slot{min-height:98px;padding:3px}.nel-rote-slot>span{width:19px;height:19px;top:3px;left:4px;font-size:7px}
+  .nel-rote-option-grid,.nel-rote-phrase-grid{grid-template-columns:1fr 1fr;gap:5px}
+  .nel-rote-option{min-height:108px;padding:5px}.nel-rote-phrase{min-height:122px;padding:7px}.nel-rote-phrase p{font-size:9px}
+  .nel-rote-real-world{padding:13px}
+}
+
