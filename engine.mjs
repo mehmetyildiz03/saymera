@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -243,6 +243,22 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelPatterns:{
+    version:1,
+    unitId:'nel-relationships-patterns',
+    pathId:'relationships-patterns',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'recognise-copy',label:'Örüntüyü tanı ve kopyala',phase:'model',representation:'build'},
+        {id:'extend-pattern',label:'Örüntüyü devam ettir',phase:'representation',representation:'see'},
+        {id:'create-pattern',label:'Verilen kuralla örüntü kur',phase:'symbol',representation:'symbol'},
+        {id:'describe-pattern',label:'Tekrar eden kuralı anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-pattern',label:'Aynı örüntüyü başka malzemeye taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -283,6 +299,7 @@ export const SKILLS = [
   skill('nelSortAttributes','preschool','Özelliğe göre sınıfla','İlişkiler & Örüntüler','navy',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelCompareAttributes','preschool','Özelliğe göre karşılaştır','İlişkiler & Örüntüler','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelOrderAttributes','preschool','Özelliğe göre sırala','İlişkiler & Örüntüler','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
+  skill('nelPatterns','preschool','Örüntüyü fark et, uzat ve kur','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -592,6 +609,13 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'NEL v2 sıralama becerisinin Öğren/Uygula sözleşmesi açık',
       !orderContract.provisional && orderContract.practice.sections.length===5,
       orderContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const patternContract=lessonContractFor('nelPatterns');
+    add(
+      'nel-pattern-reference-contract',
+      'NEL v2 örüntü becerisinin Öğren/Uygula sözleşmesi açık',
+      !patternContract.provisional && patternContract.practice.sections.length===5,
+      patternContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -1426,6 +1450,73 @@ function nelOrderRuleText(orderCase){
   return orderCase.directionLabel.charAt(0).toUpperCase()+orderCase.directionLabel.slice(1)+' sıralıyoruz.';
 }
 
+
+function nelPatternPalettes(){
+  return [
+    {
+      A:{id:'pattern-blue-circle',shape:'circle',tone:'blue',size:'medium',length:'medium',height:'medium',name:'mavi daire'},
+      B:{id:'pattern-yellow-triangle',shape:'triangle',tone:'yellow',size:'medium',length:'medium',height:'medium',name:'sarı üçgen'},
+      C:{id:'pattern-green-square',shape:'square',tone:'green',size:'medium',length:'medium',height:'medium',name:'yeşil kare'}
+    },
+    {
+      A:{id:'pattern-red-square',shape:'square',tone:'red',size:'medium',length:'medium',height:'medium',name:'kırmızı kare'},
+      B:{id:'pattern-blue-circle-2',shape:'circle',tone:'blue',size:'medium',length:'medium',height:'medium',name:'mavi daire'},
+      C:{id:'pattern-yellow-triangle-2',shape:'triangle',tone:'yellow',size:'medium',length:'medium',height:'medium',name:'sarı üçgen'}
+    },
+    {
+      A:{id:'pattern-green-triangle',shape:'triangle',tone:'green',size:'medium',length:'medium',height:'medium',name:'yeşil üçgen'},
+      B:{id:'pattern-red-circle',shape:'circle',tone:'red',size:'medium',length:'medium',height:'medium',name:'kırmızı daire'},
+      C:{id:'pattern-blue-square',shape:'square',tone:'blue',size:'medium',length:'medium',height:'medium',name:'mavi kare'}
+    }
+  ];
+}
+function nelPatternRepeat(unit,repetitions){ return Array.from({length:repetitions},()=>unit).flat(); }
+function nelPatternCase(id,code,palette,complexity='simple'){
+  const unitKeys=code.split('');
+  const repetitions=unitKeys.length===2?3:2;
+  const fullKeys=nelPatternRepeat(unitKeys,repetitions);
+  const displayKeys=fullKeys.slice(0,-1);
+  const token=key=>({...palette[key],patternKey:key});
+  const unitItems=unitKeys.map(token), fullItems=fullKeys.map(token), displayItems=displayKeys.map(token);
+  const description=unitItems.map(item=>item.name).join(', ')+' tekrar ediyor.';
+  return {
+    id,code,complexity,palette,unitKeys,unitItems,fullKeys,fullItems,displayKeys,displayItems,
+    nextKey:fullKeys.at(-1),nextItem:token(fullKeys.at(-1)),description
+  };
+}
+function nelPatternCases(){
+  const p=nelPatternPalettes();
+  return [
+    nelPatternCase('pattern-ab','AB',p[0],'simple'),
+    nelPatternCase('pattern-abb','ABB',p[1],'simple'),
+    nelPatternCase('pattern-aab','AAB',p[2],'simple'),
+    nelPatternCase('pattern-aabb','AABB',p[0],'complex'),
+    nelPatternCase('pattern-abba','ABBA',p[1],'complex'),
+    nelPatternCase('pattern-abc','ABC',p[2],'complex')
+  ];
+}
+function nelPatternExpected(patternCase){ return patternCase.fullItems.map(item=>item.id).join('|'); }
+function nelPatternUnitExpected(patternCase){ return patternCase.unitItems.map(item=>item.id).join('|'); }
+function nelPatternChoiceOptions(patternCase,rng){
+  const correct=patternCase.nextItem;
+  const items=Object.values(patternCase.palette);
+  return shuffled(items.map(item=>({
+    value:item.id,
+    visual:{type:'nel-pattern-token',item},
+    ariaLabel:item.name
+  })),rng);
+}
+function nelPatternDescribeChoices(patternCase,rng){
+  const distractors=nelPatternCases().filter(x=>x.code!==patternCase.code).map(x=>x.description);
+  return semanticChoices(patternCase.description,distractors,rng);
+}
+function nelPatternActionData(patternCase){
+  const labels={A:'Alkış',B:'Dize dokun',C:'Kolları aç'};
+  const display=patternCase.displayKeys.map(key=>labels[key]);
+  const answer=labels[patternCase.nextKey];
+  return {display,answer,options:['Alkış','Dize dokun','Kolları aç']};
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1638,6 +1729,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelSortAttributes') return make('nel-sorting-by-attribute',nelSortCases());
   if(skillId==='nelCompareAttributes') return make('nel-comparing-by-attribute',nelCompareCases());
   if(skillId==='nelOrderAttributes') return make('nel-ordering-by-attribute-or-event',nelOrderCases());
+  if(skillId==='nelPatterns') return make('nel-repeating-patterns',nelPatternCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -1877,6 +1969,49 @@ function genNelOrderAttributes(rep,d,rng,concept){
     taskKind:'nel-order-transfer',taskLabel:'Olay sırasını günlük duruma taşı',
     visual:{type:'nel-order-builder',kind:'event',attribute:'event',attributeLabel:'olay sırası',directionLabel:'önce-sonra sırasına',items:nelOrderScramble(y.items,rng),context:'daily'},
     hint:'İlk yapılacak işi, sonra gelen işi ve en son olanı düşün.',explain:'Olayları önce-sonra ilişkisine göre sıraladık.'
+  });
+}
+
+
+function genNelPatterns(rep,d,rng,concept){
+  const c=concept?.skillId==='nelPatterns'?concept:createConceptInstance('nelPatterns',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    return qTask('nelPatterns','build','Gösterilen örüntüyü aynı sırayla kopyala.',nelPatternExpected(x),{kind:'manipulative',interaction:'nel-pattern-build',expectedValue:nelPatternExpected(x),checkLabel:'Örüntümü kontrol et'},{
+      taskKind:'nel-pattern-copy',taskLabel:'Örüntüyü kopyala',
+      visual:{type:'nel-pattern-builder',mode:'copy',targetItems:x.fullItems,palette:Object.values(x.palette),slots:x.fullItems.length},
+      hint:'Önce tekrar eden küçük parçayı bul; sonra aynı sırayı yeniden kur.',explain:'Aynı tekrar birimini aynı sırayla kopyaladın.'
+    });
+  }
+  if(rep==='see'){
+    const y=c.symbol;
+    return qTask('nelPatterns','see','Örüntüyü devam ettiren sıradaki parça hangisi?',y.nextItem.id,{kind:'visual-choice',options:nelPatternChoiceOptions(y,rng)},{
+      taskKind:'nel-pattern-extend',taskLabel:'Örüntüyü devam ettir',
+      visual:{type:'nel-pattern-strip',items:y.displayItems,gap:true},
+      hint:'Baştan sona tek tek değil, tekrar eden küçük parçayı ara.',explain:'Tekrar eden parça '+y.description.toLocaleLowerCase('tr-TR')
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelPatterns','symbol','Bu tekrar kuralını iki kez kur.',nelPatternExpected(y),{kind:'manipulative',interaction:'nel-pattern-build',expectedValue:nelPatternExpected(y),checkLabel:'Kurduğumu kontrol et'},{
+      taskKind:'nel-pattern-create',taskLabel:'Verilen kuralla örüntü kur',
+      visual:{type:'nel-pattern-builder',mode:'create',unitItems:y.unitItems,palette:Object.values(y.palette),slots:y.fullItems.length,rule:y.description},
+      hint:'Önce küçük tekrar birimini kur; sonra aynı birimi bir kez daha ekle.',explain:'Bir örüntü aynı tekrar biriminin düzenli biçimde yeniden gelmesiyle kurulabilir.'
+    });
+  }
+  if(rep==='explain'){
+    const y=c.anchor;
+    return qBase('nelPatterns','explain','Bu örüntünün tekrar eden kuralını nasıl anlatırsın?',y.description,nelPatternDescribeChoices(y,rng),{
+      taskKind:'nel-pattern-describe',taskLabel:'Tekrar eden birimi anlat',
+      visual:{type:'nel-pattern-strip',items:y.fullItems,markUnit:y.unitItems.length},
+      hint:'İlk kez hangi küçük parça tamamlanıyor ve sonra yeniden başlıyor?',explain:y.description
+    });
+  }
+  const y=c.transfer, actions=nelPatternActionData(y);
+  return qBase('nelPatterns','transfer','Aynı tekrar düzenini hareketlere taşı. Sıradaki hareket hangisi?',actions.answer,semanticChoices(actions.answer,actions.options.filter(v=>v!==actions.answer),rng),{
+    taskKind:'nel-pattern-transfer',taskLabel:'Örüntü yapısını başka malzemeye taşı',
+    visual:{type:'nel-pattern-actions',items:actions.display},
+    hint:'Şekiller değişti; tekrar sırası değişmedi.',explain:'Aynı tekrar yapısı şekillerle, hareketlerle veya gerçek nesnelerle kurulabilir.'
   });
 }
 
@@ -3623,6 +3758,7 @@ const GENERATORS={
   nelSortAttributes:genNelSortAttributes,
   nelCompareAttributes:genNelCompareAttributes,
   nelOrderAttributes:genNelOrderAttributes,
+  nelPatterns:genNelPatterns,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -4435,6 +4571,54 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 
 
+
+function nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelPatternCases();
+  const simple=cases.filter(x=>x.complexity==='simple');
+  const complex=cases.filter(x=>x.complexity==='complex');
+  const x=cases[taskIndex%cases.length];
+  if(sectionId==='recognise-copy'){
+    const y=simple[taskIndex%simple.length];
+    return qTask('nelPatterns','build','Bu örüntüyü aynı sırayla kopyala.',nelPatternExpected(y),{kind:'manipulative',interaction:'nel-pattern-build',expectedValue:nelPatternExpected(y),checkLabel:'Kopyamı kontrol et'},{
+      taskKind:'nel-practice-pattern-copy-'+taskIndex,taskLabel:'Basit örüntüyü kopyala',
+      visual:{type:'nel-pattern-builder',mode:'copy',targetItems:y.fullItems,palette:Object.values(y.palette),slots:y.fullItems.length},
+      hint:'Tekrar eden küçük parçayı bul ve aynı sırayla yeniden kur.',explain:'Örüntünün tekrar birimini koruyarak kopyaladın.'
+    });
+  }
+  if(sectionId==='extend-pattern'){
+    const y=taskIndex%3===0?simple[taskIndex%simple.length]:complex[taskIndex%complex.length];
+    return qTask('nelPatterns','see','Bu örüntüyü devam ettiren sıradaki parça hangisi?',y.nextItem.id,{kind:'visual-choice',options:nelPatternChoiceOptions(y,rng)},{
+      taskKind:'nel-practice-pattern-extend-'+taskIndex,taskLabel:'Basit veya daha karmaşık örüntüyü uzat',
+      visual:{type:'nel-pattern-strip',items:y.displayItems,gap:true},
+      hint:'Tekrar eden birimi bul ve boş yere hangi parçanın geldiğini düşün.',explain:y.description
+    });
+  }
+  if(sectionId==='create-pattern'){
+    const y=taskIndex%2===0?simple[(taskIndex+1)%simple.length]:complex[taskIndex%complex.length];
+    return qTask('nelPatterns','symbol','Verilen tekrar kuralını iki kez kur.',nelPatternExpected(y),{kind:'manipulative',interaction:'nel-pattern-build',expectedValue:nelPatternExpected(y),checkLabel:'Örüntümü kontrol et'},{
+      taskKind:'nel-practice-pattern-create-'+taskIndex,taskLabel:'Verilen kuralla örüntü oluştur',
+      visual:{type:'nel-pattern-builder',mode:'create',unitItems:y.unitItems,palette:Object.values(y.palette),slots:y.fullItems.length,rule:y.description},
+      hint:'Tekrar birimini bir kez kur; sonra aynı birimi yeniden kur.',explain:'Kuralı koruyarak yeni bir örüntü oluşturdun.'
+    });
+  }
+  if(sectionId==='describe-pattern'){
+    return qBase('nelPatterns','explain','Bu örüntünün tekrar eden kuralını nasıl anlatırsın?',x.description,nelPatternDescribeChoices(x,rng),{
+      taskKind:'nel-practice-pattern-describe-'+taskIndex,taskLabel:'Örüntü kuralını sözcükle anlat',
+      visual:{type:'nel-pattern-strip',items:x.fullItems,markUnit:x.unitItems.length},
+      hint:'İlk tekrar bitene kadar hangi parçaların sırayla geldiğini söyle.',explain:x.description
+    });
+  }
+  if(sectionId==='transfer-pattern'){
+    const y=cases[(taskIndex+2)%cases.length], actions=nelPatternActionData(y);
+    return qBase('nelPatterns','transfer','Şekil örüntüsündeki aynı tekrar yapısını hareketlerde sürdür. Sıradaki hareket hangisi?',actions.answer,semanticChoices(actions.answer,actions.options.filter(v=>v!==actions.answer),rng),{
+      taskKind:'nel-practice-pattern-transfer-'+taskIndex,taskLabel:'Aynı örüntü yapısını hareketlere taşı',
+      visual:{type:'nel-pattern-actions',items:actions.display},
+      hint:'Malzeme değişebilir; tekrar eden sıra aynı kalır.',explain:'Örüntünün yapısı farklı nesne veya hareketlerle yeniden kurulabilir.'
+    });
+  }
+  throw new Error('Unknown nelPatterns practice section: '+sectionId);
+}
+
 function nelOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const by=attribute=>nelOrderCasesFor(attribute);
   if(sectionId==='order-size'){
@@ -4679,7 +4863,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelOrderAttributes') q=nelOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelPatterns') q=nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelOrderAttributes') q=nelOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelCompareAttributes') q=nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelSortAttributes') q=nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelMatchAttributes') q=nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng);
