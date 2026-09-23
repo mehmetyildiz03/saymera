@@ -974,6 +974,7 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .nel-order-slot.filled{border-style:solid;border-color:#b6d8d0;background:#f2faf7}
 .nel-order-builder.wrong .nel-order-sequence{animation:lessonNudge .28s}
 .nel-order-builder.complete .nel-order-slot{border-color:#9dcfc3}
+.nel-order-builder.complete .nel-order-pool,.nel-order-builder.complete .nel-order-reset{display:none}
 .nel-order-reset{min-height:44px;padding:0 15px;border-radius:14px;border:1px solid var(--line);background:var(--paper-2);font-weight:900;color:var(--muted)}
 .nel-order-reset:disabled{opacity:.5}
 .nel-order-event-card{width:min(148px,100%);min-height:76px;padding:11px;border-radius:16px;background:var(--navy-soft);border:1px solid #c7d5df;display:grid;place-items:center;text-align:center;color:var(--navy)}
