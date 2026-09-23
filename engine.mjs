@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -259,6 +259,22 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelRoteCount20:{
+    version:1,
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    evidenceLabels:{build:'Kur',see:'Dinle',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'recite-forward-10',label:'Sayı adlarını 10’a kadar sırada tut',phase:'model',representation:'build'},
+        {id:'recite-forward-20',label:'Sayı adlarını 20’ye kadar sürdür',phase:'representation',representation:'see'},
+        {id:'continue-from-middle',label:'Ortadan başlayıp devam et',phase:'symbol',representation:'symbol'},
+        {id:'explain-stable-order',label:'Sayı adlarının sabit sırasını anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-rhyme-game',label:'Sayma sırasını oyun ve harekete taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -300,6 +316,7 @@ export const SKILLS = [
   skill('nelCompareAttributes','preschool','Özelliğe göre karşılaştır','İlişkiler & Örüntüler','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelOrderAttributes','preschool','Özelliğe göre sırala','İlişkiler & Örüntüler','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelPatterns','preschool','Örüntüyü fark et, uzat ve kur','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
+  skill('nelRoteCount20','preschool','Sayı adlarını 20’ye kadar sırayla söyle','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -616,6 +633,13 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'NEL v2 örüntü becerisinin Öğren/Uygula sözleşmesi açık',
       !patternContract.provisional && patternContract.practice.sections.length===5,
       patternContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const roteContract=lessonContractFor('nelRoteCount20');
+    add(
+      'nel-rote-count-reference-contract',
+      'NEL v2 ezbere sayma becerisinin Öğren/Uygula sözleşmesi açık',
+      !roteContract.provisional && roteContract.practice.sections.length===5,
+      roteContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -1518,6 +1542,47 @@ function nelPatternActionData(patternCase){
   return {display,answer,options:['Alkış','Dize dokun','Kolları aç','Zıpla']};
 }
 
+
+function nelRoteCountNames(){ return Array.from({length:20},(_,i)=>({n:i+1,name:trNumberWord(i+1)})); }
+function nelRoteCountItem(n){ return {n:Number(n),name:trNumberWord(Number(n)),id:'rote-'+Number(n)}; }
+function nelRoteSequence(start,end,step=start<=end?1:-1){
+  const out=[];
+  if(step>0) for(let n=start;n<=end;n+=step) out.push(nelRoteCountItem(n));
+  else for(let n=start;n>=end;n+=step) out.push(nelRoteCountItem(n));
+  return out;
+}
+function nelRoteCases(){
+  return [
+    {id:'forward-1-5',direction:'forward',items:nelRoteSequence(1,5)},
+    {id:'forward-4-8',direction:'forward',items:nelRoteSequence(4,8)},
+    {id:'forward-7-11',direction:'forward',items:nelRoteSequence(7,11)},
+    {id:'forward-11-15',direction:'forward',items:nelRoteSequence(11,15)},
+    {id:'forward-16-20',direction:'forward',items:nelRoteSequence(16,20)},
+    {id:'forward-12-16',direction:'forward',items:nelRoteSequence(12,16)},
+    {id:'backward-10-6',direction:'backward',items:nelRoteSequence(10,6,-1)},
+    {id:'backward-20-16',direction:'backward',items:nelRoteSequence(20,16,-1)}
+  ];
+}
+function nelRoteExpected(items){ return (items||[]).map(item=>item.id).join('|'); }
+function nelRoteScramble(items,rng){
+  const source=[...(items||[])], mixed=shuffled(source,rng);
+  if(mixed.length>1&&mixed.every((item,index)=>item.id===source[index].id)) mixed.push(mixed.shift());
+  return mixed;
+}
+function nelRoteNextOptions(answerN,rng){
+  const pool=[answerN,answerN-1,answerN+1,answerN+2].filter(n=>n>=1&&n<=20);
+  for(let n=1;pool.length<4&&n<=20;n++) if(!pool.includes(n)) pool.push(n);
+  return shuffled([...new Set(pool)].slice(0,4).map(n=>nelRoteCountItem(n)),rng);
+}
+function nelRotePhraseOptions(){
+  return [
+    {id:'stable',speech:'Sayı adlarını her seferinde aynı sırayla söylüyoruz.'},
+    {id:'random',speech:'Sayı adlarını istediğimiz sırayla değiştirebiliriz.'},
+    {id:'quantity',speech:'Her sayı adında mutlaka bir nesneye dokunmalıyız.'},
+    {id:'shape',speech:'Sayı adlarının sırası nesnelerin şekline göre değişir.'}
+  ];
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1731,6 +1796,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelCompareAttributes') return make('nel-comparing-by-attribute',nelCompareCases());
   if(skillId==='nelOrderAttributes') return make('nel-ordering-by-attribute-or-event',nelOrderCases());
   if(skillId==='nelPatterns') return make('nel-repeating-patterns',nelPatternCases());
+  if(skillId==='nelRoteCount20') return make('nel-spoken-number-sequence-to-20',nelRoteCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2013,6 +2079,53 @@ function genNelPatterns(rep,d,rng,concept){
     taskKind:'nel-pattern-transfer',taskLabel:'Örüntü yapısını başka malzemeye taşı',
     visual:{type:'nel-pattern-actions',items:actions.display},
     hint:'Şekiller değişti; tekrar sırası değişmedi.',explain:'Aynı tekrar yapısı şekillerle, hareketlerle veya gerçek nesnelerle kurulabilir.'
+  });
+}
+
+
+function genNelRoteCount20(rep,d,rng,concept){
+  const c=concept?.skillId==='nelRoteCount20'?concept:createConceptInstance('nelRoteCount20',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    const y=x.direction==='forward'?x:nelRoteCases().find(z=>z.id==='forward-4-8');
+    const items=y.items.slice(-4);
+    return qTask('nelRoteCount20','build','Sayı adlarını dinle ve doğru konuşma sırasına yerleştir.',nelRoteExpected(items),{kind:'manipulative',interaction:'nel-rote-sequence',expectedValue:nelRoteExpected(items),checkLabel:'Sıramı kontrol et'},{
+      taskKind:'nel-rote-build',taskLabel:'Duyduğun sayı adlarını sıraya koy',
+      visual:{type:'nel-rote-sequence-builder',items:nelRoteScramble(items,rng),direction:'forward'},
+      hint:'Her kartı dinle. Sayı adlarının değişmeyen konuşma sırasını düşün.',explain:'Ezbere saymada sayı adları sabit bir sırayla söylenir; nesne saymak gerekmez.'
+    });
+  }
+  if(rep==='see'){
+    const y=c.symbol.direction==='forward'?c.symbol:nelRoteCases().find(z=>z.id==='forward-16-20');
+    const prefix=y.items.slice(0,-1), answer=y.items.at(-1);
+    return qTask('nelRoteCount20','see','Bu sayı adlarından sonra hangisi gelir?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Seçimimi kontrol et'},{
+      taskKind:'nel-rote-listen-next',taskLabel:'Sıradaki sayı adını dinleyerek bul',
+      visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'ÖNCE BU SIRAYI DİNLE'},
+      hint:'Son duyduğun sayı adından sonra konuşma sırasının nasıl devam ettiğini hatırla.',explain:answer.name+' sayı adı bu konuşma sırasından sonra gelir.'
+    });
+  }
+  if(rep==='symbol'){
+    const forward=nelRoteCases().filter(z=>z.direction==='forward'), y=forward[Math.floor(rng()*forward.length)]||forward[0];
+    const start=y.items[0], answer=y.items[1];
+    return qTask('nelRoteCount20','symbol','Bu sayı adından başlayınca sırada hangisi gelir?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Gösterdiğimi kontrol et'},{
+      taskKind:'nel-rote-show-from-middle',taskLabel:'Ortadan başlayıp sıradaki sayı adını göster',
+      visual:{type:'nel-rote-audio-choice',promptItems:[start],options:nelRoteNextOptions(answer.n,rng),promptLabel:'BAŞLANGIÇ SAYI ADI'},
+      hint:'Birden başlamak zorunda değilsin. Duyduğun sayı adından sonra geleni düşün.',explain:start.name+' sözcüğünden sonra '+answer.name+' gelir.'
+    });
+  }
+  if(rep==='explain'){
+    return qTask('nelRoteCount20','explain','Sayı adlarını ezbere sayarken hangi açıklama doğrudur?','stable',{kind:'manipulative',interaction:'nel-rote-phrase-choice',expectedValue:'stable',checkLabel:'Açıklamamı kontrol et'},{
+      taskKind:'nel-rote-explain-stable-order',taskLabel:'Sayı adlarının sabit sırasını açıkla',
+      visual:{type:'nel-rote-phrase-choice',options:nelRotePhraseOptions()},
+      hint:'Ezbere saymada nesne miktarını değil, sayı adlarının değişmeyen sırasını düşünüyoruz.',explain:'Sayı adları her seferinde aynı sırayla söylenir.'
+    });
+  }
+  const y=c.transfer.direction==='backward'?c.transfer:nelRoteCases().find(z=>z.id==='backward-10-6');
+  const prefix=y.items.slice(0,-1), answer=y.items.at(-1);
+  return qTask('nelRoteCount20','transfer','Hareket oyununda geriye doğru sayı adlarını söylüyorsun. Sıradaki hangisi?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Oyundaki sıramı kontrol et'},{
+    taskKind:'nel-rote-transfer-game',taskLabel:'Sayı adlarının sırasını harekete taşı',
+    visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'GERİYE SAYMA OYUNU'},
+    hint:'Her harekette geriye doğru bir önceki sayı adını söyle.',explain:'Sayı adlarının sabit sırası oyun, tekerleme ve hareketlerde de kullanılabilir.'
   });
 }
 
@@ -3760,6 +3873,7 @@ const GENERATORS={
   nelCompareAttributes:genNelCompareAttributes,
   nelOrderAttributes:genNelOrderAttributes,
   nelPatterns:genNelPatterns,
+  nelRoteCount20:genNelRoteCount20,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -4573,6 +4687,59 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 
 
+
+function nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelRoteCases(), forward=cases.filter(x=>x.direction==='forward'), backward=cases.filter(x=>x.direction==='backward');
+  if(sectionId==='recite-forward-10'){
+    const y=[forward[0],forward[1],forward[2]][taskIndex%3], items=y.items.slice(-4);
+    return qTask('nelRoteCount20','build','Sayı adlarını dinle ve ileri doğru konuşma sırasına koy.',nelRoteExpected(items),{kind:'manipulative',interaction:'nel-rote-sequence',expectedValue:nelRoteExpected(items),checkLabel:'Sıramı kontrol et'},{
+      taskKind:'nel-practice-rote-forward10-'+taskIndex,taskLabel:'10 çevresinde sayı adlarını sırala',
+      visual:{type:'nel-rote-sequence-builder',items:nelRoteScramble(items,rng),direction:'forward'},
+      hint:'Kartları tek tek dinle ve sayı adlarının sabit sırasını kur.',explain:'İleri sayarken sayı adları aynı sırayı korur.'
+    });
+  }
+  if(sectionId==='recite-forward-20'){
+    const y=[forward[3],forward[4],forward[5]][taskIndex%3], prefix=y.items.slice(0,-1), answer=y.items.at(-1);
+    return qTask('nelRoteCount20','see','Dinlediğin sıra 20’ye doğru nasıl devam eder?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Seçimimi kontrol et'},{
+      taskKind:'nel-practice-rote-forward20-'+taskIndex,taskLabel:'20’ye doğru sıradaki sayı adını bul',
+      visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'20’YE DOĞRU DİNLE'},
+      hint:'Duyduğun son sayı adından sonra hangisinin geldiğini söyle.',explain:answer.name+' sayı adı bu sırayı devam ettirir.'
+    });
+  }
+  if(sectionId==='continue-from-middle'){
+    const y=forward[(taskIndex+1)%forward.length], start=y.items[taskIndex%Math.max(1,y.items.length-1)], answer=nelRoteCountItem(start.n+1);
+    return qTask('nelRoteCount20','symbol','Birden başlamadan devam et. Dinlediğin sayı adından sonra hangisi gelir?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Devamımı kontrol et'},{
+      taskKind:'nel-practice-rote-middle-'+taskIndex,taskLabel:'Verilen sayı adından devam et',
+      visual:{type:'nel-rote-audio-choice',promptItems:[start],options:nelRoteNextOptions(answer.n,rng),promptLabel:'BURADAN BAŞLA'},
+      hint:'Başlangıç değişebilir; sayı adlarının sırası değişmez.',explain:start.name+' sözcüğünden sonra '+answer.name+' gelir.'
+    });
+  }
+  if(sectionId==='explain-stable-order'){
+    if(taskIndex%2===0){
+      return qTask('nelRoteCount20','explain','Ezbere saymayı doğru anlatan cümleyi dinle ve seç.','stable',{kind:'manipulative',interaction:'nel-rote-phrase-choice',expectedValue:'stable',checkLabel:'Açıklamamı kontrol et'},{
+        taskKind:'nel-practice-rote-explain-'+taskIndex,taskLabel:'Sabit sayı adı sırasını açıkla',
+        visual:{type:'nel-rote-phrase-choice',options:nelRotePhraseOptions()},
+        hint:'Burada nesne miktarı değil, sayı sözcüklerinin değişmeyen sırası önemli.',explain:'Ezbere saymada sayı adlarını sabit sırayla söyleriz.'
+      });
+    }
+    const y=backward[taskIndex%backward.length], items=y.items.slice(0,4);
+    return qTask('nelRoteCount20','explain','Geriye sayma sırasını dinle ve doğru sıraya koy.',nelRoteExpected(items),{kind:'manipulative',interaction:'nel-rote-sequence',expectedValue:nelRoteExpected(items),checkLabel:'Geriye sıramı kontrol et'},{
+      taskKind:'nel-practice-rote-backward-'+taskIndex,taskLabel:'Geriye doğru sayı adı sırasını koru',
+      visual:{type:'nel-rote-sequence-builder',items:nelRoteScramble(items,rng),direction:'backward'},
+      hint:'Geriye sayarken de sayı adlarının sırası sabittir.',explain:'Sayı adları geriye doğru da düzenli bir sıra izler.'
+    });
+  }
+  if(sectionId==='transfer-rhyme-game'){
+    const y=taskIndex%2===0?forward[4]:backward[0], prefix=y.items.slice(0,-1), answer=y.items.at(-1);
+    return qTask('nelRoteCount20','transfer','Alkış veya adım oyununda bu sayı adı sırasını sürdür. Sonraki hangisi?',answer.id,{kind:'manipulative',interaction:'nel-rote-audio-choice',expectedValue:answer.id,checkLabel:'Oyundaki sıramı kontrol et'},{
+      taskKind:'nel-practice-rote-transfer-'+taskIndex,taskLabel:'Sayma sırasını tekerleme ve harekete taşı',
+      visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:taskIndex%2===0?'ALKIŞLA İLERİ SAY':'ADIMLA GERİ SAY'},
+      hint:'Hareket değişse de sayı adlarının konuşma sırası aynı kalır.',explain:'Ezbere sayma tekerleme, şarkı ve hareket oyunlarında kullanılabilir.'
+    });
+  }
+  throw new Error('Unknown nelRoteCount20 practice section: '+sectionId);
+}
+
 function nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelPatternCases();
   const simple=cases.filter(x=>x.complexity==='simple');
@@ -4864,7 +5031,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelPatterns') q=nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelPatterns') q=nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelOrderAttributes') q=nelOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelCompareAttributes') q=nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelSortAttributes') q=nelSortPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -4926,6 +5094,8 @@ const CONCEPT_KEYS={
   nelSortAttributes:'nel-sorting-by-attribute',
   nelCompareAttributes:'nel-comparing-by-attribute',
   nelOrderAttributes:'nel-ordering-by-attribute-or-event',
+  nelPatterns:'nel-repeating-patterns',
+  nelRoteCount20:'nel-spoken-number-sequence-to-20',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
