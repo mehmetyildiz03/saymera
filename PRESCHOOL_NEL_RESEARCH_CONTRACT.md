@@ -124,7 +124,7 @@ Recommended product progression:
 
    Implementation boundary: this skill assesses the **spoken sequence of number names**, not object quantity, numeral recognition or numeral writing. The UI should therefore be audio-first. Written number words may appear only as accessibility/adult-support fallback; a child must be able to respond by listening without reading them.
 
-   v1.16.0 reference scope: forward spoken sequence to 20, continuing from a given number name, stable-order explanation, short backward sequences as supported in the NEL Educators' Guide examples, and transfer into rhyme/movement play.
+   v1.16.0 reference scope: forward spoken sequence to 20, continuing from a given number name, stable-order explanation, and transfer into rhyme/movement play. Short backward sequences are included as guided exposure because the NEL Educators' Guide gives them as an observation example, but backward counting is not used as an independent mastery endpoint.
 2. `nelReliableCount10` — one-to-one counting, stable order, cardinality and order irrelevance
 3. `nelSubitise5` — instantly recognise small quantities in varied arrangements
 4. `nelConservation10` — same quantity despite rearrangement
