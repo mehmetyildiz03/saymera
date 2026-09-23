@@ -57,7 +57,6 @@ async function completeLearnStep(page,id){
   }
   if(expectedChoice[id]){
     const root=id==='stable-order'?page.locator('.nel-rote-phrase-choice'):page.locator('.nel-rote-audio-choice');
-    const wrong=root.locator('[data-rote-choice]').filter({hasNot:root.locator('[data-rote-choice="'+expectedChoice[id]+'"]')});
     const candidates=root.locator('[data-rote-choice]');
     const count=await candidates.count();
     for(let i=0;i<count;i++){
