@@ -8238,7 +8238,7 @@ const NEL_ROTE_LESSON_VERSION=1;
 const NEL_ROTE_SECTIONS=['DİNLE','SIRALA','DEVAM ET','ANLAT / GERİ SAY','TAŞI'];
 const nelRoteItem=n=>({n:Number(n),id:'rote-'+Number(n),name:['','bir','iki','üç','dört','beş','altı','yedi','sekiz','dokuz','on','on bir','on iki','on üç','on dört','on beş','on altı','on yedi','on sekiz','on dokuz','yirmi'][Number(n)]||String(n)});
 const nelRoteRange=(start,end,step=start<=end?1:-1)=>{const out=[];if(step>0){for(let n=start;n<=end;n+=step)out.push(nelRoteItem(n));}else{for(let n=start;n>=end;n+=step)out.push(nelRoteItem(n));}return out;};
-const nelRoteExpected=items=>(items||[]).map(x=>x.id).join('|');
+const nelRoteLessonExpected=items=>(items||[]).map(x=>x.id).join('|');
 const nelRoteOptions=answer=>[answer,answer-1,answer+1,answer+2].filter((n,i,a)=>n>=1&&n<=20&&a.indexOf(n)===i).concat([1,5,10,15,20]).filter((n,i,a)=>a.indexOf(n)===i).slice(0,4).map(nelRoteItem);
 const NEL_ROTE_PHRASES=[
   {id:'stable',speech:'Sayı adlarını her seferinde aynı sırayla söylüyoruz.'},
@@ -8248,14 +8248,14 @@ const NEL_ROTE_PHRASES=[
 ];
 const NEL_ROTE_LESSON_STEPS=[
   {id:'chant-1-5',section:'DİNLE',kind:'chant',items:nelRoteRange(1,5),title:'Sayı adlarının ilk sırasını birlikte söyle.',body:'Dinle; sonra aynı sayı adlarını aynı sırayla sen de söyle.',result:'Bir, iki, üç, dört, beş: sayı adları sabit bir konuşma sırası izliyor.'},
-  {id:'build-2-5',section:'SIRALA',kind:'sequence',items:[nelRoteItem(4),nelRoteItem(2),nelRoteItem(5),nelRoteItem(3)],expected:nelRoteExpected(nelRoteRange(2,5)),title:'Duyduğun sayı adlarını sıraya koy.',body:'Her kartı dinle. İki ile başlayan konuşma sırasını kendin kur.',result:'İki, üç, dört, beş sırası değişmeden devam eder.'},
+  {id:'build-2-5',section:'SIRALA',kind:'sequence',items:[nelRoteItem(4),nelRoteItem(2),nelRoteItem(5),nelRoteItem(3)],expected:nelRoteLessonExpected(nelRoteRange(2,5)),title:'Duyduğun sayı adlarını sıraya koy.',body:'Her kartı dinle. İki ile başlayan konuşma sırasını kendin kur.',result:'İki, üç, dört, beş sırası değişmeden devam eder.'},
   {id:'chant-6-10',section:'DİNLE',kind:'chant',items:nelRoteRange(6,10),title:'Şimdi on’a doğru devam et.',body:'Altıdan ona kadar dinle ve aynı sırayla söyle.',result:'Altı, yedi, sekiz, dokuz, on aynı sayı adı zincirinin devamıdır.'},
   {id:'continue-7-10',section:'DEVAM ET',kind:'choice',promptItems:nelRoteRange(7,9),options:nelRoteOptions(10),answer:'rote-10',title:'Sıradaki sayı adını bul.',body:'Yedi, sekiz, dokuz sırasını dinle. Sonra gelen sayı adını seç.',result:'Dokuzdan sonra on gelir.'},
   {id:'chant-11-20',section:'DİNLE',kind:'chant',items:nelRoteRange(11,20),title:'Sayı adlarını yirmiye kadar götür.',body:'On birden yirmiye kadar sırayı dinle. İstersen ritim tutarak birlikte söyle.',result:'Sayı adı zinciri on birden yirmiye kadar aynı düzenle sürer.'},
   {id:'continue-to-20',section:'DEVAM ET',kind:'choice',promptItems:nelRoteRange(17,19),options:nelRoteOptions(20),answer:'rote-20',title:'Yirmiye ulaşan sırayı tamamla.',body:'On yedi, on sekiz, on dokuz sırasından sonra gelen sayı adını dinleyerek seç.',result:'On dokuzdan sonra yirmi gelir.'},
   {id:'start-middle',section:'DEVAM ET',kind:'choice',promptItems:[nelRoteItem(12)],options:nelRoteOptions(13),answer:'rote-13',title:'Birden başlamadan devam et.',body:'Başlangıç sayı adı on iki. Sırada hangi sayı adı gelir?',result:'Sıra birden başlamasa da on ikiden sonra on üç gelir.'},
   {id:'stable-order',section:'ANLAT / GERİ SAY',kind:'phrase',options:NEL_ROTE_PHRASES,answer:'stable',title:'Ezbere saymanın kuralını söyle.',body:'Açıklamaları dinle. Sayı adlarının sırasını doğru anlatanı seç.',result:'Ezbere saymada sayı adlarının sırası sabittir; nesne saymak ayrı bir beceridir.'},
-  {id:'count-back',section:'ANLAT / GERİ SAY',kind:'sequence',items:[nelRoteItem(8),nelRoteItem(10),nelRoteItem(7),nelRoteItem(9)],expected:nelRoteExpected(nelRoteRange(10,7,-1)),title:'Sayı adlarını geriye doğru da sırala.',body:'Kartları dinle ve ondan yediye doğru geriye sayma sırasını kur.',result:'Geriye sayarken de sayı adları düzenli bir sıra izler: on, dokuz, sekiz, yedi.'},
+  {id:'count-back',section:'ANLAT / GERİ SAY',kind:'sequence',items:[nelRoteItem(8),nelRoteItem(10),nelRoteItem(7),nelRoteItem(9)],expected:nelRoteLessonExpected(nelRoteRange(10,7,-1)),title:'Sayı adlarını geriye doğru da sırala.',body:'Kartları dinle ve ondan yediye doğru geriye sayma sırasını kur.',result:'Geriye sayarken de sayı adları düzenli bir sıra izler: on, dokuz, sekiz, yedi.'},
   {id:'real-world-rote',section:'TAŞI',kind:'real-world',title:'Sayma sırasını hareket oyununa taşı.',body:'Her alkışta veya adımda bir sonraki sayı adını söyle. Birden yirmiye kadar git; sonra kısa bir bölümü geriye doğru dene.',result:'Tekerleme ve hareket, sayı adlarının sabit sırasını günlük oyuna taşır.'}
 ];
 function nelRoteSectionTrack(step){ return '<div class="nel-rote-section-track">'+NEL_ROTE_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>'; }
