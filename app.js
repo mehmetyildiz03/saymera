@@ -3025,6 +3025,7 @@ function practiceActivityMeta(selection=currentSelection){
   return {label:'KENDİN DENE',mode:'check'};
 }
 function renderPracticeHeader(skill){
+  $('#practiceContent')?.classList.remove('reliable-count-practice');
   const total=session?.plan?.length||1;
   const activity=practiceActivityMeta();
   $('#practiceLens').textContent=`${PROFILE_META[state.profile].label.toUpperCase()} • ${skill.family.toUpperCase()}`;
@@ -3108,11 +3109,13 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
+  const reliableCount=q.skillId==='nelReliableCount10';
+  $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
