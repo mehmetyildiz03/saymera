@@ -2004,7 +2004,7 @@ function genNelPatterns(rep,d,rng,concept){
     const y=c.anchor;
     return qBase('nelPatterns','explain','Bu örüntünün tekrar eden kuralını nasıl anlatırsın?',y.description,nelPatternDescribeChoices(y,rng),{
       taskKind:'nel-pattern-describe',taskLabel:'Tekrar eden birimi anlat',
-      visual:{type:'nel-pattern-strip',items:y.fullItems,markUnit:y.unitItems.length},
+      visual:{type:'nel-pattern-strip',items:y.fullItems},
       hint:'İlk kez hangi küçük parça tamamlanıyor ve sonra yeniden başlıyor?',explain:y.description
     });
   }
@@ -4605,7 +4605,7 @@ function nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   if(sectionId==='describe-pattern'){
     return qBase('nelPatterns','explain','Bu örüntünün tekrar eden kuralını nasıl anlatırsın?',x.description,nelPatternDescribeChoices(x,rng),{
       taskKind:'nel-practice-pattern-describe-'+taskIndex,taskLabel:'Örüntü kuralını sözcükle anlat',
-      visual:{type:'nel-pattern-strip',items:x.fullItems,markUnit:x.unitItems.length},
+      visual:{type:'nel-pattern-strip',items:x.fullItems},
       hint:'İlk tekrar bitene kadar hangi parçaların sırayla geldiğini söyle.',explain:x.description
     });
   }
