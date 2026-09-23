@@ -111,9 +111,11 @@ Recommended product progression:
 2. `nelSortAttributes` — sort by a stated or discovered attribute
 3. `nelCompareAttributes` — compare size / length / height and describe relation
 4. `nelOrderAttributes` — order 3+ objects or a simple event sequence
-5. `nelPatterns` — recognise, extend, create and describe simple → more complex repeating patterns
+5. `nelPatterns` — recognise and copy, extend, create and describe simple → more complex repeating patterns
 
-`nelPatterns` must go beyond AB next-item questions. It needs production and description evidence.
+`nelPatterns` must go beyond AB next-item questions. It needs copying, extension, production and description evidence.
+
+Implementation status in v1.15.0: all five Path A reference skills are implemented as hidden NEL v2 skills with dedicated Learn/Practice evidence and browser QA. They remain hidden until the Preschool v2 foundation is ready for a controlled live-navigation migration.
 
 ### Path B — Counting & Number Sense
 

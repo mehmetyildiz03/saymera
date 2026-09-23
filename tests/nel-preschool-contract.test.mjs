@@ -15,8 +15,8 @@ assert.deepEqual(PRESCHOOL_NEL_PATHS.map(p=>p.id),['relationships-patterns','cou
 const expectedKsd=['2.1','2.2','2.3','2.4','3.1','3.2','3.3','3.4','3.5','3.6','3.7','3.8','4.1','4.2','4.3','4.4'];
 for(const code of expectedKsd) assert.ok(PRESCHOOL_NEL_KSD_MAP[code]?.length,'missing NEL KSD mapping '+code);
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(skillsFor('grade1',{includeHidden:true}).some(skill=>(skill.prerequisite||[]).some(id=>preschoolIds.has(id))),false,'P1 must not hard-require preschool completion');
@@ -44,6 +44,11 @@ assert.equal(orderContract.practice.sections.length,5);
 assert.deepEqual(orderContract.practice.sections.map(s=>s.id),['order-size','order-length-height','reverse-order','explain-order','transfer-event-sequence']);
 assert.deepEqual(orderContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
+const patternContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPatterns;
+assert.equal(patternContract.practice.sections.length,5);
+assert.deepEqual(patternContract.practice.sections.map(s=>s.id),['recognise-copy','extend-pattern','create-pattern','describe-pattern','transfer-pattern']);
+assert.deepEqual(patternContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
 const lessonIds=['same-object','same-colour','same-shape','same-size','same-length','same-height','explain-match','real-world-match'];
 for(const id of lessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL matching Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }"));
@@ -52,7 +57,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','number1000'"),'NEL matching, sorting, comparing and ordering must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','number1000'"),'NEL Path A skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
@@ -61,6 +66,10 @@ assert.ok(app.includes("if(skill.id==='nelCompareAttributes'){ renderNelCompareL
 const orderLessonIds=['order-size','reverse-size','order-length','order-height','choose-order','explain-order','event-order','real-world-order'];
 for(const id of orderLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL ordering Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelOrderAttributes'){ renderNelOrderLessonStep(skill); return; }"));
+
+const patternLessonIds=['recognise-ab','copy-ab','extend-abb','extend-aab','create-simple','extend-aabb','extend-abc','create-complex','describe-pattern','real-world-pattern'];
+for(const id of patternLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL patterning Learn step '+id);
+assert.ok(app.includes("if(skill.id==='nelPatterns'){ renderNelPatternLessonStep(skill); return; }"));
 
 let seed=711;
 const rng=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
@@ -109,6 +118,17 @@ for(const section of orderContract.practice.sections){
   }
 }
 
+for(const section of patternContract.practice.sections){
+  const qs=Array.from({length:9},(_,i)=>generateLessonPracticeQuestion('nelPatterns',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelPatterns'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+    assert.equal(forbiddenSymbols.some(symbol=>childText.includes(symbol)),false,'NEL patterning must stay concrete in preschool: '+childText);
+    assert.equal(['aferin','harika','doğru yaptın'].some(phrase=>childText.toLocaleLowerCase('tr-TR').includes(phrase)),false,'patterning feedback must describe mathematics');
+  }
+}
+
 const orderSize=generateLessonPracticeQuestion('nelOrderAttributes','order-size',0,1,rng);
 const orderReverse=generateLessonPracticeQuestion('nelOrderAttributes','reverse-order',0,1,rng);
 const orderEvent=generateLessonPracticeQuestion('nelOrderAttributes','transfer-event-sequence',0,1,rng);
@@ -117,6 +137,19 @@ assert.equal(orderReverse.response.interaction,'nel-order-sequence');
 assert.equal(orderEvent.response.interaction,'nel-order-sequence');
 assert.notEqual(orderSize.response.expectedValue,orderReverse.response.expectedValue,'reversing direction must genuinely reverse the expected order');
 assert.equal(String(orderEvent.response.expectedValue).split('|').length,3,'event sequencing must order three events');
+
+const patternCopy=generateLessonPracticeQuestion('nelPatterns','recognise-copy',0,1,rng);
+const patternExtend=generateLessonPracticeQuestion('nelPatterns','extend-pattern',1,1,rng);
+const patternCreateSimple=generateLessonPracticeQuestion('nelPatterns','create-pattern',0,1,rng);
+const patternCreateComplex=generateLessonPracticeQuestion('nelPatterns','create-pattern',1,1,rng);
+const patternDescribe=generateLessonPracticeQuestion('nelPatterns','describe-pattern',0,1,rng);
+const patternTransfer=generateLessonPracticeQuestion('nelPatterns','transfer-pattern',0,1,rng);
+assert.equal(patternCopy.response.interaction,'nel-pattern-build');
+assert.equal(patternCreateSimple.response.interaction,'nel-pattern-build');
+assert.equal(patternExtend.response.kind,'visual-choice');
+assert.equal(patternDescribe.response.kind,'choice');
+assert.equal(patternTransfer.response.kind,'choice');
+assert.ok(String(patternCreateComplex.response.expectedValue).split('|').length>=8,'complex pattern creation must require a multi-part repeating unit, not a next-item guess');
 
 const sizeQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-size',0,1,rng);
 const lengthQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-length',0,1,rng);
@@ -144,11 +177,11 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract']){
+for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
 assert.ok(contract.includes('Kur · Gör · Göster · Anlat · Taşı'));
 assert.ok(contract.includes('Preschool is foundational but is **not a hard prerequisite for P1**.'));
 
-console.log('NEL preschool contract: PASS (3 paths; 16 KSD groups; hidden matching + sorting + comparing + ordering references; no P1 hard gate)');
+console.log('NEL preschool contract: PASS (3 paths; 16 KSD groups; hidden Path A matching + sorting + comparing + ordering + patterning references; no P1 hard gate)');
