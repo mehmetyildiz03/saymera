@@ -14,14 +14,16 @@ assert.deepEqual(PRESCHOOL_NEL_PATHS.map(p=>p.id),['relationships-patterns','cou
 
 const expectedKsd=['2.1','2.2','2.3','2.4','3.1','3.2','3.3','3.4','3.5','3.6','3.7','3.8','4.1','4.2','4.3','4.4'];
 for(const code of expectedKsd) assert.ok(PRESCHOOL_NEL_KSD_MAP[code]?.length,'missing NEL KSD mapping '+code);
+assert.equal(Object.values(PRESCHOOL_NEL_KSD_MAP).flat().includes('nelSubitise5'),false,'subitising is a supporting Number Sense product skill, not a standalone NEL KSD mapping');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(skillsFor('grade1',{includeHidden:true}).some(skill=>(skill.prerequisite||[]).some(id=>preschoolIds.has(id))),false,'P1 must not hard-require preschool completion');
 
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelReliableCount10'));
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelSubitise5'));
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.numberBonds10.includes('nelPartWhole10'));
 
 const matchContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelMatchAttributes;
@@ -59,6 +61,11 @@ assert.equal(reliableContract.practice.sections.length,5);
 assert.deepEqual(reliableContract.practice.sections.map(s=>s.id),['one-to-one-count','stable-order-count','cardinality-count','order-irrelevance','transfer-daily-count']);
 assert.deepEqual(reliableContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
+const subitiseContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelSubitise5;
+assert.equal(subitiseContract.practice.sections.length,5);
+assert.deepEqual(subitiseContract.practice.sections.map(s=>s.id),['flash-build','flash-structured','flash-varied','explain-instant','transfer-game']);
+assert.deepEqual(subitiseContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
 const lessonIds=['same-object','same-colour','same-shape','same-size','same-length','same-height','explain-match','real-world-match'];
 for(const id of lessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL matching Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }"));
@@ -67,7 +74,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
@@ -90,6 +97,14 @@ const reliableLessonIds=['one-word-one-object','move-count-five','stable-order-n
 for(const id of reliableLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL reliable-count Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelReliableCount10'){ renderNelReliableLessonStep(skill); return; }"));
 assert.ok(app.includes("nelReliableReadOrderProof"),'order-irrelevance must be proven by two counting passes, not explained only in copy');
+
+const subitiseLessonIds=['glance-two','build-three','dice-four','dice-five','varied-three','varied-four','varied-five','same-quantity-layout','instant-meaning','game-transfer'];
+for(const id of subitiseLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL subitising Learn step '+id);
+assert.ok(app.includes("if(skill.id==='nelSubitise5'){ renderNelSubitiseLessonStep(skill); return; }"));
+assert.ok(app.includes("const NEL_SUBITISE_FLASH_MS=650;"),'subitising must use a genuinely short visual exposure');
+assert.ok(app.includes('data-flash-state="idle"'),'subitising must start with the target hidden');
+assert.ok(app.includes("root.dataset.flashReady='true'"),'subitising response must unlock only after the flash has ended');
+assert.ok(app.includes("frame.dataset.flashState='ready'"),'subitising target must transition to a closed/ready state');
 
 let seed=711;
 const rng=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
@@ -179,6 +194,26 @@ for(const section of reliableContract.practice.sections){
   }
 }
 
+for(const section of subitiseContract.practice.sections){
+  const qs=Array.from({length:12},(_,i)=>generateLessonPracticeQuestion('nelSubitise5',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelSubitise5'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    const childText=[q.prompt,q.hint,q.explain].join(' ');
+    assert.equal(forbiddenSymbols.some(symbol=>childText.includes(symbol)),false,'NEL subitising must stay concrete and verbal: '+childText);
+    assert.equal(q.response.kind,'manipulative','subitising evidence must require an observable post-flash child response');
+    assert.ok(['nel-subitise-flash-build','nel-subitise-flash-audio','nel-subitise-flash-match','nel-subitise-flash-explain'].includes(q.response.interaction),'unexpected subitising interaction: '+q.response.interaction);
+    assert.ok((q.visual?.pattern?.n||0)>=1&&(q.visual?.pattern?.n||0)<=5,'subitising product scope must remain within 1..5');
+    assert.ok(Number(q.visual?.flashMs)>=250&&Number(q.visual?.flashMs)<=800,'subitising target must be shown only briefly');
+    if(q.visual?.pool!=null) assert.ok(Number(q.visual.pool)<=5,'subitising build pool must stay within 5');
+    for(const option of q.visual?.options||[]){
+      const spokenNumber=String(option.id||'').startsWith('rote-')?Number(String(option.id).replace('rote-','')):Number(option.n);
+      if(Number.isFinite(spokenNumber)) assert.ok(spokenNumber>=1&&spokenNumber<=5,'subitising numeric options must stay within 1..5');
+    }
+    if(section==='transfer-game') assert.ok(['dice','domino'].includes(q.visual.pattern.context),'subitising transfer must use a real game-like dice/domino arrangement');
+  }
+}
+
 const orderSize=generateLessonPracticeQuestion('nelOrderAttributes','order-size',0,1,rng);
 const orderReverse=generateLessonPracticeQuestion('nelOrderAttributes','reverse-order',0,1,rng);
 const orderEvent=generateLessonPracticeQuestion('nelOrderAttributes','transfer-event-sequence',0,1,rng);
@@ -226,6 +261,19 @@ assert.equal(reliableTransfer.response.interaction,'nel-reliable-count-set');
 assert.match(String(reliableCard.response.expectedValue),/^\d+\|rote-\d+$/,'cardinality must connect the completed count to the final spoken number name');
 assert.match(String(reliableOrder.response.expectedValue),/^(\d+)\|\1\|same$/,'order irrelevance must preserve the same total across both directions');
 
+const subBuild=generateLessonPracticeQuestion('nelSubitise5','flash-build',0,1,rng);
+const subStructured=generateLessonPracticeQuestion('nelSubitise5','flash-structured',0,1,rng);
+const subVaried=generateLessonPracticeQuestion('nelSubitise5','flash-varied',0,1,rng);
+const subExplain=generateLessonPracticeQuestion('nelSubitise5','explain-instant',0,1,rng);
+const subTransfer=generateLessonPracticeQuestion('nelSubitise5','transfer-game',0,1,rng);
+assert.equal(subBuild.response.interaction,'nel-subitise-flash-build');
+assert.equal(subStructured.response.interaction,'nel-subitise-flash-audio');
+assert.equal(subVaried.response.interaction,'nel-subitise-flash-match');
+assert.equal(subExplain.response.interaction,'nel-subitise-flash-explain');
+assert.equal(subTransfer.response.interaction,'nel-subitise-flash-audio');
+assert.ok(['dice','domino'].includes(subTransfer.visual.pattern.context),'subitising transfer must use dice/domino structure');
+assert.ok(subStructured.visual.flashMs<=800&&subStructured.visual.flashMs>=250,'subitising flash duration must stay short');
+
 const sizeQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-size',0,1,rng);
 const lengthQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-length',0,1,rng);
 const heightQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-height',0,1,rng);
@@ -252,11 +300,11 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract']){
+for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
 assert.ok(contract.includes('Kur · Gör · Göster · Anlat · Taşı'));
 assert.ok(contract.includes('Preschool is foundational but is **not a hard prerequisite for P1**.'));
 
-console.log('NEL preschool contract: PASS (3 paths; 16 KSD groups; hidden Path A + rote and reliable counting references; no P1 hard gate)');
+console.log('NEL preschool contract: PASS (3 paths; 16 official KSD groups; hidden Path A + rote/reliable/subitising references; no P1 hard gate)');
