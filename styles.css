@@ -1298,3 +1298,37 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-subitise-build-token{width:44px;height:44px}
 }
 
+
+
+/* hidden NEL preschool conservation-of-quantity reference lesson */
+.practice-content.conservation-practice{overflow-y:auto;display:block}
+.conservation-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
+.conservation-question-stage .conservation-stage{height:auto;max-height:none;min-height:0;overflow:visible;place-items:start center;padding:12px}
+.nel-conservation-lesson-stage{width:min(880px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-conservation-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-conservation-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-conservation-section-track span.active{background:var(--teal-soft);border-color:#9dcfc3;color:#17695d}
+.nel-conservation-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:4px 0}
+.nel-conservation-lesson-core{width:min(760px,100%);display:grid;justify-items:center;gap:11px}
+.nel-conservation-pair{width:min(720px,100%);display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nel-conservation-pair>div{display:grid;gap:6px}.nel-conservation-pair small{text-align:center;font-size:8px;font-weight:950;letter-spacing:.1em;color:var(--muted)}
+.nel-conservation-board{width:100%;height:190px;border:1px solid var(--line);border-radius:24px;background:var(--paper-2);position:relative;overflow:hidden}
+.nel-conservation-token{--x:.5;--y:.5;position:absolute;left:calc(var(--x)*100%);top:calc(var(--y)*100%);transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--blue-soft);border:2px solid #aac8dc;color:var(--navy);font-size:20px;font-weight:950;box-shadow:0 4px 0 rgba(49,95,130,.12);transition:left .18s ease,top .18s ease,transform .12s}
+button.nel-conservation-token{cursor:pointer}button.nel-conservation-token.moved{background:var(--teal-soft);border-color:#8bc8ba;box-shadow:0 2px 0 rgba(35,120,106,.12);transform:translate(-50%,-50%) scale(.96)}
+.nel-conservation-rearrange{width:min(680px,100%);display:grid;gap:8px}.nel-conservation-rearrange>p{margin:0;text-align:center;font-size:10px;font-weight:850;color:var(--muted)}
+.nel-conservation-choice-row{width:min(680px,100%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.nel-conservation-choice-row button,.nel-conservation-confirm{min-height:46px;padding:8px 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-size:9px;font-weight:900;color:var(--navy)}
+.nel-conservation-choice-row button.selected,.nel-conservation-choice-row button:hover,.nel-conservation-confirm:hover{background:var(--teal-soft);border-color:#8bc8ba}
+.nel-conservation-relation{width:min(720px,100%);display:grid;gap:10px;justify-items:center}
+.nel-conservation-help{min-height:18px;margin:0;font-size:11px;font-weight:800;color:var(--muted);text-align:center}
+.nel-conservation-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(660px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}.nel-conservation-result.revealed{opacity:1;transform:none}
+.nel-conservation-real-world{width:min(620px,100%);display:grid;grid-template-columns:38px 1fr;gap:9px 12px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}
+.nel-conservation-real-world b{width:34px;height:34px;border-radius:11px;background:var(--teal-soft);display:grid;place-items:center;color:#17695d}.nel-conservation-real-world span{font-size:11px;font-weight:850}
+@media(max-width:699px){
+  .practice-content.conservation-practice{padding-bottom:28px}
+  .nel-conservation-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-conservation-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}.nel-conservation-section-track span{flex:0 0 auto}
+  .nel-conservation-pair{grid-template-columns:1fr;gap:7px}.nel-conservation-board{height:150px}
+  .nel-conservation-token{width:36px;height:36px;font-size:17px}
+  .nel-conservation-choice-row{grid-template-columns:1fr;gap:5px}
+}
