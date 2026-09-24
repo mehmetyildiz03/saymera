@@ -2105,7 +2105,7 @@ function wireNelConservationLessonStep(step,next){
   if(step.kind==='rearrange'){
     const root=$('.nel-conservation-rearrange');bindNelConservationRearrange(root,()=>{const done=nelConservationReadRearrange(root);$('#nelConservationHelp').textContent=done?'Aynı nesnelerin hepsi yeni yerinde.':'Aynı nesneleri tek tek yeni yerine taşı.';if(done)reveal();});return;
   }
-  $('[data-conservation-lesson-choice]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.conservationLessonChoice!=='same'){$('#nelConservationHelp').textContent='Düzenin kapladığı yere değil, nesne eklenip çıkarılıp çıkarılmadığına bak.';return;}$('[data-conservation-lesson-choice]').forEach(x=>x.disabled=true);button.classList.add('selected');reveal();}));
+  document.querySelectorAll('[data-conservation-lesson-choice]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.conservationLessonChoice!=='same'){$('#nelConservationHelp').textContent='Düzenin kapladığı yere değil, nesne eklenip çıkarılıp çıkarılmadığına bak.';return;}document.querySelectorAll('[data-conservation-lesson-choice]').forEach(x=>x.disabled=true);button.classList.add('selected');reveal();}));
 }
 function completeNelConservationLessonStep(skill,index){
   const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_CONSERVATION_LESSON_VERSION;
