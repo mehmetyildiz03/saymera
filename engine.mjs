@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -367,6 +367,7 @@ export const SKILLS = [
   skill('nelRoteCount20','preschool','Sayı adlarını 20’ye kadar sırayla söyle','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelReliableCount10','preschool','10 nesneye kadar güvenilir say','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelSubitise5','preschool','5’e kadar miktarı bir bakışta fark et','Sayma & Sayı Hissi','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelConservation10','preschool','10’a kadar miktarın düzen değişse de aynı kaldığını fark et','Sayma & Sayı Hissi','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -1737,6 +1738,70 @@ function nelSubitisePhraseOptions(){
   ];
 }
 
+function nelConservationItems(n,prefix='set',kind='counter'){
+  const symbols={counter:'●',apple:'🍎',block:'■',button:'●'};
+  return Array.from({length:Number(n)},(_,index)=>({
+    id:'conserve-'+prefix+'-'+n+'-'+(index+1),
+    kind,
+    symbol:symbols[kind]||'●',
+    tone:['blue','green','yellow','red'][index%4],
+    index:index+1
+  }));
+}
+function nelConservationPositions(layout,n){
+  const count=Math.max(1,Number(n)||1);
+  if(layout==='spread-line') return Array.from({length:count},(_,i)=>({x:count===1?.5:.07+i*(.86/(count-1)),y:.5}));
+  if(layout==='two-rows'){
+    const cols=Math.ceil(count/2);
+    return Array.from({length:count},(_,i)=>({x:cols===1?.5:.18+(i%cols)*(.64/Math.max(1,cols-1)),y:i<cols?.34:.66}));
+  }
+  if(layout==='circle') return Array.from({length:count},(_,i)=>({x:.5+.34*Math.cos(-Math.PI/2+i*2*Math.PI/count),y:.5+.34*Math.sin(-Math.PI/2+i*2*Math.PI/count)}));
+  if(layout==='random'){
+    const preset=[[.12,.27],[.78,.22],[.43,.12],[.27,.61],[.68,.57],[.9,.73],[.48,.82],[.08,.8],[.58,.39],[.34,.41]];
+    return preset.slice(0,count).map(([x,y])=>({x,y}));
+  }
+  const cols=Math.min(4,Math.ceil(Math.sqrt(count))),rows=Math.ceil(count/cols);
+  return Array.from({length:count},(_,i)=>({x:.36+(i%cols)*(.28/Math.max(1,cols-1)),y:.36+Math.floor(i/cols)*(.28/Math.max(1,rows-1))}));
+}
+function nelConservationPlacement(items,layout){
+  const positions=nelConservationPositions(layout,items.length);
+  return {layout,placements:items.map((item,index)=>({itemId:item.id,...positions[index]}))};
+}
+function nelConservationCase(id,n,beforeLayout,afterLayout,kind='counter',context='mat'){
+  const items=nelConservationItems(n,id,kind);
+  return {id,n,kind,context,items,before:nelConservationPlacement(items,beforeLayout),after:nelConservationPlacement(items,afterLayout)};
+}
+function nelConservationCases(){
+  return [
+    nelConservationCase('four-compact-spread',4,'compact','spread-line','button','table'),
+    nelConservationCase('five-rows-circle',5,'two-rows','circle','counter','mat'),
+    nelConservationCase('six-compact-line',6,'compact','spread-line','apple','snack'),
+    nelConservationCase('seven-rows-random',7,'two-rows','random','block','floor'),
+    nelConservationCase('eight-circle-line',8,'circle','spread-line','counter','game'),
+    nelConservationCase('nine-compact-random',9,'compact','random','button','craft'),
+    nelConservationCase('ten-rows-circle',10,'two-rows','circle','block','classroom')
+  ];
+}
+function nelConservationSameIdentity(x){
+  const before=(x?.before?.placements||[]).map(p=>p.itemId).sort();
+  const after=(x?.after?.placements||[]).map(p=>p.itemId).sort();
+  return before.length===after.length&&before.every((id,index)=>id===after[index]);
+}
+function nelConservationQuantityChoices(rng){
+  return shuffled(['Aynı miktar','Daha çok oldu','Daha az oldu','Belli değil'],rng);
+}
+function nelConservationReasonChoices(rng){
+  return semanticChoices(
+    'Hiç nesne eklenmedi veya çıkarılmadı; yalnız yerleri değişti.',
+    [
+      'Nesneler daha çok yer kapladığı için miktar arttı.',
+      'Nesneler birbirine yaklaştığı için miktar azaldı.',
+      'Nesnelerin yeri değişince miktar da her zaman değişir.'
+    ],
+    rng
+  );
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1953,6 +2018,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelRoteCount20') return make('nel-spoken-number-sequence-to-20',nelRoteCases());
   if(skillId==='nelReliableCount10') return make('nel-reliable-counting-to-10',nelReliableCases());
   if(skillId==='nelSubitise5') return make('nel-instant-small-quantity-to-5',nelSubitiseCasesFor({min:2,max:5}));
+  if(skillId==='nelConservation10') return make('nel-conservation-of-quantity-to-10',nelConservationCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2369,6 +2435,52 @@ function genNelSubitise5(rep,d,rng,concept){
     taskKind:'nel-subitise-transfer-game',taskLabel:'Bir bakışta miktarı zar veya domino oyununa taşı',
     visual:{type:'nel-subitise-flash-audio',pattern:y,options:nelSubitiseAudioOptions(y.n,rng),flashMs:650,game:true},
     hint:'Zar ve domino noktalarını tek tek saymadan bütün düzen olarak fark etmeye çalış.',explain:'Oyunlarda küçük nokta gruplarını bir bakışta tanımak miktarı hızlı fark etmeyi sağlar.'
+  });
+}
+
+function genNelConservation10(rep,d,rng,concept){
+  const c=concept?.skillId==='nelConservation10'?concept:createConceptInstance('nelConservation10',d,rng);
+  const x=c.anchor;
+  if(!nelConservationSameIdentity(x)) throw new Error('Conservation case changed object identity');
+  if(rep==='build'){
+    return qTask('nelConservation10','build','Aynı nesneleri yeni düzene taşı. Hiçbirini ekleme veya çıkarma.',x.id+'|same-set',{kind:'manipulative',interaction:'nel-conservation-rearrange',expectedValue:x.id+'|same-set',checkLabel:'Düzenimi kontrol et'},{
+      taskKind:'nel-conservation-rearrange',taskLabel:'Aynı kümeyi yeniden düzenle',
+      visual:{type:'nel-conservation-rearrange',items:x.items,before:x.before,target:x.after,n:x.n},
+      hint:'Yalnız yerlerini değiştir; nesnelerin hepsi aynı kümede kalsın.',explain:'Nesnelerin yalnız yerleri değişti. Hiçbiri eklenmedi veya çıkarılmadı.'
+    });
+  }
+  if(rep==='see'){
+    return qBase('nelConservation10','see','Aynı nesneler yayıldı ve başka düzene geçti. Miktar ne oldu?','Aynı miktar',nelConservationQuantityChoices(rng),{
+      taskKind:'nel-conservation-see-same',taskLabel:'Düzen değişse de aynı miktarı gör',
+      visual:{type:'nel-conservation-before-after',items:x.items,before:x.before,after:x.after,n:x.n},
+      hint:'Nesne eklendi mi veya çıkarıldı mı diye bak.',explain:'Aynı nesneler kaldığı için miktar da aynı kaldı.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelConservation10','symbol','Daha yaygın görünen düzene aldanma. Bu değişimde ne oldu?','same',{kind:'manipulative',interaction:'nel-conservation-relation-choice',expectedValue:'same',checkLabel:'Seçimimi kontrol et'},{
+      taskKind:'nel-conservation-resist-spacing',taskLabel:'Aralık ipucuna aldanmadan aynı miktarı göster',
+      visual:{type:'nel-conservation-relation-choice',items:y.items,before:y.before,after:y.after,n:y.n,options:[
+        {value:'same',label:'Aynı miktar'},
+        {value:'more',label:'Daha çok oldu'},
+        {value:'less',label:'Daha az oldu'}
+      ]},
+      hint:'Daha uzun bir sıra daha çok nesne demek değildir.',explain:'Aralık ve kaplanan alan değişebilir; nesne eklenmediyse veya çıkarılmadıysa miktar değişmez.'
+    });
+  }
+  if(rep==='explain'){
+    const answer='Hiç nesne eklenmedi veya çıkarılmadı; yalnız yerleri değişti.';
+    return qBase('nelConservation10','explain','Miktarın neden aynı kaldığını en iyi hangi açıklama anlatır?',answer,nelConservationReasonChoices(rng),{
+      taskKind:'nel-conservation-explain',taskLabel:'Miktarın neden korunduğunu açıkla',
+      visual:{type:'nel-conservation-before-after',items:x.items,before:x.before,after:x.after,n:x.n},
+      hint:'Yer değiştirmek ile eklemek veya çıkarmak aynı şey değildir.',explain:answer
+    });
+  }
+  const y=c.transfer;
+  return qBase('nelConservation10','transfer','Günlük nesneleri masada başka bir düzene yaydın ama hiçbirini eklemedin veya kaldırmadın. Miktar ne oldu?','Aynı miktar',nelConservationQuantityChoices(rng),{
+    taskKind:'nel-conservation-transfer',taskLabel:'Miktar korunumunu gerçek nesnelere taşı',
+    visual:{type:'nel-conservation-before-after',items:y.items,before:y.before,after:y.after,n:y.n,context:y.context},
+    hint:'Aynı gerçek nesneler yalnız başka yerlere taşındı.',explain:'Günlük nesnelerin yerini değiştirmek, nesne eklenmedikçe veya çıkarılmadıkça miktarı değiştirmez.'
   });
 }
 
@@ -4119,6 +4231,7 @@ const GENERATORS={
   nelRoteCount20:genNelRoteCount20,
   nelReliableCount10:genNelReliableCount10,
   nelSubitise5:genNelSubitise5,
+  nelConservation10:genNelConservation10,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -4980,6 +5093,55 @@ function nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng){
   throw new Error('Unknown nelSubitise5 practice section: '+sectionId);
 }
 
+function nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelConservationCases();
+  const x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(!nelConservationSameIdentity(x)) throw new Error('Conservation practice case changed object identity');
+  if(sectionId==='rearrange-same-set'){
+    return qTask('nelConservation10','build','Aynı nesneleri hedef düzene taşı. Nesne ekleme veya çıkarma.',x.id+'|same-set',{kind:'manipulative',interaction:'nel-conservation-rearrange',expectedValue:x.id+'|same-set',checkLabel:'Düzenimi kontrol et'},{
+      taskKind:'nel-practice-conservation-rearrange-'+taskIndex,taskLabel:'Aynı kümeyi başka düzene taşı',
+      visual:{type:'nel-conservation-rearrange',items:x.items,before:x.before,target:x.after,n:x.n},
+      hint:'Her nesne yeni yerde görünsün; hiçbiri kaybolmasın veya çoğalmasın.',explain:'Küme aynı kaldı, yalnız nesnelerin yerleri değişti.'
+    });
+  }
+  if(sectionId==='see-same-quantity'){
+    return qBase('nelConservation10','see','Aynı küme başka bir düzene geçti. Miktar ne oldu?','Aynı miktar',nelConservationQuantityChoices(rng),{
+      taskKind:'nel-practice-conservation-see-'+taskIndex,taskLabel:'Düzen değişse de miktarın aynı kaldığını gör',
+      visual:{type:'nel-conservation-before-after',items:x.items,before:x.before,after:x.after,n:x.n},
+      hint:'Önce ve sonra aynı nesnelerin bulunup bulunmadığına bak.',explain:'Hiç nesne eklenmedi veya çıkarılmadı; miktar aynı kaldı.'
+    });
+  }
+  if(sectionId==='resist-spacing-cue'){
+    const y=cases.find(z=>z.after.layout==='spread-line')||x;
+    return qTask('nelConservation10','symbol','İkinci düzen daha çok yer kaplıyor. Gerçekte miktar ne oldu?','same',{kind:'manipulative',interaction:'nel-conservation-relation-choice',expectedValue:'same',checkLabel:'Seçimimi kontrol et'},{
+      taskKind:'nel-practice-conservation-spacing-'+taskIndex,taskLabel:'Yayılma ipucuna aldanmadan miktarı koru',
+      visual:{type:'nel-conservation-relation-choice',items:y.items,before:y.before,after:y.after,n:y.n,options:[
+        {value:'same',label:'Aynı miktar'},
+        {value:'more',label:'Daha çok oldu'},
+        {value:'less',label:'Daha az oldu'}
+      ]},
+      hint:'Daha uzun görünmek, yeni nesne eklendiği anlamına gelmez.',explain:'Nesneler aralıklı durabilir ama kümedeki nesneler aynıysa miktar değişmez.'
+    });
+  }
+  if(sectionId==='explain-no-add-remove'){
+    const answer='Hiç nesne eklenmedi veya çıkarılmadı; yalnız yerleri değişti.';
+    return qBase('nelConservation10','explain','Bu kümede miktar neden değişmedi?',answer,nelConservationReasonChoices(rng),{
+      taskKind:'nel-practice-conservation-explain-'+taskIndex,taskLabel:'Korunumun nedenini açıkla',
+      visual:{type:'nel-conservation-before-after',items:x.items,before:x.before,after:x.after,n:x.n},
+      hint:'Nelerin değiştiğini ve nelerin aynı kaldığını düşün.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-real-objects'){
+    const y=cases[(taskIndex+3)%cases.length];
+    return qBase('nelConservation10','transfer','Gerçek nesneleri masada farklı biçimde dizdin; hiçbirini eklemedin veya kaldırmadın. Miktar ne oldu?','Aynı miktar',nelConservationQuantityChoices(rng),{
+      taskKind:'nel-practice-conservation-transfer-'+taskIndex,taskLabel:'Korunumu günlük nesnelere taşı',
+      visual:{type:'nel-conservation-before-after',items:y.items,before:y.before,after:y.after,n:y.n,context:y.context},
+      hint:'Yerleşim değişti; kümenin üyeleri değişti mi?',explain:'Aynı nesneler yalnız başka yerlere taşındığında miktar korunur.'
+    });
+  }
+  throw new Error('Unknown nelConservation10 practice section: '+sectionId);
+}
+
 function nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelReliableCases(), x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='one-to-one-count'){
@@ -5357,7 +5519,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelSubitise5') q=nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelConservation10') q=nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelSubitise5') q=nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelReliableCount10') q=nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPatterns') q=nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -5426,6 +5589,7 @@ const CONCEPT_KEYS={
   nelRoteCount20:'nel-spoken-number-sequence-to-20',
   nelReliableCount10:'nel-reliable-counting-to-10',
   nelSubitise5:'nel-instant-small-quantity-to-5',
+  nelConservation10:'nel-conservation-of-quantity-to-10',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
