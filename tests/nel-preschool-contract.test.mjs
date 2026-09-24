@@ -30,6 +30,7 @@ assert.ok(app.includes('data-conservation-move')&&app.includes('bindNelConservat
 assert.ok(app.includes("case 'nel-conservation-before-after'"),'conservation before/after renderer must be wired');
 assert.ok(app.includes("case 'nel-conservation-rearrange'"),'conservation rearrange renderer must be wired');
 assert.ok(app.includes("case 'nel-conservation-relation-choice'"),'conservation relation-choice renderer must be wired');
+assert.ok(app.includes("if(skillId==='nelConservation10') return NEL_CONSERVATION_LESSON_STEPS.map"),'Inspector must expose conservation Learn steps for browser QA');
 assert.equal(skillsFor('grade1',{includeHidden:true}).some(skill=>(skill.prerequisite||[]).some(id=>preschoolIds.has(id))),false,'P1 must not hard-require preschool completion');
 
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelReliableCount10'));
