@@ -129,6 +129,10 @@ Recommended product progression:
 
    v1.17.0 implementation boundary: this skill directly evidences all four NEL reliable-counting principles. The child must track each object once, apply the stable spoken sequence while counting, use the final number name as the set total, and verify that counting the same set in another order does not change the total. The reference lesson uses tangible on-screen objects first and includes a real-world transfer prompt. It does not require numeral writing or treat a visually guessed quantity as sufficient evidence.
 3. `nelSubitise5` — instantly recognise small quantities in varied arrangements
+
+   Research boundary: subitising is treated in the NEL Educators' Guide as a **supporting number-sense ability**, not as a separate numbered KSD in the NEL Framework table. SAYMERA keeps it as a distinct reference skill because the guide explicitly describes instant quantity recognition without one-by-one counting and recommends varied dot arrangements, games and mental images. It must therefore complement—not replace—KSD 3.2 reliable counting or KSD 3.3 conservation.
+
+   Product scope: begin with very small immediately recognisable quantities, then use multiple arrangements of the same small quantity (e.g. dice/domino-like, structured and irregular). A correct response should not depend on numeral reading, and the child should not be encouraged to count the items one by one. The skill should distinguish **"I knew it was five"** from **"I counted 1, 2, 3, 4, 5"** as different evidence.
 4. `nelConservation10` — same quantity despite rearrangement
 5. `nelNumberRepresentations10` — number name ↔ numeral ↔ number word ↔ quantity
 6. `nelNumeralFormation10` — form/write numerals 1–10 without making handwriting quality a mathematics mastery contaminant
