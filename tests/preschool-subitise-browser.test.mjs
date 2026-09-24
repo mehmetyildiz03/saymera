@@ -56,6 +56,14 @@ async function assertFlashGate(page,root){
   await show.tap();
   await page.waitForFunction(el=>el?.dataset.flashState==='showing',await frame.elementHandle());
   assert.equal(await pattern.isVisible(),true,'target pattern must be visible during the brief flash');
+  assert.equal(await show.isDisabled(),true,'show control must lock immediately so a double tap cannot restart the flash');
+  const duringButtons=root.locator('.nel-subitise-response button');
+  for(let i=0;i<await duringButtons.count();i++) assert.equal(await duringButtons.nth(i).isDisabled(),true,'response controls must remain locked while target is visible');
+  await show.evaluate(el=>el.click());
+  assert.equal(await frame.getAttribute('data-flash-state'),'showing','a second activation must not restart or cancel the active flash');
+  await page.waitForTimeout(180);
+  assert.equal(await frame.getAttribute('data-flash-state'),'showing','brief exposure must not collapse immediately after activation');
+  assert.equal(await pattern.isVisible(),true,'target must remain visible during the exposure window');
   await frame.waitFor({state:'attached'});
   await page.waitForFunction(el=>el?.dataset.flashState==='ready',await frame.elementHandle(),{timeout:3000});
   assert.equal(await pattern.isHidden(),true,'target pattern must be hidden again before answering');
