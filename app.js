@@ -1950,7 +1950,8 @@ function nelSubitiseFlashFrame(pattern={},flashMs=NEL_SUBITISE_FLASH_MS){
   '</div>';
 }
 function nelSubitiseAudioChoices(options=[]){
-  return '<div class="nel-subitise-audio-grid nel-subitise-response">'+options.map(item=>'<div data-subitise-option="'+esc(item.id)+'">'+nelRoteAudioCard(item,false)+'<button type="button" class="nel-subitise-select" data-subitise-audio-choice="'+esc(item.id)+'" disabled>Bunu seç</button></div>').join('')+'</div>';
+  const cards=options.map(item=>'<div data-subitise-option="'+esc(item.id)+'">'+nelRoteAudioCard(item,false)+'<button type="button" class="nel-subitise-select" data-subitise-audio-choice="'+esc(item.id)+'" disabled>Bunu seç</button></div>').join('');
+  return '<div class="nel-subitise-audio-grid nel-subitise-response">'+cards.replaceAll('class="nel-rote-listen"','class="nel-rote-listen" disabled')+'</div>';
 }
 function nelSubitiseBuildResponse(pool=5){
   return '<div class="nel-subitise-build-response nel-subitise-response"><small>GÖRDÜĞÜN KADAR TAŞ SEÇ</small><div>'+Array.from({length:Number(pool)||5},(_,i)=>'<button type="button" class="nel-subitise-build-token" data-subitise-build="'+(i+1)+'" disabled aria-label="Taş '+(i+1)+'"></button>').join('')+'</div><button type="button" class="nel-subitise-clear" disabled>Baştan kur</button></div>';
