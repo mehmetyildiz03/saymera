@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -291,6 +291,22 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelSubitise5:{
+    version:1,
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'flash-build',label:'Kısa görünümden miktarı kur',phase:'model',representation:'build'},
+        {id:'flash-structured',label:'Düzenli küçük miktarı bir bakışta fark et',phase:'representation',representation:'see'},
+        {id:'flash-varied',label:'Farklı dizilimdeki küçük miktarı tanı',phase:'symbol',representation:'symbol'},
+        {id:'explain-instant',label:'Bir bakışta fark etmenin ne olduğunu anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-game',label:'Bir bakışta miktarı zar ve domino oyununa taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -334,6 +350,7 @@ export const SKILLS = [
   skill('nelPatterns','preschool','Örüntüyü fark et, uzat ve kur','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelRoteCount20','preschool','Sayı adlarını 20’ye kadar sırayla söyle','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelReliableCount10','preschool','10 nesneye kadar güvenilir say','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelSubitise5','preschool','5’e kadar miktarı bir bakışta fark et','Sayma & Sayı Hissi','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -664,6 +681,13 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'NEL v2 güvenilir sayma becerisinin dört sayma ilkesini kapsayan sözleşmesi açık',
       !reliableContract.provisional && reliableContract.practice.sections.length===5,
       reliableContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const subitiseContract=lessonContractFor('nelSubitise5');
+    add(
+      'nel-subitise-reference-contract',
+      'NEL v2 sayı hissi için subitising sözleşmesi ayrı ve kısa-görünüm odaklı',
+      !subitiseContract.provisional && subitiseContract.practice.sections.length===5,
+      subitiseContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -1645,6 +1669,50 @@ function nelReliableNumberOptions(answerN,rng){
   return shuffled([...new Set(pool)].slice(0,4).map(n=>nelRoteCountItem(n)),rng);
 }
 
+
+function nelSubitiseCases(){
+  return [
+    {id:'one-centre',n:1,slots:[4],family:'structured',context:'dots'},
+    {id:'two-diagonal',n:2,slots:[0,8],family:'structured',context:'dots'},
+    {id:'two-side',n:2,slots:[3,5],family:'varied',context:'dots'},
+    {id:'three-diagonal',n:3,slots:[0,4,8],family:'structured',context:'dots'},
+    {id:'three-corner',n:3,slots:[0,2,7],family:'varied',context:'dots'},
+    {id:'three-wide',n:3,slots:[1,6,8],family:'varied',context:'dots'},
+    {id:'four-corners',n:4,slots:[0,2,6,8],family:'structured',context:'dice'},
+    {id:'four-diamond',n:4,slots:[1,3,5,7],family:'varied',context:'dots'},
+    {id:'four-offset',n:4,slots:[0,2,4,8],family:'varied',context:'dots'},
+    {id:'five-dice',n:5,slots:[0,2,4,6,8],family:'structured',context:'dice'},
+    {id:'five-cross',n:5,slots:[1,3,4,5,7],family:'varied',context:'dots'},
+    {id:'five-scatter',n:5,slots:[0,1,4,7,8],family:'varied',context:'dots'},
+    {id:'domino-three',n:3,slots:[0,4,8],family:'structured',context:'domino'},
+    {id:'domino-four',n:4,slots:[0,2,6,8],family:'structured',context:'domino'},
+    {id:'domino-five',n:5,slots:[0,2,4,6,8],family:'structured',context:'domino'}
+  ];
+}
+function nelSubitiseCasesFor({family=null,context=null,min=1,max=5}={}){
+  return nelSubitiseCases().filter(x=>x.n>=min&&x.n<=max&&(!family||x.family===family)&&(!context||x.context===context));
+}
+function nelSubitiseCaseForN(n,{family=null,context=null}={}){
+  return nelSubitiseCasesFor({family,context,min:n,max:n})[0]||nelSubitiseCasesFor({min:n,max:n})[0];
+}
+function nelSubitiseAudioOptions(answerN,rng){
+  const pool=[answerN,answerN-1,answerN+1,answerN+2].filter(n=>n>=1&&n<=5);
+  for(let n=1;pool.length<4&&n<=5;n++) if(!pool.includes(n)) pool.push(n);
+  return shuffled([...new Set(pool)].slice(0,4).map(n=>nelRoteCountItem(n)),rng);
+}
+function nelSubitiseMatchOptions(answerN,rng){
+  const nums=[answerN,...shuffled([1,2,3,4,5].filter(n=>n!==answerN),rng).slice(0,3)];
+  return shuffled(nums.map(n=>({value:'qty-'+n,n,pattern:nelSubitiseCaseForN(n,{family:n>=4?'structured':null})})),rng);
+}
+function nelSubitisePhraseOptions(){
+  return [
+    {id:'instant',speech:'Küçük miktarı tek tek saymadan, bir bakışta fark ettim.'},
+    {id:'counted',speech:'Noktaları birer birer sayarak miktarı buldum.'},
+    {id:'colour',speech:'Yalnız rengine baktım; miktarı düşünmedim.'},
+    {id:'guess',speech:'Miktarı görmeden rastgele bir sayı adı seçtim.'}
+  ];
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1860,6 +1928,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelPatterns') return make('nel-repeating-patterns',nelPatternCases());
   if(skillId==='nelRoteCount20') return make('nel-spoken-number-sequence-to-20',nelRoteCases());
   if(skillId==='nelReliableCount10') return make('nel-reliable-counting-to-10',nelReliableCases());
+  if(skillId==='nelSubitise5') return make('nel-instant-small-quantity-to-5',nelSubitiseCasesFor({min:2,max:5}));
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2232,6 +2301,50 @@ function genNelReliableCount10(rep,d,rng,concept){
     taskKind:'nel-reliable-transfer',taskLabel:'Güvenilir saymayı günlük nesnelere taşı',
     visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(y,rng),context:'snack-plate',speakCount:true},
     hint:'Bir nesneyi sayınca tabağa taşı; böylece hangilerini saydığını takip edebilirsin.',explain:'Nesneleri birer birer taşıyıp her birini yalnız bir kez saymak güvenilir saymayı destekler.'
+  });
+}
+
+
+function genNelSubitise5(rep,d,rng,concept){
+  const c=concept?.skillId==='nelSubitise5'?concept:createConceptInstance('nelSubitise5',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    const y=x.n>4?nelSubitiseCaseForN(4,{family:'structured'}):x;
+    return qTask('nelSubitise5','build','Kısa görüntüye bak. Kapandıktan sonra gördüğün kadar taşı kur.',String(y.n),{kind:'manipulative',interaction:'nel-subitise-flash-build',expectedValue:String(y.n),checkLabel:'Kurduğumu kontrol et'},{
+      taskKind:'nel-subitise-build-memory',taskLabel:'Kısa görünümden miktarı kur',
+      visual:{type:'nel-subitise-flash-build',pattern:y,pool:5,flashMs:650},
+      hint:'Görüntü açıkken tek tek saymaya çalışma; küçük grubun tamamını bir bakışta fark etmeye çalış.',explain:y.n+' nesneyi kısa görünümden hatırlayıp aynı miktarı kurdun.'
+    });
+  }
+  if(rep==='see'){
+    const structured=nelSubitiseCasesFor({family:'structured',min:2,max:5}),y=structured[Math.floor(rng()*structured.length)]||x;
+    return qTask('nelSubitise5','see','Kısa görüntüde kaç tane gördün? Sayı adını dinleyerek seç.','rote-'+y.n,{kind:'manipulative',interaction:'nel-subitise-flash-audio',expectedValue:'rote-'+y.n,checkLabel:'Bir bakışta gördüğümü kontrol et'},{
+      taskKind:'nel-subitise-structured',taskLabel:'Düzenli küçük miktarı bir bakışta tanı',
+      visual:{type:'nel-subitise-flash-audio',pattern:y,options:nelSubitiseAudioOptions(y.n,rng),flashMs:650},
+      hint:'Zar veya düzenli nokta görünümünü bütün olarak görmeye çalış.',explain:'Bu kısa görünümde '+y.n+' nesne vardı.'
+    });
+  }
+  if(rep==='symbol'){
+    const varied=nelSubitiseCasesFor({family:'varied',min:2,max:5}),y=varied[Math.floor(rng()*varied.length)]||x;
+    return qTask('nelSubitise5','symbol','Kısa görüntüdeki miktarla aynı olan farklı düzeni seç.','qty-'+y.n,{kind:'manipulative',interaction:'nel-subitise-flash-match',expectedValue:'qty-'+y.n,checkLabel:'Aynı miktarı kontrol et'},{
+      taskKind:'nel-subitise-varied-match',taskLabel:'Farklı dizilimde aynı küçük miktarı göster',
+      visual:{type:'nel-subitise-flash-match',pattern:y,options:nelSubitiseMatchOptions(y.n,rng),flashMs:650},
+      hint:'Noktaların yerleri değişebilir. Önce kısa görüntüde kaç tane olduğunu bir bakışta fark et.',explain:'Dizilim değişse de seçtiğin kartta aynı küçük miktar var.'
+    });
+  }
+  if(rep==='explain'){
+    const y=c.symbol;
+    return qTask('nelSubitise5','explain','Bir bakışta miktarı fark etmek ne demektir?','instant',{kind:'manipulative',interaction:'nel-subitise-flash-explain',expectedValue:'instant',checkLabel:'Açıklamamı kontrol et'},{
+      taskKind:'nel-subitise-explain-instant',taskLabel:'Subitising fikrini açıkla',
+      visual:{type:'nel-subitise-flash-explain',pattern:y,options:nelSubitisePhraseOptions(),flashMs:650},
+      hint:'Burada amaç küçük miktarı nesneleri tek tek saymadan fark etmektir.',explain:'Bir bakışta miktarı fark etmek, küçük grubu tek tek saymadan kaç tane olduğunu görmektir.'
+    });
+  }
+  const gameCases=nelSubitiseCases().filter(z=>['dice','domino'].includes(z.context)&&z.n>=2), y=gameCases[Math.floor(rng()*gameCases.length)]||nelSubitiseCaseForN(5,{context:'dice'});
+  return qTask('nelSubitise5','transfer','Oyun parçası kısa süre görünecek. Kaç nokta gördün?','rote-'+y.n,{kind:'manipulative',interaction:'nel-subitise-flash-audio',expectedValue:'rote-'+y.n,checkLabel:'Oyundaki miktarı kontrol et'},{
+    taskKind:'nel-subitise-transfer-game',taskLabel:'Bir bakışta miktarı zar veya domino oyununa taşı',
+    visual:{type:'nel-subitise-flash-audio',pattern:y,options:nelSubitiseAudioOptions(y.n,rng),flashMs:650,game:true},
+    hint:'Zar ve domino noktalarını tek tek saymadan bütün düzen olarak fark etmeye çalış.',explain:'Oyunlarda küçük nokta gruplarını bir bakışta tanımak miktarı hızlı fark etmeyi sağlar.'
   });
 }
 
@@ -3981,6 +4094,7 @@ const GENERATORS={
   nelPatterns:genNelPatterns,
   nelRoteCount20:genNelRoteCount20,
   nelReliableCount10:genNelReliableCount10,
+  nelSubitise5:genNelSubitise5,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -4796,6 +4910,52 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 
 
+
+function nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const all=nelSubitiseCasesFor({min:2,max:5});
+  if(sectionId==='flash-build'){
+    const pool=all.filter(x=>x.n<=4),x=pool[taskIndex%pool.length];
+    return qTask('nelSubitise5','build','Kısa görüntü kapandıktan sonra gördüğün kadar taşı kur.',String(x.n),{kind:'manipulative',interaction:'nel-subitise-flash-build',expectedValue:String(x.n),checkLabel:'Kurduğumu kontrol et'},{
+      taskKind:'nel-practice-subitise-build-'+taskIndex,taskLabel:'Kısa görünümden miktarı kur',
+      visual:{type:'nel-subitise-flash-build',pattern:x,pool:5,flashMs:650},
+      hint:'Görüntüyü bütün olarak gör; sonra hatırladığın miktarı kur.',explain:'Kısa görünümdeki küçük miktarı hafızadan yeniden kurdun.'
+    });
+  }
+  if(sectionId==='flash-structured'){
+    const pool=nelSubitiseCasesFor({family:'structured',min:2,max:5}),x=pool[taskIndex%pool.length];
+    return qTask('nelSubitise5','see','Düzenli nokta grubu kısa göründü. Kaç tane vardı?','rote-'+x.n,{kind:'manipulative',interaction:'nel-subitise-flash-audio',expectedValue:'rote-'+x.n,checkLabel:'Gördüğümü kontrol et'},{
+      taskKind:'nel-practice-subitise-structured-'+taskIndex,taskLabel:'Düzenli küçük miktarı anında fark et',
+      visual:{type:'nel-subitise-flash-audio',pattern:x,options:nelSubitiseAudioOptions(x.n,rng),flashMs:650},
+      hint:'Noktaları tek tek saymak yerine düzenin tamamını bir anda görmeye çalış.',explain:'Kısa görünümde '+x.n+' nokta vardı.'
+    });
+  }
+  if(sectionId==='flash-varied'){
+    const pool=nelSubitiseCasesFor({family:'varied',min:2,max:5}),x=pool[taskIndex%pool.length];
+    return qTask('nelSubitise5','symbol','Farklı dizilim kısa göründü. Aynı miktarı gösteren kartı seç.','qty-'+x.n,{kind:'manipulative',interaction:'nel-subitise-flash-match',expectedValue:'qty-'+x.n,checkLabel:'Aynı miktarı kontrol et'},{
+      taskKind:'nel-practice-subitise-varied-'+taskIndex,taskLabel:'Düzensiz küçük miktarı tanı ve başka düzenle eşleştir',
+      visual:{type:'nel-subitise-flash-match',pattern:x,options:nelSubitiseMatchOptions(x.n,rng),flashMs:650},
+      hint:'Noktaların konumu değişse de kaç tane olduğunu bir bakışta hatırla.',explain:'Farklı düzenler aynı küçük miktarı gösterebilir.'
+    });
+  }
+  if(sectionId==='explain-instant'){
+    const x=all[(taskIndex+2)%all.length];
+    return qTask('nelSubitise5','explain','Bir bakışta miktarı fark etmeyi doğru anlatan açıklamayı seç.','instant',{kind:'manipulative',interaction:'nel-subitise-flash-explain',expectedValue:'instant',checkLabel:'Açıklamamı kontrol et'},{
+      taskKind:'nel-practice-subitise-explain-'+taskIndex,taskLabel:'Tek tek saymadan fark etme fikrini anlat',
+      visual:{type:'nel-subitise-flash-explain',pattern:x,options:nelSubitisePhraseOptions(),flashMs:650},
+      hint:'Subitising küçük miktarı tek tek saymadan fark etmektir.',explain:'Küçük miktarı bir bakışta fark etmek tek tek saymadan niceliği görmektir.'
+    });
+  }
+  if(sectionId==='transfer-game'){
+    const pool=nelSubitiseCases().filter(x=>['dice','domino'].includes(x.context)&&x.n>=2),x=pool[taskIndex%pool.length];
+    return qTask('nelSubitise5','transfer','Zar veya domino görünümü kısa süre açılacak. Kaç nokta gördün?','rote-'+x.n,{kind:'manipulative',interaction:'nel-subitise-flash-audio',expectedValue:'rote-'+x.n,checkLabel:'Oyun miktarını kontrol et'},{
+      taskKind:'nel-practice-subitise-game-'+taskIndex,taskLabel:'Subitising becerisini oyun düzenine taşı',
+      visual:{type:'nel-subitise-flash-audio',pattern:x,options:nelSubitiseAudioOptions(x.n,rng),flashMs:650,game:true},
+      hint:'Oyun nokta düzenini tek tek saymadan bütün olarak tanımaya çalış.',explain:'Zar ve domino gibi oyunlarda küçük miktarı bir bakışta fark edebilirsin.'
+    });
+  }
+  throw new Error('Unknown nelSubitise5 practice section: '+sectionId);
+}
+
 function nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelReliableCases(), x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='one-to-one-count'){
@@ -5173,7 +5333,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelReliableCount10') q=nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelSubitise5') q=nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelReliableCount10') q=nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPatterns') q=nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelOrderAttributes') q=nelOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -5240,6 +5401,7 @@ const CONCEPT_KEYS={
   nelPatterns:'nel-repeating-patterns',
   nelRoteCount20:'nel-spoken-number-sequence-to-20',
   nelReliableCount10:'nel-reliable-counting-to-10',
+  nelSubitise5:'nel-instant-small-quantity-to-5',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
