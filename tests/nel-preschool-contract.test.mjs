@@ -22,7 +22,14 @@ for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes'
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelConservation10'),'Path B metadata must reserve the conservation skill');
-assert.equal(app.includes('renderNelConservationLessonStep'),false,'this slice must not add conservation Learn UI yet');
+assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
+const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
+for(const id of conservationLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL conservation Learn step '+id);
+for(const layout of ["'line'","'array'","'circle'","'random'"]) assert.ok(app.includes(layout),'NEL conservation Learn flow must include official-style varied arrangements: '+layout);
+assert.ok(app.includes("interaction:'nel-conservation-rearrange'"),'conservation must include active rearrangement evidence');
+assert.ok(app.includes("case 'nel-conservation-before-after'"),'conservation before/after renderer must be wired');
+assert.ok(app.includes("case 'nel-conservation-rearrange'"),'conservation rearrange renderer must be wired');
+assert.ok(app.includes("case 'nel-conservation-relation-choice'"),'conservation relation-choice renderer must be wired');
 assert.equal(skillsFor('grade1',{includeHidden:true}).some(skill=>(skill.prerequisite||[]).some(id=>preschoolIds.has(id))),false,'P1 must not hard-require preschool completion');
 
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelReliableCount10'));
