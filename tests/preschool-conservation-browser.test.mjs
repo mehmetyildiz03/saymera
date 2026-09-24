@@ -74,6 +74,13 @@ async function completeLearnStep(page,id){
     const afterIds=await tokenIds(afterBoard);
     assert.equal(await afterBoard.getAttribute('data-layout'),expected[1],id+' must change to the intended arrangement');
     assert.deepEqual(beforeIds,afterIds,id+' must preserve the same object identities while rearranging');
+    const boardBox=await afterBoard.boundingBox();
+    assert.ok(boardBox?.width>240,id+' arrangement board must remain visibly wide on phone/tablet');
+    const tokenBoxes=await afterBoard.locator('[data-conservation-id]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height};}));
+    assert.ok(tokenBoxes.every(r=>r.w>=30&&r.h>=30),id+' objects must remain visibly tappable/readable');
+    const xs=tokenBoxes.map(r=>r.x),ys=tokenBoxes.map(r=>r.y);
+    const xSpan=Math.max(...xs)-Math.min(...xs),ySpan=Math.max(...ys)-Math.min(...ys);
+    assert.ok(xSpan>80||ySpan>70,id+' arrangement must visibly redistribute the objects in space');
     return;
   }
 
