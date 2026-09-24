@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
   skillsFor,PRESCHOOL_NEL_PATHS,PRESCHOOL_NEL_KSD_MAP,PRESCHOOL_TO_P1_BRIDGES,
-  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,
+  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,
   defaultState,runPedagogyStateAudit
 } from '../engine.mjs';
 
@@ -16,14 +16,27 @@ const expectedKsd=['2.1','2.2','2.3','2.4','3.1','3.2','3.3','3.4','3.5','3.6','
 for(const code of expectedKsd) assert.ok(PRESCHOOL_NEL_KSD_MAP[code]?.length,'missing NEL KSD mapping '+code);
 assert.equal(Object.values(PRESCHOOL_NEL_KSD_MAP).flat().includes('nelSubitise5'),false,'subitising is a supporting Number Sense product skill, not a standalone NEL KSD mapping');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
+assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelConservation10'),'Path B metadata must reserve the conservation skill');
+assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
+const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
+for(const id of conservationLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL conservation Learn step '+id);
+for(const layout of ["'line'","'array'","'circle'","'random'"]) assert.ok(app.includes(layout),'NEL conservation Learn flow must include official-style varied arrangements: '+layout);
+assert.ok(app.includes('data-conservation-move')&&app.includes('bindNelConservationRearrange'),'conservation Learn UI must include active same-object rearrangement evidence');
+assert.ok(app.includes("case 'nel-conservation-before-after'"),'conservation before/after renderer must be wired');
+assert.ok(app.includes("case 'nel-conservation-rearrange'"),'conservation rearrange renderer must be wired');
+assert.ok(app.includes("case 'nel-conservation-relation-choice'"),'conservation relation-choice renderer must be wired');
+assert.ok(app.includes("if(skillId==='nelConservation10') return NEL_CONSERVATION_LESSON_STEPS.map"),'Inspector must expose conservation Learn steps for browser QA');
 assert.equal(skillsFor('grade1',{includeHidden:true}).some(skill=>(skill.prerequisite||[]).some(id=>preschoolIds.has(id))),false,'P1 must not hard-require preschool completion');
 
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelReliableCount10'));
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelSubitise5'));
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelConservation10'));
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.3'],['nelConservation10'],'KSD 3.3 must map directly to conservation of quantity');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.numberBonds10.includes('nelPartWhole10'));
 
 const matchContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelMatchAttributes;
@@ -66,6 +79,14 @@ assert.equal(subitiseContract.practice.sections.length,5);
 assert.deepEqual(subitiseContract.practice.sections.map(s=>s.id),['flash-build','flash-structured','flash-varied','explain-instant','transfer-game']);
 assert.deepEqual(subitiseContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
+const conservationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelConservation10;
+assert.equal(conservationContract.practice.sections.length,5);
+assert.deepEqual(conservationContract.practice.sections.map(s=>s.id),['rearrange-same-set','see-same-quantity','resist-spacing-cue','explain-no-add-remove','transfer-real-objects']);
+assert.deepEqual(conservationContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(conservationContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+assert.equal(conservationContract.pathId,'counting-number-sense');
+assert.equal(conservationContract.practice.sections.some(s=>s.id==='order-irrelevance'),false,'conservation must remain distinct from reliable-counting order irrelevance');
+
 const lessonIds=['same-object','same-colour','same-shape','same-size','same-length','same-height','explain-match','real-world-match'];
 for(const id of lessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL matching Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }"));
@@ -74,7 +95,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
@@ -214,6 +235,26 @@ for(const section of subitiseContract.practice.sections){
   }
 }
 
+function placementIds(layout){ return (layout?.placements||[]).map(p=>p.itemId).sort(); }
+for(const section of conservationContract.practice.sections){
+  const qs=Array.from({length:14},(_,i)=>generateLessonPracticeQuestion('nelConservation10',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelConservation10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+    assert.equal(forbiddenSymbols.some(symbol=>childText.includes(symbol)),false,'NEL conservation must stay concrete and verbal: '+childText);
+    assert.notEqual(q.response.kind,'number-input','conservation must not require numeral entry');
+    assert.ok((q.visual?.n||0)>=4&&(q.visual?.n||0)<=10,'conservation practice must stay within the explicit 10-object endpoint');
+    const before=q.visual?.before;
+    const after=q.visual?.after||q.visual?.target;
+    if(before&&after){
+      assert.deepEqual(placementIds(before),placementIds(after),'conservation must rearrange the same object identities without add/remove');
+      assert.notDeepEqual(before.placements,after.placements,'conservation evidence must actually change spatial arrangement');
+    }
+    if(section==='resist-spacing-cue') assert.equal(q.visual?.after?.layout,'spread-line','spacing misconception practice must include a visibly spread layout');
+  }
+}
+
 const orderSize=generateLessonPracticeQuestion('nelOrderAttributes','order-size',0,1,rng);
 const orderReverse=generateLessonPracticeQuestion('nelOrderAttributes','reverse-order',0,1,rng);
 const orderEvent=generateLessonPracticeQuestion('nelOrderAttributes','transfer-event-sequence',0,1,rng);
@@ -274,6 +315,26 @@ assert.equal(subTransfer.response.interaction,'nel-subitise-flash-audio');
 assert.ok(['dice','domino'].includes(subTransfer.visual.pattern.context),'subitising transfer must use dice/domino structure');
 assert.ok(subStructured.visual.flashMs<=800&&subStructured.visual.flashMs>=250,'subitising flash duration must stay short');
 
+const conservationConcept=createConceptInstance('nelConservation10',1,rng);
+assert.equal(conservationConcept.skillId,'nelConservation10');
+assert.ok(conservationConcept.anchor.n>=4&&conservationConcept.anchor.n<=10,'conservation concept must stay within sets up to 10');
+assert.deepEqual(placementIds(conservationConcept.anchor.before),placementIds(conservationConcept.anchor.after),'concept case must preserve exact object identity');
+assert.notDeepEqual(conservationConcept.anchor.before.placements,conservationConcept.anchor.after.placements,'concept case must rearrange positions');
+const conservationBuild=generateQuestion('nelConservation10','build',1,rng,conservationConcept);
+const conservationSee=generateQuestion('nelConservation10','see',1,rng,conservationConcept);
+const conservationShow=generateQuestion('nelConservation10','symbol',1,rng,conservationConcept);
+const conservationExplain=generateQuestion('nelConservation10','explain',1,rng,conservationConcept);
+const conservationTransfer=generateQuestion('nelConservation10','transfer',1,rng,conservationConcept);
+assert.equal(conservationBuild.response.interaction,'nel-conservation-rearrange');
+assert.equal(conservationBuild.response.kind,'manipulative');
+assert.equal(conservationSee.response.kind,'choice');
+assert.equal(conservationShow.response.interaction,'nel-conservation-relation-choice');
+assert.equal(conservationExplain.response.kind,'choice');
+assert.equal(conservationTransfer.response.kind,'choice');
+for(const q of [conservationBuild,conservationSee,conservationShow,conservationExplain,conservationTransfer]){
+  assert.notEqual(q.response.kind,'number-input','conservation evidence must not depend on numeral reading/writing');
+}
+
 const sizeQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-size',0,1,rng);
 const lengthQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-length',0,1,rng);
 const heightQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-height',0,1,rng);
@@ -300,11 +361,14 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract']){
+for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
 assert.ok(contract.includes('Kur · Gör · Göster · Anlat · Taşı'));
+assert.ok(contract.includes('**NEL KSD 3.3**'),'research contract must explicitly anchor conservation to KSD 3.3');
+assert.ok(contract.includes('discrete quantity/cardinality'),'conservation scope must stay on discrete quantity rather than unrelated conservation tasks');
+assert.ok(contract.includes('Distinguish this from KSD 3.2 order irrelevance.'),'research contract must distinguish spatial conservation from counting-order irrelevance');
 assert.ok(contract.includes('Preschool is foundational but is **not a hard prerequisite for P1**.'));
 
-console.log('NEL preschool contract: PASS (3 paths; 16 official KSD groups; hidden Path A + rote/reliable/subitising references; no P1 hard gate)');
+console.log('NEL preschool contract: PASS (3 paths; 16 official KSD groups; hidden Path A + rote/reliable/subitising/conservation contracts; no P1 hard gate)');
