@@ -1154,6 +1154,33 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-rote-real-world{padding:13px}
 }
 
+/* v1.17.0 reliable-count Practice needs natural-height content so rich counting controls never cover the response row */
+.practice-content.reliable-count-practice{overflow:auto;display:block}
+.reliable-count-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start;padding-bottom:18px}
+.reliable-count-question-stage .reliable-count-stage{height:auto;max-height:none;overflow:hidden;place-items:start center}
+
+
+/* Reliable-count Practice can be taller than the generic fixed practice viewport.
+   Keep it in normal document flow so the response controls never sit underneath
+   the counting/cardinality surface on phone or short tablet screens. */
+.practice-content.reliable-count-practice{overflow-y:auto;display:block}
+.reliable-count-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
+.reliable-count-question-stage .reliable-count-stage{height:auto;max-height:none;min-height:0;overflow:visible;place-items:start center;padding:12px}
+.reliable-count-question-stage #patternResponseGate{position:relative;z-index:4}
+.reliable-count-question-stage .manipulative-response{position:relative;z-index:4;background:linear-gradient(180deg,rgba(247,245,239,.96),rgba(247,245,239,1));border-radius:18px;padding:4px}
+.reliable-count-question-stage .nel-reliable-object-grid{min-height:0}
+.reliable-count-question-stage .nel-reliable-cardinality-question{padding:10px}
+.reliable-count-question-stage .nel-reliable-audio-options .nel-rote-audio-card{min-height:64px}
+@media(max-width:699px){
+  .practice-content.reliable-count-practice{padding-bottom:28px}
+  .reliable-count-question-stage{gap:10px}
+  .reliable-count-question-stage .reliable-count-stage{padding:7px}
+  .reliable-count-question-stage .nel-reliable-object-grid{padding:6px}
+  .reliable-count-question-stage .nel-reliable-count-rail{min-height:48px}
+  .reliable-count-question-stage .nel-reliable-cardinality-question{gap:6px;padding:8px}
+  .reliable-count-question-stage .nel-reliable-audio-options .nel-rote-audio-card{min-height:58px}
+}
+
 /* v1.17.0 — hidden NEL preschool reliable counting reference lesson */
 .nel-reliable-lesson-stage{width:min(880px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-reliable-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
@@ -9831,6 +9858,7 @@ function practiceActivityMeta(selection=currentSelection){
   return {label:'KENDİN DENE',mode:'check'};
 }
 function renderPracticeHeader(skill){
+  $('#practiceContent')?.classList.remove('reliable-count-practice');
   const total=session?.plan?.length||1;
   const activity=practiceActivityMeta();
   $('#practiceLens').textContent=`${PROFILE_META[state.profile].label.toUpperCase()} • ${skill.family.toUpperCase()}`;
@@ -9914,11 +9942,13 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
+  const reliableCount=q.skillId==='nelReliableCount10';
+  $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
