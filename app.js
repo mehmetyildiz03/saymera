@@ -2696,6 +2696,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelRoteCount20') return NEL_ROTE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelReliableCount10') return NEL_RELIABLE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelSubitise5') return NEL_SUBITISE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelConservation10') return NEL_CONSERVATION_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
