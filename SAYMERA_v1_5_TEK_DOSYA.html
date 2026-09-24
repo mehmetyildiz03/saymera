@@ -1154,6 +1154,90 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-rote-real-world{padding:13px}
 }
 
+/* v1.17.0 reliable-count Practice needs natural-height content so rich counting controls never cover the response row */
+.practice-content.reliable-count-practice{overflow:auto;display:block}
+.reliable-count-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start;padding-bottom:18px}
+.reliable-count-question-stage .reliable-count-stage{height:auto;max-height:none;overflow:hidden;place-items:start center}
+
+
+/* Reliable-count Practice can be taller than the generic fixed practice viewport.
+   Keep it in normal document flow so the response controls never sit underneath
+   the counting/cardinality surface on phone or short tablet screens. */
+.practice-content.reliable-count-practice{overflow-y:auto;display:block}
+.reliable-count-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
+.reliable-count-question-stage .reliable-count-stage{height:auto;max-height:none;min-height:0;overflow:visible;place-items:start center;padding:12px}
+.reliable-count-question-stage #patternResponseGate{position:relative;z-index:4}
+.reliable-count-question-stage .manipulative-response{position:relative;z-index:4;background:linear-gradient(180deg,rgba(247,245,239,.96),rgba(247,245,239,1));border-radius:18px;padding:4px}
+.reliable-count-question-stage .nel-reliable-object-grid{min-height:0}
+.reliable-count-question-stage .nel-reliable-cardinality-question{padding:10px}
+.reliable-count-question-stage .nel-reliable-audio-options .nel-rote-audio-card{min-height:64px}
+@media(max-width:699px){
+  .practice-content.reliable-count-practice{padding-bottom:28px}
+  .reliable-count-question-stage{gap:10px}
+  .reliable-count-question-stage .reliable-count-stage{padding:7px}
+  .reliable-count-question-stage .nel-reliable-object-grid{padding:6px}
+  .reliable-count-question-stage .nel-reliable-count-rail{min-height:48px}
+  .reliable-count-question-stage .nel-reliable-cardinality-question{gap:6px;padding:8px}
+  .reliable-count-question-stage .nel-reliable-audio-options .nel-rote-audio-card{min-height:58px}
+}
+
+/* v1.17.0 — hidden NEL preschool reliable counting reference lesson */
+.nel-reliable-lesson-stage{width:min(880px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-reliable-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-reliable-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-reliable-section-track span.active{background:var(--teal-soft);border-color:#a8d0c7;color:#17695d}
+.nel-reliable-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:4px 0}
+.nel-reliable-lesson-core{width:min(760px,100%);display:grid;justify-items:center;gap:12px}
+.nel-reliable-count-set,.nel-reliable-next-word,.nel-reliable-cardinality,.nel-reliable-order-proof{width:min(720px,100%);display:grid;justify-items:center;gap:10px;position:relative;z-index:1}
+.nel-reliable-context{padding:6px 9px;border-radius:999px;background:var(--teal-soft);font-size:8px;font-weight:950;letter-spacing:.11em;color:#17695d}
+.nel-reliable-object-grid{width:100%;min-height:158px;padding:14px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:flex;align-content:center;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.nel-reliable-object{width:82px;height:82px;border-radius:20px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;transition:.16s}
+.nel-reliable-object.counted{opacity:.62;transform:translateY(6px);background:var(--teal-soft);border-color:#9dcfc3}
+.nel-reliable-object-visual{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;font-size:34px;line-height:1;background:var(--blue-soft);color:#315f82}
+.nel-reliable-object-visual.green{background:var(--teal-soft);color:#17695d}.nel-reliable-object-visual.yellow{background:var(--sun-soft);color:#80631d}.nel-reliable-object-visual.red{background:var(--coral-soft);color:#9a5146}
+.nel-reliable-object-visual.counter,.nel-reliable-object-visual.biscuit{font-size:31px}.nel-reliable-object-visual.block{font-size:30px}.nel-reliable-object-visual.star{font-size:31px}
+.nel-reliable-count-rail{width:100%;min-height:62px;padding:9px 11px;border:1px solid var(--line);border-radius:17px;background:var(--paper);display:grid;gap:6px}
+.nel-reliable-count-rail>small{font-size:7px;font-weight:950;letter-spacing:.1em;color:var(--muted)}
+.nel-reliable-count-rail>div,.nel-reliable-pass-rail{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nel-reliable-count-rail span,.nel-reliable-pass-rail span,.nel-reliable-spoken-preview span{padding:5px 8px;border-radius:999px;background:var(--teal-soft);font-size:9px;font-weight:900;color:#17695d}
+.nel-reliable-reset,.nel-reliable-select,.nel-reliable-done{min-height:44px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);font-weight:930;color:var(--navy)}
+.nel-reliable-done,.nel-reliable-select{background:var(--navy);border-color:var(--navy);color:#fff}
+.nel-reliable-preview-grid{width:100%;display:flex;justify-content:center;gap:7px;flex-wrap:wrap;padding:12px;border:1px solid var(--line);border-radius:20px;background:var(--paper-2)}
+.nel-reliable-preview-grid>div{width:70px;height:70px;border:1px solid var(--line);border-radius:17px;background:var(--paper);display:grid;place-items:center}
+.nel-reliable-preview-grid>div.counted{background:var(--teal-soft);opacity:.68}.nel-reliable-preview-grid>div.next{border:2px solid #d8a937;background:var(--sun-soft)}
+.nel-reliable-spoken-preview{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}.nel-reliable-spoken-preview i{font-style:normal;color:var(--muted)}.nel-reliable-spoken-preview b{font-size:18px;color:var(--navy)}
+.nel-reliable-audio-options{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.nel-reliable-audio-options>div{padding:7px;border:1px solid var(--line);border-radius:17px;background:var(--paper-2);display:grid;gap:5px}.nel-reliable-audio-options>div.selected{background:var(--teal-soft);border-color:#9dcfc3}
+.nel-reliable-audio-options .nel-rote-audio-card{min-height:78px}
+.nel-reliable-cardinality-question{width:100%;padding:13px;border:1px solid var(--line);border-radius:20px;background:var(--sun-soft);display:grid;justify-items:center;gap:8px}
+.nel-reliable-cardinality-question strong{font-size:15px;color:var(--navy)}.nel-reliable-cardinality-question>small{font-size:9px;font-weight:850;color:var(--muted)}
+.nel-reliable-order-proof{grid-template-columns:1fr 1fr;align-items:start}
+.nel-reliable-order-pane{width:100%;padding:11px;border:1px solid var(--line);border-radius:20px;background:var(--paper-2);display:grid;gap:8px}
+.nel-reliable-order-pane>strong{font-size:8px;letter-spacing:.08em;color:#315f82;text-align:center}
+.nel-reliable-order-items{display:flex;justify-content:center;gap:5px;flex-wrap:wrap}
+.nel-reliable-order-object{width:58px;height:58px;border:1px solid var(--line);border-radius:15px;background:var(--paper);display:grid;place-items:center}
+.nel-reliable-order-object:disabled:not(.counted){opacity:.45}.nel-reliable-order-object.counted{background:var(--teal-soft);border-color:#9dcfc3;opacity:.65}
+.nel-reliable-order-object .nel-reliable-object-visual{width:42px;height:42px;font-size:24px}
+.nel-reliable-order-explain{grid-column:1/-1;width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:12px;border:1px solid var(--line);border-radius:20px;background:var(--paper)}
+.nel-reliable-order-explain>small{grid-column:1/-1;font-size:7px;font-weight:950;letter-spacing:.1em;color:var(--muted);text-align:center}
+.nel-reliable-order-explain>div{padding:8px;border:1px solid var(--line);border-radius:16px;background:var(--paper-2);display:grid;gap:6px}
+.nel-reliable-order-explain>div.selected{background:var(--teal-soft);border-color:#9dcfc3}.nel-reliable-order-explain p{margin:0;font-size:9px;line-height:1.35;font-weight:850}
+.nel-reliable-listen-phrase{min-height:40px;border-radius:12px;border:1px solid #afc9df;background:var(--blue-soft);color:#315f82;font-weight:900}
+.nel-reliable-principles{width:min(650px,100%);display:grid;gap:8px}.nel-reliable-principles>div{display:grid;grid-template-columns:36px 1fr 28px 1fr;gap:8px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:17px;background:var(--paper-2)}.nel-reliable-principles b{width:32px;height:32px;border-radius:10px;background:var(--teal-soft);display:grid;place-items:center;color:#17695d}.nel-reliable-principles span,.nel-reliable-principles strong{font-size:10px}.nel-reliable-principles i{font-style:normal;text-align:center;color:var(--muted)}
+.nel-reliable-help{min-height:18px;margin:0;font-size:11px;font-weight:800;color:var(--muted);text-align:center}
+.nel-reliable-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(660px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:12px;font-weight:900;text-align:center}.nel-reliable-result.revealed{opacity:1;transform:none}
+.nel-reliable-real-world{width:min(620px,100%);display:grid;grid-template-columns:42px 1fr;gap:9px 12px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2)}.nel-reliable-real-world span{width:36px;height:36px;border-radius:12px;background:var(--teal-soft);display:grid;place-items:center;font-weight:950;color:#17695d}.nel-reliable-real-world p{margin:0;font-size:12px;font-weight:850}
+@media(max-width:699px){
+  .nel-reliable-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-reliable-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}.nel-reliable-section-track span{flex:0 0 auto}
+  .nel-reliable-object-grid{min-height:132px;padding:8px;gap:5px}.nel-reliable-object{width:62px;height:62px;border-radius:16px}.nel-reliable-object-visual{width:42px;height:42px;border-radius:13px;font-size:25px}
+  .nel-reliable-count-rail{padding:7px}.nel-reliable-preview-grid{padding:8px;gap:4px}.nel-reliable-preview-grid>div{width:54px;height:54px}
+  .nel-reliable-audio-options{gap:5px}.nel-reliable-audio-options>div{padding:4px}
+  .nel-reliable-order-proof{grid-template-columns:1fr;gap:7px}.nel-reliable-order-explain{grid-column:1;grid-template-columns:1fr;gap:5px}.nel-reliable-order-explain>small{grid-column:1}
+  .nel-reliable-order-object{width:48px;height:48px}.nel-reliable-order-object .nel-reliable-object-visual{width:34px;height:34px;font-size:20px}
+  .nel-reliable-principles>div{grid-template-columns:32px 1fr 22px 1fr;padding:8px;gap:5px}.nel-reliable-principles span,.nel-reliable-principles strong{font-size:9px}
+}
+
 
 </style>
   <title>SAYMERA — Matematik Laboratuvarı</title>
@@ -1356,7 +1440,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -1608,6 +1692,22 @@ const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelReliableCount10:{
+    version:1,
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'one-to-one-count',label:'Her nesneyi bir kez say',phase:'model',representation:'build'},
+        {id:'stable-order-count',label:'Her nesneye sıradaki sayı adını ver',phase:'representation',representation:'see'},
+        {id:'cardinality-count',label:'Son sayı adının toplamı gösterdiğini kullan',phase:'symbol',representation:'symbol'},
+        {id:'order-irrelevance',label:'Farklı sıradan sayınca toplamın değişmediğini gör',phase:'reasoning',representation:'explain'},
+        {id:'transfer-daily-count',label:'Günlük nesneleri güvenilir say',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -1650,6 +1750,7 @@ const SKILLS = [
   skill('nelOrderAttributes','preschool','Özelliğe göre sırala','İlişkiler & Örüntüler','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelPatterns','preschool','Örüntüyü fark et, uzat ve kur','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelRoteCount20','preschool','Sayı adlarını 20’ye kadar sırayla söyle','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelReliableCount10','preschool','10 nesneye kadar güvenilir say','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -1973,6 +2074,13 @@ function runPedagogyStateAudit(state,now=Date.now()){
       'NEL v2 ezbere sayma becerisinin Öğren/Uygula sözleşmesi açık',
       !roteContract.provisional && roteContract.practice.sections.length===5,
       roteContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const reliableContract=lessonContractFor('nelReliableCount10');
+    add(
+      'nel-reliable-count-reference-contract',
+      'NEL v2 güvenilir sayma becerisinin dört sayma ilkesini kapsayan sözleşmesi açık',
+      !reliableContract.provisional && reliableContract.practice.sections.length===5,
+      reliableContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -2916,6 +3024,44 @@ function nelRotePhraseOptions(){
   ];
 }
 
+
+function nelReliableItems(n,prefix='counter',kind='counter'){
+  const symbols={counter:'●',apple:'🍎',block:'■',star:'★',biscuit:'●'};
+  return Array.from({length:Number(n)},(_,index)=>({
+    id:'reliable-'+prefix+'-'+n+'-'+(index+1),
+    kind,
+    symbol:symbols[kind]||'●',
+    tone:['blue','green','yellow','red'][index%4],
+    index:index+1
+  }));
+}
+function nelReliableCases(){
+  return [
+    {id:'count-4',n:4,kind:'counter',items:nelReliableItems(4,'a','counter')},
+    {id:'count-5',n:5,kind:'block',items:nelReliableItems(5,'b','block')},
+    {id:'count-6',n:6,kind:'apple',items:nelReliableItems(6,'c','apple')},
+    {id:'count-7',n:7,kind:'star',items:nelReliableItems(7,'d','star')},
+    {id:'count-8',n:8,kind:'counter',items:nelReliableItems(8,'e','counter')},
+    {id:'count-9',n:9,kind:'block',items:nelReliableItems(9,'f','block')},
+    {id:'count-10',n:10,kind:'biscuit',items:nelReliableItems(10,'g','biscuit')}
+  ];
+}
+function nelReliableCaseForN(n){ return nelReliableCases().find(x=>x.n===Number(n))||nelReliableCases().at(-1); }
+function nelReliableShuffledItems(countCase,rng){ return shuffled([...(countCase.items||[])],rng); }
+function nelReliablePhraseOptions(){
+  return [
+    {id:'same',speech:'Nereden başlarsak başlayalım, her nesneyi bir kez sayarsak toplam aynı kalır.'},
+    {id:'more',speech:'Sağdan başlayınca nesne sayısı artar.'},
+    {id:'less',speech:'Soldan başlayınca nesne sayısı azalır.'},
+    {id:'random',speech:'Saymaya başladığımız yer toplamı değiştirir.'}
+  ];
+}
+function nelReliableNumberOptions(answerN,rng){
+  const pool=[answerN,answerN-1,answerN+1,answerN+2].filter(n=>n>=1&&n<=10);
+  for(let n=1;pool.length<4&&n<=10;n++) if(!pool.includes(n)) pool.push(n);
+  return shuffled([...new Set(pool)].slice(0,4).map(n=>nelRoteCountItem(n)),rng);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -3130,6 +3276,7 @@ function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelOrderAttributes') return make('nel-ordering-by-attribute-or-event',nelOrderCases());
   if(skillId==='nelPatterns') return make('nel-repeating-patterns',nelPatternCases());
   if(skillId==='nelRoteCount20') return make('nel-spoken-number-sequence-to-20',nelRoteCases());
+  if(skillId==='nelReliableCount10') return make('nel-reliable-counting-to-10',nelReliableCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -3459,6 +3606,49 @@ function genNelRoteCount20(rep,d,rng,concept){
     taskKind:'nel-rote-transfer-game',taskLabel:'Sayı adlarının sırasını harekete taşı',
     visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'HAREKETLE İLERİ SAY'},
     hint:'Her harekette sayı adlarının ileri doğru sabit sırasını sürdür.',explain:'Sayı adlarının sabit sırası oyun, tekerleme ve hareketlerde de kullanılabilir.'
+  });
+}
+
+
+function genNelReliableCount10(rep,d,rng,concept){
+  const c=concept?.skillId==='nelReliableCount10'?concept:createConceptInstance('nelReliableCount10',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    return qTask('nelReliableCount10','build','Her nesneye yalnız bir kez dokunarak hepsini say.',String(x.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(x.n),checkLabel:'Saymamı kontrol et'},{
+      taskKind:'nel-reliable-one-to-one',taskLabel:'Her nesneyi tam bir kez say',
+      visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(x,rng),context:'counter-tray',speakCount:true},
+      hint:'Saydığın nesne işaretlenir. Aynı nesneye ikinci kez sayı adı verme.',explain:'Her nesne yalnız bir sayı adıyla eşleşti ve hiçbir nesne atlanmadı.'
+    });
+  }
+  if(rep==='see'){
+    const y=c.symbol, counted=Math.max(1,y.n-2), answer=counted+1;
+    return qTask('nelReliableCount10','see','Bu nesneleri sayarken sıradaki nesneye hangi sayı adını vermeliyiz?','rote-'+answer,{kind:'manipulative',interaction:'nel-reliable-next-word',expectedValue:'rote-'+answer,checkLabel:'Sayı adımı kontrol et'},{
+      taskKind:'nel-reliable-stable-order',taskLabel:'Sabit sayı adı sırasını nesnelere uygula',
+      visual:{type:'nel-reliable-next-word',items:y.items,counted,options:nelReliableNumberOptions(answer,rng)},
+      hint:'Her nesne bir sonraki sayı adını alır; sayı adlarının sırası değişmez.',explain:trNumberWord(answer)+' sıradaki sayı adıdır.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelReliableCount10','symbol','Nesneleri say. Son söylediğin sayı adı toplamı gösterir. Toplam hangisi?',String(y.n)+'|rote-'+y.n,{kind:'manipulative',interaction:'nel-reliable-cardinality',expectedValue:String(y.n)+'|rote-'+y.n,checkLabel:'Toplamımı kontrol et'},{
+      taskKind:'nel-reliable-cardinality',taskLabel:'Son sayı adını toplam olarak kullan',
+      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(y,rng),options:nelReliableNumberOptions(y.n,rng)},
+      hint:'Önce her nesneyi bir kez say. Son söylediğin sayı adı, kümede kaç nesne olduğunu söyler.',explain:'Saymada son sayı adı kümedeki toplam nesne sayısını gösterir.'
+    });
+  }
+  if(rep==='explain'){
+    const y=c.anchor;
+    return qTask('nelReliableCount10','explain','Aynı nesneleri iki farklı yönden say. Neden toplam değişmiyor?',String(y.n)+'|'+String(y.n)+'|same',{kind:'manipulative',interaction:'nel-reliable-order-proof',expectedValue:String(y.n)+'|'+String(y.n)+'|same',checkLabel:'Açıklamamı kontrol et'},{
+      taskKind:'nel-reliable-order-irrelevance',taskLabel:'Sayma yönünün toplamı değiştirmediğini göster',
+      visual:{type:'nel-reliable-order-proof',items:y.items,options:nelReliablePhraseOptions()},
+      hint:'Her iki saymada da aynı nesnelerin her birini tam bir kez say.',explain:'Nesneler farklı sıradan sayılabilir; her nesne bir kez sayıldığında toplam değişmez.'
+    });
+  }
+  const daily=nelReliableCases().filter(z=>z.n>=6), y=daily[Math.floor(rng()*daily.length)]||daily[0];
+  return qTask('nelReliableCount10','transfer','Günlük nesneleri bir tabağa taşırken her birini yalnız bir kez say.',String(y.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(y.n),checkLabel:'Günlük saymamı kontrol et'},{
+    taskKind:'nel-reliable-transfer',taskLabel:'Güvenilir saymayı günlük nesnelere taşı',
+    visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(y,rng),context:'snack-plate',speakCount:true},
+    hint:'Bir nesneyi sayınca tabağa taşı; böylece hangilerini saydığını takip edebilirsin.',explain:'Nesneleri birer birer taşıyıp her birini yalnız bir kez saymak güvenilir saymayı destekler.'
   });
 }
 
@@ -5207,6 +5397,7 @@ const GENERATORS={
   nelOrderAttributes:genNelOrderAttributes,
   nelPatterns:genNelPatterns,
   nelRoteCount20:genNelRoteCount20,
+  nelReliableCount10:genNelReliableCount10,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -6021,6 +6212,49 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 
 
+
+function nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelReliableCases(), x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='one-to-one-count'){
+    return qTask('nelReliableCount10','build','Her nesneyi tam bir kez say.',String(x.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(x.n),checkLabel:'Saymamı kontrol et'},{
+      taskKind:'nel-practice-reliable-one-'+taskIndex,taskLabel:'Bire bir eşleme ile say',
+      visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(x,rng),context:'move-to-mat',speakCount:true},
+      hint:'Saydığın nesneyi sayma alanına taşı; hiçbirini atlama veya iki kez sayma.',explain:'Her nesne bir sayı adıyla eşleşti.'
+    });
+  }
+  if(sectionId==='stable-order-count'){
+    const counted=Math.max(1,Math.min(x.n-1,2+(taskIndex%Math.max(1,x.n-2)))), answer=counted+1;
+    return qTask('nelReliableCount10','see','Saymaya devam ederken sıradaki nesneye hangi sayı adını vermelisin?','rote-'+answer,{kind:'manipulative',interaction:'nel-reliable-next-word',expectedValue:'rote-'+answer,checkLabel:'Sıramı kontrol et'},{
+      taskKind:'nel-practice-reliable-stable-'+taskIndex,taskLabel:'Sabit sayı sırasını saymaya uygula',
+      visual:{type:'nel-reliable-next-word',items:x.items,counted,options:nelReliableNumberOptions(answer,rng)},
+      hint:'Sayılmış nesnelerin sayı adlarını dinle; bir sonraki adı seç.',explain:'Sayarken sayı adları sabit sırayı korur.'
+    });
+  }
+  if(sectionId==='cardinality-count'){
+    return qTask('nelReliableCount10','symbol','Bütün nesneleri say ve son sayı adını toplam olarak göster.',String(x.n)+'|rote-'+x.n,{kind:'manipulative',interaction:'nel-reliable-cardinality',expectedValue:String(x.n)+'|rote-'+x.n,checkLabel:'Toplamımı kontrol et'},{
+      taskKind:'nel-practice-reliable-cardinality-'+taskIndex,taskLabel:'Son sayı adını toplam olarak kullan',
+      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(x,rng),options:nelReliableNumberOptions(x.n,rng)},
+      hint:'Her nesne sayıldıktan sonra en son söylediğin sayı adını hatırla.',explain:'Son sayı adı, kümenin toplam miktarını söyler.'
+    });
+  }
+  if(sectionId==='order-irrelevance'){
+    return qTask('nelReliableCount10','explain','Aynı kümeyi iki yönden say ve doğru açıklamayı seç.',String(x.n)+'|'+String(x.n)+'|same',{kind:'manipulative',interaction:'nel-reliable-order-proof',expectedValue:String(x.n)+'|'+String(x.n)+'|same',checkLabel:'İki saymamı kontrol et'},{
+      taskKind:'nel-practice-reliable-order-'+taskIndex,taskLabel:'Sayma sırasından bağımsız toplamı göster',
+      visual:{type:'nel-reliable-order-proof',items:x.items,options:nelReliablePhraseOptions()},
+      hint:'İlk turda soldan, ikinci turda sağdan başla. İki turda da her nesneyi bir kez say.',explain:'Sayma başlangıcı ve yönü değişse de aynı kümenin toplamı değişmez.'
+    });
+  }
+  if(sectionId==='transfer-daily-count'){
+    const y=cases[(taskIndex+3)%cases.length];
+    return qTask('nelReliableCount10','transfer','Günlük nesneleri sayma alanına birer birer taşı ve hepsini say.',String(y.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(y.n),checkLabel:'Günlük saymamı kontrol et'},{
+      taskKind:'nel-practice-reliable-transfer-'+taskIndex,taskLabel:'Güvenilir saymayı günlük duruma taşı',
+      visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(y,rng),context:'daily-give',speakCount:true},
+      hint:'Birini sayınca ayır; böylece sayılan ve sayılmayan nesneleri karıştırmazsın.',explain:'Günlük hayatta nesneleri ayırarak saymak bire bir eşlemeyi görünür kılar.'
+    });
+  }
+  throw new Error('Unknown nelReliableCount10 practice section: '+sectionId);
+}
+
 function nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelRoteCases(), forward=cases.filter(x=>x.direction==='forward'), backward=cases.filter(x=>x.direction==='backward');
   if(sectionId==='recite-forward-10'){
@@ -6356,7 +6590,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelReliableCount10') q=nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPatterns') q=nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelOrderAttributes') q=nelOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelCompareAttributes') q=nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -6421,6 +6656,7 @@ const CONCEPT_KEYS={
   nelOrderAttributes:'nel-ordering-by-attribute-or-event',
   nelPatterns:'nel-repeating-patterns',
   nelRoteCount20:'nel-spoken-number-sequence-to-20',
+  nelReliableCount10:'nel-reliable-counting-to-10',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
@@ -6650,7 +6886,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -8370,6 +8606,149 @@ function renderNelRoteLessonStep(skill,index=null){
   const next=$('#nelRoteLessonNext');wireNelRoteLessonStep(step,next);next?.addEventListener('click',()=>completeNelRoteLessonStep(skill,at));
 }
 
+
+const NEL_RELIABLE_LESSON_VERSION=1;
+const NEL_RELIABLE_SECTIONS=['BİR KEZ SAY','SIRAYI KORU','TOPLAMI BUL','FARKLI YÖNDEN SAY','TAŞI'];
+const nelReliableLessonNames=['','bir','iki','üç','dört','beş','altı','yedi','sekiz','dokuz','on'];
+function nelReliableLessonItem(n,index,prefix='lesson-counter',kind='counter'){
+  return {id:prefix+'-'+n+'-'+index,index,kind,symbol:{counter:'●',apple:'🍎',block:'■',star:'★',biscuit:'●'}[kind]||'●',tone:['blue','green','yellow','red'][(index-1)%4]};
+}
+function nelReliableLessonSet(n,prefix='lesson-counter',kind='counter'){ return Array.from({length:n},(_,i)=>nelReliableLessonItem(n,i+1,prefix,kind)); }
+function nelReliableLessonAudioOptions(answer){
+  return [answer,answer-1,answer+1,answer+2,1,5,10].filter((n,i,a)=>n>=1&&n<=10&&a.indexOf(n)===i).slice(0,4).map(n=>({id:'rote-'+n,n,name:nelReliableLessonNames[n]}));
+}
+const NEL_RELIABLE_ORDER_PHRASES=[
+  {id:'same',speech:'Nereden başlarsak başlayalım, her nesneyi bir kez sayarsak toplam aynı kalır.'},
+  {id:'more',speech:'Sağdan başlayınca nesne sayısı artar.'},
+  {id:'less',speech:'Soldan başlayınca nesne sayısı azalır.'},
+  {id:'random',speech:'Saymaya başladığımız yer toplamı değiştirir.'}
+];
+const NEL_RELIABLE_LESSON_STEPS=[
+  {id:'one-word-one-object',section:'BİR KEZ SAY',kind:'count',items:nelReliableLessonSet(4,'lesson-one','counter'),title:'Her nesneye bir sayı adı ver.',body:'Bir nesneye dokunduğunda o nesne sayılmış olur. Aynı nesneyi ikinci kez saymadan bütün nesneleri tamamla.',result:'Her nesne tam bir kez sayıldı: bir nesne ↔ bir sayı adı.'},
+  {id:'move-count-five',section:'BİR KEZ SAY',kind:'count',items:nelReliableLessonSet(5,'lesson-move','block'),title:'Saydığını ayırarak takip et.',body:'Her bloğa bir kez dokun. Sayılan bloklar ayrı görünür; böylece atlanan veya iki kez sayılan nesne kalmaz.',result:'Sayılmış ve sayılmamış nesneleri ayırmak bire bir eşlemeyi görünür kılar.'},
+  {id:'stable-order-next',section:'SIRAYI KORU',kind:'next-word',items:nelReliableLessonSet(5,'lesson-stable','star'),counted:3,answer:'rote-4',options:nelReliableLessonAudioOptions(4),title:'Sıradaki nesne hangi sayı adını alır?',body:'İlk üç nesne bir, iki, üç diye sayıldı. Dördüncü nesneye verilecek sayı adını dinleyerek seç.',result:'Sayı adları sayarken de sabit sırada ilerler: üçten sonra dört gelir.'},
+  {id:'fixed-count-six',section:'BİR KEZ SAY',kind:'count',items:nelReliableLessonSet(6,'lesson-fixed','apple'),title:'Yerinden oynamayan nesneleri de güvenilir say.',body:'Elmalara birer kez dokun. İşaretlenen nesneye yeniden dokunmadan bütün kümeyi tamamla.',result:'Nesneler yer değiştirmese de her birini bir kez işaretleyerek güvenilir sayabiliriz.'},
+  {id:'count-to-ten',section:'BİR KEZ SAY',kind:'count',items:nelReliableLessonSet(10,'lesson-ten','counter'),title:'Güvenilir saymayı ona kadar götür.',body:'On nesnenin her birine yalnız bir kez dokun ve sayı adı zincirini sürdür.',result:'On nesnenin tamamı, her biri bir kez sayılarak izlendi.'},
+  {id:'cardinality-seven',section:'TOPLAMI BUL',kind:'cardinality',items:nelReliableLessonSet(7,'lesson-cardinality','star'),answer:'7|rote-7',options:nelReliableLessonAudioOptions(7),title:'Son sayı adı toplamı söyler.',body:'Önce bütün yıldızları birer kez say. Sonra en son söylediğin sayı adını toplam olarak seç.',result:'Son söylediğin sayı adı, kümede kaç nesne olduğunu gösterir.'},
+  {id:'order-left-right',section:'FARKLI YÖNDEN SAY',kind:'order-proof',items:nelReliableLessonSet(6,'lesson-order-a','block'),answer:'6|6|same',options:NEL_RELIABLE_ORDER_PHRASES,title:'Aynı kümeyi iki yönden say.',body:'İlk turda soldan sağa, ikinci turda sağdan sola say. Sonra iki sonucun ilişkisini açıkla.',result:'Başlangıç ve yön değişti; aynı altı nesne sayıldığı için toplam değişmedi.'},
+  {id:'order-eight',section:'FARKLI YÖNDEN SAY',kind:'order-proof',items:nelReliableLessonSet(8,'lesson-order-b','counter'),answer:'8|8|same',options:NEL_RELIABLE_ORDER_PHRASES,title:'Daha büyük bir kümeyle yeniden dene.',body:'Sekiz nesneyi iki farklı yönden say ve toplamın aynı kaldığını göster.',result:'Nesnelerin sayılma sırası toplam miktarı değiştirmez.'},
+  {id:'four-principles',section:'TOPLAMI BUL',kind:'principles',title:'Güvenilir saymanın dört fikrini bir araya getir.',body:'Her nesne bir kez sayılır; sayı adları sabit sıradadır; son sayı adı toplamı söyler; sayma yönü toplamı değiştirmez.',result:'Bu dört fikir birlikte güvenilir saymayı oluşturur.'},
+  {id:'real-world-reliable',section:'TAŞI',kind:'real-world',title:'Güvenilir saymayı günlük hayata taşı.',body:'Yakınında 6–10 küçük nesne bul. Bir nesneyi sayınca başka bir yere taşı veya işaretle; her birini bir kez say ve son sayı adını toplam olarak söyle.',result:'Gerçek nesneleri ayırarak saymak, hangi nesnenin sayıldığını takip etmeyi kolaylaştırır.'}
+];
+function nelReliableSectionTrack(step){ return '<div class="nel-reliable-section-track">'+NEL_RELIABLE_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>'; }
+function nelReliableObjectMarkup(item={},label='sayılacak nesne'){
+  return '<span class="nel-reliable-object-visual '+esc(item.kind||'counter')+' '+esc(item.tone||'blue')+'" role="img" aria-label="'+esc(label)+'">'+esc(item.symbol||'●')+'</span>';
+}
+function nelReliableCountSetVisual(v={}){
+  const context={'counter-tray':'SAYMA TEPSİSİ','move-to-mat':'SAYMA ALANI','snack-plate':'ATIŞTIRMALIK TABAĞI','daily-give':'GÜNLÜK SAYMA'}[v.context]||'NESNELERİ SAY';
+  return '<div class="nel-reliable-count-set" data-context="'+esc(v.context||'')+'"><span class="nel-reliable-context">'+esc(context)+'</span>'+
+    '<div class="nel-reliable-object-grid">'+(v.items||[]).map(item=>'<button type="button" class="nel-reliable-object" data-reliable-item="'+esc(item.id)+'">'+nelReliableObjectMarkup(item)+'</button>').join('')+'</div>'+
+    '<div class="nel-reliable-count-rail"><small>SÖYLENEN SAYI ADLARI</small><div data-reliable-rail></div></div>'+
+    '<button type="button" class="nel-reliable-reset">Baştan say</button></div>';
+}
+function nelReliableNextWordVisual(v={}){
+  const counted=Math.max(0,Number(v.counted)||0),items=v.items||[];
+  return '<div class="nel-reliable-next-word" data-counted="'+counted+'">'+
+    '<div class="nel-reliable-preview-grid">'+items.map((item,index)=>'<div class="'+(index<counted?'counted':index===counted?'next':'')+'">'+nelReliableObjectMarkup(item,index<counted?'sayılmış nesne':index===counted?'sıradaki nesne':'henüz sayılmamış nesne')+'</div>').join('')+'</div>'+
+    '<div class="nel-reliable-spoken-preview">'+Array.from({length:counted},(_,i)=>'<span>'+esc(nelReliableLessonNames[i+1])+'</span>').join('<i>→</i>')+'<i>→</i><b>?</b></div>'+
+    '<div class="nel-reliable-audio-options">'+(v.options||[]).map(item=>'<div data-reliable-option="'+esc(item.id)+'">'+nelRoteAudioCard(item,false)+'<button type="button" class="nel-reliable-select" data-reliable-next-choice="'+esc(item.id)+'">Bunu seç</button></div>').join('')+'</div></div>';
+}
+function nelReliableCardinalityVisual(v={}){
+  return '<div class="nel-reliable-cardinality" data-total="'+(v.items||[]).length+'">'+
+    nelReliableCountSetVisual({items:v.items,context:'counter-tray'})+
+    '<div class="nel-reliable-cardinality-question"><strong>Toplam kaç nesne?</strong><small>Son söylediğin sayı adını seç.</small><div class="nel-reliable-audio-options">'+(v.options||[]).map(item=>'<div data-reliable-card-option="'+esc(item.id)+'">'+nelRoteAudioCard(item,false)+'<button type="button" class="nel-reliable-select" data-reliable-card-choice="'+esc(item.id)+'" disabled>Bu toplam</button></div>').join('')+'</div></div>'+
+  '</div>';
+}
+function nelReliableOrderProofVisual(v={}){
+  const items=v.items||[],reverse=[...items].reverse();
+  const pane=(side,list,label)=>'<section class="nel-reliable-order-pane" data-reliable-pass="'+side+'"><strong>'+esc(label)+'</strong><div class="nel-reliable-order-items">'+list.map((item,index)=>'<button type="button" class="nel-reliable-order-object" data-reliable-order-item="'+esc(item.id)+'" data-seq="'+index+'" disabled>'+nelReliableObjectMarkup(item)+'</button>').join('')+'</div><div class="nel-reliable-pass-rail" data-pass-rail></div></section>';
+  return '<div class="nel-reliable-order-proof" data-total="'+items.length+'">'+pane('left',items,'1. TUR · SOLDAN SAĞA')+pane('right',reverse,'2. TUR · SAĞDAN SOLA')+
+    '<div class="nel-reliable-order-explain"><small>İKİ TURDAN SONRA</small>'+(v.options||[]).map(item=>'<div data-reliable-order-option="'+esc(item.id)+'"><button type="button" class="nel-reliable-listen-phrase" data-rote-speech="'+esc(item.speech)+'">🔊 Dinle</button><p>'+esc(item.speech)+'</p><button type="button" class="nel-reliable-select" data-reliable-order-choice="'+esc(item.id)+'" disabled>Bu açıklama</button></div>').join('')+'</div></div>';
+}
+function nelReliablePrinciplesVisual(){
+  const rows=[['1','Bir nesne','bir sayı adı'],['2','Sayı adları','sabit sıra'],['3','Son sayı adı','toplam'],['4','Farklı sayma yönü','aynı toplam']];
+  return '<div class="nel-reliable-principles">'+rows.map(row=>'<div><b>'+row[0]+'</b><span>'+esc(row[1])+'</span><i>→</i><strong>'+esc(row[2])+'</strong></div>').join('')+'</div>';
+}
+function nelReliableReadCountSet(root){
+  if(!root)return null;const all=root.querySelectorAll('[data-reliable-item]').length,counted=root.querySelectorAll('[data-reliable-item].counted').length;return all&&all===counted?String(counted):null;
+}
+function nelReliableResetCountSet(root){
+  if(!root)return;root.querySelectorAll('[data-reliable-item]').forEach(x=>{x.classList.remove('counted');x.disabled=false;delete x.dataset.countIndex;});const rail=root.querySelector('[data-reliable-rail]');if(rail)rail.innerHTML='';
+}
+function bindNelReliableCountSet(root,onChange,blocked=()=>false){
+  if(!root)return;
+  root.querySelectorAll('[data-reliable-item]').forEach(button=>button.addEventListener('click',()=>{
+    if(blocked()||button.classList.contains('counted'))return;
+    const count=root.querySelectorAll('[data-reliable-item].counted').length+1;
+    button.classList.add('counted');button.dataset.countIndex=String(count);button.disabled=true;
+    const rail=root.querySelector('[data-reliable-rail]');if(rail)rail.insertAdjacentHTML('beforeend','<span>'+esc(nelReliableLessonNames[count])+'</span>');
+    speak(nelReliableLessonNames[count]);onChange?.();
+  }));
+  root.querySelector('.nel-reliable-reset')?.addEventListener('click',()=>{if(blocked())return;nelReliableResetCountSet(root);onChange?.();});
+}
+function bindNelReliableNextWord(root,onChange,blocked=()=>false){
+  if(!root)return;bindNelRoteSpeech(root);
+  root.querySelectorAll('[data-reliable-next-choice]').forEach(button=>button.addEventListener('click',()=>{if(blocked())return;root.querySelectorAll('[data-reliable-option]').forEach(x=>x.classList.remove('selected'));button.closest('[data-reliable-option]')?.classList.add('selected');root.dataset.reliableSelected=button.dataset.reliableNextChoice;onChange?.();}));
+}
+function bindNelReliableCardinality(root,onChange,blocked=()=>false){
+  if(!root)return;const set=root.querySelector('.nel-reliable-count-set');
+  bindNelReliableCountSet(set,()=>{
+    const done=nelReliableReadCountSet(set)!=null;root.querySelectorAll('[data-reliable-card-choice]').forEach(x=>x.disabled=!done);onChange?.();
+  },blocked);
+  bindNelRoteSpeech(root);
+  root.querySelectorAll('[data-reliable-card-choice]').forEach(button=>button.addEventListener('click',()=>{if(blocked()||button.disabled)return;root.querySelectorAll('[data-reliable-card-option]').forEach(x=>x.classList.remove('selected'));button.closest('[data-reliable-card-option]')?.classList.add('selected');root.dataset.reliableSelected=button.dataset.reliableCardChoice;onChange?.();}));
+}
+function bindNelReliableOrderProof(root,onChange,blocked=()=>false){
+  if(!root)return;bindNelRoteSpeech(root);
+  const left=root.querySelector('[data-reliable-pass="left"]'),right=root.querySelector('[data-reliable-pass="right"]');
+  const setupPane=(pane,onComplete)=>{
+    const buttons=[...pane.querySelectorAll('[data-reliable-order-item]')];buttons.forEach(x=>x.disabled=true);if(buttons[0])buttons[0].disabled=false;
+    buttons.forEach((button,index)=>button.addEventListener('click',()=>{
+      if(blocked()||button.classList.contains('counted'))return;
+      button.classList.add('counted');button.disabled=true;const count=index+1;pane.querySelector('[data-pass-rail]')?.insertAdjacentHTML('beforeend','<span>'+esc(nelReliableLessonNames[count])+'</span>');speak(nelReliableLessonNames[count]);
+      if(buttons[index+1])buttons[index+1].disabled=false;else{pane.dataset.complete='true';onComplete?.();}onChange?.();
+    }));
+  };
+  setupPane(left,()=>{const first=right?.querySelector('[data-reliable-order-item]');if(first)first.disabled=false;});
+  const rightButtons=[...right.querySelectorAll('[data-reliable-order-item]')];rightButtons.forEach(x=>x.disabled=true);
+  rightButtons.forEach((button,index)=>button.addEventListener('click',()=>{
+    if(blocked()||button.classList.contains('counted')||button.disabled)return;
+    button.classList.add('counted');button.disabled=true;const count=index+1;right.querySelector('[data-pass-rail]')?.insertAdjacentHTML('beforeend','<span>'+esc(nelReliableLessonNames[count])+'</span>');speak(nelReliableLessonNames[count]);
+    if(rightButtons[index+1])rightButtons[index+1].disabled=false;else{right.dataset.complete='true';root.querySelectorAll('[data-reliable-order-choice]').forEach(x=>x.disabled=false);}onChange?.();
+  }));
+  root.querySelectorAll('[data-reliable-order-choice]').forEach(button=>button.addEventListener('click',()=>{if(blocked()||button.disabled)return;root.querySelectorAll('[data-reliable-order-option]').forEach(x=>x.classList.remove('selected'));button.closest('[data-reliable-order-option]')?.classList.add('selected');root.dataset.reliableSelected=button.dataset.reliableOrderChoice;onChange?.();}));
+}
+function nelReliableReadCardinality(root){const set=root?.querySelector('.nel-reliable-count-set'),count=nelReliableReadCountSet(set),choice=root?.dataset.reliableSelected;return count&&choice?count+'|'+choice:null;}
+function nelReliableReadOrderProof(root){if(!root)return null;const left=root.querySelector('[data-reliable-pass="left"]')?.dataset.complete==='true',right=root.querySelector('[data-reliable-pass="right"]')?.dataset.complete==='true',choice=root.dataset.reliableSelected,total=root.dataset.total;return left&&right&&choice?total+'|'+total+'|'+choice:null;}
+function nelReliableLessonCore(step){
+  if(step.kind==='count')return '<div class="nel-reliable-lesson-core">'+nelReliableCountSetVisual({items:step.items,context:step.id==='move-count-five'?'move-to-mat':'counter-tray'})+'<p class="nel-reliable-help" id="nelReliableHelp">Her nesneye yalnız bir kez dokun.</p><div class="nel-reliable-result" id="nelReliableResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='next-word')return '<div class="nel-reliable-lesson-core">'+nelReliableNextWordVisual(step)+'<p class="nel-reliable-help" id="nelReliableHelp"></p><div class="nel-reliable-result" id="nelReliableResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='cardinality')return '<div class="nel-reliable-lesson-core">'+nelReliableCardinalityVisual(step)+'<p class="nel-reliable-help" id="nelReliableHelp">Önce bütün nesneleri say.</p><div class="nel-reliable-result" id="nelReliableResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='order-proof')return '<div class="nel-reliable-lesson-core">'+nelReliableOrderProofVisual(step)+'<p class="nel-reliable-help" id="nelReliableHelp">İki turu da tamamla.</p><div class="nel-reliable-result" id="nelReliableResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='principles')return '<div class="nel-reliable-lesson-core">'+nelReliablePrinciplesVisual()+'<button type="button" class="nel-reliable-done" id="nelReliableDone">Dört fikri gördüm</button><div class="nel-reliable-result" id="nelReliableResult">'+esc(step.result)+'</div></div>';
+  return '<div class="nel-reliable-lesson-core"><div class="nel-reliable-real-world"><span>1</span><p>6–10 küçük nesne bul.</p><span>2</span><p>Bir nesneyi sayınca başka bir yere taşı veya işaretle.</p><span>3</span><p>Son söylediğin sayı adını toplam olarak söyle.</p></div><button type="button" class="nel-reliable-done" id="nelReliableDone">Günlük saymamı yaptım</button><div class="nel-reliable-result" id="nelReliableResult">'+esc(step.result)+'</div></div>';
+}
+function revealNelReliableResult(){ $('#nelReliableResult')?.classList.add('revealed'); }
+function wireNelReliableLessonStep(step,next){
+  const good=()=>{revealNelReliableResult();next.disabled=false;};
+  if(step.kind==='count'){const root=$('.nel-reliable-count-set');bindNelReliableCountSet(root,()=>{if(nelReliableReadCountSet(root)!=null){root.classList.add('complete');$('#nelReliableHelp').textContent='';good();}});return;}
+  if(step.kind==='next-word'){const root=$('.nel-reliable-next-word');bindNelReliableNextWord(root,()=>{if(root.dataset.reliableSelected!==step.answer){$('#nelReliableHelp').textContent='Sayı adlarının sabit sırasını yeniden dinle.';return;}root.querySelectorAll('button').forEach(x=>x.disabled=true);$('#nelReliableHelp').textContent='';good();});return;}
+  if(step.kind==='cardinality'){const root=$('.nel-reliable-cardinality');bindNelReliableCardinality(root,()=>{const value=nelReliableReadCardinality(root);if(!value)return;if(value!==step.answer){$('#nelReliableHelp').textContent='Son söylediğin sayı adını toplam olarak seç.';return;}root.querySelectorAll('button').forEach(x=>x.disabled=true);$('#nelReliableHelp').textContent='';good();});return;}
+  if(step.kind==='order-proof'){const root=$('.nel-reliable-order-proof');bindNelReliableOrderProof(root,()=>{const value=nelReliableReadOrderProof(root);if(!value)return;if(value!==step.answer){$('#nelReliableHelp').textContent='Aynı nesneler iki turda da birer kez sayıldı. Toplam ilişkisini yeniden düşün.';return;}root.querySelectorAll('button').forEach(x=>x.disabled=true);$('#nelReliableHelp').textContent='';good();});return;}
+  $('#nelReliableDone')?.addEventListener('click',()=>{$('#nelReliableDone').disabled=true;good();});
+}
+function completeNelReliableLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_RELIABLE_LESSON_VERSION;
+  if(next>=NEL_RELIABLE_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}saveState();session.lessonStepIndex=next;renderNelReliableLessonStep(skill,next);
+}
+function renderNelReliableLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_RELIABLE_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_RELIABLE_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_RELIABLE_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);$('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_RELIABLE_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_RELIABLE_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-reliable-lesson-stage" data-nel-reliable-step="'+esc(step.id)+'">'+nelReliableSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_RELIABLE_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-reliable-lesson-visual">'+nelReliableLessonCore(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelReliableLessonNext" disabled>'+(at===NEL_RELIABLE_LESSON_STEPS.length-1?'Sayı hissi yoluna devam':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelReliableLessonNext');wireNelReliableLessonStep(step,next);next?.addEventListener('click',()=>completeNelReliableLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -8945,6 +9324,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelOrderAttributes') return NEL_ORDER_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelPatterns') return NEL_PATTERN_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelRoteCount20') return NEL_ROTE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelReliableCount10') return NEL_RELIABLE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -9329,6 +9709,9 @@ function startSession(){
     focus.state.learningCycle.lessonVersion=NEL_ROTE_LESSON_VERSION;
     saveState();
   }
+  if(focus.skill.id==='nelReliableCount10'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NEL_RELIABLE_LESSON_VERSION){
+    focus.state.learningCycle.lessonStepIndex=0;focus.state.learningCycle.lessonTaughtAt=0;focus.state.learningCycle.lessonVersion=NEL_RELIABLE_LESSON_VERSION;saveState();
+  }
   if(focus.skill.id==='number1000'&&!focus.state.learningCycle?.firstCycleCompletedAt&&focus.state.learningCycle?.lessonVersion!==NUMBER1000_LESSON_VERSION){
     focus.state.learningCycle.lessonStepIndex=0;
     focus.state.learningCycle.lessonTaughtAt=0;
@@ -9480,6 +9863,7 @@ function practiceActivityMeta(selection=currentSelection){
   return {label:'KENDİN DENE',mode:'check'};
 }
 function renderPracticeHeader(skill){
+  $('#practiceContent')?.classList.remove('reliable-count-practice');
   const total=session?.plan?.length||1;
   const activity=practiceActivityMeta();
   $('#practiceLens').textContent=`${PROFILE_META[state.profile].label.toUpperCase()} • ${skill.family.toUpperCase()}`;
@@ -9521,6 +9905,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelOrderAttributes'){ renderNelOrderLessonStep(skill); return; }
   if(skill.id==='nelPatterns'){ renderNelPatternLessonStep(skill); return; }
   if(skill.id==='nelRoteCount20'){ renderNelRoteLessonStep(skill); return; }
+  if(skill.id==='nelReliableCount10'){ renderNelReliableLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -9562,11 +9947,13 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
+  const reliableCount=q.skillId==='nelReliableCount10';
+  $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
@@ -9622,6 +10009,10 @@ function wireResponse(q){
 function wireManipulator(q){
   const interaction=q.response?.interaction;
   if(!interaction) return;
+  if(interaction==='nel-reliable-count-set') bindNelReliableCountSet($('.nel-reliable-count-set'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-reliable-next-word') bindNelReliableNextWord($('.nel-reliable-next-word'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-reliable-cardinality') bindNelReliableCardinality($('.nel-reliable-cardinality'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-reliable-order-proof') bindNelReliableOrderProof($('.nel-reliable-order-proof'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-rote-sequence'){
     const root=$('.nel-rote-sequence-builder');
     bindNelRoteSequenceRoot(root,()=>updateManipulatorStatus(q),()=>answered);
@@ -9971,6 +10362,10 @@ function bindFractionPaint(root,q){
 
 function readManipulatorValue(q){
   const interaction=q.response?.interaction;
+  if(interaction==='nel-reliable-count-set') return nelReliableReadCountSet($('.nel-reliable-count-set'));
+  if(interaction==='nel-reliable-next-word') return $('.nel-reliable-next-word')?.dataset.reliableSelected ?? null;
+  if(interaction==='nel-reliable-cardinality') return nelReliableReadCardinality($('.nel-reliable-cardinality'));
+  if(interaction==='nel-reliable-order-proof') return nelReliableReadOrderProof($('.nel-reliable-order-proof'));
   if(interaction==='nel-rote-sequence') return nelRoteReadSequenceRoot($('.nel-rote-sequence-builder'));
   if(interaction==='nel-rote-audio-choice') return $('.nel-rote-audio-choice')?.dataset.roteSelected ?? null;
   if(interaction==='nel-rote-phrase-choice') return $('.nel-rote-phrase-choice')?.dataset.roteSelected ?? null;
@@ -10055,7 +10450,13 @@ function readManipulatorValue(q){
 function updateManipulatorStatus(q){
   const node=$('#manipulatorStatus'); if(!node)return;
   const value=readManipulatorValue(q)??0;
-  if(q.response?.interaction==='nel-rote-sequence'){
+  if(q.response?.interaction==='nel-reliable-count-set'){
+    const root=$('.nel-reliable-count-set'),all=root?.querySelectorAll('[data-reliable-item]').length||0,counted=root?.querySelectorAll('[data-reliable-item].counted').length||0;node.textContent=counted===all&&all?'Bütün nesneler bir kez sayıldı. Şimdi kontrol et.':counted+' / '+all+' nesne sayıldı.';
+  }
+  else if(q.response?.interaction==='nel-reliable-next-word') node.textContent=value?'Bir sayı adı seçtin. Şimdi kontrol et.':'Sıradaki sayı adını dinle ve seç.';
+  else if(q.response?.interaction==='nel-reliable-cardinality') node.textContent=value?'Sayma ve toplam seçimi hazır. Şimdi kontrol et.':'Önce bütün nesneleri say, sonra son sayı adını toplam olarak seç.';
+  else if(q.response?.interaction==='nel-reliable-order-proof') node.textContent=value?'İki sayma turu ve açıklama hazır. Şimdi kontrol et.':'Aynı kümeyi iki yönden say ve açıklamayı seç.';
+  else if(q.response?.interaction==='nel-rote-sequence'){
     const root=$('.nel-rote-sequence-builder'),total=root?.querySelectorAll('[data-rote-item]').length||0,placed=root?.querySelectorAll('[data-rote-item][data-order-index]').length||0;
     node.textContent=placed===total&&total?'Sayı adı sırası hazır. Şimdi kontrol et.':placed+' / '+total+' sayı adı sıraya yerleştirildi.';
   }
@@ -10432,6 +10833,10 @@ function nelCompareContextVisual(v={}){
 function renderVisual(v,q){
   if(!v) return `<div style="position:relative;z-index:1;text-align:center;color:var(--muted);font-size:11px;max-width:360px">Bu pencerede görsel model yerine dil ve akıl yürütme kullanılıyor.</div>`;
   switch(v.type){
+    case 'nel-reliable-count-set': return nelReliableCountSetVisual(v);
+    case 'nel-reliable-next-word': return nelReliableNextWordVisual(v);
+    case 'nel-reliable-cardinality': return nelReliableCardinalityVisual(v);
+    case 'nel-reliable-order-proof': return nelReliableOrderProofVisual(v);
     case 'nel-rote-sequence-builder': return nelRoteSequenceBuilderVisual(v);
     case 'nel-rote-audio-choice': return nelRoteAudioChoiceVisual(v);
     case 'nel-rote-phrase-choice': return nelRotePhraseChoiceVisual(v);

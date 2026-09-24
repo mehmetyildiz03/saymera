@@ -126,6 +126,8 @@ Recommended product progression:
 
    v1.16.0 reference scope: forward spoken sequence to 20, continuing from a given number name, stable-order explanation, and transfer into rhyme/movement play. Short backward sequences are included as guided exposure because the NEL Educators' Guide gives them as an observation example, but backward counting is not used as an independent mastery endpoint.
 2. `nelReliableCount10` — one-to-one counting, stable order, cardinality and order irrelevance
+
+   v1.17.0 implementation boundary: this skill directly evidences all four NEL reliable-counting principles. The child must track each object once, apply the stable spoken sequence while counting, use the final number name as the set total, and verify that counting the same set in another order does not change the total. The reference lesson uses tangible on-screen objects first and includes a real-world transfer prompt. It does not require numeral writing or treat a visually guessed quantity as sufficient evidence.
 3. `nelSubitise5` — instantly recognise small quantities in varied arrangements
 4. `nelConservation10` — same quantity despite rearrangement
 5. `nelNumberRepresentations10` — number name ↔ numeral ↔ number word ↔ quantity

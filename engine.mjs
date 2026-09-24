@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -275,6 +275,22 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelReliableCount10:{
+    version:1,
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'one-to-one-count',label:'Her nesneyi bir kez say',phase:'model',representation:'build'},
+        {id:'stable-order-count',label:'Her nesneye sıradaki sayı adını ver',phase:'representation',representation:'see'},
+        {id:'cardinality-count',label:'Son sayı adının toplamı gösterdiğini kullan',phase:'symbol',representation:'symbol'},
+        {id:'order-irrelevance',label:'Farklı sıradan sayınca toplamın değişmediğini gör',phase:'reasoning',representation:'explain'},
+        {id:'transfer-daily-count',label:'Günlük nesneleri güvenilir say',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -317,6 +333,7 @@ export const SKILLS = [
   skill('nelOrderAttributes','preschool','Özelliğe göre sırala','İlişkiler & Örüntüler','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelPatterns','preschool','Örüntüyü fark et, uzat ve kur','İlişkiler & Örüntüler','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'relationships-patterns'}),
   skill('nelRoteCount20','preschool','Sayı adlarını 20’ye kadar sırayla söyle','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelReliableCount10','preschool','10 nesneye kadar güvenilir say','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -640,6 +657,13 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'NEL v2 ezbere sayma becerisinin Öğren/Uygula sözleşmesi açık',
       !roteContract.provisional && roteContract.practice.sections.length===5,
       roteContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const reliableContract=lessonContractFor('nelReliableCount10');
+    add(
+      'nel-reliable-count-reference-contract',
+      'NEL v2 güvenilir sayma becerisinin dört sayma ilkesini kapsayan sözleşmesi açık',
+      !reliableContract.provisional && reliableContract.practice.sections.length===5,
+      reliableContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -1583,6 +1607,44 @@ function nelRotePhraseOptions(){
   ];
 }
 
+
+function nelReliableItems(n,prefix='counter',kind='counter'){
+  const symbols={counter:'●',apple:'🍎',block:'■',star:'★',biscuit:'●'};
+  return Array.from({length:Number(n)},(_,index)=>({
+    id:'reliable-'+prefix+'-'+n+'-'+(index+1),
+    kind,
+    symbol:symbols[kind]||'●',
+    tone:['blue','green','yellow','red'][index%4],
+    index:index+1
+  }));
+}
+function nelReliableCases(){
+  return [
+    {id:'count-4',n:4,kind:'counter',items:nelReliableItems(4,'a','counter')},
+    {id:'count-5',n:5,kind:'block',items:nelReliableItems(5,'b','block')},
+    {id:'count-6',n:6,kind:'apple',items:nelReliableItems(6,'c','apple')},
+    {id:'count-7',n:7,kind:'star',items:nelReliableItems(7,'d','star')},
+    {id:'count-8',n:8,kind:'counter',items:nelReliableItems(8,'e','counter')},
+    {id:'count-9',n:9,kind:'block',items:nelReliableItems(9,'f','block')},
+    {id:'count-10',n:10,kind:'biscuit',items:nelReliableItems(10,'g','biscuit')}
+  ];
+}
+function nelReliableCaseForN(n){ return nelReliableCases().find(x=>x.n===Number(n))||nelReliableCases().at(-1); }
+function nelReliableShuffledItems(countCase,rng){ return shuffled([...(countCase.items||[])],rng); }
+function nelReliablePhraseOptions(){
+  return [
+    {id:'same',speech:'Nereden başlarsak başlayalım, her nesneyi bir kez sayarsak toplam aynı kalır.'},
+    {id:'more',speech:'Sağdan başlayınca nesne sayısı artar.'},
+    {id:'less',speech:'Soldan başlayınca nesne sayısı azalır.'},
+    {id:'random',speech:'Saymaya başladığımız yer toplamı değiştirir.'}
+  ];
+}
+function nelReliableNumberOptions(answerN,rng){
+  const pool=[answerN,answerN-1,answerN+1,answerN+2].filter(n=>n>=1&&n<=10);
+  for(let n=1;pool.length<4&&n<=10;n++) if(!pool.includes(n)) pool.push(n);
+  return shuffled([...new Set(pool)].slice(0,4).map(n=>nelRoteCountItem(n)),rng);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -1797,6 +1859,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelOrderAttributes') return make('nel-ordering-by-attribute-or-event',nelOrderCases());
   if(skillId==='nelPatterns') return make('nel-repeating-patterns',nelPatternCases());
   if(skillId==='nelRoteCount20') return make('nel-spoken-number-sequence-to-20',nelRoteCases());
+  if(skillId==='nelReliableCount10') return make('nel-reliable-counting-to-10',nelReliableCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2126,6 +2189,49 @@ function genNelRoteCount20(rep,d,rng,concept){
     taskKind:'nel-rote-transfer-game',taskLabel:'Sayı adlarının sırasını harekete taşı',
     visual:{type:'nel-rote-audio-choice',promptItems:prefix,options:nelRoteNextOptions(answer.n,rng),promptLabel:'HAREKETLE İLERİ SAY'},
     hint:'Her harekette sayı adlarının ileri doğru sabit sırasını sürdür.',explain:'Sayı adlarının sabit sırası oyun, tekerleme ve hareketlerde de kullanılabilir.'
+  });
+}
+
+
+function genNelReliableCount10(rep,d,rng,concept){
+  const c=concept?.skillId==='nelReliableCount10'?concept:createConceptInstance('nelReliableCount10',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    return qTask('nelReliableCount10','build','Her nesneye yalnız bir kez dokunarak hepsini say.',String(x.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(x.n),checkLabel:'Saymamı kontrol et'},{
+      taskKind:'nel-reliable-one-to-one',taskLabel:'Her nesneyi tam bir kez say',
+      visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(x,rng),context:'counter-tray',speakCount:true},
+      hint:'Saydığın nesne işaretlenir. Aynı nesneye ikinci kez sayı adı verme.',explain:'Her nesne yalnız bir sayı adıyla eşleşti ve hiçbir nesne atlanmadı.'
+    });
+  }
+  if(rep==='see'){
+    const y=c.symbol, counted=Math.max(1,y.n-2), answer=counted+1;
+    return qTask('nelReliableCount10','see','Bu nesneleri sayarken sıradaki nesneye hangi sayı adını vermeliyiz?','rote-'+answer,{kind:'manipulative',interaction:'nel-reliable-next-word',expectedValue:'rote-'+answer,checkLabel:'Sayı adımı kontrol et'},{
+      taskKind:'nel-reliable-stable-order',taskLabel:'Sabit sayı adı sırasını nesnelere uygula',
+      visual:{type:'nel-reliable-next-word',items:y.items,counted,options:nelReliableNumberOptions(answer,rng)},
+      hint:'Her nesne bir sonraki sayı adını alır; sayı adlarının sırası değişmez.',explain:trNumberWord(answer)+' sıradaki sayı adıdır.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelReliableCount10','symbol','Nesneleri say. Son söylediğin sayı adı toplamı gösterir. Toplam hangisi?',String(y.n)+'|rote-'+y.n,{kind:'manipulative',interaction:'nel-reliable-cardinality',expectedValue:String(y.n)+'|rote-'+y.n,checkLabel:'Toplamımı kontrol et'},{
+      taskKind:'nel-reliable-cardinality',taskLabel:'Son sayı adını toplam olarak kullan',
+      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(y,rng),options:nelReliableNumberOptions(y.n,rng)},
+      hint:'Önce her nesneyi bir kez say. Son söylediğin sayı adı, kümede kaç nesne olduğunu söyler.',explain:'Saymada son sayı adı kümedeki toplam nesne sayısını gösterir.'
+    });
+  }
+  if(rep==='explain'){
+    const y=c.anchor;
+    return qTask('nelReliableCount10','explain','Aynı nesneleri iki farklı yönden say. Neden toplam değişmiyor?',String(y.n)+'|'+String(y.n)+'|same',{kind:'manipulative',interaction:'nel-reliable-order-proof',expectedValue:String(y.n)+'|'+String(y.n)+'|same',checkLabel:'Açıklamamı kontrol et'},{
+      taskKind:'nel-reliable-order-irrelevance',taskLabel:'Sayma yönünün toplamı değiştirmediğini göster',
+      visual:{type:'nel-reliable-order-proof',items:y.items,options:nelReliablePhraseOptions()},
+      hint:'Her iki saymada da aynı nesnelerin her birini tam bir kez say.',explain:'Nesneler farklı sıradan sayılabilir; her nesne bir kez sayıldığında toplam değişmez.'
+    });
+  }
+  const daily=nelReliableCases().filter(z=>z.n>=6), y=daily[Math.floor(rng()*daily.length)]||daily[0];
+  return qTask('nelReliableCount10','transfer','Günlük nesneleri bir tabağa taşırken her birini yalnız bir kez say.',String(y.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(y.n),checkLabel:'Günlük saymamı kontrol et'},{
+    taskKind:'nel-reliable-transfer',taskLabel:'Güvenilir saymayı günlük nesnelere taşı',
+    visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(y,rng),context:'snack-plate',speakCount:true},
+    hint:'Bir nesneyi sayınca tabağa taşı; böylece hangilerini saydığını takip edebilirsin.',explain:'Nesneleri birer birer taşıyıp her birini yalnız bir kez saymak güvenilir saymayı destekler.'
   });
 }
 
@@ -3874,6 +3980,7 @@ const GENERATORS={
   nelOrderAttributes:genNelOrderAttributes,
   nelPatterns:genNelPatterns,
   nelRoteCount20:genNelRoteCount20,
+  nelReliableCount10:genNelReliableCount10,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -4688,6 +4795,49 @@ function oddEvenPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 
 
+
+function nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelReliableCases(), x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='one-to-one-count'){
+    return qTask('nelReliableCount10','build','Her nesneyi tam bir kez say.',String(x.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(x.n),checkLabel:'Saymamı kontrol et'},{
+      taskKind:'nel-practice-reliable-one-'+taskIndex,taskLabel:'Bire bir eşleme ile say',
+      visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(x,rng),context:'move-to-mat',speakCount:true},
+      hint:'Saydığın nesneyi sayma alanına taşı; hiçbirini atlama veya iki kez sayma.',explain:'Her nesne bir sayı adıyla eşleşti.'
+    });
+  }
+  if(sectionId==='stable-order-count'){
+    const counted=Math.max(1,Math.min(x.n-1,2+(taskIndex%Math.max(1,x.n-2)))), answer=counted+1;
+    return qTask('nelReliableCount10','see','Saymaya devam ederken sıradaki nesneye hangi sayı adını vermelisin?','rote-'+answer,{kind:'manipulative',interaction:'nel-reliable-next-word',expectedValue:'rote-'+answer,checkLabel:'Sıramı kontrol et'},{
+      taskKind:'nel-practice-reliable-stable-'+taskIndex,taskLabel:'Sabit sayı sırasını saymaya uygula',
+      visual:{type:'nel-reliable-next-word',items:x.items,counted,options:nelReliableNumberOptions(answer,rng)},
+      hint:'Sayılmış nesnelerin sayı adlarını dinle; bir sonraki adı seç.',explain:'Sayarken sayı adları sabit sırayı korur.'
+    });
+  }
+  if(sectionId==='cardinality-count'){
+    return qTask('nelReliableCount10','symbol','Bütün nesneleri say ve son sayı adını toplam olarak göster.',String(x.n)+'|rote-'+x.n,{kind:'manipulative',interaction:'nel-reliable-cardinality',expectedValue:String(x.n)+'|rote-'+x.n,checkLabel:'Toplamımı kontrol et'},{
+      taskKind:'nel-practice-reliable-cardinality-'+taskIndex,taskLabel:'Son sayı adını toplam olarak kullan',
+      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(x,rng),options:nelReliableNumberOptions(x.n,rng)},
+      hint:'Her nesne sayıldıktan sonra en son söylediğin sayı adını hatırla.',explain:'Son sayı adı, kümenin toplam miktarını söyler.'
+    });
+  }
+  if(sectionId==='order-irrelevance'){
+    return qTask('nelReliableCount10','explain','Aynı kümeyi iki yönden say ve doğru açıklamayı seç.',String(x.n)+'|'+String(x.n)+'|same',{kind:'manipulative',interaction:'nel-reliable-order-proof',expectedValue:String(x.n)+'|'+String(x.n)+'|same',checkLabel:'İki saymamı kontrol et'},{
+      taskKind:'nel-practice-reliable-order-'+taskIndex,taskLabel:'Sayma sırasından bağımsız toplamı göster',
+      visual:{type:'nel-reliable-order-proof',items:x.items,options:nelReliablePhraseOptions()},
+      hint:'İlk turda soldan, ikinci turda sağdan başla. İki turda da her nesneyi bir kez say.',explain:'Sayma başlangıcı ve yönü değişse de aynı kümenin toplamı değişmez.'
+    });
+  }
+  if(sectionId==='transfer-daily-count'){
+    const y=cases[(taskIndex+3)%cases.length];
+    return qTask('nelReliableCount10','transfer','Günlük nesneleri sayma alanına birer birer taşı ve hepsini say.',String(y.n),{kind:'manipulative',interaction:'nel-reliable-count-set',expectedValue:String(y.n),checkLabel:'Günlük saymamı kontrol et'},{
+      taskKind:'nel-practice-reliable-transfer-'+taskIndex,taskLabel:'Güvenilir saymayı günlük duruma taşı',
+      visual:{type:'nel-reliable-count-set',items:nelReliableShuffledItems(y,rng),context:'daily-give',speakCount:true},
+      hint:'Birini sayınca ayır; böylece sayılan ve sayılmayan nesneleri karıştırmazsın.',explain:'Günlük hayatta nesneleri ayırarak saymak bire bir eşlemeyi görünür kılar.'
+    });
+  }
+  throw new Error('Unknown nelReliableCount10 practice section: '+sectionId);
+}
+
 function nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelRoteCases(), forward=cases.filter(x=>x.direction==='forward'), backward=cases.filter(x=>x.direction==='backward');
   if(sectionId==='recite-forward-10'){
@@ -5023,7 +5173,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelReliableCount10') q=nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPatterns') q=nelPatternPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelOrderAttributes') q=nelOrderPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelCompareAttributes') q=nelComparePracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -5088,6 +5239,7 @@ const CONCEPT_KEYS={
   nelOrderAttributes:'nel-ordering-by-attribute-or-event',
   nelPatterns:'nel-repeating-patterns',
   nelRoteCount20:'nel-spoken-number-sequence-to-20',
+  nelReliableCount10:'nel-reliable-counting-to-10',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
