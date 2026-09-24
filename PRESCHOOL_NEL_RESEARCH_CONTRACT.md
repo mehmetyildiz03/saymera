@@ -134,6 +134,25 @@ Recommended product progression:
 
    Product scope: begin with very small immediately recognisable quantities, then use multiple arrangements of the same small quantity (e.g. dice/domino-like, structured and irregular). A correct response should not depend on numeral reading, and the child should not be encouraged to count the items one by one. The skill should distinguish **"I knew it was five"** from **"I counted 1, 2, 3, 4, 5"** as different evidence.
 4. `nelConservation10` — same quantity despite rearrangement
+
+   Official boundary: this skill implements **NEL KSD 3.3** — recognising that the quantity of a set of up to 10 things stays the same regardless of arrangement. It is about conservation of **discrete quantity/cardinality**, not conservation of length, volume, mass or other Piaget-style conservation tasks.
+
+   Teaching boundary:
+   - the same set of objects should be visibly rearranged without adding or removing any object;
+   - use several layouts such as a tight cluster, spread-out line, array, circle and random arrangement;
+   - the child should judge whether the amount stayed the same **without being forced to recount every item**;
+   - numeral reading/writing is not required evidence;
+   - object size, spacing or occupied screen area must not be treated as quantity;
+   - the interaction should surface the common misconception that a more spread-out set has “more”.
+
+   Evidence should include:
+   - **Gör:** recognise that a set still has the same amount after rearrangement;
+   - **Kur/Göster:** actively rearrange the same objects and keep the quantity unchanged;
+   - **Anlat:** explain in child-appropriate language that none were added or taken away;
+   - **Taşı:** repeat the idea with real objects in a daily-life context.
+
+   Distinguish this from KSD 3.2 order irrelevance. Order irrelevance asks whether counting the same set from a different starting point/order gives the same total. Conservation asks whether changing the **spatial arrangement itself** changes the quantity. SAYMERA must preserve both as separate evidence.
+
 5. `nelNumberRepresentations10` — number name ↔ numeral ↔ number word ↔ quantity
 6. `nelNumeralFormation10` — form/write numerals 1–10 without making handwriting quality a mathematics mastery contaminant
 7. `nelCompareQuantities10` — same / more / fewer / less; later “how many more/fewer?”
