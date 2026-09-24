@@ -1981,7 +1981,7 @@ function nelSubitiseStartFlash(root,onReady,blocked=()=>false){
     const ms=Math.max(250,Number(frame.dataset.subitiseFlashMs)||NEL_SUBITISE_FLASH_MS);
     setTimeout(()=>{
       if(!frame.isConnected)return;
-      frame.dataset.flashState='ready';frame.classList.remove('showing');frame.classList.add('ready');root.dataset.flashReady='true';nelSubitiseUnlock(root);onReady?.();
+      frame.dataset.flashState='ready';frame.classList.remove('showing');frame.classList.add('ready');root.dataset.flashReady='true';const note=frame.querySelector('.nel-subitise-cover span');if(note)note.textContent='Görüntü kapandı. Şimdi hatırla.';nelSubitiseUnlock(root);onReady?.();
     },ms);
   });
 }
