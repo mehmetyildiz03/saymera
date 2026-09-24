@@ -3056,6 +3056,11 @@ function nelReliablePhraseOptions(){
     {id:'random',speech:'Saymaya başladığımız yer toplamı değiştirir.'}
   ];
 }
+function nelReliableNumberOptions(answerN,rng){
+  const pool=[answerN,answerN-1,answerN+1,answerN+2].filter(n=>n>=1&&n<=10);
+  for(let n=1;pool.length<4&&n<=10;n++) if(!pool.includes(n)) pool.push(n);
+  return shuffled([...new Set(pool)].slice(0,4).map(n=>nelRoteCountItem(n)),rng);
+}
 
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
@@ -3619,7 +3624,7 @@ function genNelReliableCount10(rep,d,rng,concept){
     const y=c.symbol, counted=Math.max(1,y.n-2), answer=counted+1;
     return qTask('nelReliableCount10','see','Bu nesneleri sayarken sıradaki nesneye hangi sayı adını vermeliyiz?','rote-'+answer,{kind:'manipulative',interaction:'nel-reliable-next-word',expectedValue:'rote-'+answer,checkLabel:'Sayı adımı kontrol et'},{
       taskKind:'nel-reliable-stable-order',taskLabel:'Sabit sayı adı sırasını nesnelere uygula',
-      visual:{type:'nel-reliable-next-word',items:y.items,counted,options:nelRoteNextOptions(answer,rng)},
+      visual:{type:'nel-reliable-next-word',items:y.items,counted,options:nelReliableNumberOptions(answer,rng)},
       hint:'Her nesne bir sonraki sayı adını alır; sayı adlarının sırası değişmez.',explain:trNumberWord(answer)+' sıradaki sayı adıdır.'
     });
   }
@@ -3627,7 +3632,7 @@ function genNelReliableCount10(rep,d,rng,concept){
     const y=c.symbol;
     return qTask('nelReliableCount10','symbol','Nesneleri say. Son söylediğin sayı adı toplamı gösterir. Toplam hangisi?',String(y.n)+'|rote-'+y.n,{kind:'manipulative',interaction:'nel-reliable-cardinality',expectedValue:String(y.n)+'|rote-'+y.n,checkLabel:'Toplamımı kontrol et'},{
       taskKind:'nel-reliable-cardinality',taskLabel:'Son sayı adını toplam olarak kullan',
-      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(y,rng),options:nelRoteNextOptions(y.n,rng)},
+      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(y,rng),options:nelReliableNumberOptions(y.n,rng)},
       hint:'Önce her nesneyi bir kez say. Son söylediğin sayı adı, kümede kaç nesne olduğunu söyler.',explain:'Saymada son sayı adı kümedeki toplam nesne sayısını gösterir.'
     });
   }
@@ -6221,14 +6226,14 @@ function nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
     const counted=Math.max(1,Math.min(x.n-1,2+(taskIndex%Math.max(1,x.n-2)))), answer=counted+1;
     return qTask('nelReliableCount10','see','Saymaya devam ederken sıradaki nesneye hangi sayı adını vermelisin?','rote-'+answer,{kind:'manipulative',interaction:'nel-reliable-next-word',expectedValue:'rote-'+answer,checkLabel:'Sıramı kontrol et'},{
       taskKind:'nel-practice-reliable-stable-'+taskIndex,taskLabel:'Sabit sayı sırasını saymaya uygula',
-      visual:{type:'nel-reliable-next-word',items:x.items,counted,options:nelRoteNextOptions(answer,rng)},
+      visual:{type:'nel-reliable-next-word',items:x.items,counted,options:nelReliableNumberOptions(answer,rng)},
       hint:'Sayılmış nesnelerin sayı adlarını dinle; bir sonraki adı seç.',explain:'Sayarken sayı adları sabit sırayı korur.'
     });
   }
   if(sectionId==='cardinality-count'){
     return qTask('nelReliableCount10','symbol','Bütün nesneleri say ve son sayı adını toplam olarak göster.',String(x.n)+'|rote-'+x.n,{kind:'manipulative',interaction:'nel-reliable-cardinality',expectedValue:String(x.n)+'|rote-'+x.n,checkLabel:'Toplamımı kontrol et'},{
       taskKind:'nel-practice-reliable-cardinality-'+taskIndex,taskLabel:'Son sayı adını toplam olarak kullan',
-      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(x,rng),options:nelRoteNextOptions(x.n,rng)},
+      visual:{type:'nel-reliable-cardinality',items:nelReliableShuffledItems(x,rng),options:nelReliableNumberOptions(x.n,rng)},
       hint:'Her nesne sayıldıktan sonra en son söylediğin sayı adını hatırla.',explain:'Son sayı adı, kümenin toplam miktarını söyler.'
     });
   }
