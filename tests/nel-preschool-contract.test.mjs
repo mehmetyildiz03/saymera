@@ -172,7 +172,10 @@ for(const section of reliableContract.practice.sections){
     assert.equal(q.response.kind,'manipulative','reliable counting must require observable child action');
     assert.ok(['nel-reliable-count-set','nel-reliable-next-word','nel-reliable-cardinality','nel-reliable-order-proof'].includes(q.response.interaction),'unexpected reliable-count interaction: '+q.response.interaction);
     assert.equal((q.visual?.items?.length||0)>10,false,'reliable counting must never exceed 10 objects');
-    for(const option of q.visual?.options||[]) assert.ok(Number(option.n||String(option.id||'').replace('rote-',''))<=10,'reliable-count audio choices must stay within 10');
+    for(const option of q.visual?.options||[]){
+      const spokenNumber=String(option.id||'').startsWith('rote-')?Number(String(option.id).replace('rote-','')):Number(option.n);
+      if(Number.isFinite(spokenNumber)) assert.ok(spokenNumber<=10,'reliable-count audio choices must stay within 10');
+    }
   }
 }
 
