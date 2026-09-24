@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -307,6 +307,22 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelConservation10:{
+    version:1,
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'rearrange-same-set',label:'Aynı nesneleri başka düzene taşı',phase:'model',representation:'build'},
+        {id:'see-same-quantity',label:'Düzen değişse de miktarın aynı kaldığını gör',phase:'representation',representation:'see'},
+        {id:'resist-spacing-cue',label:'Daha yaygın görünene aldanmadan aynı miktarı göster',phase:'symbol',representation:'symbol'},
+        {id:'explain-no-add-remove',label:'Neden miktarın değişmediğini anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-real-objects',label:'Aynı miktarı gerçek nesnelerle farklı düzenlere taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -351,6 +367,7 @@ export const SKILLS = [
   skill('nelRoteCount20','preschool','Sayı adlarını 20’ye kadar sırayla söyle','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelReliableCount10','preschool','10 nesneye kadar güvenilir say','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelSubitise5','preschool','5’e kadar miktarı bir bakışta fark et','Sayma & Sayı Hissi','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelConservation10','preschool','10’a kadar miktarın düzen değişse de aynı kaldığını fark et','Sayma & Sayı Hissi','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -688,6 +705,14 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'NEL v2 sayı hissi için subitising sözleşmesi ayrı ve kısa-görünüm odaklı',
       !subitiseContract.provisional && subitiseContract.practice.sections.length===5,
       subitiseContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const conservationContract=lessonContractFor('nelConservation10');
+    add(
+      'nel-conservation-reference-contract',
+      'NEL KSD 3.3 miktar korunumu sözleşmesi düzen değişimini ayrı kanıt olarak ele alıyor',
+      !conservationContract.provisional && conservationContract.practice.sections.length===5 &&
+        PRESCHOOL_NEL_KSD_MAP['3.3']?.includes('nelConservation10'),
+      conservationContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
