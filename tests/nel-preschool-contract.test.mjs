@@ -225,6 +225,10 @@ assert.equal(reliableOrder.response.interaction,'nel-reliable-order-proof');
 assert.equal(reliableTransfer.response.interaction,'nel-reliable-count-set');
 assert.match(String(reliableCard.response.expectedValue),/^\d+\|rote-\d+$/,'cardinality must connect the completed count to the final spoken number name');
 assert.match(String(reliableOrder.response.expectedValue),/^(\d+)\|\1\|same$/,'order irrelevance must preserve the same total across both directions');
+for(const q of [reliableStable,reliableCard]){
+  const nums=(q.visual?.options||[]).map(o=>Number(String(o.id||'').replace('rote-',''))).filter(Number.isFinite);
+  assert.ok(nums.every(n=>n>=1&&n<=10),'reliable counting audio options must remain within 1..10');
+}
 
 const sizeQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-size',0,1,rng);
 const lengthQuestion=generateLessonPracticeQuestion('nelCompareAttributes','compare-length',0,1,rng);
