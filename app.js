@@ -2035,7 +2035,7 @@ const NEL_CONSERVATION_LESSON_VERSION=1;
 const NEL_CONSERVATION_SECTIONS=['AYNI KÜME','DÜZEN DEĞİŞİR','GÖSTER','ANLAT','HAYATA TAŞI'];
 const nelConservationLessonItems=(n,prefix='lesson')=>Array.from({length:n},(_,i)=>({id:'conservation-'+prefix+'-'+(i+1),symbol:['●','■','★','●'][i%4]}));
 function nelConservationLessonPositions(layout,n){
-  if(layout==='line') return Array.from({length:n},(_,i)=>({x:n===1?.5:.08+i*(.84/Math.max(1,n-1)),y:.5}));
+  if(layout==='line') return Array.from({length:n},(_,i)=>({x:n===1 ? .5 : .08+i*(.84/Math.max(1,n-1)),y:.5}));
   if(layout==='array'){const cols=Math.ceil(Math.sqrt(n));return Array.from({length:n},(_,i)=>({x:.24+(i%cols)*(.52/Math.max(1,cols-1)),y:.27+Math.floor(i/cols)*(.46/Math.max(1,Math.ceil(n/cols)-1))}));}
   if(layout==='circle') return Array.from({length:n},(_,i)=>({x:.5+.34*Math.cos(-Math.PI/2+i*2*Math.PI/n),y:.5+.34*Math.sin(-Math.PI/2+i*2*Math.PI/n)}));
   const preset=[[.12,.25],[.8,.2],[.45,.12],[.24,.58],[.68,.56],[.9,.74],[.48,.83],[.09,.78],[.58,.38],[.34,.42]];
