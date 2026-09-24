@@ -26,7 +26,7 @@ assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConserva
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
 for(const id of conservationLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL conservation Learn step '+id);
 for(const layout of ["'line'","'array'","'circle'","'random'"]) assert.ok(app.includes(layout),'NEL conservation Learn flow must include official-style varied arrangements: '+layout);
-assert.ok(app.includes("interaction:'nel-conservation-rearrange'"),'conservation must include active rearrangement evidence');
+assert.ok(app.includes('data-conservation-move')&&app.includes('bindNelConservationRearrange'),'conservation Learn UI must include active same-object rearrangement evidence');
 assert.ok(app.includes("case 'nel-conservation-before-after'"),'conservation before/after renderer must be wired');
 assert.ok(app.includes("case 'nel-conservation-rearrange'"),'conservation rearrange renderer must be wired');
 assert.ok(app.includes("case 'nel-conservation-relation-choice'"),'conservation relation-choice renderer must be wired');
