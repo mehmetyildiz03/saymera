@@ -1750,10 +1750,10 @@ function nelConservationItems(n,prefix='set',kind='counter'){
 }
 function nelConservationPositions(layout,n){
   const count=Math.max(1,Number(n)||1);
-  if(layout==='spread-line') return Array.from({length:count},(_,i)=>({x:count===1?.5:.07+i*(.86/(count-1)),y:.5}));
+  if(layout==='spread-line') return Array.from({length:count},(_,i)=>({x:count===1 ? .5 : .07+i*(.86/(count-1)),y:.5}));
   if(layout==='two-rows'){
     const cols=Math.ceil(count/2);
-    return Array.from({length:count},(_,i)=>({x:cols===1?.5:.18+(i%cols)*(.64/Math.max(1,cols-1)),y:i<cols?.34:.66}));
+    return Array.from({length:count},(_,i)=>({x:cols===1 ? .5 : .18+(i%cols)*(.64/Math.max(1,cols-1)),y:i<cols ? .34 : .66}));
   }
   if(layout==='circle') return Array.from({length:count},(_,i)=>({x:.5+.34*Math.cos(-Math.PI/2+i*2*Math.PI/count),y:.5+.34*Math.sin(-Math.PI/2+i*2*Math.PI/count)}));
   if(layout==='random'){
