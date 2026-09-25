@@ -307,8 +307,9 @@ for(let configIndex=0;configIndex<configs.length;configIndex++){
     }catch(error){
       await page.screenshot({path:'preschool-quantity-comparison-test-results/'+config.name+'-failure.png',fullPage:false,animations:'disabled'});
       throw error;
-    }finally{
-      await browser.close();
-      localServer?.kill();
     }
+  }finally{
+    await browser.close();
+    localServer?.kill();
+  }
 }
