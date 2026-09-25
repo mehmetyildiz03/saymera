@@ -2399,13 +2399,20 @@ function nelPartWholeOtherSplit(x,offset=1){
   return nelPartWholeCase(x.whole,next.left-1,{context:x.context});
 }
 function nelPartWholeSplitOptions(x,rng){
-  const correct=nelPartWholeNameExpected(x);
-  const sameWhole=(x.decompositions||[]).filter(d=>d.left!==x.split.left||d.right!==x.split.right).slice(0,2).map(d=>'parts|'+d.left+'|'+d.right+'|whole|'+x.whole);
-  const wrongWhole='parts|'+x.split.left+'|'+x.split.right+'|whole|'+Math.min(10,x.whole+1);
-  return shuffled([correct,...sameWhole,wrongWhole].slice(0,4).map(value=>{
-    const m=value.match(/^parts\|(\d+)\|(\d+)\|whole\|(\d+)$/),left=Number(m?.[1]),right=Number(m?.[2]),whole=Number(m?.[3]);
-    return {value,label:left+' ve '+right+' parçaları; bütün '+whole};
-  }),rng);
+  const correct={left:x.split.left,right:x.split.right,whole:x.whole};
+  const candidates=[];
+  for(let left=1;left<=Math.min(10,x.whole+2);left++){
+    for(let right=1;right<=Math.min(10,x.whole+2);right++){
+      if(left===correct.left&&right===correct.right) continue;
+      if(left+right===x.whole) continue;
+      candidates.push({left,right,whole:x.whole});
+    }
+  }
+  const distractors=shuffled(candidates,rng).slice(0,3);
+  return shuffled([correct,...distractors].map(option=>({
+    value:'parts|'+option.left+'|'+option.right+'|whole|'+option.whole,
+    label:option.left+' ve '+option.right+' parçaları; bütün '+option.whole
+  })),rng);
 }
 function nelPartWholeExplainAnswer(x){
   return 'Bütün nesnelerin hepsi iki parçadan birinde kaldı; hiçbir nesne eklenmedi veya çıkarılmadı.';
