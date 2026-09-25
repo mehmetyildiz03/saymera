@@ -2262,9 +2262,9 @@ function nelQuantityRelationChoices(x,rng,{sideAnswer=false}={}){
   return semanticChoices(answer,candidates,rng);
 }
 function nelQuantityExplainAnswer(x){
-  if(x.leftN===x.rightN) return 'Bire bir eşleştirince her nesnenin bir eşi var; artan nesne yok.';
-  const side=x.leftN>x.rightN?'sol':'sağ';
-  return 'Bire bir eşleştirince '+side+' kümede '+x.difference+' nesne artıyor.';
+  if(x.leftN===x.rightN) return 'Bire bir eşleştirince her nesnenin bir eşi var; eşsiz nesne kalmıyor.';
+  if(x.leftN>x.rightN) return 'Bire bir eşleştirince sol kümede eşsiz nesne kalıyor; sol kümede daha çok nesne var.';
+  return 'Bire bir eşleştirince sağ kümede eşsiz nesne kalıyor; sol kümede daha az sayıda nesne var.';
 }
 function nelQuantityExplainChoices(x,rng){
   const answer=nelQuantityExplainAnswer(x);
