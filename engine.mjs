@@ -482,7 +482,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelCompareQuantities10:{
     version:1,
-    status:'generator-ready',
+    status:'implemented',
     unitId:'nel-counting-number-sense',
     pathId:'counting-number-sense',
     officialKsd:['3.7'],
@@ -983,7 +983,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'nel-compare-quantities-contract',
       'NEL KSD 3.7 iki kümenin miktarını sözlü ilişkiyle karşılaştırıyor; biçim, alan ve < > sembollerini ölçüt yapmıyor',
       !quantityCompareContract.provisional &&
-        quantityCompareContract.status==='generator-ready' &&
+        quantityCompareContract.status==='implemented' &&
         quantityCompareContract.officialKsd?.join(',')==='3.7' &&
         quantityCompareContract.maximumSetSize===10 &&
         quantityCompareContract.comparisonEvidence?.oneToOnePairing===true &&
