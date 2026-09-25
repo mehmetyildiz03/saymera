@@ -147,6 +147,10 @@ async function completeLearnStep(page,id){
     assert.equal(await graph.getAttribute('data-quantity-context'),'real-object-graph');
     const rows=graph.locator('.nel-quantity-graph-row>div');
     assert.equal(await rows.count(),2);
+    for(let i=0;i<2;i++){
+      const tops=await rows.nth(i).locator('.nel-quantity-graph-object').evaluateAll(nodes=>nodes.map(n=>Math.round(n.getBoundingClientRect().top)));
+      assert.ok(tops.length>=1&&Math.max(...tops)-Math.min(...tops)<=4,'real-object graph must keep each compared set in one aligned row');
+    }
     const left=await rows.nth(0).locator('.nel-quantity-graph-object').count();
     const right=await rows.nth(1).locator('.nel-quantity-graph-object').count();
     await chooseRelation(graph,sideAnswer(left,right));
