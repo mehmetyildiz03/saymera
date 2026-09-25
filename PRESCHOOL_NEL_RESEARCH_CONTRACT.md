@@ -231,7 +231,39 @@ Recommended product progression:
    - there is no OCR and no numeric-keypad substitute for formation evidence;
    - Chromium and WebKit QA cover phone and tablet viewports, including horizontal-overflow and touch-target checks.
 
-7. `nelCompareQuantities10` — same / more / fewer / less; later “how many more/fewer?”
+7. `nelCompareQuantities10` — compare the quantity of two sets up to 10 using appropriate relational language
+
+   **Official role:** implements **NEL KSD 3.7** — compare the quantities of **two sets of up to 10 things each** and use **“same as”, “more than”, “fewer than” and “less than”** appropriately.
+
+   **Source-derived teaching progression (NEL Educators' Guide 2022):**
+   - early comparison should focus first on deciding whether one set is **the same as** or **more than** another;
+   - **less/fewer than** is described as a more difficult relation and should follow;
+   - once children can reliably identify same/more/less relations, it is useful to proceed to **how many more** or **how many less/fewer**;
+   - official examples compare groups of objects verbally and include making/reading a **real-object graph**, such as two rows of children.
+
+   **SAYMERA mathematical boundary:**
+   - the compared property is **quantity/cardinality**, not object size, length, height, colour, occupied screen area or another attribute;
+   - this must remain distinct from KSD 2.1 / `nelCompareAttributes`, where size, length and height are legitimate comparison attributes;
+   - both sets stay within the explicit official maximum of **10 things each**;
+   - one-to-one pairing and leftover objects are preferred concrete evidence because they make “same / more / less” visible without requiring formal notation;
+   - counting may support the comparison, but comparing two written numerals alone is not sufficient evidence for this preschool KSD;
+   - spacing, arrangement and object size must not become shortcuts for quantity. Equal sets can be shown at different spacing, and a smaller set can deliberately occupy more screen area;
+   - **`<` and `>` are not KSD 3.7 mastery targets**. SAYMERA keeps formal comparison symbols for later curriculum-appropriate learning.
+
+   **Turkish localisation boundary:**
+   - official English source terms remain explicit in curriculum metadata;
+   - child-facing Turkish uses natural quantity language: **“aynı sayıda”**, **“daha çok”**, **“daha az sayıda”**, **“daha az”**;
+   - SAYMERA does not turn the English grammatical distinction between *fewer* and *less* into two artificial mathematical concepts for a Turkish-speaking child.
+
+   **Planned core evidence:**
+   - **Kur:** pair the objects in two sets one-to-one and expose whether anything is left unmatched;
+   - **Gör:** identify same/more relations before progressing to the less/fewer relation;
+   - **Göster:** select or act out the appropriate verbal quantity relation without `<` or `>`;
+   - **Anlat:** explain the relation using matched pairs and any leftover objects rather than visual area;
+   - **Taşı:** compare rows/groups in a real-object-graph style daily-life activity.
+
+   **Supported extension, not an extra KSD 3.7 mastery gate:** after same/more/less is secure, SAYMERA may ask **“kaç tane daha çok / kaç tane daha az?”**. The Educators' Guide recommends this as the next useful step, but the numbered KSD itself requires comparison and appropriate relation language, not a separate numerical-difference endpoint.
+
 8. `nelPartWhole10` — compose/decompose quantities up to 10 in multiple ways
 
 Rote counting, reliable counting and subitising may develop in parallel; this list is an instructional recommendation, not a claim that one must be fully mastered before the next can be experienced.
