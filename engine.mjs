@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -482,7 +482,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelCompareQuantities10:{
     version:1,
-    status:'contract-only',
+    status:'generator-ready',
     unitId:'nel-counting-number-sense',
     pathId:'counting-number-sense',
     officialKsd:['3.7'],
@@ -583,6 +583,7 @@ export const SKILLS = [
   skill('nelConservation10','preschool','10’a kadar miktarın düzen değişse de aynı kaldığını fark et','Sayma & Sayı Hissi','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelNumberRepresentations10','preschool','Sayı adı, rakam, sayı sözcüğü ve miktarı eşleştir','Sayma & Sayı Hissi','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelNumeralFormation10','preschool','Rakamları anlamlı biçimde oluştur ve yaz','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelCompareQuantities10','preschool','İki kümenin miktarını karşılaştır','Sayma & Sayı Hissi','violet',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -982,7 +983,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'nel-compare-quantities-contract',
       'NEL KSD 3.7 iki kümenin miktarını sözlü ilişkiyle karşılaştırıyor; biçim, alan ve < > sembollerini ölçüt yapmıyor',
       !quantityCompareContract.provisional &&
-        quantityCompareContract.status==='contract-only' &&
+        quantityCompareContract.status==='generator-ready' &&
         quantityCompareContract.officialKsd?.join(',')==='3.7' &&
         quantityCompareContract.maximumSetSize===10 &&
         quantityCompareContract.comparisonEvidence?.oneToOnePairing===true &&
@@ -2188,6 +2189,89 @@ function nelNumeralRecordContext(x,kind='game-score'){
   };
 }
 
+function nelQuantityCompareItems(side,n,tone='blue'){
+  const symbols={blue:'●',red:'●',green:'●',yellow:'●'};
+  return Array.from({length:n},(_,i)=>({id:'quantity-'+side+'-'+n+'-'+i,side,index:i,tone,symbol:symbols[tone]||'●'}));
+}
+function nelQuantityRelation(leftN,rightN){
+  if(leftN===rightN) return 'same-as';
+  return leftN>rightN?'more-than':'fewer-than';
+}
+function nelQuantityRelationLabel(relation,variant='default'){
+  if(relation==='same-as') return 'Sol küme sağ kümeyle aynı sayıda.';
+  if(relation==='more-than') return 'Sol kümede daha çok nesne var.';
+  return variant==='less'?'Sol kümede daha az nesne var.':'Sol kümede daha az sayıda nesne var.';
+}
+function nelQuantitySideAnswer(leftN,rightN){
+  if(leftN===rightN) return 'İki küme aynı sayıda.';
+  return leftN>rightN?'Sol kümede daha çok nesne var.':'Sağ kümede daha çok nesne var.';
+}
+function nelQuantityCompareCase(id,leftN,rightN,{
+  leftLayout='compact-row',rightLayout='spread-row',
+  leftScale=1,rightScale=1,
+  leftTone='blue',rightTone='red',
+  context='objects'
+}={}){
+  const relation=nelQuantityRelation(leftN,rightN),difference=Math.abs(leftN-rightN);
+  return {
+    id,leftN,rightN,relation,difference,
+    left:{count:leftN,items:nelQuantityCompareItems('left',leftN,leftTone),layout:leftLayout,tokenScale:leftScale,tone:leftTone},
+    right:{count:rightN,items:nelQuantityCompareItems('right',rightN,rightTone),layout:rightLayout,tokenScale:rightScale,tone:rightTone},
+    language:{
+      relationLabel:nelQuantityRelationLabel(relation),
+      lessVariantLabel:nelQuantityRelationLabel(relation,'less'),
+      sideAnswer:nelQuantitySideAnswer(leftN,rightN),
+      sourceTerms:relation==='same-as'?['same-as']:relation==='more-than'?['more-than']:['fewer-than','less-than']
+    },
+    context
+  };
+}
+function nelQuantityCompareCases(){
+  return [
+    nelQuantityCompareCase('same-4-spread',4,4,{leftLayout:'compact-row',rightLayout:'spread-row',leftScale:.9,rightScale:1.15}),
+    nelQuantityCompareCase('same-7-staggered',7,7,{leftLayout:'two-row',rightLayout:'staggered',leftScale:1.1,rightScale:.9,leftTone:'green',rightTone:'yellow'}),
+    nelQuantityCompareCase('left-more-5-3',5,3,{leftLayout:'compact-row',rightLayout:'spread-row',leftScale:.85,rightScale:1.25}),
+    nelQuantityCompareCase('right-more-4-6',4,6,{leftLayout:'spread-row',rightLayout:'compact-row',leftScale:1.2,rightScale:.88,leftTone:'yellow',rightTone:'green'}),
+    nelQuantityCompareCase('left-more-9-6',9,6,{leftLayout:'two-row',rightLayout:'spread-row',leftScale:.88,rightScale:1.18}),
+    nelQuantityCompareCase('right-more-5-8',5,8,{leftLayout:'spread-row',rightLayout:'two-row',leftScale:1.2,rightScale:.9,leftTone:'green',rightTone:'red'}),
+    nelQuantityCompareCase('same-10',10,10,{leftLayout:'two-row',rightLayout:'staggered',leftScale:.9,rightScale:1.08}),
+    nelQuantityCompareCase('left-more-10-7',10,7,{leftLayout:'compact-row',rightLayout:'spread-row',leftScale:.82,rightScale:1.2,leftTone:'red',rightTone:'blue'}),
+    nelQuantityCompareCase('right-more-6-10',6,10,{leftLayout:'spread-row',rightLayout:'two-row',leftScale:1.18,rightScale:.84,leftTone:'blue',rightTone:'green'})
+  ];
+}
+function nelQuantityPairExpected(x){ return 'paired|'+x.leftN+'|'+x.rightN+'|'+x.relation; }
+function nelQuantityRelationChoices(x,rng,{sideAnswer=false}={}){
+  if(sideAnswer){
+    return semanticChoices(x.language.sideAnswer,[
+      x.leftN===x.rightN?'Sol kümede daha çok nesne var.':'İki küme aynı sayıda.',
+      x.leftN===x.rightN?'Sağ kümede daha çok nesne var.':(x.leftN>x.rightN?'Sağ kümede daha çok nesne var.':'Sol kümede daha çok nesne var.'),
+      'Nesnelerin kapladığı alana göre karar veririz.'
+    ],rng);
+  }
+  const answer=x.language.relationLabel;
+  const candidates=[
+    'Sol küme sağ kümeyle aynı sayıda.',
+    'Sol kümede daha çok nesne var.',
+    'Sol kümede daha az sayıda nesne var.',
+    'Nesnelerin büyüklüğüne göre karar veririz.'
+  ].filter(v=>v!==answer);
+  return semanticChoices(answer,candidates,rng);
+}
+function nelQuantityExplainAnswer(x){
+  if(x.leftN===x.rightN) return 'Bire bir eşleştirince her nesnenin bir eşi var; artan nesne yok.';
+  const side=x.leftN>x.rightN?'sol':'sağ';
+  return 'Bire bir eşleştirince '+side+' kümede '+x.difference+' nesne artıyor.';
+}
+function nelQuantityExplainChoices(x,rng){
+  const answer=nelQuantityExplainAnswer(x);
+  return semanticChoices(answer,[
+    'Daha geniş yayılan küme her zaman daha çoktur.',
+    'Daha büyük çizilen nesnelerin olduğu küme daha çoktur.',
+    'Nesnelerin rengi miktarı belirler.'
+  ],rng);
+}
+function nelQuantityCoreCases(filter=()=>true){ return nelQuantityCompareCases().filter(filter); }
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2407,6 +2491,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelConservation10') return make('nel-conservation-of-quantity-to-10',nelConservationCases());
   if(skillId==='nelNumberRepresentations10') return make('nel-number-representations-1-to-10',nelNumberRepresentationCases());
   if(skillId==='nelNumeralFormation10') return make('nel-numeral-formation-1-to-10',nelNumeralFormationCases());
+  if(skillId==='nelCompareQuantities10') return make('nel-quantity-comparison-two-sets-to-10',nelQuantityCompareCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2953,6 +3038,51 @@ function genNelNumeralFormation10(rep,d,rng,concept){
     taskKind:'nel-numeral-context-record',taskLabel:'Rakamı anlamlı bir oyun skorunda kullan',
     visual:{type:'nel-numeral-draw-board',numeral:y.numeral,guides:y.guides,guideVisible:false,mode:'context',context:nelNumeralRecordContext(y,'game-score')},
     hint:'Skordaki miktarı düşün ve o sayının rakamını tanınacak biçimde yaz.',explain:'Skor kartına yazılan '+y.numeral+', oyundaki '+y.numberWord+' puanı kaydediyor.'
+  });
+}
+
+function genNelCompareQuantities10(rep,d,rng,concept){
+  const c=concept?.skillId==='nelCompareQuantities10'?concept:createConceptInstance('nelCompareQuantities10',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    const expected=nelQuantityPairExpected(x);
+    return qTask('nelCompareQuantities10','build','İki kümedeki nesneleri bire bir eşleştir.',expected,{kind:'manipulative',interaction:'nel-quantity-pair-sets',expectedValue:expected,checkLabel:'Eşleştirmemi kontrol et'},{
+      taskKind:'nel-quantity-pair-build',taskLabel:'İki kümeyi bire bir eşleştir',
+      visual:{type:'nel-quantity-pair-builder',left:x.left,right:x.right,relation:x.relation},
+      hint:'Her sol nesneyi en fazla bir sağ nesneyle eşleştir. Eşi olmayan nesne kalıyor mu bak.',explain:nelQuantityExplainAnswer(x)
+    });
+  }
+  if(rep==='see'){
+    const easy=nelQuantityCoreCases(z=>z.relation==='same-as'||z.relation==='more-than');
+    const y=easy[Math.floor(rng()*easy.length)]||x,answer=y.language.sideAnswer;
+    return qBase('nelCompareQuantities10','see','Hangi kümede daha çok nesne var, yoksa iki küme aynı sayıda mı?',answer,nelQuantityRelationChoices(y,rng,{sideAnswer:true}),{
+      taskKind:'nel-quantity-see-same-more',taskLabel:'Aynı sayıda veya daha çok ilişkisini gör',
+      visual:{type:'nel-quantity-set-pair',left:y.left,right:y.right},
+      hint:'Nesnelerin büyüklüğüne veya aralığına değil, kaç nesne olduğuna bak.',explain:answer
+    });
+  }
+  if(rep==='symbol'){
+    const lessCases=nelQuantityCoreCases(z=>z.leftN<z.rightN);
+    const y=lessCases[Math.floor(rng()*lessCases.length)]||c.symbol,answer=y.language.relationLabel;
+    return qTask('nelCompareQuantities10','symbol','Sol kümenin miktarını sağ kümeyle uygun sözlerle karşılaştır.',answer,{kind:'manipulative',interaction:'nel-quantity-relation-choice',expectedValue:answer,checkLabel:'Karşılaştırma sözümü kontrol et'},{
+      taskKind:'nel-quantity-show-language',taskLabel:'Daha az ilişkisini uygun sözle göster',
+      visual:{type:'nel-quantity-relation-choice',left:y.left,right:y.right,options:nelQuantityRelationChoices(y,rng)},
+      hint:'Bire bir eşleştirdiğinde hangi tarafta nesne artacağını düşün.',explain:answer
+    });
+  }
+  if(rep==='explain'){
+    const answer=nelQuantityExplainAnswer(x);
+    return qBase('nelCompareQuantities10','explain','Bu iki kümenin miktar ilişkisini nasıl kanıtlarsın?',answer,nelQuantityExplainChoices(x,rng),{
+      taskKind:'nel-quantity-explain-leftover',taskLabel:'Eşleşen çiftler ve artan nesnelerle açıkla',
+      visual:{type:'nel-quantity-paired-proof',left:x.left,right:x.right,paired:Math.min(x.leftN,x.rightN),difference:x.difference},
+      hint:'Nesneleri ikili eşleştir; eşleşmeden kalan olup olmadığına bak.',explain:answer
+    });
+  }
+  const y=c.transfer,answer=y.language.sideAnswer;
+  return qTask('nelCompareQuantities10','transfer','Gerçek nesne grafiğindeki iki sırayı karşılaştır.',answer,{kind:'manipulative',interaction:'nel-quantity-relation-choice',expectedValue:answer,checkLabel:'Grafik karşılaştırmamı kontrol et'},{
+    taskKind:'nel-quantity-transfer-object-graph',taskLabel:'Miktar karşılaştırmasını gerçek nesne grafiğine taşı',
+    visual:{type:'nel-quantity-object-graph',left:y.left,right:y.right,options:nelQuantityRelationChoices(y,rng,{sideAnswer:true}),context:'real-object-graph'},
+    hint:'Her sıradaki nesneleri bire bir karşılaştır; daha uzun görünen boşluğa değil nesne sayısına bak.',explain:answer
   });
 }
 
@@ -4706,6 +4836,7 @@ const GENERATORS={
   nelConservation10:genNelConservation10,
   nelNumberRepresentations10:genNelNumberRepresentations10,
   nelNumeralFormation10:genNelNumeralFormation10,
+  nelCompareQuantities10:genNelCompareQuantities10,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -5658,6 +5789,51 @@ function nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty
   throw new Error('Unknown nelNumberRepresentations10 practice section: '+sectionId);
 }
 
+function nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const all=nelQuantityCompareCases();
+  if(sectionId==='pair-sets-one-to-one'){
+    const x=all[(taskIndex+1)%all.length],expected=nelQuantityPairExpected(x);
+    return qTask('nelCompareQuantities10','build','İki kümedeki nesneleri bire bir eşleştir.',expected,{kind:'manipulative',interaction:'nel-quantity-pair-sets',expectedValue:expected,checkLabel:'Eşleştirmemi kontrol et'},{
+      taskKind:'nel-practice-quantity-pair-'+taskIndex,taskLabel:'İki kümeyi bire bir eşleştir',
+      visual:{type:'nel-quantity-pair-builder',left:x.left,right:x.right,relation:x.relation},
+      hint:'Her nesne yalnız bir karşı taraftaki nesneyle eşleşsin.',explain:nelQuantityExplainAnswer(x)
+    });
+  }
+  if(sectionId==='see-same-or-more'){
+    const easy=all.filter(x=>x.relation==='same-as'||x.relation==='more-than'),x=easy[taskIndex%easy.length],answer=x.language.sideAnswer;
+    return qBase('nelCompareQuantities10','see','Sol küme mi daha çok, yoksa iki küme aynı sayıda mı?',answer,nelQuantityRelationChoices(x,rng,{sideAnswer:true}),{
+      taskKind:'nel-practice-quantity-same-more-'+taskIndex,taskLabel:'Aynı sayıda veya daha çok ilişkisini gör',
+      visual:{type:'nel-quantity-set-pair',left:x.left,right:x.right,misleadingSpacing:true},
+      hint:'Yayılma alanını değil nesnelerin miktarını karşılaştır.',explain:answer
+    });
+  }
+  if(sectionId==='use-fewer-less-language'){
+    const less=all.filter(x=>x.leftN<x.rightN),x=less[taskIndex%less.length],answer=x.language.relationLabel;
+    return qTask('nelCompareQuantities10','symbol','Sol kümenin sağ kümeye göre miktarını uygun sözlerle göster.',answer,{kind:'manipulative',interaction:'nel-quantity-relation-choice',expectedValue:answer,checkLabel:'Sözümü kontrol et'},{
+      taskKind:'nel-practice-quantity-less-language-'+taskIndex,taskLabel:'Daha az ilişkisini sözlü olarak göster',
+      visual:{type:'nel-quantity-relation-choice',left:x.left,right:x.right,options:nelQuantityRelationChoices(x,rng)},
+      hint:'Eşleştirince solda mı, sağda mı nesne artacağını düşün.',explain:answer
+    });
+  }
+  if(sectionId==='explain-leftover-relation'){
+    const x=all[(taskIndex+3)%all.length],answer=nelQuantityExplainAnswer(x);
+    return qBase('nelCompareQuantities10','explain','Bire bir eşleştirme bu karşılaştırmayı nasıl açıklıyor?',answer,nelQuantityExplainChoices(x,rng),{
+      taskKind:'nel-practice-quantity-explain-'+taskIndex,taskLabel:'Artan nesneyle miktar ilişkisini açıkla',
+      visual:{type:'nel-quantity-paired-proof',left:x.left,right:x.right,paired:Math.min(x.leftN,x.rightN),difference:x.difference},
+      hint:'Her çift eşleşince dışarıda kalan nesne var mı bak.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-real-object-graph'){
+    const x=all[(taskIndex+5)%all.length],answer=x.language.sideAnswer;
+    return qTask('nelCompareQuantities10','transfer','İki gerçek nesne sırasını karşılaştır.',answer,{kind:'manipulative',interaction:'nel-quantity-relation-choice',expectedValue:answer,checkLabel:'Grafiğimi kontrol et'},{
+      taskKind:'nel-practice-quantity-transfer-'+taskIndex,taskLabel:'Karşılaştırmayı gerçek nesne grafiğine taşı',
+      visual:{type:'nel-quantity-object-graph',left:x.left,right:x.right,options:nelQuantityRelationChoices(x,rng,{sideAnswer:true}),context:'real-object-graph'},
+      hint:'Sıraların uzunluğuna değil, her sıradaki nesne sayısına bak.',explain:answer
+    });
+  }
+  throw new Error('Unknown nelCompareQuantities10 practice section: '+sectionId);
+}
+
 function nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelNumeralFormationCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='form-numeral-material'){
@@ -6076,7 +6252,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelNumeralFormation10') q=nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelCompareQuantities10') q=nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelNumeralFormation10') q=nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelNumberRepresentations10') q=nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelConservation10') q=nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelSubitise5') q=nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -6151,6 +6328,7 @@ const CONCEPT_KEYS={
   nelConservation10:'nel-conservation-of-quantity-to-10',
   nelNumberRepresentations10:'nel-number-representations-1-to-10',
   nelNumeralFormation10:'nel-numeral-formation-1-to-10',
+  nelCompareQuantities10:'nel-quantity-comparison-two-sets-to-10',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
