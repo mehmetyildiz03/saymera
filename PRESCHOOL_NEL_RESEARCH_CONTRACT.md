@@ -210,7 +210,7 @@ Recommended product progression:
    - no OCR/handwriting-recognition dependency is required for the reference implementation;
    - the digital task complements real material formation and real writing rather than replacing them.
 
-   **Planned evidence:**
+   **Implemented evidence:**
    - **Kur:** form a numeral shape with a malleable/material-like interaction, reflecting the official playdough example;
    - **Gör:** follow a broad visual numeral path as supported formation practice, without turning recognition into the mastery endpoint;
    - **Yaz:** intentionally produce the numeral associated with an already-understood number;
@@ -218,6 +218,18 @@ Recommended product progression:
    - **Taşı:** record a meaningful number in a game or daily activity, such as a score.
 
    `nelNumeralFormation10` depends conceptually on the representation work already taught in `nelNumberRepresentations10`: the child should know what a numeral **means** before the app treats producing its written form as evidence.
+
+   v1.21.0 reference implementation:
+   - 10 Learn steps cover numerals 1–10 with material-like formation and broad guided paths before independent writing evidence;
+   - the official playdough example is represented by a distinct thick “material” formation mode rather than a keyboard task;
+   - Practice has five evidence sections: material formation, guided path, independent numeral writing, explaining what the written numeral records, and meaningful score recording;
+   - touch, stylus and mouse use the same normalized 0–100 geometry;
+   - acceptance uses broad checkpoint/path coverage with ordinary motor tolerance and does **not** require a fixed stroke direction/order;
+   - visibly off-path scribbling is rejected, while the same numeral path drawn in reverse direction is accepted;
+   - free-write and score-recording tasks keep the acceptance guide visually hidden;
+   - `10` requires both written digit components (`1` and `0`) while keeping zero-quantity mastery outside this skill;
+   - there is no OCR and no numeric-keypad substitute for formation evidence;
+   - Chromium and WebKit QA cover phone and tablet viewports, including horizontal-overflow and touch-target checks.
 
 7. `nelCompareQuantities10` — same / more / fewer / less; later “how many more/fewer?”
 8. `nelPartWhole10` — compose/decompose quantities up to 10 in multiple ways
@@ -234,7 +246,7 @@ Recommended product progression:
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.20.0:
+Status after SAYMERA v1.21.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -248,8 +260,8 @@ Product skill | NEL role | Status
 `nelSubitise5` | supporting Number Sense | ✅ implemented + browser QA
 `nelConservation10` | 3.3 | ✅ implemented + browser QA
 `nelNumberRepresentations10` | 3.4 + 3.5 | ✅ implemented + browser QA
-`nelNumeralFormation10` | 3.6 | **NEXT**
-`nelCompareQuantities10` | 3.7 | planned
+`nelNumeralFormation10` | 3.6 | ✅ implemented + browser QA
+`nelCompareQuantities10` | 3.7 | **NEXT**
 `nelPartWhole10` | 3.8 | planned
 `nelBasicShapes` | 4.1 | planned
 `nelShapeAttributes` | 4.2 | planned
