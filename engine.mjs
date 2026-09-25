@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -269,7 +269,7 @@ export const PRESCHOOL_NEL_KSD_MAP = Object.fromEntries(
 export const PRESCHOOL_NEL_OFFICIAL_KSD_CODES = PRESCHOOL_NEL_CURRICULUM.flatMap(goal=>goal.ksd.map(item=>item.code));
 
 export const PRESCHOOL_TO_P1_BRIDGES = {
-  number20:['nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10'],
+  number20:['nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10'],
   numberBonds10:['nelPartWhole10'],
   compareOrder100:['nelCompareQuantities10'],
   numberPattern1:['nelPatterns'],
@@ -440,6 +440,45 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelNumeralFormation10:{
+    version:1,
+    status:'implemented',
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    officialKsd:['3.6'],
+    productNumeralRange:[1,10],
+    productBoundaryNotOfficialCeiling:true,
+    dependsOnRepresentationSkill:'nelNumberRepresentations10',
+    productionModes:['material-form','guided-trace','free-form-copy','meaningful-record'],
+    scoringBoundary:{
+      intentionalNumeralProduction:true,
+      recognisableNumeralIdentity:true,
+      exactStrokeOrderRequired:false,
+      penmanshipAestheticsScored:false,
+      speedScored:false
+    },
+    numeralTen:{
+      twoDigitNumeral:true,
+      digitComponents:['1','0'],
+      zeroQuantityTarget:false
+    },
+    sourceGrounding:{
+      playdoughFormationExample:true,
+      meaningfulWritingContextExample:'recording-game-score',
+      cpaBridge:true
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Yaz',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'form-numeral-material',label:'Rakam biçimini malzemeyle kur',phase:'model',representation:'build'},
+        {id:'follow-numeral-path',label:'Rakamı geniş bir yol üzerinde izleyip oluştur',phase:'representation',representation:'see'},
+        {id:'write-known-numeral',label:'Bildiğin sayının rakamını üret',phase:'symbol',representation:'symbol'},
+        {id:'explain-written-record',label:'Yazdığın rakamın hangi sayıyı kaydettiğini anlat',phase:'reasoning',representation:'explain'},
+        {id:'record-meaningful-number',label:'Oyunda veya günlük etkinlikte anlamlı bir sayıyı kaydet',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -486,6 +525,7 @@ export const SKILLS = [
   skill('nelSubitise5','preschool','5’e kadar miktarı bir bakışta fark et','Sayma & Sayı Hissi','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelConservation10','preschool','10’a kadar miktarın düzen değişse de aynı kaldığını fark et','Sayma & Sayı Hissi','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelNumberRepresentations10','preschool','Sayı adı, rakam, sayı sözcüğü ve miktarı eşleştir','Sayma & Sayı Hissi','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelNumeralFormation10','preschool','Rakamları anlamlı biçimde oluştur ve yaz','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -864,6 +904,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         PRESCHOOL_NEL_KSD_MAP['3.4']?.includes('nelNumberRepresentations10') &&
         PRESCHOOL_NEL_KSD_MAP['3.5']?.includes('nelNumberRepresentations10'),
       representationContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const formationContract=lessonContractFor('nelNumeralFormation10');
+    add(
+      'nel-numeral-formation-contract',
+      'NEL KSD 3.6 rakam üretimini el yazısı estetiği veya tek zorunlu çizgi sırasıyla karıştırmıyor',
+      !formationContract.provisional &&
+        formationContract.status==='implemented' &&
+        formationContract.officialKsd?.join(',')==='3.6' &&
+        formationContract.scoringBoundary?.intentionalNumeralProduction===true &&
+        formationContract.scoringBoundary?.recognisableNumeralIdentity===true &&
+        formationContract.scoringBoundary?.exactStrokeOrderRequired===false &&
+        formationContract.scoringBoundary?.penmanshipAestheticsScored===false &&
+        formationContract.numeralTen?.zeroQuantityTarget===false &&
+        PRESCHOOL_NEL_KSD_MAP['3.6']?.includes('nelNumeralFormation10'),
+      formationContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -2000,6 +2055,67 @@ function nelNumberEquivalentReasonChoices(c,rng){
   ],rng);
 }
 
+const NEL_NUMERAL_DIGIT_GUIDES={
+  '0':[[50,8],[72,14],[84,34],[84,66],[72,86],[50,92],[28,86],[16,66],[16,34],[28,14]],
+  '1':[[34,28],[50,12],[50,90],[34,90],[68,90]],
+  '2':[[22,30],[34,14],[58,10],[78,24],[78,42],[62,56],[42,68],[22,90],[80,90]],
+  '3':[[24,16],[50,10],[74,20],[74,38],[58,50],[76,60],[78,78],[60,90],[28,84]],
+  '4':[[68,90],[68,10],[20,62],[84,62]],
+  '5':[[78,12],[28,12],[26,48],[52,44],[72,52],[80,70],[68,86],[46,92],[24,82]],
+  '6':[[72,16],[48,10],[28,28],[20,54],[28,80],[50,92],[72,82],[80,64],[70,48],[50,42],[28,52]],
+  '7':[[20,14],[82,14],[66,38],[54,62],[44,90]],
+  '8':[[50,8],[30,16],[22,34],[30,46],[50,52],[70,46],[78,34],[70,16],[50,8],[30,60],[22,76],[34,90],[54,94],[74,82],[76,66],[66,54],[50,52]],
+  '9':[[72,52],[58,42],[36,44],[22,30],[30,12],[54,8],[76,22],[78,48],[70,70],[54,92],[34,88]]
+};
+function nelNumeralScalePoints(points,x0,x1,y0=8,y1=92){
+  return points.map(([x,y])=>[
+    Math.round((x0+(x/100)*(x1-x0))*10)/10,
+    Math.round((y0+(y/100)*(y1-y0))*10)/10
+  ]);
+}
+function nelNumeralGuideForDigit(digit,index=0,total=1){
+  const raw=NEL_NUMERAL_DIGIT_GUIDES[String(digit)]||NEL_NUMERAL_DIGIT_GUIDES['1'];
+  const [x0,x1]=total===1?[12,88]:(index===0?[5,45]:[55,95]);
+  return {
+    id:'digit-'+digit+'-'+index,
+    digit:String(digit),
+    index,
+    tolerance:14,
+    minimumHitRatio:.78,
+    exactStrokeOrderRequired:false,
+    points:nelNumeralScalePoints(raw,x0,x1)
+  };
+}
+function nelNumeralFormationCase(n){
+  const numeral=Math.max(1,Math.min(10,Number(n)||1)),digits=String(numeral).split('');
+  return {
+    id:'numeral-formation-'+numeral,
+    n:numeral,
+    numeral:String(numeral),
+    numberWord:trNumberWord(numeral),
+    digits,
+    guides:digits.map((digit,index)=>nelNumeralGuideForDigit(digit,index,digits.length)),
+    quantity:nelNumberQuantityModel(numeral,numeral%2?'objects':'ten-frame'),
+    zeroQuantityTarget:false
+  };
+}
+function nelNumeralFormationCases(){ return Array.from({length:10},(_,i)=>nelNumeralFormationCase(i+1)); }
+export function numeralFormationCaseFor(n){ return nelNumeralFormationCase(n); }
+function nelNumeralFormationExpected(x){ return 'formed-'+x.n; }
+function nelNumeralExplainChoices(x,rng){
+  const answer='Bu yazı '+x.numberWord+' sayısını kaydediyor.';
+  const wrong=nelNumeralFormationCases().filter(y=>y.n!==x.n).map(y=>'Bu yazı '+y.numberWord+' sayısını kaydediyor.');
+  return semanticChoices(answer,wrong,rng);
+}
+function nelNumeralRecordContext(x,kind='game-score'){
+  return {
+    kind,
+    value:x.n,
+    quantity:x.quantity,
+    label:kind==='game-score'?'oyun skoru':'sayı kaydı'
+  };
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2218,6 +2334,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelSubitise5') return make('nel-instant-small-quantity-to-5',nelSubitiseCasesFor({min:2,max:5}));
   if(skillId==='nelConservation10') return make('nel-conservation-of-quantity-to-10',nelConservationCases());
   if(skillId==='nelNumberRepresentations10') return make('nel-number-representations-1-to-10',nelNumberRepresentationCases());
+  if(skillId==='nelNumeralFormation10') return make('nel-numeral-formation-1-to-10',nelNumeralFormationCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2723,6 +2840,47 @@ function genNelNumberRepresentations10(rep,d,rng,concept){
     taskKind:'nel-number-transfer-context',taskLabel:'Sayı temsilini günlük yaşama taşı',
     visual:{type:'nel-number-context-tag',numeral:y.numeral,context:['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'][y.n%4]},
     hint:'Gördüğün rakamın anlattığı miktarı bul.',explain:y.numeral.value+' rakamı günlük yaşamda da '+y.n+' miktarını gösterebilir.'
+  });
+}
+
+function genNelNumeralFormation10(rep,d,rng,concept){
+  const c=concept?.skillId==='nelNumeralFormation10'?concept:createConceptInstance('nelNumeralFormation10',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    return qTask('nelNumeralFormation10','build','Rakam biçimini sanal hamur parçalarıyla kur.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-material-form',expectedValue:nelNumeralFormationExpected(x),checkLabel:'Rakam biçimimi kontrol et'},{
+      taskKind:'nel-numeral-material-form',taskLabel:'Rakamı malzemeyle oluştur',
+      visual:{type:'nel-numeral-material-form',numeral:x.numeral,guides:x.guides,quantity:x.quantity,material:'playdough-rope'},
+      hint:'Rakamın genel biçimini kaplayacak şekilde parçaları yerleştir.',explain:x.numeral+' rakamını bir malzemeyle biçimlendirmek de rakam üretmenin bir yoludur.'
+    });
+  }
+  if(rep==='see'){
+    return qTask('nelNumeralFormation10','see','Geniş yolu parmağınla, kalemle veya fareyle takip ederek rakamı oluştur.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-guided-trace',expectedValue:nelNumeralFormationExpected(x),checkLabel:'İzimi kontrol et'},{
+      taskKind:'nel-numeral-guided-trace',taskLabel:'Geniş rakam yolunu izle',
+      visual:{type:'nel-numeral-draw-board',numeral:x.numeral,guides:x.guides,guideVisible:true,mode:'guided',quantity:x.quantity},
+      hint:'Rakamın çekirdek bölgelerinden geçmeye çalış; istediğin yönden ilerleyebilirsin.',explain:'Rakamın tanınan biçimini oluşturdun; çizgi sıran farklı olabilir.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelNumeralFormation10','symbol','Gösterilen miktarın rakamını boş alana yaz.',nelNumeralFormationExpected(y),{kind:'manipulative',interaction:'nel-numeral-free-write',expectedValue:nelNumeralFormationExpected(y),checkLabel:'Yazdığım rakamı kontrol et'},{
+      taskKind:'nel-numeral-free-write',taskLabel:'Anlamını bildiğin rakamı üret',
+      visual:{type:'nel-numeral-draw-board',numeral:y.numeral,guides:y.guides,guideVisible:false,mode:'free',quantity:y.quantity},
+      hint:'Miktarın hangi rakamla gösterildiğini düşün ve tanınacak biçimde yaz.',explain:'Yazdığın '+y.numeral+' rakamı bu miktarı kaydediyor.'
+    });
+  }
+  if(rep==='explain'){
+    const answer='Bu yazı '+x.numberWord+' sayısını kaydediyor.';
+    return qBase('nelNumeralFormation10','explain','Yazılan rakam neyi kaydediyor?',answer,nelNumeralExplainChoices(x,rng),{
+      taskKind:'nel-numeral-explain-record',taskLabel:'Yazılı rakamın sayı anlamını açıkla',
+      visual:{type:'nel-numeral-written-record',numeral:x.numeral,quantity:x.quantity},
+      hint:'Rakamın biçimini, temsil ettiği sayı anlamıyla bağla.',explain:answer
+    });
+  }
+  const y=c.transfer;
+  return qTask('nelNumeralFormation10','transfer','Oyunda kazandığın puanı rakamla skor kartına kaydet.',nelNumeralFormationExpected(y),{kind:'manipulative',interaction:'nel-numeral-context-record',expectedValue:nelNumeralFormationExpected(y),checkLabel:'Skor kaydımı kontrol et'},{
+    taskKind:'nel-numeral-context-record',taskLabel:'Rakamı anlamlı bir oyun skorunda kullan',
+    visual:{type:'nel-numeral-draw-board',numeral:y.numeral,guides:y.guides,guideVisible:false,mode:'context',context:nelNumeralRecordContext(y,'game-score')},
+    hint:'Skordaki miktarı düşün ve o sayının rakamını tanınacak biçimde yaz.',explain:'Skor kartına yazılan '+y.numeral+', oyundaki '+y.numberWord+' puanı kaydediyor.'
   });
 }
 
@@ -4475,6 +4633,7 @@ const GENERATORS={
   nelSubitise5:genNelSubitise5,
   nelConservation10:genNelConservation10,
   nelNumberRepresentations10:genNelNumberRepresentations10,
+  nelNumeralFormation10:genNelNumeralFormation10,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -5427,6 +5586,47 @@ function nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty
   throw new Error('Unknown nelNumberRepresentations10 practice section: '+sectionId);
 }
 
+function nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelNumeralFormationCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='form-numeral-material'){
+    return qTask('nelNumeralFormation10','build','Rakam biçimini sanal hamur parçalarıyla kur.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-material-form',expectedValue:nelNumeralFormationExpected(x),checkLabel:'Biçimimi kontrol et'},{
+      taskKind:'nel-practice-numeral-material-'+taskIndex,taskLabel:'Rakamı malzeme benzeri parçalarla oluştur',
+      visual:{type:'nel-numeral-material-form',numeral:x.numeral,guides:x.guides,quantity:x.quantity,material:'playdough-rope'},
+      hint:'Rakamın çekirdek biçimini kaplayacak şekilde parçaları yerleştir.',explain:x.numeral+' rakamının tanınan biçimini oluşturdun.'
+    });
+  }
+  if(sectionId==='follow-numeral-path'){
+    return qTask('nelNumeralFormation10','see','Geniş rakam yolunu takip ederek biçimi oluştur.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-guided-trace',expectedValue:nelNumeralFormationExpected(x),checkLabel:'İzimi kontrol et'},{
+      taskKind:'nel-practice-numeral-guide-'+taskIndex,taskLabel:'Destekli rakam yolunu izle',
+      visual:{type:'nel-numeral-draw-board',numeral:x.numeral,guides:x.guides,guideVisible:true,mode:'guided'},
+      hint:'İstediğin yönden başlayabilirsin; gerekli biçim bölgelerinden geç.',explain:'Geniş yol, rakamın tanınan biçimini destekler.'
+    });
+  }
+  if(sectionId==='write-known-numeral'){
+    return qTask('nelNumeralFormation10','symbol','Bu miktarı gösteren rakamı boş alana yaz.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-free-write',expectedValue:nelNumeralFormationExpected(x),checkLabel:'Rakamımı kontrol et'},{
+      taskKind:'nel-practice-numeral-write-'+taskIndex,taskLabel:'Miktardan rakam üret',
+      visual:{type:'nel-numeral-draw-board',numeral:x.numeral,guides:x.guides,guideVisible:false,mode:'free',quantity:x.quantity},
+      hint:'Miktarın sayı anlamını düşün ve rakamını tanınacak biçimde üret.',explain:'Bu miktar '+x.numeral+' rakamıyla kaydedilir.'
+    });
+  }
+  if(sectionId==='explain-written-record'){
+    const answer='Bu yazı '+x.numberWord+' sayısını kaydediyor.';
+    return qBase('nelNumeralFormation10','explain','Bu yazılı rakam hangi sayıyı kaydediyor?',answer,nelNumeralExplainChoices(x,rng),{
+      taskKind:'nel-practice-numeral-explain-'+taskIndex,taskLabel:'Rakam üretimini sayı anlamına bağla',
+      visual:{type:'nel-numeral-written-record',numeral:x.numeral,quantity:x.quantity},
+      hint:'Yazının biçimini temsil ettiği sayı anlamıyla eşleştir.',explain:answer
+    });
+  }
+  if(sectionId==='record-meaningful-number'){
+    return qTask('nelNumeralFormation10','transfer','Oyun skorundaki puanı rakamla kaydet.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-context-record',expectedValue:nelNumeralFormationExpected(x),checkLabel:'Skorumu kontrol et'},{
+      taskKind:'nel-practice-numeral-context-'+taskIndex,taskLabel:'Rakamı anlamlı skor kaydına taşı',
+      visual:{type:'nel-numeral-draw-board',numeral:x.numeral,guides:x.guides,guideVisible:false,mode:'context',context:nelNumeralRecordContext(x,'game-score')},
+      hint:'Puan miktarını düşün ve rakamını skor kartına yaz.',explain:x.numeral+' rakamı oyundaki '+x.numberWord+' puanı kaydediyor.'
+    });
+  }
+  throw new Error('Unknown nelNumeralFormation10 practice section: '+sectionId);
+}
+
 function nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelReliableCases(), x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='one-to-one-count'){
@@ -5804,7 +6004,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelNumberRepresentations10') q=nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelNumeralFormation10') q=nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelNumberRepresentations10') q=nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelConservation10') q=nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelSubitise5') q=nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelReliableCount10') q=nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -5877,6 +6078,7 @@ const CONCEPT_KEYS={
   nelSubitise5:'nel-instant-small-quantity-to-5',
   nelConservation10:'nel-conservation-of-quantity-to-10',
   nelNumberRepresentations10:'nel-number-representations-1-to-10',
+  nelNumeralFormation10:'nel-numeral-formation-1-to-10',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
