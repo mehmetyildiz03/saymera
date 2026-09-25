@@ -51,6 +51,9 @@ for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes'
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelConservation10'),'Path B metadata must reserve the conservation skill');
+assert.equal(preschoolIds.has('nelNumberRepresentations10'),false,'number representations must remain contract-only until its generator exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
+assert.equal(app.includes('renderNelNumberRepresentationsLessonStep'),false,'this slice must not add number-representation Learn UI yet');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
 for(const id of conservationLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL conservation Learn step '+id);
@@ -119,6 +122,18 @@ for(const [code,ids] of Object.entries(PRESCHOOL_NEL_KSD_MAP)){
   for(const id of ids) assert.ok(allPlannedProductSkills.has(id),'KSD '+code+' references a skill outside the canonical preschool paths: '+id);
 }
 for(const concept of PRESCHOOL_NEL_SUPPORTING_CONCEPTS) assert.ok(allPlannedProductSkills.has(concept.skillId),'supporting concept must belong to a canonical preschool path: '+concept.skillId);
+
+const representationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumberRepresentations10;
+assert.equal(representationContract.practice.sections.length,5);
+assert.deepEqual(representationContract.practice.sections.map(s=>s.id),['build-quantity-link','see-same-number','match-name-numeral-word','explain-equivalent-forms','transfer-number-context']);
+assert.deepEqual(representationContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(representationContract.officialKsd,['3.4','3.5']);
+assert.deepEqual(representationContract.productQuantityRange,[1,10]);
+assert.deepEqual(representationContract.representationKinds,['number-name','numeral','number-word','quantity']);
+assert.ok(['objects','fingers','ten-frame','tally'].every(kind=>representationContract.quantityModels.includes(kind)));
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.4'],['nelNumberRepresentations10']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.5'],['nelNumberRepresentations10']);
+assert.equal(representationContract.practice.sections.some(s=>/write|form/i.test(s.id)),false,'KSD 3.4–3.5 must not absorb KSD 3.6 numeral formation');
 
 const conservationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelConservation10;
 assert.equal(conservationContract.practice.sections.length,5);
@@ -402,7 +417,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
