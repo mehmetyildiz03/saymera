@@ -199,6 +199,7 @@ assert.ok(app.includes("const NEL_NUMBER_WORDS=['','bir','iki','üç','dört','b
 assert.ok(app.includes("model==='fingers'")&&app.includes("model==='ten-frame'")&&app.includes("model==='tally'"),'number representation UI must render varied quantity models');
 assert.ok(app.includes("data-rote-speech")&&app.includes("Hedef sayı adını dinle"),'spoken number-name evidence must stay audio-addressable');
 assert.ok(app.includes("data-number-mixed=\"'+x.n+'\" disabled"),'mixed representation choice must stay locked until the spoken number name is heard');
+assert.ok(app.includes("toLocaleUpperCase('tr-TR')")&&app.includes('data-number-context'),'Turkish number-context labels must preserve locale-aware casing and semantic context');
 assert.ok(app.includes('data-name-listened="false"')&&app.includes("root.dataset.nameListened='true'"),'Practice form matching must record actual spoken-number listening');
 assert.ok(app.includes("root.dataset.nameListened!=='true'"),'Practice form matching must refuse completion before the spoken number name is heard');
 for(const context of ['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi']) assert.ok(app.includes(context)||fs.readFileSync(new URL('../engine.mjs',import.meta.url),'utf8').includes(context),'cardinal daily-life context missing: '+context);
