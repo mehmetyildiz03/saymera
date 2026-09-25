@@ -402,10 +402,14 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
+assert.ok(contract.includes('18 official Numeracy KSDs'),'research contract must state the complete canonical KSD count');
+assert.ok(contract.includes('**1.1**')&&contract.includes('**1.2**'),'daily-life Numeracy KSDs must be explicit, not implied only');
+assert.ok(contract.includes('**3.2.1**')&&contract.includes('**3.2.4**'),'reliable-counting subskills must be documented');
+assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve the next planned Path B skill');
 assert.ok(contract.includes('Kur · Gör · Göster · Anlat · Taşı'));
 assert.ok(contract.includes('**NEL KSD 3.3**'),'research contract must explicitly anchor conservation to KSD 3.3');
 assert.ok(contract.includes('discrete quantity/cardinality'),'conservation scope must stay on discrete quantity rather than unrelated conservation tasks');
