@@ -418,6 +418,26 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelNumberRepresentations10:{
+    version:1,
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    officialKsd:['3.4','3.5'],
+    productQuantityRange:[1,10],
+    representationKinds:['number-name','numeral','number-word','quantity'],
+    quantityModels:['objects','fingers','ten-frame','tally'],
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'build-quantity-link',label:'Miktarı kur ve eşleşen temsili bağla',phase:'model',representation:'build'},
+        {id:'see-same-number',label:'Aynı sayıyı farklı miktar görünümlerinde tanı',phase:'representation',representation:'see'},
+        {id:'match-name-numeral-word',label:'Sayı adı, rakam ve sayı sözcüğünü miktarla eşleştir',phase:'symbol',representation:'symbol'},
+        {id:'explain-equivalent-forms',label:'Farklı gösterimlerin neden aynı sayıyı anlattığını açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-number-context',label:'Sayı temsillerini günlük yaşamda bul ve kullan',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -829,6 +849,18 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       !conservationContract.provisional && conservationContract.practice.sections.length===5 &&
         PRESCHOOL_NEL_KSD_MAP['3.3']?.includes('nelConservation10'),
       conservationContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const representationContract=lessonContractFor('nelNumberRepresentations10');
+    add(
+      'nel-number-representations-contract',
+      'NEL KSD 3.4–3.5 sayı temsilleri sözleşmesi sayı adı/rakam/sayı sözcüğü/miktar ayrımını koruyor',
+      !representationContract.provisional &&
+        representationContract.practice.sections.length===5 &&
+        representationContract.officialKsd?.join(',')==='3.4,3.5' &&
+        representationContract.representationKinds?.join(',')==='number-name,numeral,number-word,quantity' &&
+        PRESCHOOL_NEL_KSD_MAP['3.4']?.includes('nelNumberRepresentations10') &&
+        PRESCHOOL_NEL_KSD_MAP['3.5']?.includes('nelNumberRepresentations10'),
+      representationContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
