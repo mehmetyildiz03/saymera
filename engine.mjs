@@ -2239,6 +2239,10 @@ function nelQuantityCompareCases(){
     nelQuantityCompareCase('right-more-6-10',6,10,{leftLayout:'spread-row',rightLayout:'two-row',leftScale:1.18,rightScale:.84,leftTone:'blue',rightTone:'green'})
   ];
 }
+export function quantityCompareCaseFor(id){
+  const all=nelQuantityCompareCases();
+  return all.find(x=>x.id===id)||all[0];
+}
 function nelQuantityPairExpected(x){ return 'paired|'+x.leftN+'|'+x.rightN+'|'+x.relation; }
 function nelQuantityRelationChoices(x,rng,{sideAnswer=false}={}){
   if(sideAnswer){
