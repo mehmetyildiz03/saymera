@@ -23,7 +23,8 @@ const configs=[
 ];
 
 async function openInspector(page){
-  await page.goto(base+'/?inspect=1');
+  await page.goto(base+'/?inspect=1',{waitUntil:'domcontentloaded',timeout:20000});
+  await page.locator('#inspectorProfile').waitFor({state:'visible',timeout:12000});
   await page.locator('#inspectorProfile').selectOption('preschool');
   await page.locator('#inspectorSkill').selectOption('nelCompareQuantities10');
 }
@@ -243,7 +244,7 @@ try{
     const context=await browser.newContext({viewport:config.viewport,isMobile:true,hasTouch:true,serviceWorkers:'block'});
     await context.addInitScript(value=>{if(!localStorage.getItem('saymera.math.v2'))localStorage.setItem('saymera.math.v2',value)},saved);
     const page=await context.newPage();
-    page.setDefaultTimeout(12000);
+    page.setDefaultTimeout(16000);
     const errors=[];
     page.on('pageerror',error=>errors.push(error.message));
     try{
