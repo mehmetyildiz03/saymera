@@ -215,3 +215,21 @@ jobs:
         with:
           name: preschool-conservation-browser-screenshots
           path: preschool-conservation-test-results/
+
+  preschool-number-representations-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Verify NEL preschool number-representation phone and tablet interactions
+        run: node tests/preschool-number-representations-browser.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preschool-number-representations-browser-screenshots
+          path: preschool-number-representations-test-results/

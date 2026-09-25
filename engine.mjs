@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -140,6 +140,8 @@ export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
   ageBand:'4–6',
   endpoint:'end-of-K2',
   portalUpdated:'2025-05-29',
+  countingPageUpdated:'2025-12-31',
+  verifiedAt:'2026-09-25',
   sources:{
     framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
     numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
@@ -418,6 +420,26 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelNumberRepresentations10:{
+    version:1,
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    officialKsd:['3.4','3.5'],
+    productQuantityRange:[1,10],
+    representationKinds:['number-name','numeral','number-word','quantity'],
+    quantityModels:['objects','fingers','ten-frame','tally'],
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'build-quantity-link',label:'Miktarı kur ve eşleşen temsili bağla',phase:'model',representation:'build'},
+        {id:'see-same-number',label:'Aynı sayıyı farklı miktar görünümlerinde tanı',phase:'representation',representation:'see'},
+        {id:'match-name-numeral-word',label:'Sayı adı, rakam ve sayı sözcüğünü miktarla eşleştir',phase:'symbol',representation:'symbol'},
+        {id:'explain-equivalent-forms',label:'Farklı gösterimlerin neden aynı sayıyı anlattığını açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-number-context',label:'Sayı temsillerini günlük yaşamda bul ve kullan',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -463,6 +485,7 @@ export const SKILLS = [
   skill('nelReliableCount10','preschool','10 nesneye kadar güvenilir say','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelSubitise5','preschool','5’e kadar miktarı bir bakışta fark et','Sayma & Sayı Hissi','amber',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelConservation10','preschool','10’a kadar miktarın düzen değişse de aynı kaldığını fark et','Sayma & Sayı Hissi','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelNumberRepresentations10','preschool','Sayı adı, rakam, sayı sözcüğü ve miktarı eşleştir','Sayma & Sayı Hissi','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -829,6 +852,18 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       !conservationContract.provisional && conservationContract.practice.sections.length===5 &&
         PRESCHOOL_NEL_KSD_MAP['3.3']?.includes('nelConservation10'),
       conservationContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const representationContract=lessonContractFor('nelNumberRepresentations10');
+    add(
+      'nel-number-representations-contract',
+      'NEL KSD 3.4–3.5 sayı temsilleri sözleşmesi sayı adı/rakam/sayı sözcüğü/miktar ayrımını koruyor',
+      !representationContract.provisional &&
+        representationContract.practice.sections.length===5 &&
+        representationContract.officialKsd?.join(',')==='3.4,3.5' &&
+        representationContract.representationKinds?.join(',')==='number-name,numeral,number-word,quantity' &&
+        PRESCHOOL_NEL_KSD_MAP['3.4']?.includes('nelNumberRepresentations10') &&
+        PRESCHOOL_NEL_KSD_MAP['3.5']?.includes('nelNumberRepresentations10'),
+      representationContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
@@ -1918,6 +1953,53 @@ function nelConservationReasonChoices(rng){
   );
 }
 
+function nelNumberQuantityModel(n,model='objects'){
+  const amount=Math.max(1,Math.min(10,Number(n)||1));
+  if(model==='fingers') return {type:'nel-number-quantity',model,n:amount,left:Math.min(5,amount),right:Math.max(0,amount-5)};
+  if(model==='ten-frame') return {type:'nel-number-quantity',model,n:amount,cells:Array.from({length:10},(_,i)=>i<amount)};
+  if(model==='tally') return {type:'nel-number-quantity',model,n:amount,groups:Math.floor(amount/5),remainder:amount%5};
+  return {type:'nel-number-quantity',model:'objects',n:amount,items:Array.from({length:amount},(_,i)=>({id:'quantity-'+amount+'-'+(i+1),symbol:['●','■','★'][i%3]}))};
+}
+function nelNumberRepresentationCase(n){
+  const amount=Math.max(1,Math.min(10,Number(n)||1)),speech=trNumberWord(amount);
+  return {
+    id:'number-representation-'+amount,
+    n:amount,
+    numberName:{kind:'number-name',id:'name-'+amount,speech},
+    numeral:{kind:'numeral',value:String(amount)},
+    numberWord:{kind:'number-word',value:speech},
+    quantities:['objects','fingers','ten-frame','tally'].map(model=>nelNumberQuantityModel(amount,model))
+  };
+}
+function nelNumberRepresentationCases(){ return Array.from({length:10},(_,i)=>nelNumberRepresentationCase(i+1)); }
+function nelNumberFormOption(kind,c){
+  if(kind==='number-name') return {value:'name-'+c.n,kind,speech:c.numberName.speech,label:'Dinle'};
+  if(kind==='numeral') return {value:'numeral-'+c.n,kind,label:c.numeral.value};
+  if(kind==='number-word') return {value:'word-'+c.n,kind,label:c.numberWord.value};
+  return {value:'quantity-'+c.n,kind:'quantity',visual:c.quantities[2],label:c.n+' miktarı'};
+}
+function nelNumberDistractorCases(n,rng){
+  return shuffled(nelNumberRepresentationCases().filter(c=>c.n!==n),rng).slice(0,3);
+}
+function nelNumberFormChoices(kind,c,rng){
+  return shuffled([nelNumberFormOption(kind,c),...nelNumberDistractorCases(c.n,rng).map(x=>nelNumberFormOption(kind,x))],rng);
+}
+function nelNumberQuantityChoices(c,rng,model='ten-frame'){
+  const visualFor=x=>x.quantities.find(q=>q.model===model)||x.quantities[0];
+  return shuffled([
+    {value:'quantity-'+c.n,visual:visualFor(c),ariaLabel:c.n+' miktarı'},
+    ...nelNumberDistractorCases(c.n,rng).map(x=>({value:'quantity-'+x.n,visual:visualFor(x),ariaLabel:x.n+' miktarı'}))
+  ],rng);
+}
+function nelNumberEquivalentReasonChoices(c,rng){
+  const answer='Hepsi aynı miktarı farklı biçimde gösteriyor.';
+  return semanticChoices(answer,[
+    'Yalnız aynı renkte oldukları için eşler.',
+    'Rakamın şekli nesnelerin şekline benzediği için eşler.',
+    'Yazılı sözcük miktardan bağımsızdır.'
+  ],rng);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2135,6 +2217,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelReliableCount10') return make('nel-reliable-counting-to-10',nelReliableCases());
   if(skillId==='nelSubitise5') return make('nel-instant-small-quantity-to-5',nelSubitiseCasesFor({min:2,max:5}));
   if(skillId==='nelConservation10') return make('nel-conservation-of-quantity-to-10',nelConservationCases());
+  if(skillId==='nelNumberRepresentations10') return make('nel-number-representations-1-to-10',nelNumberRepresentationCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -2597,6 +2680,49 @@ function genNelConservation10(rep,d,rng,concept){
     taskKind:'nel-conservation-transfer',taskLabel:'Miktar korunumunu gerçek nesnelere taşı',
     visual:{type:'nel-conservation-before-after',items:y.items,before:y.before,after:y.after,n:y.n,context:y.context},
     hint:'Aynı gerçek nesneler yalnız başka yerlere taşındı.',explain:'Günlük nesnelerin yerini değiştirmek, nesne eklenmedikçe veya çıkarılmadıkça miktarı değiştirmez.'
+  });
+}
+
+function genNelNumberRepresentations10(rep,d,rng,concept){
+  const c=concept?.skillId==='nelNumberRepresentations10'?concept:createConceptInstance('nelNumberRepresentations10',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    const quantity=x.quantities[(x.n+1)%x.quantities.length];
+    return qTask('nelNumberRepresentations10','build','Miktarı gör. Ona uyan rakam kartını bağla.','numeral-'+x.n,{kind:'manipulative',interaction:'nel-number-link-builder',expectedValue:'numeral-'+x.n,checkLabel:'Bağlantımı kontrol et'},{
+      taskKind:'nel-number-build-link',taskLabel:'Miktarı rakamla bağla',
+      visual:{type:'nel-number-link-builder',quantity,options:nelNumberFormChoices('numeral',x,rng)},
+      hint:'Önce miktarın kaç olduğunu düşün; sonra aynı sayıyı gösteren rakamı seç.',explain:x.n+' miktarı '+x.numeral.value+' rakamıyla gösterilebilir.'
+    });
+  }
+  if(rep==='see'){
+    const source=x.quantities[0], model=['fingers','ten-frame','tally'][x.n%3];
+    return qTask('nelNumberRepresentations10','see','Bu miktarla aynı sayıyı gösteren başka görünümü bul.','quantity-'+x.n,{kind:'visual-choice',options:nelNumberQuantityChoices(x,rng,model)},{
+      taskKind:'nel-number-see-equivalent',taskLabel:'Aynı miktarı farklı görünümde tanı',
+      visual:{type:'nel-number-quantity-focus',quantity:source},
+      hint:'Nesnelerin biçimi değişebilir; kaç tane olduğunu karşılaştır.',explain:'Farklı modeller aynı '+x.n+' miktarını gösterebilir.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelNumberRepresentations10','symbol','Sayı adını dinle. Aynı sayıyı gösteren rakam ve sayı sözcüğünü seç.','name-'+y.n+'|numeral-'+y.n+'|word-'+y.n,{kind:'manipulative',interaction:'nel-number-form-match',expectedValue:'name-'+y.n+'|numeral-'+y.n+'|word-'+y.n,checkLabel:'Eşleşmeleri kontrol et'},{
+      taskKind:'nel-number-match-forms',taskLabel:'Sayı adı, rakam ve sayı sözcüğünü eşleştir',
+      visual:{type:'nel-number-form-match',numberName:y.numberName,numeralOptions:nelNumberFormChoices('numeral',y,rng),wordOptions:nelNumberFormChoices('number-word',y,rng),quantity:y.quantities[2]},
+      hint:'Dinlediğin sayı adı, rakam ve yazılı sayı sözcüğü aynı miktarı anlatmalı.',explain:y.numberName.speech+', '+y.numeral.value+' ve '+y.numberWord.value+' aynı sayıyı gösterir.'
+    });
+  }
+  if(rep==='explain'){
+    const answer='Hepsi aynı miktarı farklı biçimde gösteriyor.';
+    return qBase('nelNumberRepresentations10','explain','Rakam, sayı sözcüğü ve nesne grubu neden eşleşebilir?',answer,nelNumberEquivalentReasonChoices(x,rng),{
+      taskKind:'nel-number-explain-equivalent',taskLabel:'Farklı sayı temsillerinin eşdeğerliğini açıkla',
+      visual:{type:'nel-number-equivalent-set',numberName:x.numberName,numeral:x.numeral,numberWord:x.numberWord,quantity:x.quantities[2]},
+      hint:'Gösterimlerin görünüşüne değil, anlattıkları miktara bak.',explain:answer
+    });
+  }
+  const y=c.transfer;
+  return qTask('nelNumberRepresentations10','transfer','Günlük bir yerde miktar bildiren rakamla aynı miktarı gösteren kartı bul.','quantity-'+y.n,{kind:'visual-choice',options:nelNumberQuantityChoices(y,rng,['objects','fingers','ten-frame','tally'][y.n%4])},{
+    taskKind:'nel-number-transfer-context',taskLabel:'Sayı temsilini günlük yaşama taşı',
+    visual:{type:'nel-number-context-tag',numeral:y.numeral,context:['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'][y.n%4]},
+    hint:'Gördüğün rakamın anlattığı miktarı bul.',explain:y.numeral.value+' rakamı günlük yaşamda da '+y.n+' miktarını gösterebilir.'
   });
 }
 
@@ -4348,6 +4474,7 @@ const GENERATORS={
   nelReliableCount10:genNelReliableCount10,
   nelSubitise5:genNelSubitise5,
   nelConservation10:genNelConservation10,
+  nelNumberRepresentations10:genNelNumberRepresentations10,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -5258,6 +5385,48 @@ function nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   throw new Error('Unknown nelConservation10 practice section: '+sectionId);
 }
 
+function nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelNumberRepresentationCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='build-quantity-link'){
+    return qTask('nelNumberRepresentations10','build','Miktarı, ona uyan rakam kartıyla bağla.','numeral-'+x.n,{kind:'manipulative',interaction:'nel-number-link-builder',expectedValue:'numeral-'+x.n,checkLabel:'Bağlantımı kontrol et'},{
+      taskKind:'nel-practice-number-build-'+taskIndex,taskLabel:'Miktar ve rakamı bağla',
+      visual:{type:'nel-number-link-builder',quantity:x.quantities[taskIndex%x.quantities.length],options:nelNumberFormChoices('numeral',x,rng)},
+      hint:'Önce miktarı düşün, sonra aynı sayıyı gösteren rakamı seç.',explain:x.n+' miktarı '+x.numeral.value+' rakamıyla eşleşir.'
+    });
+  }
+  if(sectionId==='see-same-number'){
+    const model=['objects','fingers','ten-frame','tally'][taskIndex%4];
+    return qTask('nelNumberRepresentations10','see','Aynı miktarı başka bir modelde gösteren kartı seç.','quantity-'+x.n,{kind:'visual-choice',options:nelNumberQuantityChoices(x,rng,model)},{
+      taskKind:'nel-practice-number-see-'+taskIndex,taskLabel:'Aynı sayıyı farklı miktar modelinde gör',
+      visual:{type:'nel-number-quantity-focus',quantity:x.quantities[(taskIndex+1)%4]},
+      hint:'Model değişse de toplam miktar aynı olabilir.',explain:'Farklı modeller aynı '+x.n+' miktarını gösterebilir.'
+    });
+  }
+  if(sectionId==='match-name-numeral-word'){
+    return qTask('nelNumberRepresentations10','symbol','Sayı adını dinle; doğru rakamı ve yazılı sayı sözcüğünü eşleştir.','name-'+x.n+'|numeral-'+x.n+'|word-'+x.n,{kind:'manipulative',interaction:'nel-number-form-match',expectedValue:'name-'+x.n+'|numeral-'+x.n+'|word-'+x.n,checkLabel:'Eşleşmeleri kontrol et'},{
+      taskKind:'nel-practice-number-forms-'+taskIndex,taskLabel:'Sayı adı/rakam/sayı sözcüğünü eşleştir',
+      visual:{type:'nel-number-form-match',numberName:x.numberName,numeralOptions:nelNumberFormChoices('numeral',x,rng),wordOptions:nelNumberFormChoices('number-word',x,rng),quantity:x.quantities[2]},
+      hint:'Ses, rakam ve yazılı sözcük aynı sayıya ait olmalı.',explain:x.numberName.speech+', '+x.numeral.value+' ve '+x.numberWord.value+' aynı miktarı anlatır.'
+    });
+  }
+  if(sectionId==='explain-equivalent-forms'){
+    const answer='Hepsi aynı miktarı farklı biçimde gösteriyor.';
+    return qBase('nelNumberRepresentations10','explain','Bu farklı gösterimler neden aynı sayıya ait?',answer,nelNumberEquivalentReasonChoices(x,rng),{
+      taskKind:'nel-practice-number-explain-'+taskIndex,taskLabel:'Sayı temsillerinin eşdeğerliğini açıkla',
+      visual:{type:'nel-number-equivalent-set',numberName:x.numberName,numeral:x.numeral,numberWord:x.numberWord,quantity:x.quantities[taskIndex%4]},
+      hint:'Aynı miktarın farklı biçimde gösterilip gösterilmediğine bak.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-number-context'){
+    return qTask('nelNumberRepresentations10','transfer','Günlük bir yerde miktar bildiren rakama uyan miktarı seç.','quantity-'+x.n,{kind:'visual-choice',options:nelNumberQuantityChoices(x,rng,['objects','fingers','ten-frame','tally'][taskIndex%4])},{
+      taskKind:'nel-practice-number-transfer-'+taskIndex,taskLabel:'Sayı temsilini günlük bağlama taşı',
+      visual:{type:'nel-number-context-tag',numeral:x.numeral,context:['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'][taskIndex%4]},
+      hint:'Gördüğün rakamın anlattığı miktarı bul.',explain:'Günlük yaşamdaki '+x.numeral.value+' rakamı da '+x.n+' miktarını temsil eder.'
+    });
+  }
+  throw new Error('Unknown nelNumberRepresentations10 practice section: '+sectionId);
+}
+
 function nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelReliableCases(), x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='one-to-one-count'){
@@ -5635,7 +5804,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelConservation10') q=nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelNumberRepresentations10') q=nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelConservation10') q=nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelSubitise5') q=nelSubitisePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelReliableCount10') q=nelReliableCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelRoteCount20') q=nelRoteCountPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -5706,6 +5876,7 @@ const CONCEPT_KEYS={
   nelReliableCount10:'nel-reliable-counting-to-10',
   nelSubitise5:'nel-instant-small-quantity-to-5',
   nelConservation10:'nel-conservation-of-quantity-to-10',
+  nelNumberRepresentations10:'nel-number-representations-1-to-10',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',

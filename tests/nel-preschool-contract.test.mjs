@@ -26,6 +26,8 @@ assert.equal(PRESCHOOL_NEL_SUPPORTING_CONCEPTS[0].officialNumberedKsd,false);
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.framework,'Singapore MOE Nurturing Early Learners Framework 2022');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.learningArea,'Numeracy');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.ageBand,'4–6');
+assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.countingPageUpdated,'2025-12-31');
+assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.verifiedAt,'2026-09-25');
 assert.equal(PRESCHOOL_NEL_CURRICULUM.length,4,'Numeracy must preserve the four official learning goals');
 assert.deepEqual(PRESCHOOL_NEL_CURRICULUM.map(goal=>goal.goalId),['1','2','3','4']);
 assert.equal(PRESCHOOL_NEL_CURRICULUM[0].mode,'cross-cutting','Learning Goal 1 is not a separate mastery path');
@@ -45,12 +47,25 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelConservation10'),'Path B metadata must reserve the conservation skill');
+assert.equal(preschoolIds.has('nelNumberRepresentations10'),true,'number representations enters the hidden runnable registry only after its generator exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
+assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
+const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
+for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
+assert.ok(app.includes("range:[1,5]")&&app.includes("range:[6,10]"),'all written number words 1..10 must be introduced before mixed word evidence');
+assert.ok(app.indexOf("id:'words-six-ten'")<app.indexOf("id:'word-quantity-eight'"),'written number words must be taught before word-to-quantity checking');
+assert.ok(app.includes('data-number-word-listen')&&app.includes('data-number-word-open')&&app.includes('disabled>Bu kartı gördüm'),'number-word cards must require spoken-name exposure before acknowledgement');
+assert.ok(app.includes("if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map"),'Inspector must expose number-representation Learn steps');
+for(const type of ['nel-number-quantity','nel-number-link-builder','nel-number-quantity-focus','nel-number-form-match','nel-number-equivalent-set','nel-number-context-tag']) assert.ok(app.includes("case '"+type+"'"),'missing number-representation renderer '+type);
+assert.ok(app.includes("interaction==='nel-number-link-builder'")&&app.includes("interaction==='nel-number-form-match'"),'number-representation manipulatives must be wired for read/status/bind');
+assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','number1000'"),'number representations must be lesson-first');
+assert.equal(/(^|[^$])\$\('\[data-number-(?:four-part|mixed|lesson-quantity)\]'\)\.forEach/m.test(app),false,'multi-option number Learn interactions must not use single-element selector semantics');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
 for(const id of conservationLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL conservation Learn step '+id);
@@ -120,6 +135,18 @@ for(const [code,ids] of Object.entries(PRESCHOOL_NEL_KSD_MAP)){
 }
 for(const concept of PRESCHOOL_NEL_SUPPORTING_CONCEPTS) assert.ok(allPlannedProductSkills.has(concept.skillId),'supporting concept must belong to a canonical preschool path: '+concept.skillId);
 
+const representationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumberRepresentations10;
+assert.equal(representationContract.practice.sections.length,5);
+assert.deepEqual(representationContract.practice.sections.map(s=>s.id),['build-quantity-link','see-same-number','match-name-numeral-word','explain-equivalent-forms','transfer-number-context']);
+assert.deepEqual(representationContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(representationContract.officialKsd,['3.4','3.5']);
+assert.deepEqual(representationContract.productQuantityRange,[1,10]);
+assert.deepEqual(representationContract.representationKinds,['number-name','numeral','number-word','quantity']);
+assert.ok(['objects','fingers','ten-frame','tally'].every(kind=>representationContract.quantityModels.includes(kind)));
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.4'],['nelNumberRepresentations10']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.5'],['nelNumberRepresentations10']);
+assert.equal(representationContract.practice.sections.some(s=>/(^|-)write($|-)|numeral-formation|handwriting/i.test(s.id)),false,'KSD 3.4–3.5 must not absorb KSD 3.6 numeral formation');
+
 const conservationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelConservation10;
 assert.equal(conservationContract.practice.sections.length,5);
 assert.deepEqual(conservationContract.practice.sections.map(s=>s.id),['rearrange-same-set','see-same-quantity','resist-spacing-cue','explain-no-add-remove','transfer-real-objects']);
@@ -136,7 +163,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
@@ -167,6 +194,15 @@ assert.ok(app.includes("const NEL_SUBITISE_FLASH_MS=650;"),'subitising must use 
 assert.ok(app.includes('data-flash-state="idle"'),'subitising must start with the target hidden');
 assert.ok(app.includes("root.dataset.flashReady='true'"),'subitising response must unlock only after the flash has ended');
 assert.ok(app.includes("frame.dataset.flashState='ready'"),'subitising target must transition to a closed/ready state');
+
+assert.ok(app.includes("const NEL_NUMBER_WORDS=['','bir','iki','üç','dört','beş','altı','yedi','sekiz','dokuz','on'];"),'Turkish localisation must provide written number words 1..10');
+assert.ok(app.includes("model==='fingers'")&&app.includes("model==='ten-frame'")&&app.includes("model==='tally'"),'number representation UI must render varied quantity models');
+assert.ok(app.includes("data-rote-speech")&&app.includes("Hedef sayı adını dinle"),'spoken number-name evidence must stay audio-addressable');
+assert.ok(app.includes("data-number-mixed=\"'+x.n+'\" disabled"),'mixed representation choice must stay locked until the spoken number name is heard');
+assert.ok(app.includes("toLocaleUpperCase('tr-TR')")&&app.includes('data-number-context'),'Turkish number-context labels must preserve locale-aware casing and semantic context');
+assert.ok(app.includes('data-name-listened="false"')&&app.includes("root.dataset.nameListened='true'"),'Practice form matching must record actual spoken-number listening');
+assert.ok(app.includes("root.dataset.nameListened!=='true'"),'Practice form matching must refuse completion before the spoken number name is heard');
+for(const context of ['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi']) assert.ok(app.includes(context)||fs.readFileSync(new URL('../engine.mjs',import.meta.url),'utf8').includes(context),'cardinal daily-life context missing: '+context);
 
 let seed=711;
 const rng=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
@@ -356,6 +392,49 @@ assert.equal(subTransfer.response.interaction,'nel-subitise-flash-audio');
 assert.ok(['dice','domino'].includes(subTransfer.visual.pattern.context),'subitising transfer must use dice/domino structure');
 assert.ok(subStructured.visual.flashMs<=800&&subStructured.visual.flashMs>=250,'subitising flash duration must stay short');
 
+const representationConcept=createConceptInstance('nelNumberRepresentations10',1,rng);
+assert.equal(representationConcept.skillId,'nelNumberRepresentations10');
+assert.ok(representationConcept.anchor.n>=1&&representationConcept.anchor.n<=10,'number representation concept must stay within product scope 1..10');
+assert.equal(representationConcept.anchor.numberName.kind,'number-name');
+assert.equal(representationConcept.anchor.numeral.kind,'numeral');
+assert.equal(representationConcept.anchor.numberWord.kind,'number-word');
+assert.equal(typeof representationConcept.anchor.numberName.speech,'string','spoken number name must carry audio/speech content');
+assert.equal(representationConcept.anchor.numberWord.value,representationConcept.anchor.numberName.speech,'localised written word and spoken name may share language text but must remain different representation kinds');
+assert.deepEqual(representationConcept.anchor.quantities.map(q=>q.model),['objects','fingers','ten-frame','tally']);
+
+const repBuild=generateQuestion('nelNumberRepresentations10','build',1,rng,representationConcept);
+const repSee=generateQuestion('nelNumberRepresentations10','see',1,rng,representationConcept);
+const repShow=generateQuestion('nelNumberRepresentations10','symbol',1,rng,representationConcept);
+const repExplain=generateQuestion('nelNumberRepresentations10','explain',1,rng,representationConcept);
+const repTransfer=generateQuestion('nelNumberRepresentations10','transfer',1,rng,representationConcept);
+assert.equal(repBuild.response.interaction,'nel-number-link-builder');
+assert.equal(repSee.response.kind,'visual-choice');
+assert.equal(repShow.response.interaction,'nel-number-form-match');
+assert.equal(repExplain.response.kind,'choice');
+assert.equal(repTransfer.response.kind,'visual-choice');
+for(const q of [repBuild,repSee,repShow,repExplain,repTransfer]){
+  assert.notEqual(q.response.kind,'number-input','KSD 3.4–3.5 must not require numeral writing');
+  assert.ok(!/(rakamı?\s+yaz|rakam\s+yaz|rakamı?\s+çiz|rakam.*oluştur)/i.test([q.prompt,q.hint,q.explain].join(' ')),'KSD 3.6 formation language must not leak into representation evidence');
+}
+
+const representationModels=new Set();
+for(const section of representationContract.practice.sections){
+  const qs=Array.from({length:12},(_,i)=>generateLessonPracticeQuestion('nelNumberRepresentations10',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelNumberRepresentations10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    assert.notEqual(q.response.kind,'number-input',section.id+' must not require numeral entry');
+    const visual=q.visual||{};
+    const collect=model=>{if(model)representationModels.add(model);};
+    collect(visual.quantity?.model);
+    for(const option of q.response?.options||[]) collect(option.visual?.model);
+    for(const option of visual.options||[]) collect(option.visual?.model);
+    if(visual.numberName) assert.ok(visual.numberName.speech,'spoken number name must preserve speech metadata');
+    if(visual.numberWord) assert.equal(visual.numberWord.kind,'number-word');
+  }
+}
+for(const model of ['objects','fingers','ten-frame','tally']) assert.ok(representationModels.has(model),'number representation practice must use varied quantity model '+model);
+
 const conservationConcept=createConceptInstance('nelConservation10',1,rng);
 assert.equal(conservationConcept.skillId,'nelConservation10');
 assert.ok(conservationConcept.anchor.n>=4&&conservationConcept.anchor.n<=10,'conservation concept must stay within sets up to 10');
@@ -402,14 +481,17 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
 assert.ok(contract.includes('18 official Numeracy KSDs'),'research contract must state the complete canonical KSD count');
 assert.ok(contract.includes('**1.1**')&&contract.includes('**1.2**'),'daily-life Numeracy KSDs must be explicit, not implied only');
 assert.ok(contract.includes('**3.2.1**')&&contract.includes('**3.2.4**'),'reliable-counting subskills must be documented');
-assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve the next planned Path B skill');
+assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark number representations complete');
+assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve numeral formation as the next Path B skill');
+assert.ok(contract.includes('Status after SAYMERA v1.20.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('Re-verified on **2026-09-25**'),'research contract must record the latest official-source verification');
 assert.ok(contract.includes('**KSD 3.4**')&&contract.includes('**KSD 3.5**'),'number-representation research boundary must anchor both official KSDs');
 assert.ok(contract.includes('**number name**')&&contract.includes('**numeral**')&&contract.includes('**number word**')&&contract.includes('**quantity**'),'representation contract must distinguish spoken name, numeral, written word and quantity');
 assert.ok(contract.includes('not a claim that KSD 3.4/3.5 explicitly state a 10-only ceiling'),'product limit must not be misrepresented as an official NEL ceiling');

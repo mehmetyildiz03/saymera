@@ -1,11 +1,11 @@
 {
   "name": "saymera-math-lab",
-  "version": "1.19.1",
+  "version": "1.20.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node build-standalone.mjs && node tests/engine.test.mjs && node tests/learning-cycle.test.mjs && node tests/p2-pedagogy-audit.test.mjs && node tests/nel-preschool-contract.test.mjs && node tests/practice-variation.test.mjs && node tests/fraction-paint.test.mjs && node tests/learning-architecture.test.mjs && node tests/atlas-roadmap.test.mjs && node tests/lesson-center.test.mjs && node tests/reference-practice-sections.test.mjs && node tests/dev-inspector.test.mjs && node tests/curriculum-lesson-shell.test.mjs && node tests/moe-p2-number1000-teaching.test.mjs && node tests/moe-p2-compare-order-teaching.test.mjs && node tests/moe-p2-number-pattern-teaching.test.mjs && node tests/moe-p2-odd-even-teaching.test.mjs && node tests/number1000-student-practice.test.mjs && node tests/mobile-responsive-contract.test.mjs && node tests/feedback-language-contract.test.mjs && node tests/child-copy.test.mjs && node tests/ui-static.test.mjs",
-    "test:browser": "node tests/pattern-browser.test.mjs && node tests/odd-even-browser.test.mjs && node tests/preschool-match-browser.test.mjs && node tests/preschool-sort-browser.test.mjs && node tests/preschool-compare-browser.test.mjs && node tests/preschool-order-browser.test.mjs && node tests/preschool-pattern-browser.test.mjs && node tests/preschool-rote-browser.test.mjs && node tests/preschool-reliable-browser.test.mjs && node tests/preschool-subitise-browser.test.mjs && node tests/preschool-conservation-browser.test.mjs",
+    "test:browser": "node tests/pattern-browser.test.mjs && node tests/odd-even-browser.test.mjs && node tests/preschool-match-browser.test.mjs && node tests/preschool-sort-browser.test.mjs && node tests/preschool-compare-browser.test.mjs && node tests/preschool-order-browser.test.mjs && node tests/preschool-pattern-browser.test.mjs && node tests/preschool-rote-browser.test.mjs && node tests/preschool-reliable-browser.test.mjs && node tests/preschool-subitise-browser.test.mjs && node tests/preschool-conservation-browser.test.mjs && node tests/preschool-number-representations-browser.test.mjs",
     "serve": "python3 -m http.server 4173",
     "build:standalone": "node build-standalone.mjs"
   },

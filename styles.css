@@ -1333,3 +1333,51 @@ button.nel-conservation-token{cursor:pointer}button.nel-conservation-token.moved
   .nel-conservation-token{width:36px;height:36px;font-size:17px}
   .nel-conservation-choice-row{grid-template-columns:1fr;gap:5px}
 }
+
+
+/* hidden NEL preschool number-representation reference lesson */
+.practice-content.number-representation-practice{overflow-y:auto;display:block}
+.number-representation-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
+.number-representation-question-stage .number-representation-stage{height:auto;max-height:none;min-height:0;overflow:visible;place-items:start center;padding:12px}
+.nel-number-lesson-stage{width:min(900px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-number-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-number-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-number-section-track span.active{background:var(--rose-soft);border-color:#e6b6ad;color:#9b4f43}
+.nel-number-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start}
+.nel-number-lesson-core{width:min(780px,100%);display:grid;justify-items:center;gap:12px}
+.nel-number-quantity{min-width:180px;min-height:128px;padding:16px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.nel-number-quantity.objects i{font-style:normal;font-size:29px;color:var(--navy)}
+.nel-number-quantity.ten-frame{display:grid;grid-template-columns:repeat(5,36px);grid-template-rows:repeat(2,36px);gap:5px;min-width:auto}
+.nel-number-quantity.ten-frame i{width:36px;height:36px;border:1px solid #aebcc5;border-radius:7px;background:var(--paper)}
+.nel-number-quantity.ten-frame i.filled{background:var(--blue-soft);box-shadow:inset 0 0 0 10px #477fa7}
+.nel-number-quantity.fingers{gap:24px}.nel-number-hand{display:flex;gap:4px;align-items:flex-end;height:88px}.nel-number-hand i{display:block;width:17px;height:50px;border-radius:12px 12px 8px 8px;background:#d7dce0;transform-origin:bottom}.nel-number-hand i:nth-child(2),.nel-number-hand i:nth-child(4){height:61px}.nel-number-hand i:nth-child(3){height:68px}.nel-number-hand i.up{background:var(--amber-soft);box-shadow:inset 0 0 0 2px #d2a54d}
+.nel-number-quantity.tally{gap:7px;min-width:230px}.nel-number-quantity.tally i{display:block;width:5px;height:58px;border-radius:4px;background:var(--navy);transform:rotate(3deg)}.nel-number-quantity.tally i.fifth{transform:rotate(55deg);margin-left:-12px;margin-right:8px}
+.nel-number-listen,.nel-number-confirm{min-height:46px;padding:9px 14px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-size:10px;font-weight:900;color:var(--navy)}
+.nel-number-listen:hover,.nel-number-confirm:hover{background:var(--blue-soft)}
+.nel-number-form-card{min-width:82px;min-height:70px;border:1px solid var(--line);border-radius:17px;background:var(--paper);display:grid;place-items:center;padding:10px;font-weight:950;color:var(--navy)}
+button.nel-number-form-card{cursor:pointer}.nel-number-form-card.numeral{font-size:34px}.nel-number-form-card.word{font-size:18px}.nel-number-form-card.hero{min-width:120px;min-height:96px;font-size:48px}.nel-number-form-card.word.hero{font-size:26px}
+.nel-number-form-card.selected,.nel-number-link-builder [data-nel-number-link].selected,.nel-number-form-match button.selected{background:var(--teal-soft);border-color:#8bc8ba}
+.nel-number-link-builder,.nel-number-focus,.nel-number-form-match,.nel-number-equivalent-set{width:min(740px,100%);display:grid;gap:12px;justify-items:center}
+.nel-number-card-row,.nel-number-form-group>div{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.nel-number-form-group{width:100%;display:grid;gap:6px}.nel-number-form-group>small{text-align:center;font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-number-match-quantity{display:grid;place-items:center}
+.nel-number-equivalent-set{grid-template-columns:repeat(2,minmax(0,1fr));align-items:center}.nel-number-equivalent-set>.nel-number-quantity{justify-self:stretch}
+.nel-number-word-deck{width:min(760px,100%);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.nel-number-word-deck article{min-height:145px;padding:10px;border:1px solid var(--line);border-radius:18px;background:var(--paper-2);display:grid;gap:6px;justify-items:center;align-content:center}.nel-number-word-deck article.seen{background:var(--teal-soft);border-color:#8bc8ba}.nel-number-word-deck strong{font-size:28px}.nel-number-word-deck b{font-size:13px}.nel-number-word-deck button{border:1px solid var(--line);border-radius:10px;background:var(--paper);padding:7px;font-size:8px;font-weight:850}
+.nel-number-model-cycle{width:min(560px,100%);display:grid;place-items:center}
+.nel-number-help{min-height:18px;margin:0;text-align:center;font-size:10px;font-weight:850;color:var(--muted)}
+.nel-number-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(660px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:11px;font-weight:900;text-align:center}.nel-number-result.revealed{opacity:1;transform:none}
+.nel-number-lesson-choice-grid{width:min(720px,100%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.nel-number-lesson-choice-grid>button{padding:8px;border:1px solid var(--line);border-radius:18px;background:var(--paper)}.nel-number-lesson-choice-grid>button.selected{background:var(--teal-soft);border-color:#8bc8ba}.nel-number-lesson-choice-grid .nel-number-quantity{min-width:0;width:100%}
+.nel-number-four-way{width:min(720px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:center}.nel-number-four-way>*{justify-self:stretch}.nel-number-quantity-button{padding:0;border:0;background:transparent}.nel-number-quantity-button.selected .nel-number-quantity{background:var(--teal-soft);border-color:#8bc8ba}
+.nel-number-context-tag{width:min(420px,100%);padding:18px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:grid;justify-items:center;gap:6px}.nel-number-context-tag small{font-size:8px;font-weight:950;letter-spacing:.1em;color:var(--muted)}.nel-number-context-tag strong{font-size:68px;line-height:1}.nel-number-context-tag span{text-align:center;font-size:10px;font-weight:800;color:var(--muted)}
+.nel-number-real-world{width:min(600px,100%);display:grid;grid-template-columns:36px 1fr;gap:8px 12px;align-items:center}.nel-number-real-world b{width:34px;height:34px;border-radius:11px;background:var(--rose-soft);display:grid;place-items:center}.nel-number-real-world span{font-size:10px;font-weight:850}
+@media(max-width:699px){
+  .practice-content.number-representation-practice{padding-bottom:28px}
+  .nel-number-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-number-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}.nel-number-section-track span{flex:0 0 auto}
+  .nel-number-word-deck{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nel-number-lesson-choice-grid{grid-template-columns:1fr}
+  .nel-number-four-way,.nel-number-equivalent-set{grid-template-columns:1fr}
+  .nel-number-quantity{min-width:0;width:100%;min-height:112px}
+  .nel-number-quantity.ten-frame{width:auto}
+}
