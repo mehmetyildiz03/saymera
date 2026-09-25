@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit, patternContinuationRule, numeralFormationCaseFor
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit, patternContinuationRule, numeralFormationCaseFor, quantityCompareCaseFor
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -2423,6 +2423,177 @@ function renderNelNumeralFormationLessonStep(skill,index=null){
   const next=$('#nelNumeralLessonNext');wireNelNumeralFormationLessonStep(step,next);next?.addEventListener('click',()=>completeNelNumeralFormationLessonStep(skill,at));
 }
 
+
+const NEL_QUANTITY_COMPARE_LESSON_VERSION=1;
+const NEL_QUANTITY_COMPARE_SECTIONS=['EŞLEŞTİR','DAHA ÇOK','DAHA AZ','AYNI','ANLAT','HAYATA TAŞI'];
+const NEL_QUANTITY_COMPARE_LESSON_STEPS=[
+  {id:'pair-same-four',section:'EŞLEŞTİR',kind:'pair',caseId:'same-4-spread',title:'İki küme farklı görünse de aynı sayıda olabilir.',body:'Her sol nesneyi bir sağ nesneyle eşleştir. Eşsiz nesne kalıyor mu bak.',result:'Her nesnenin bir eşi var; iki küme aynı sayıda.'},
+  {id:'pair-more-five-three',section:'EŞLEŞTİR',kind:'pair',caseId:'left-more-5-3',title:'Eşsiz kalan nesne daha çok olan kümeyi gösterir.',body:'İki kümeyi bire bir eşleştir ve hangi tarafta nesne kaldığını gör.',result:'Sol kümede eşsiz nesne kaldı; sol kümede daha çok nesne var.'},
+  {id:'see-right-more',section:'DAHA ÇOK',kind:'side-choice',caseId:'right-more-4-6',title:'Daha çok olanı miktara bakarak bul.',body:'Nesnelerin aralığına değil, kaç nesne olduğuna karar ver.',result:'Sağ kümede daha çok nesne var.'},
+  {id:'resist-size-spacing',section:'DAHA ÇOK',kind:'side-choice',caseId:'left-more-9-6',title:'Büyük görünen nesneler daha çok demek değildir.',body:'Bir taraftaki nesneler daha büyük veya daha yaygın görünebilir. Miktarı karşılaştır.',result:'Sol kümenin nesneleri daha küçük görünse de miktarı daha çok.'},
+  {id:'fewer-language',section:'DAHA AZ',kind:'left-relation',caseId:'right-more-5-8',title:'Daha az sayıda olan kümeyi söyle.',body:'Sol kümeyi sağ kümeyle karşılaştır ve uygun miktar cümlesini seç.',result:'Sol kümede daha az sayıda nesne var.'},
+  {id:'less-language',section:'DAHA AZ',kind:'language-pair',caseId:'right-more-6-10',title:'Türkçede “daha az sayıda” ve “daha az” aynı küçük miktar ilişkisini anlatabilir.',body:'İki söyleyişi de aç. Önemli olan, hangi kümenin miktarının daha az olduğunu anlamak.',result:'Kaynakta “fewer than / less than” ayrı terimlerdir; Türkçede doğal karşılıklar bağlama göre örtüşebilir.'},
+  {id:'same-ten',section:'AYNI',kind:'left-relation',caseId:'same-10',title:'Düzen değişse de iki küme aynı sayıda olabilir.',body:'İki kümenin yerleşimi farklı. Miktar ilişkisini seç.',result:'Her iki kümede de aynı miktar var.'},
+  {id:'reverse-relation',section:'DAHA AZ',kind:'left-relation',caseId:'right-more-4-6',title:'Bir küme daha çoksa öteki daha azdır.',body:'Sol kümenin sağ kümeye göre miktarını söyle.',result:'Sağ küme daha çok olduğu için sol küme daha az sayıda.'},
+  {id:'explain-leftover',section:'ANLAT',kind:'proof',caseId:'left-more-10-7',title:'Neden daha çok olduğunu eşleşmeyen nesne gösterir.',body:'Bire bir eşleşen çiftlere ve dışarıda kalan nesnelere bak.',result:'Sol kümede eşsiz nesne kaldığı için sol kümede daha çok nesne var.'},
+  {id:'object-graph',section:'HAYATA TAŞI',kind:'graph-choice',caseId:'right-more-6-10',title:'Gerçek nesne grafiğinde de aynı karşılaştırmayı yap.',body:'İki nesne sırasını karşılaştır. Sıra uzunluğuna değil nesne sayısına bak.',result:'Gerçek nesne sıralarında da miktarı bire bir karşılaştırabiliriz.'}
+];
+function nelQuantityCompareSectionTrack(step){
+  return '<div class="nel-quantity-section-track">'+NEL_QUANTITY_COMPARE_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelQuantityToneClass(tone){return 'tone-'+(['blue','red','green','yellow'].includes(tone)?tone:'blue');}
+function nelQuantitySetMarkup(set={},side='left',{interactive=false,label=true}={}){
+  const items=set.items||[],layout=set.layout||'compact-row',scale=Math.max(.72,Math.min(1.3,Number(set.tokenScale)||1));
+  return '<div class="nel-quantity-set '+esc(layout)+'" data-quantity-set="'+esc(side)+'" style="--quantity-scale:'+scale+'">'+
+    (label?'<small>'+(side==='left'?'SOL KÜME':'SAĞ KÜME')+'</small>':'')+
+    '<div class="nel-quantity-items">'+items.map((item,index)=>{
+      const tag=interactive?'button':'span';
+      return '<'+tag+(interactive?' type="button"':'')+' class="nel-quantity-token '+nelQuantityToneClass(item.tone)+'" data-quantity-item="'+esc(item.id)+'" data-quantity-side="'+esc(side)+'" data-quantity-index="'+index+'" aria-label="'+(side==='left'?'sol':'sağ')+' küme nesnesi">'+esc(item.symbol||'●')+'</'+tag+'>';
+    }).join('')+'</div></div>';
+}
+function nelQuantitySetPairVisual(v={}){
+  return '<div class="nel-quantity-set-pair">'+nelQuantitySetMarkup(v.left,'left')+nelQuantitySetMarkup(v.right,'right')+'</div>';
+}
+function nelQuantityPairBuilderVisual(v={}){
+  const leftN=Number(v.left?.count||v.left?.items?.length||0),rightN=Number(v.right?.count||v.right?.items?.length||0);
+  return '<div class="nel-quantity-pair-builder" data-left-n="'+leftN+'" data-right-n="'+rightN+'" data-relation="'+esc(v.relation||'')+'" data-paired-count="0">'+
+    '<p class="nel-quantity-pair-instruction">Soldan bir nesne, sonra sağdan bir nesne seç.</p>'+
+    '<div class="nel-quantity-set-pair">'+nelQuantitySetMarkup(v.left,'left',{interactive:true})+nelQuantitySetMarkup(v.right,'right',{interactive:true})+'</div>'+
+    '<div class="nel-quantity-pair-summary" data-quantity-pair-summary>Henüz eşleştirme yok.</div>'+
+  '</div>';
+}
+function nelQuantityRelationChoiceVisual(v={}){
+  const options=(v.options||[]).map(String);
+  return '<div class="nel-quantity-relation-choice">'+nelQuantitySetPairVisual(v)+
+    '<div class="nel-quantity-relation-buttons">'+options.map(value=>'<button type="button" data-quantity-relation-choice="'+esc(value)+'">'+esc(value)+'</button>').join('')+'</div></div>';
+}
+function nelQuantityPairedProofVisual(v={}){
+  const left=v.left||{},right=v.right||{},leftItems=left.items||[],rightItems=right.items||[],max=Math.max(leftItems.length,rightItems.length),paired=Math.min(leftItems.length,rightItems.length);
+  return '<div class="nel-quantity-proof">'+
+    '<div class="nel-quantity-proof-head"><span>SOL</span><span>BİRE BİR</span><span>SAĞ</span></div>'+
+    '<div class="nel-quantity-proof-rows">'+Array.from({length:max},(_,i)=>{
+      const li=leftItems[i],ri=rightItems[i],isPair=i<paired;
+      const leftHtml=li?'<span class="nel-quantity-token '+nelQuantityToneClass(li.tone)+' '+(!isPair?'unmatched':'')+'">'+esc(li.symbol||'●')+'</span>':'<i></i>';
+      const rightHtml=ri?'<span class="nel-quantity-token '+nelQuantityToneClass(ri.tone)+' '+(!isPair?'unmatched':'')+'">'+esc(ri.symbol||'●')+'</span>':'<i></i>';
+      return '<div class="nel-quantity-proof-row">'+leftHtml+'<b>'+(isPair?'↔':'•')+'</b>'+rightHtml+'</div>';
+    }).join('')+'</div>'+
+    '<p>Eşleşmeyen nesne kalan tarafın miktarı daha çoktur.</p></div>';
+}
+function nelQuantityObjectGraphVisual(v={}){
+  const row=(set,side)=>'<div class="nel-quantity-graph-row"><small>'+(side==='left'?'1. SIRA':'2. SIRA')+'</small><div>'+((set?.items)||[]).map(item=>'<span class="nel-quantity-graph-object '+nelQuantityToneClass(item.tone)+'">'+esc(item.symbol||'●')+'</span>').join('')+'</div></div>';
+  return '<div class="nel-quantity-object-graph" data-quantity-context="'+esc(v.context||'real-object-graph')+'"><span class="nel-quantity-graph-kicker">GERÇEK NESNE GRAFİĞİ</span>'+row(v.left,'left')+row(v.right,'right')+
+    ((v.options||[]).length?'<div class="nel-quantity-relation-buttons">'+v.options.map(value=>'<button type="button" data-quantity-relation-choice="'+esc(value)+'">'+esc(value)+'</button>').join('')+'</div>':'')+'</div>';
+}
+function bindNelQuantityRelation(root,onChange,blocked=()=>false){
+  root?.querySelectorAll('[data-quantity-relation-choice]').forEach(button=>button.addEventListener('click',()=>{
+    if(blocked())return;
+    root.querySelectorAll('[data-quantity-relation-choice]').forEach(x=>x.classList.remove('selected'));
+    button.classList.add('selected');
+    root.dataset.quantityRelationSelected=button.dataset.quantityRelationChoice;
+    onChange?.();
+  }));
+}
+function nelQuantityRelationRead(root){return root?.dataset.quantityRelationSelected||null;}
+function bindNelQuantityPairBuilder(root,onChange,blocked=()=>false){
+  if(!root)return;
+  let selectedLeft=null,selectedRight=null,pairIndex=0;
+  const minPairs=Math.min(Number(root.dataset.leftN)||0,Number(root.dataset.rightN)||0);
+  const summary=root.querySelector('[data-quantity-pair-summary]');
+  const refresh=()=>{
+    const paired=root.querySelectorAll('[data-quantity-side="left"].paired').length;
+    root.dataset.pairedCount=String(paired);
+    if(paired>=minPairs&&minPairs>0){
+      root.dataset.pairComplete='true';
+      root.querySelectorAll('[data-quantity-item]:not(.paired)').forEach(item=>item.classList.add('unmatched'));
+      const l=Number(root.dataset.leftN)||0,r=Number(root.dataset.rightN)||0;
+      if(summary)summary.textContent=l===r?'Bütün nesneler eşleşti; eşsiz nesne kalmadı.':(l>r?'Sol kümede eşsiz nesne kaldı.':'Sağ kümede eşsiz nesne kaldı.');
+    }else if(summary) summary.textContent=paired+' / '+minPairs+' çift eşleşti.';
+    onChange?.();
+  };
+  const pairIfReady=()=>{
+    if(!selectedLeft||!selectedRight)return;
+    pairIndex+=1;
+    for(const node of [selectedLeft,selectedRight]){
+      node.classList.remove('selected');node.classList.add('paired');node.dataset.pairIndex=String(pairIndex);node.disabled=true;
+    }
+    selectedLeft=null;selectedRight=null;refresh();
+  };
+  root.querySelectorAll('[data-quantity-item]').forEach(button=>button.addEventListener('click',()=>{
+    if(blocked()||button.disabled||root.dataset.pairComplete==='true')return;
+    const side=button.dataset.quantitySide;
+    if(side==='left'){
+      root.querySelectorAll('[data-quantity-side="left"].selected').forEach(x=>x.classList.remove('selected'));
+      selectedLeft=button;button.classList.add('selected');
+    }else{
+      root.querySelectorAll('[data-quantity-side="right"].selected').forEach(x=>x.classList.remove('selected'));
+      selectedRight=button;button.classList.add('selected');
+    }
+    pairIfReady();if(!selectedLeft||!selectedRight)onChange?.();
+  }));
+}
+function nelQuantityPairRead(root){
+  if(!root||root.dataset.pairComplete!=='true')return null;
+  return 'paired|'+root.dataset.leftN+'|'+root.dataset.rightN+'|'+root.dataset.relation;
+}
+function nelQuantityLessonSideOptions(x){
+  const correct=x.language.sideAnswer;
+  const options=[correct,'İki küme aynı sayıda.','Sol kümede daha çok nesne var.','Sağ kümede daha çok nesne var.'];
+  return [...new Set(options)].slice(0,4);
+}
+function nelQuantityLessonRelationOptions(x){
+  return [...new Set([x.language.relationLabel,'Sol küme sağ kümeyle aynı sayıda.','Sol kümede daha çok nesne var.','Sol kümede daha az sayıda nesne var.'])].slice(0,4);
+}
+function nelQuantityLessonCore(step){
+  const x=quantityCompareCaseFor(step.caseId);
+  if(step.kind==='pair') return '<div class="nel-quantity-lesson-core">'+nelQuantityPairBuilderVisual({left:x.left,right:x.right,relation:x.relation})+'<div class="nel-quantity-lesson-result" id="nelQuantityResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='side-choice') return '<div class="nel-quantity-lesson-core">'+nelQuantityRelationChoiceVisual({left:x.left,right:x.right,options:nelQuantityLessonSideOptions(x)})+'<p class="nel-quantity-help" id="nelQuantityHelp">Miktarı karşılaştır ve bir cümle seç.</p><div class="nel-quantity-lesson-result" id="nelQuantityResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='left-relation') return '<div class="nel-quantity-lesson-core">'+nelQuantityRelationChoiceVisual({left:x.left,right:x.right,options:nelQuantityLessonRelationOptions(x)})+'<p class="nel-quantity-help" id="nelQuantityHelp">Sol kümenin sağ kümeye göre miktarını söyle.</p><div class="nel-quantity-lesson-result" id="nelQuantityResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='language-pair') return '<div class="nel-quantity-lesson-core">'+nelQuantitySetPairVisual({left:x.left,right:x.right})+'<div class="nel-quantity-language-pair"><button type="button" data-quantity-language="fewer">daha az sayıda</button><button type="button" data-quantity-language="less">daha az</button></div><p class="nel-quantity-help" id="nelQuantityHelp">İki söyleyişe de dokun.</p><div class="nel-quantity-lesson-result" id="nelQuantityResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='proof') return '<div class="nel-quantity-lesson-core">'+nelQuantityPairedProofVisual({left:x.left,right:x.right})+'<button type="button" class="nel-quantity-confirm" id="nelQuantityConfirm">Eşsiz kalan nesneyi gördüm</button><div class="nel-quantity-lesson-result" id="nelQuantityResult">'+esc(step.result)+'</div></div>';
+  return '<div class="nel-quantity-lesson-core">'+nelQuantityObjectGraphVisual({left:x.left,right:x.right,options:nelQuantityLessonSideOptions(x),context:'real-object-graph'})+'<p class="nel-quantity-help" id="nelQuantityHelp">İki nesne sırasını karşılaştır.</p><div class="nel-quantity-lesson-result" id="nelQuantityResult">'+esc(step.result)+'</div></div>';
+}
+function wireNelCompareQuantitiesLessonStep(step,next){
+  const core=$('.nel-quantity-lesson-core'),result=$('#nelQuantityResult'),help=$('#nelQuantityHelp'),x=quantityCompareCaseFor(step.caseId);
+  const reveal=()=>{result?.classList.add('revealed');if(next)next.disabled=false;};
+  if(step.kind==='pair'){
+    const root=core?.querySelector('.nel-quantity-pair-builder');
+    bindNelQuantityPairBuilder(root,()=>{if(nelQuantityPairRead(root))reveal();});
+    return;
+  }
+  if(step.kind==='side-choice'||step.kind==='left-relation'||step.kind==='graph-choice'){
+    const root=core?.querySelector(step.kind==='graph-choice'?'.nel-quantity-object-graph':'.nel-quantity-relation-choice');
+    const answer=step.kind==='side-choice'||step.kind==='graph-choice'?x.language.sideAnswer:x.language.relationLabel;
+    bindNelQuantityRelation(root,()=>{
+      const value=nelQuantityRelationRead(root);
+      if(value===answer){if(help)help.textContent='';reveal();}
+      else if(help)help.textContent='Nesneleri bire bir düşün; büyüklük ve aralık miktarı değiştirmez.';
+    });
+    return;
+  }
+  if(step.kind==='language-pair'){
+    const seen=new Set();
+    core?.querySelectorAll('[data-quantity-language]').forEach(button=>button.addEventListener('click',()=>{
+      seen.add(button.dataset.quantityLanguage);button.classList.add('selected');
+      if(help)help.textContent=seen.size===2?'İki söyleyişi de gördün.':'Diğer söyleyişe de dokun.';
+      if(seen.size===2)reveal();
+    }));
+    return;
+  }
+  $('#nelQuantityConfirm')?.addEventListener('click',reveal);
+}
+function completeNelCompareQuantitiesLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_QUANTITY_COMPARE_LESSON_VERSION;
+  if(next>=NEL_QUANTITY_COMPARE_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}
+  saveState();session.lessonStepIndex=next;renderNelCompareQuantitiesLessonStep(skill,next);
+}
+function renderNelCompareQuantitiesLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_QUANTITY_COMPARE_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_QUANTITY_COMPARE_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_QUANTITY_COMPARE_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);$('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_QUANTITY_COMPARE_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_QUANTITY_COMPARE_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-quantity-lesson-stage" data-nel-quantity-step="'+esc(step.id)+'">'+nelQuantityCompareSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_QUANTITY_COMPARE_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-quantity-lesson-visual">'+nelQuantityLessonCore(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelQuantityLessonNext" disabled>'+(at===NEL_QUANTITY_COMPARE_LESSON_STEPS.length-1?'Sayı hissi yoluna devam':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelQuantityLessonNext');wireNelCompareQuantitiesLessonStep(step,next);next?.addEventListener('click',()=>completeNelCompareQuantitiesLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -3003,6 +3174,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelConservation10') return NEL_CONSERVATION_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelNumeralFormation10') return NEL_NUMERAL_FORMATION_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelCompareQuantities10') return NEL_QUANTITY_COMPARE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -3591,6 +3763,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }
   if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }
   if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }
+  if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -3632,17 +3805,18 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
-  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10';
+  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10';
   $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').classList.toggle('subitise-practice',subitise);
   $('#practiceContent').classList.toggle('conservation-practice',conservation);
   $('#practiceContent').classList.toggle('number-representation-practice',numberRep);
   $('#practiceContent').classList.toggle('numeral-formation-practice',numeralFormation);
+  $('#practiceContent').classList.toggle('quantity-comparison-practice',quantityCompare);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''}">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''} ${quantityCompare?'quantity-comparison-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
@@ -3704,6 +3878,8 @@ function wireManipulator(q){
   if(interaction==='nel-number-link-builder') bindNelNumberLink($('.nel-number-link-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-number-form-match') bindNelNumberFormMatch($('.nel-number-form-match'),()=>updateManipulatorStatus(q),()=>answered);
   if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) bindNelNumeralBoard($('.nel-numeral-board'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-quantity-pair-sets') bindNelQuantityPairBuilder($('.nel-quantity-pair-builder'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-quantity-relation-choice') bindNelQuantityRelation($('.nel-quantity-relation-choice, .nel-quantity-object-graph'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-count-set') bindNelReliableCountSet($('.nel-reliable-count-set'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-next-word') bindNelReliableNextWord($('.nel-reliable-next-word'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-cardinality') bindNelReliableCardinality($('.nel-reliable-cardinality'),()=>updateManipulatorStatus(q),()=>answered);
@@ -4063,6 +4239,8 @@ function readManipulatorValue(q){
   if(interaction==='nel-number-link-builder') return $('.nel-number-link-builder')?.dataset.numberSelected ?? null;
   if(interaction==='nel-number-form-match') return nelNumberReadFormMatch($('.nel-number-form-match'));
   if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) return nelNumeralReadBoard($('.nel-numeral-board'));
+  if(interaction==='nel-quantity-pair-sets') return nelQuantityPairRead($('.nel-quantity-pair-builder'));
+  if(interaction==='nel-quantity-relation-choice') return nelQuantityRelationRead($('.nel-quantity-relation-choice, .nel-quantity-object-graph'));
   if(interaction==='nel-reliable-count-set') return nelReliableReadCountSet($('.nel-reliable-count-set'));
   if(interaction==='nel-reliable-next-word') return $('.nel-reliable-next-word')?.dataset.reliableSelected ?? null;
   if(interaction==='nel-reliable-cardinality') return nelReliableReadCardinality($('.nel-reliable-cardinality'));
@@ -4167,6 +4345,11 @@ function updateManipulatorStatus(q){
     const root=$('.nel-numeral-board'),ready=root?.dataset.numeralReady==='true',coverage=Number(root?.dataset.numeralCoverage||0);
     node.textContent=ready?'Rakam biçimi hazır. Şimdi kontrol et.':coverage?'Rakamın bazı bölümleri hazır; eksik kalan bölümleri tamamla.':'Rakamı çizim alanında oluştur.';
   }
+  else if(q.response?.interaction==='nel-quantity-pair-sets'){
+    const root=$('.nel-quantity-pair-builder'),paired=Number(root?.dataset.pairedCount||0),target=Math.min(Number(root?.dataset.leftN||0),Number(root?.dataset.rightN||0));
+    node.textContent=root?.dataset.pairComplete==='true'?'Bire bir eşleştirme tamamlandı. Şimdi kontrol et.':paired+' / '+target+' çift eşleşti.';
+  }
+  else if(q.response?.interaction==='nel-quantity-relation-choice') node.textContent=value?'Bir miktar ilişkisi seçtin. Şimdi kontrol et.':'Aynı sayıda, daha çok veya daha az ilişkisini seç.';
   else if(q.response?.interaction==='nel-reliable-count-set'){
     const root=$('.nel-reliable-count-set'),all=root?.querySelectorAll('[data-reliable-item]').length||0,counted=root?.querySelectorAll('[data-reliable-item].counted').length||0;node.textContent=counted===all&&all?'Bütün nesneler bir kez sayıldı. Şimdi kontrol et.':counted+' / '+all+' nesne sayıldı.';
   }
@@ -4566,6 +4749,11 @@ function renderVisual(v,q){
     case 'nel-numeral-material-form': return nelNumeralMaterialVisual(v);
     case 'nel-numeral-draw-board': return nelNumeralBoardVisual(v);
     case 'nel-numeral-written-record': return nelNumeralWrittenRecordVisual(v);
+    case 'nel-quantity-pair-builder': return nelQuantityPairBuilderVisual(v);
+    case 'nel-quantity-set-pair': return nelQuantitySetPairVisual(v);
+    case 'nel-quantity-relation-choice': return nelQuantityRelationChoiceVisual(v);
+    case 'nel-quantity-paired-proof': return nelQuantityPairedProofVisual(v);
+    case 'nel-quantity-object-graph': return nelQuantityObjectGraphVisual(v);
     case 'nel-reliable-count-set': return nelReliableCountSetVisual(v);
     case 'nel-reliable-next-word': return nelReliableNextWordVisual(v);
     case 'nel-reliable-cardinality': return nelReliableCardinalityVisual(v);
