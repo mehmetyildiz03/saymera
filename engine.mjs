@@ -2849,14 +2849,14 @@ function genNelNumeralFormation10(rep,d,rng,concept){
     return qTask('nelNumeralFormation10','build','Rakam biçimini sanal hamur parçalarıyla kur.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-material-form',expectedValue:nelNumeralFormationExpected(x),checkLabel:'Rakam biçimimi kontrol et'},{
       taskKind:'nel-numeral-material-form',taskLabel:'Rakamı malzemeyle oluştur',
       visual:{type:'nel-numeral-material-form',numeral:x.numeral,guides:x.guides,quantity:x.quantity,material:'playdough-rope'},
-      hint:'Rakamın genel biçimini kaplayacak şekilde parçaları yerleştir. Güzel yazı değil, tanınan rakam biçimi önemli.',explain:x.numeral+' rakamını bir malzemeyle biçimlendirmek de rakam üretmenin bir yoludur.'
+      hint:'Rakamın genel biçimini kaplayacak şekilde parçaları yerleştir.',explain:x.numeral+' rakamını bir malzemeyle biçimlendirmek de rakam üretmenin bir yoludur.'
     });
   }
   if(rep==='see'){
     return qTask('nelNumeralFormation10','see','Geniş yolu parmağınla, kalemle veya fareyle takip ederek rakamı oluştur.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-guided-trace',expectedValue:nelNumeralFormationExpected(x),checkLabel:'İzimi kontrol et'},{
       taskKind:'nel-numeral-guided-trace',taskLabel:'Geniş rakam yolunu izle',
       visual:{type:'nel-numeral-draw-board',numeral:x.numeral,guides:x.guides,guideVisible:true,mode:'guided',quantity:x.quantity},
-      hint:'Tek bir çizgi sırası zorunlu değil. Rakamın çekirdek bölgelerinden geçmeye çalış.',explain:'Rakamın tanınan biçimini oluşturdun; çizgi sıran farklı olabilir.'
+      hint:'Rakamın çekirdek bölgelerinden geçmeye çalış; istediğin yönden ilerleyebilirsin.',explain:'Rakamın tanınan biçimini oluşturdun; çizgi sıran farklı olabilir.'
     });
   }
   if(rep==='symbol'){
@@ -5591,7 +5591,7 @@ function nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng)
     return qTask('nelNumeralFormation10','build','Rakam biçimini sanal hamur parçalarıyla kur.',nelNumeralFormationExpected(x),{kind:'manipulative',interaction:'nel-numeral-material-form',expectedValue:nelNumeralFormationExpected(x),checkLabel:'Biçimimi kontrol et'},{
       taskKind:'nel-practice-numeral-material-'+taskIndex,taskLabel:'Rakamı malzeme benzeri parçalarla oluştur',
       visual:{type:'nel-numeral-material-form',numeral:x.numeral,guides:x.guides,quantity:x.quantity,material:'playdough-rope'},
-      hint:'Rakamın çekirdek biçimini kapla; el yazısı güzelliği puanlanmıyor.',explain:x.numeral+' rakamının tanınan biçimini oluşturdun.'
+      hint:'Rakamın çekirdek biçimini kaplayacak şekilde parçaları yerleştir.',explain:x.numeral+' rakamının tanınan biçimini oluşturdun.'
     });
   }
   if(sectionId==='follow-numeral-path'){
