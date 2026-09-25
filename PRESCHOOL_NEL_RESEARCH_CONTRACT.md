@@ -186,7 +186,39 @@ Recommended product progression:
    - 5 Practice sections plus Review are covered by Chromium and WebKit browser QA on phone and tablet viewports;
    - no numeral handwriting or numeric-entry task is used in this skill.
 
-6. `nelNumeralFormation10` — form/write numerals 1–10 without making handwriting quality a mathematics mastery contaminant
+6. `nelNumeralFormation10` — produce/write numerals while keeping mathematical evidence distinct from penmanship quality
+
+   **Official role:** implements **NEL KSD 3.6 — “Write numbers in numeral.”**
+
+   **Source-derived teaching guidance (NEL Educators' Guide 2022):**
+   - children can **form the numeral 5 using playdough**;
+   - numeral writing should be offered **when appropriate and in a meaningful context**, with **recording scores for a game** given as an example;
+   - this follows the broader NEL CPA direction: tangible/concrete experience can lead through pictorial representation to abstract words and symbols.
+
+   **SAYMERA product boundary (not an official KSD ceiling):**
+   - the reference skill will cover numerals **1–10**, matching the surrounding early-number product scope;
+   - KSD 3.6 itself is not represented here as explicitly stating a 1–10 ceiling;
+   - `10` is treated as a **two-digit numeral** made from the digit shapes `1` and `0`;
+   - the `0` in `10` is a glyph component for writing the numeral ten, **not** a separate zero-quantity mastery target in this skill.
+
+   **Production and scoring boundary:**
+   - intentional numeral production is required; recognition alone is not enough;
+   - the produced numeral must be recognisable as the intended numeral;
+   - exact stroke order is **not** a mathematics mastery requirement unless later official evidence gives a reason to make it one;
+   - handwriting beauty, neatness and speed are **not** mathematics scores;
+   - the app may give supportive path/corridor guidance for touch, mouse or stylus, but it should tolerate ordinary young-child motor variation;
+   - no OCR/handwriting-recognition dependency is required for the reference implementation;
+   - the digital task complements real material formation and real writing rather than replacing them.
+
+   **Planned evidence:**
+   - **Kur:** form a numeral shape with a malleable/material-like interaction, reflecting the official playdough example;
+   - **Gör:** follow a broad visual numeral path as supported formation practice, without turning recognition into the mastery endpoint;
+   - **Yaz:** intentionally produce the numeral associated with an already-understood number;
+   - **Anlat:** identify what number the written mark records and connect it back to its number meaning;
+   - **Taşı:** record a meaningful number in a game or daily activity, such as a score.
+
+   `nelNumeralFormation10` depends conceptually on the representation work already taught in `nelNumberRepresentations10`: the child should know what a numeral **means** before the app treats producing its written form as evidence.
+
 7. `nelCompareQuantities10` — same / more / fewer / less; later “how many more/fewer?”
 8. `nelPartWhole10` — compose/decompose quantities up to 10 in multiple ways
 
