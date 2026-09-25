@@ -194,7 +194,7 @@ assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
 const quantityCompareContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelCompareQuantities10;
-assert.equal(quantityCompareContract.status,'generator-ready');
+assert.equal(quantityCompareContract.status,'implemented');
 assert.deepEqual(quantityCompareContract.officialKsd,['3.7']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.7'],['nelCompareQuantities10']);
 assert.equal(quantityCompareContract.maximumSetSize,10);
@@ -681,8 +681,9 @@ assert.ok(contract.includes('**1.1**')&&contract.includes('**1.2**'),'daily-life
 assert.ok(contract.includes('**3.2.1**')&&contract.includes('**3.2.4**'),'reliable-counting subskills must be documented');
 assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark number representations complete');
 assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark numeral formation complete');
-assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve quantity comparison as the next Path B skill');
-assert.ok(contract.includes('Status after SAYMERA v1.21.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark quantity comparison complete');
+assert.ok(contract.includes('nelPartWhole10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve part-whole as the next Path B skill');
+assert.ok(contract.includes('Status after SAYMERA v1.22.0'),'research contract status must match the implemented release boundary');
 assert.ok(contract.includes('v1.21.0 reference implementation'),'research contract must document the numeral-formation implementation slice');
 assert.ok(contract.includes('visibly off-path scribbling is rejected'),'implementation notes must preserve scribble-rejection evidence');
 assert.ok(contract.includes('same numeral path drawn in reverse direction is accepted'),'implementation notes must preserve stroke-direction independence');
@@ -694,6 +695,9 @@ assert.ok(contract.includes('KSD 2.1 / `nelCompareAttributes`'),'quantity compar
 assert.ok(contract.includes('`<` and `>` are not KSD 3.7 mastery targets'),'preschool quantity comparison must not be converted to formal symbol mastery');
 assert.ok(contract.includes('aynı sayıda')&&contract.includes('daha çok')&&contract.includes('daha az sayıda'),'Turkish child-facing relation language must be documented');
 assert.ok(contract.includes('Supported extension, not an extra KSD 3.7 mastery gate'),'how-many-more/fewer must remain an Educators Guide extension rather than an invented KSD endpoint');
+assert.ok(contract.includes('v1.22.0 reference implementation'),'research contract must document the quantity-comparison implementation slice');
+assert.ok(contract.includes('one-to-one pairing exposes unmatched objects'),'implementation notes must preserve pairing/unmatched proof as the concrete comparison model');
+assert.ok(contract.includes('formal `<` and `>` symbols are excluded'),'implementation notes must preserve the no-formal-symbol boundary');
 assert.ok(contract.includes('Re-verified on **2026-09-25**'),'research contract must record the latest official-source verification');
 assert.ok(contract.includes('**KSD 3.4**')&&contract.includes('**KSD 3.5**'),'number-representation research boundary must anchor both official KSDs');
 assert.ok(contract.includes('**number name**')&&contract.includes('**numeral**')&&contract.includes('**number word**')&&contract.includes('**quantity**'),'representation contract must distinguish spoken name, numeral, written word and quantity');
