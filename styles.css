@@ -1387,11 +1387,11 @@ button.nel-number-form-card{cursor:pointer}.nel-number-form-card.numeral{font-si
 .practice-content.numeral-formation-practice{overflow-y:auto;display:block}
 .numeral-formation-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
 .numeral-formation-question-stage .numeral-formation-stage{height:auto;max-height:none;min-height:0;overflow:visible;place-items:start center;padding:12px}
-.nel-numeral-lesson-stage{width:min(880px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-numeral-lesson-stage{width:min(880px,100%);min-height:0;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-numeral-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
 .nel-numeral-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
 .nel-numeral-section-track span.active{background:var(--blue-soft);border-color:#b7d0e2;color:#315f82}
-.nel-numeral-lesson-visual{flex:1;min-height:0;display:grid;justify-items:center;align-content:start;gap:10px;padding:4px 0}
+.nel-numeral-lesson-visual{flex:0 0 auto;min-height:auto;display:grid;justify-items:center;align-content:start;gap:10px;padding:4px 0;overflow:visible}
 .nel-numeral-board{width:min(560px,100%);display:grid;justify-items:center;gap:10px}
 .nel-numeral-context-banner{width:min(420px,100%);padding:9px 13px;border:1px solid var(--line);border-radius:15px;background:var(--sun-soft);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .nel-numeral-context-banner span{font-size:8px;font-weight:950;letter-spacing:.09em;color:#85651d}
@@ -1423,6 +1423,14 @@ button.nel-number-form-card{cursor:pointer}.nel-number-form-card.numeral{font-si
 .nel-numeral-written-record{width:min(580px,100%);display:grid;grid-template-columns:180px minmax(0,1fr);gap:14px;align-items:center}
 .nel-numeral-record-symbol{min-height:150px;border:1px solid var(--line);border-radius:24px;background:var(--paper-2);display:grid;place-items:center;font-size:82px;font-weight:950;color:var(--navy)}
 .nel-numeral-written-record>.nel-number-quantity{min-width:0;width:100%}
+@media (min-width:700px) and (max-height:850px){
+  .nel-numeral-lesson-stage{gap:8px}
+  .nel-numeral-paper{width:310px}
+  .nel-numeral-board-actions{width:310px}
+  .nel-numeral-quantity-link{width:min(360px,100%)}
+  .nel-numeral-quantity-link .nel-number-quantity{min-height:68px}
+  .nel-numeral-context-banner{width:min(360px,100%)}
+}
 @media(max-width:699px){
   .practice-content.numeral-formation-practice{padding-bottom:28px}
   .nel-numeral-lesson-stage{min-height:calc(100dvh - 102px)}
