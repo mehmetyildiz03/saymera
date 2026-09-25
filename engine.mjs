@@ -2717,9 +2717,9 @@ function genNelNumberRepresentations10(rep,d,rng,concept){
     });
   }
   const y=c.transfer;
-  return qTask('nelNumberRepresentations10','transfer','Günlük bir etiketteki rakamla aynı miktarı gösteren kartı bul.','quantity-'+y.n,{kind:'visual-choice',options:nelNumberQuantityChoices(y,rng,['objects','fingers','ten-frame','tally'][y.n%4])},{
+  return qTask('nelNumberRepresentations10','transfer','Günlük bir yerde miktar bildiren rakamla aynı miktarı gösteren kartı bul.','quantity-'+y.n,{kind:'visual-choice',options:nelNumberQuantityChoices(y,rng,['objects','fingers','ten-frame','tally'][y.n%4])},{
     taskKind:'nel-number-transfer-context',taskLabel:'Sayı temsilini günlük yaşama taşı',
-    visual:{type:'nel-number-context-tag',numeral:y.numeral,context:['kapı','otobüs','takvim','dolap'][y.n%4]},
+    visual:{type:'nel-number-context-tag',numeral:y.numeral,context:['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'][y.n%4]},
     hint:'Etiketteki rakamın anlattığı miktarı bul.',explain:y.numeral.value+' rakamı günlük yaşamda da '+y.n+' miktarını gösterebilir.'
   });
 }
@@ -5416,9 +5416,9 @@ function nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty
     });
   }
   if(sectionId==='transfer-number-context'){
-    return qTask('nelNumberRepresentations10','transfer','Günlük etiketteki rakama uyan miktarı seç.','quantity-'+x.n,{kind:'visual-choice',options:nelNumberQuantityChoices(x,rng,['objects','fingers','ten-frame','tally'][taskIndex%4])},{
+    return qTask('nelNumberRepresentations10','transfer','Günlük bir yerde miktar bildiren rakama uyan miktarı seç.','quantity-'+x.n,{kind:'visual-choice',options:nelNumberQuantityChoices(x,rng,['objects','fingers','ten-frame','tally'][taskIndex%4])},{
       taskKind:'nel-practice-number-transfer-'+taskIndex,taskLabel:'Sayı temsilini günlük bağlama taşı',
-      visual:{type:'nel-number-context-tag',numeral:x.numeral,context:['kapı','otobüs','takvim','dolap'][taskIndex%4]},
+      visual:{type:'nel-number-context-tag',numeral:x.numeral,context:['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'][taskIndex%4]},
       hint:'Gördüğün rakamın anlattığı miktarı bul.',explain:'Günlük yaşamdaki '+x.numeral.value+' rakamı da '+x.n+' miktarını temsil eder.'
     });
   }
