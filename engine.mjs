@@ -443,7 +443,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelNumeralFormation10:{
     version:1,
-    status:'generator-ready',
+    status:'implemented',
     unitId:'nel-counting-number-sense',
     pathId:'counting-number-sense',
     officialKsd:['3.6'],
@@ -910,7 +910,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'nel-numeral-formation-contract',
       'NEL KSD 3.6 rakam üretimini el yazısı estetiği veya tek zorunlu çizgi sırasıyla karıştırmıyor',
       !formationContract.provisional &&
-        formationContract.status==='generator-ready' &&
+        formationContract.status==='implemented' &&
         formationContract.officialKsd?.join(',')==='3.6' &&
         formationContract.scoringBoundary?.intentionalNumeralProduction===true &&
         formationContract.scoringBoundary?.recognisableNumeralIdentity===true &&
