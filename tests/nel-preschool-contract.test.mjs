@@ -225,7 +225,9 @@ assert.deepEqual(partWholeContract.practice.sections.map(s=>s.id),['split-whole-
 assert.deepEqual(partWholeContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(partWholeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
-const partWholeConcept=createConceptInstance('nelPartWhole10',1,rng);
+let partWholeSeed=3808;
+const partWholeRng=()=>((partWholeSeed=(partWholeSeed*1664525+1013904223)>>>0)/2**32);
+const partWholeConcept=createConceptInstance('nelPartWhole10',1,partWholeRng);
 assert.equal(partWholeConcept.skillId,'nelPartWhole10');
 for(const sample of [partWholeConcept.anchor,partWholeConcept.symbol,partWholeConcept.transfer]){
   assert.ok(sample.whole>=2&&sample.whole<=10,'part-whole case must stay inside product range 2..10');
@@ -243,11 +245,11 @@ for(const sample of [partWholeConcept.anchor,partWholeConcept.symbol,partWholeCo
 const fiveCases=Array.from({length:4},(_,i)=>partWholeCaseFor(5,i+1));
 assert.deepEqual(fiveCases.map(x=>[x.split.left,x.split.right]),[[1,4],[2,3],[3,2],[4,1]],'whole 5 must preserve official multiple and swapped decompositions');
 
-const partBuild=generateQuestion('nelPartWhole10','build',1,rng,partWholeConcept);
-const partSee=generateQuestion('nelPartWhole10','see',1,rng,partWholeConcept);
-const partShow=generateQuestion('nelPartWhole10','symbol',1,rng,partWholeConcept);
-const partExplain=generateQuestion('nelPartWhole10','explain',1,rng,partWholeConcept);
-const partTransfer=generateQuestion('nelPartWhole10','transfer',1,rng,partWholeConcept);
+const partBuild=generateQuestion('nelPartWhole10','build',1,partWholeRng,partWholeConcept);
+const partSee=generateQuestion('nelPartWhole10','see',1,partWholeRng,partWholeConcept);
+const partShow=generateQuestion('nelPartWhole10','symbol',1,partWholeRng,partWholeConcept);
+const partExplain=generateQuestion('nelPartWhole10','explain',1,partWholeRng,partWholeConcept);
+const partTransfer=generateQuestion('nelPartWhole10','transfer',1,partWholeRng,partWholeConcept);
 assert.equal(partBuild.response.interaction,'nel-part-whole-split');
 assert.equal(partSee.response.kind,'visual-choice');
 assert.equal(partShow.response.interaction,'nel-part-whole-name-parts');
@@ -264,7 +266,7 @@ assert.equal(partBuild.visual.items.length,partWholeConcept.anchor.whole,'build 
 assert.equal(partTransfer.visual.context,'bracelet','transfer must preserve an official-style real-object context');
 
 for(const section of partWholeContract.practice.sections){
-  const qs=Array.from({length:14},(_,i)=>generateLessonPracticeQuestion('nelPartWhole10',section.id,i,1,rng));
+  const qs=Array.from({length:14},(_,i)=>generateLessonPracticeQuestion('nelPartWhole10',section.id,i,1,partWholeRng));
   assert.ok(qs.every(q=>q.skillId==='nelPartWhole10'));
   assert.ok(qs.every(q=>q.learningPhase==='practice'));
   for(const q of qs){
