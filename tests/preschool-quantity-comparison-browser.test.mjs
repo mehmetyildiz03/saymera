@@ -4,10 +4,19 @@ import {spawn} from 'node:child_process';
 import {mkdir} from 'node:fs/promises';
 import {defaultState} from '../engine.mjs';
 
-const base=process.env.SAYMERA_TEST_URL||'http://127.0.0.1:4190';
-const server=process.env.SAYMERA_TEST_URL?null:spawn('python3',['-m','http.server','4190'],{cwd:new URL('..',import.meta.url),stdio:'ignore'});
+const externalBase=process.env.SAYMERA_TEST_URL||null;
+let activeBase=externalBase||'http://127.0.0.1:4190';
 await mkdir('preschool-quantity-comparison-test-results',{recursive:true});
-for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+async function startServerFor(index){
+  if(externalBase){activeBase=externalBase;return null;}
+  const port=4190+index;
+  activeBase='http://127.0.0.1:'+port;
+  const child=spawn('python3',['-m','http.server',String(port)],{cwd:new URL('..',import.meta.url),stdio:'ignore'});
+  let ready=false;
+  for(let i=0;i<80;i++){try{if((await fetch(activeBase)).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}
+  if(!ready){child.kill();throw new Error('Local SAYMERA test server did not become ready on '+activeBase);}
+  return child;
+}
 
 const initial=defaultState();
 initial.profile='preschool';
@@ -23,7 +32,7 @@ const configs=[
 ];
 
 async function openInspector(page){
-  await page.goto(base+'/?inspect=1',{waitUntil:'commit',timeout:20000});
+  await page.goto(activeBase+'/?inspect=1',{waitUntil:'commit',timeout:20000});
   await page.locator('#inspectorProfile').waitFor({state:'visible',timeout:24000});
   await page.locator('#inspectorProfile').selectOption('preschool');
   await page.locator('#inspectorSkill').selectOption('nelCompareQuantities10');
@@ -242,9 +251,11 @@ async function completeReview(page){
   throw new Error('Quantity-comparison Review response missing');
 }
 
-try{
-  for(const config of configs){
-    const browser=await config.type.launch({headless:true});
+for(let configIndex=0;configIndex<configs.length;configIndex++){
+  const config=configs[configIndex];
+  const localServer=await startServerFor(configIndex);
+  const browser=await config.type.launch({headless:true});
+  try{
     const context=await browser.newContext({viewport:config.viewport,isMobile:true,hasTouch:true,serviceWorkers:'block'});
     await context.addInitScript(value=>{if(!localStorage.getItem('saymera.math.v2'))localStorage.setItem('saymera.math.v2',value)},saved);
     const page=await context.newPage();
@@ -296,6 +307,8 @@ try{
     }catch(error){
       await page.screenshot({path:'preschool-quantity-comparison-test-results/'+config.name+'-failure.png',fullPage:false,animations:'disabled'});
       throw error;
-    }finally{await browser.close();}
-  }
-}finally{server?.kill();}
+    }finally{
+      await browser.close();
+      localServer?.kill();
+    }
+}
