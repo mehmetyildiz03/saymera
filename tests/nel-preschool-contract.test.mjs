@@ -9,6 +9,7 @@ import {
 } from '../engine.mjs';
 
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
+const styles=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 const contract=fs.readFileSync(new URL('../PRESCHOOL_NEL_RESEARCH_CONTRACT.md',import.meta.url),'utf8');
 
 assert.equal(PRESCHOOL_NEL_PATHS.length,3,'NEL v2 must expose three parallel development paths');
@@ -69,6 +70,9 @@ assert.ok(app.includes("root.dataset.numeralReady=pass?'true':'false'"),'drawing
 assert.ok(app.includes('guideRatios')&&app.includes('onPathRatio>=.5'),'formation acceptance must combine core-guide coverage with on-path evidence');
 assert.ok(app.includes("exactStrokeOrderRequired")===false,'child runtime must not introduce an exact stroke-order gate');
 assert.ok(app.includes("nelNumeralReadBoard($('.nel-numeral-board'))"),'Practice must read actual drawn numeral evidence');
+assert.ok(styles.includes('.nel-numeral-svg')&&styles.includes('touch-action:none'),'numeral formation board must suppress browser pan/zoom while drawing with touch or stylus');
+assert.ok(styles.includes('.nel-numeral-paper{width:min(390px,86vw);aspect-ratio:1/1'),'formation canvas must remain a large square interaction area without horizontal overflow');
+assert.ok(styles.includes('.nel-numeral-board.material-mode .nel-numeral-user-stroke'),'material formation must be visually distinct from pencil/stylus formation');
 assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'numeral formation must be lesson-first');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
