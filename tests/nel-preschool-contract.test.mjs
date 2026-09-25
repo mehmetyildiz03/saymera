@@ -61,7 +61,19 @@ assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.
 assert.equal(preschoolIds.has('nelCompareQuantities10'),true,'quantity comparison enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelCompareQuantities10'),'Path B metadata must reserve quantity comparison');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.compareOrder100.includes('nelCompareQuantities10'),'quantity comparison should bridge to later numerical comparison without becoming a hard prerequisite');
-assert.equal(app.includes('renderNelCompareQuantitiesLessonStep'),false,'generator slice must still stop before quantity-comparison Learn UI');
+assert.equal(app.includes("if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }"),true,'quantity comparison must teach before checking once Learn UI exists');
+const quantityLessonIds=['pair-same-four','pair-more-five-three','see-right-more','resist-size-spacing','fewer-language','less-language','same-ten','reverse-relation','explain-leftover','object-graph'];
+for(const id of quantityLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL quantity-comparison Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelCompareQuantities10') return NEL_QUANTITY_COMPARE_LESSON_STEPS.map"),'Inspector must expose quantity-comparison Learn steps');
+for(const type of ['nel-quantity-pair-builder','nel-quantity-set-pair','nel-quantity-relation-choice','nel-quantity-paired-proof','nel-quantity-object-graph']) assert.ok(app.includes("case '"+type+"'"),'missing quantity-comparison renderer '+type);
+for(const interaction of ['nel-quantity-pair-sets','nel-quantity-relation-choice']) assert.ok(app.includes("'"+interaction+"'"),'missing quantity-comparison runtime interaction '+interaction);
+assert.ok(app.includes('bindNelQuantityPairBuilder')&&app.includes('nelQuantityPairRead'),'one-to-one set comparison must be an active child interaction');
+assert.ok(app.includes("root.dataset.pairComplete='true'"),'pairing must complete only after the smaller set is fully one-to-one matched');
+assert.ok(app.includes("classList.add('unmatched')"),'unmatched objects must be made visible as comparison evidence');
+assert.ok(app.includes("data-quantity-context="),'real-object graph transfer must carry semantic context metadata');
+assert.ok(styles.includes('.nel-quantity-set.spread-row')&&styles.includes('.nel-quantity-set.compact-row'),'quantity UI must vary spacing without changing cardinality');
+assert.ok(styles.includes('.nel-quantity-token.unmatched'),'quantity UI must visibly surface unmatched objects');
+assert.ok(styles.includes('.nel-quantity-graph-row'),'real-object graph transfer must have a dedicated visual row model');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelNumeralFormation10'),'numeral production should bridge to P1 number representation/writing without becoming a hard prerequisite');
 assert.equal(app.includes("if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }"),true,'numeral formation must teach before checking once Learn UI exists');
 const numeralLessonIds=['form-one','trace-two','trace-three','trace-four','playdough-five','trace-six','trace-seven','trace-eight','trace-nine','write-ten'];
@@ -77,7 +89,7 @@ assert.ok(app.includes("nelNumeralReadBoard($('.nel-numeral-board'))"),'Practice
 assert.ok(styles.includes('.nel-numeral-svg')&&styles.includes('touch-action:none'),'numeral formation board must suppress browser pan/zoom while drawing with touch or stylus');
 assert.ok(styles.includes('.nel-numeral-paper{width:min(390px,86vw);aspect-ratio:1/1'),'formation canvas must remain a large square interaction area without horizontal overflow');
 assert.ok(styles.includes('.nel-numeral-board.material-mode .nel-numeral-user-stroke'),'material formation must be visually distinct from pencil/stylus formation');
-assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'numeral formation must be lesson-first');
+assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'numeral formation and quantity comparison must be lesson-first');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -236,7 +248,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
