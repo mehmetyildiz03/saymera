@@ -48,8 +48,8 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
@@ -58,9 +58,10 @@ assert.equal(preschoolIds.has('nelNumberRepresentations10'),true,'number represe
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
 assert.equal(preschoolIds.has('nelNumeralFormation10'),true,'numeral formation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumeralFormation10'),'Path B metadata must reserve numeral formation');
-assert.equal(preschoolIds.has('nelCompareQuantities10'),false,'quantity comparison must remain contract-only until its concrete comparison generator exists');
+assert.equal(preschoolIds.has('nelCompareQuantities10'),true,'quantity comparison enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelCompareQuantities10'),'Path B metadata must reserve quantity comparison');
-assert.equal(app.includes('renderNelCompareQuantitiesLessonStep'),false,'contract slice must not add quantity-comparison Learn UI yet');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.compareOrder100.includes('nelCompareQuantities10'),'quantity comparison should bridge to later numerical comparison without becoming a hard prerequisite');
+assert.equal(app.includes('renderNelCompareQuantitiesLessonStep'),false,'generator slice must still stop before quantity-comparison Learn UI');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelNumeralFormation10'),'numeral production should bridge to P1 number representation/writing without becoming a hard prerequisite');
 assert.equal(app.includes("if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }"),true,'numeral formation must teach before checking once Learn UI exists');
 const numeralLessonIds=['form-one','trace-two','trace-three','trace-four','playdough-five','trace-six','trace-seven','trace-eight','trace-nine','write-ten'];
@@ -181,7 +182,7 @@ assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
 const quantityCompareContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelCompareQuantities10;
-assert.equal(quantityCompareContract.status,'contract-only');
+assert.equal(quantityCompareContract.status,'generator-ready');
 assert.deepEqual(quantityCompareContract.officialKsd,['3.7']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.7'],['nelCompareQuantities10']);
 assert.equal(quantityCompareContract.maximumSetSize,10);
@@ -514,6 +515,60 @@ for(const section of formationContract.practice.sections){
     if(section==='record-meaningful-number') assert.equal(q.visual?.context?.kind,'game-score','transfer must be meaningful numeral recording, not decontextualized worksheet copying');
   }
 }
+
+const quantityCompareConcept=createConceptInstance('nelCompareQuantities10',1,rng);
+assert.equal(quantityCompareConcept.skillId,'nelCompareQuantities10');
+for(const sample of [quantityCompareConcept.anchor,quantityCompareConcept.symbol,quantityCompareConcept.transfer]){
+  assert.ok(sample.leftN>=1&&sample.leftN<=10&&sample.rightN>=1&&sample.rightN<=10,'both KSD 3.7 sets must stay within 1..10');
+  assert.equal(sample.left.items.length,sample.leftN);
+  assert.equal(sample.right.items.length,sample.rightN);
+  const expected=sample.leftN===sample.rightN?'same-as':sample.leftN>sample.rightN?'more-than':'fewer-than';
+  assert.equal(sample.relation,expected,'quantity relation must derive from cardinality rather than layout or object size');
+  assert.equal(sample.difference,Math.abs(sample.leftN-sample.rightN));
+  if(sample.relation==='fewer-than') assert.deepEqual(sample.language.sourceTerms,['fewer-than','less-than'],'official less/fewer language roles must remain represented in metadata');
+  assert.ok(sample.left.tokenScale!==sample.right.tokenScale||sample.left.layout!==sample.right.layout,'comparison cases should vary irrelevant visual cues so area/spacing cannot be memorised');
+}
+
+const quantityBuild=generateQuestion('nelCompareQuantities10','build',1,rng,quantityCompareConcept);
+const quantitySee=generateQuestion('nelCompareQuantities10','see',1,rng,quantityCompareConcept);
+const quantityShow=generateQuestion('nelCompareQuantities10','symbol',1,rng,quantityCompareConcept);
+const quantityExplain=generateQuestion('nelCompareQuantities10','explain',1,rng,quantityCompareConcept);
+const quantityTransfer=generateQuestion('nelCompareQuantities10','transfer',1,rng,quantityCompareConcept);
+assert.equal(quantityBuild.response.interaction,'nel-quantity-pair-sets');
+assert.equal(quantitySee.response.kind,'choice');
+assert.equal(quantityShow.response.interaction,'nel-quantity-relation-choice');
+assert.equal(quantityExplain.response.kind,'choice');
+assert.equal(quantityTransfer.response.interaction,'nel-quantity-relation-choice');
+assert.equal(quantityTransfer.visual.context,'real-object-graph');
+for(const q of [quantityBuild,quantitySee,quantityShow,quantityExplain,quantityTransfer]){
+  assert.notEqual(q.response.kind,'number-input','KSD 3.7 must compare concrete sets and language rather than typed numerals');
+  const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+  assert.equal(/[<>]/.test(childText),false,'KSD 3.7 child tasks must not pull formal comparison symbols forward: '+childText);
+  assert.equal(/kaç tane daha (?:çok|az)/i.test(childText),false,'how-many-more/fewer is a supported extension, not core KSD 3.7 mastery evidence');
+}
+
+const quantityRelations=new Set();
+for(const section of quantityCompareContract.practice.sections){
+  const qs=Array.from({length:14},(_,i)=>generateLessonPracticeQuestion('nelCompareQuantities10',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelCompareQuantities10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    assert.notEqual(q.response.kind,'number-input',section.id+' must not reduce set comparison to numeral entry');
+    const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+    assert.equal(/[<>]/.test(childText),false,section.id+' must remain verbal/concrete rather than formal-symbol based');
+    assert.equal(/kaç tane daha (?:çok|az)/i.test(childText),false,section.id+' must not turn the optional difference extension into a core mastery gate');
+    const visual=q.visual||{};
+    if(visual.left?.count!=null&&visual.right?.count!=null){
+      assert.ok(visual.left.count<=10&&visual.right.count<=10,'practice sets must stay within official maximum 10 each');
+      quantityRelations.add(visual.left.count===visual.right.count?'same':visual.left.count>visual.right.count?'left-more':'right-more');
+      assert.ok(visual.left.items?.length===visual.left.count&&visual.right.items?.length===visual.right.count);
+    }
+    if(section==='pair-sets-one-to-one') assert.equal(q.response.interaction,'nel-quantity-pair-sets');
+    if(section==='use-fewer-less-language') assert.equal(q.response.interaction,'nel-quantity-relation-choice');
+    if(section==='transfer-real-object-graph') assert.equal(q.visual?.context,'real-object-graph');
+  }
+}
+assert.ok(quantityRelations.has('same')&&quantityRelations.has('left-more')&&quantityRelations.has('right-more'),'practice must cover equal and both unequal directions across varied cases');
 
 const representationConcept=createConceptInstance('nelNumberRepresentations10',1,rng);
 assert.equal(representationConcept.skillId,'nelNumberRepresentations10');
