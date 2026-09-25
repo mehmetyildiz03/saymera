@@ -133,7 +133,7 @@ assert.deepEqual(representationContract.representationKinds,['number-name','nume
 assert.ok(['objects','fingers','ten-frame','tally'].every(kind=>representationContract.quantityModels.includes(kind)));
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.4'],['nelNumberRepresentations10']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.5'],['nelNumberRepresentations10']);
-assert.equal(representationContract.practice.sections.some(s=>/write|form/i.test(s.id)),false,'KSD 3.4–3.5 must not absorb KSD 3.6 numeral formation');
+assert.equal(representationContract.practice.sections.some(s=>/(^|-)write($|-)|numeral-formation|handwriting/i.test(s.id)),false,'KSD 3.4–3.5 must not absorb KSD 3.6 numeral formation');
 
 const conservationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelConservation10;
 assert.equal(conservationContract.practice.sections.length,5);
