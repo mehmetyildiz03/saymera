@@ -2141,7 +2141,7 @@ const NEL_NUMBER_REP_LESSON_STEPS=[
   {id:'word-quantity-eight',section:'EŞLEŞTİR',kind:'word-quantity',case:nelNumberLessonCase(8),title:'“sekiz” hangi miktarı anlatıyor?',body:'Yazılı sayı sözcüğünü artık miktarla eşleştir.',result:'“sekiz” sözcüğü sekiz miktarını gösterir.'},
   {id:'four-way-nine',section:'EŞLEŞTİR',kind:'four-way',case:nelNumberLessonCase(9),title:'Dört gösterim, bir sayı.',body:'Sayı adını dinle; rakamı, yazılı sayı sözcüğünü ve miktarı birlikte incele.',result:'“dokuz”, 9, “dokuz” yazısı ve dokuzluk miktar aynı sayıyı temsil eder.'},
   {id:'mixed-seven',section:'EŞLEŞTİR',kind:'mixed',case:nelNumberLessonCase(7),title:'Gösterim değişse de sayıyı bul.',body:'Yediyi rakam, sözcük, ses ve farklı miktar modelleri arasında bağla.',result:'Bir sayının temsilini değiştirebilir, anlamını koruyabilirsin.'},
-  {id:'real-world-ten',section:'HAYATA TAŞI',kind:'transfer',case:nelNumberLessonCase(10),title:'Sayıları günlük yaşamda bul.',body:'Kapı, takvim, sıra numarası veya kutu etiketi gibi yerlerde bir rakam bul; sonra o kadar küçük nesne göster.',result:'Rakamlar günlük yaşamda miktarları ve numaraları anlamamıza yardım eder.'}
+  {id:'real-world-ten',section:'HAYATA TAŞI',kind:'transfer',case:nelNumberLessonCase(10),title:'Sayıları günlük yaşamda bul.',body:'Alışveriş listesi, tarif kartı, oyun kartı veya malzeme etiketi gibi bir yerde miktar bildiren bir rakam bul; sonra o kadar küçük nesne göster.',result:'Rakamlar günlük yaşamda miktarları ve numaraları anlamamıza yardım eder.'}
 ];
 function nelNumberRepSectionTrack(step){return '<div class="nel-number-section-track">'+NEL_NUMBER_REP_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';}
 function nelNumberQuantityVisual(v={}){
@@ -2164,7 +2164,7 @@ function nelNumberLinkBuilderVisual(v={}){
 }
 function nelNumberQuantityFocusVisual(v={}){return '<div class="nel-number-focus">'+nelNumberQuantityVisual(v.quantity||{})+'</div>';}
 function nelNumberFormMatchVisual(v={}){
-  return '<div class="nel-number-form-match" data-number-name="'+esc(v.numberName?.id||'')+'">'+
+  return '<div class="nel-number-form-match" data-number-name="'+esc(v.numberName?.id||'')+'" data-name-listened="false">'+
     nelNumberSpeechButton(v.numberName,'Sayı adını dinle')+
     '<div class="nel-number-form-group"><small>RAKAM</small><div>'+(v.numeralOptions||[]).map(opt=>'<button type="button" data-nel-number-numeral="'+esc(opt.value)+'" class="nel-number-form-card numeral">'+esc(opt.label||'')+'</button>').join('')+'</div></div>'+
     '<div class="nel-number-form-group"><small>SAYI SÖZCÜĞÜ</small><div>'+(v.wordOptions||[]).map(opt=>'<button type="button" data-nel-number-word="'+esc(opt.value)+'" class="nel-number-form-card word">'+esc(opt.label||'')+'</button>').join('')+'</div></div>'+
@@ -2185,10 +2185,11 @@ function bindNelNumberLink(root,onChange,blocked=()=>false){
 }
 function bindNelNumberFormMatch(root,onChange,blocked=()=>false){
   if(!root)return;bindNelRoteSpeech(root);
+  root.querySelector('[data-rote-speech]')?.addEventListener('click',()=>{if(blocked())return;root.dataset.nameListened='true';onChange?.();});
   root.querySelectorAll('[data-nel-number-numeral]').forEach(button=>button.addEventListener('click',()=>{if(blocked())return;root.querySelectorAll('[data-nel-number-numeral]').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');root.dataset.numeralSelected=button.dataset.nelNumberNumeral;onChange?.();}));
   root.querySelectorAll('[data-nel-number-word]').forEach(button=>button.addEventListener('click',()=>{if(blocked())return;root.querySelectorAll('[data-nel-number-word]').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');root.dataset.wordSelected=button.dataset.nelNumberWord;onChange?.();}));
 }
-function nelNumberReadFormMatch(root){if(!root?.dataset.numberName||!root.dataset.numeralSelected||!root.dataset.wordSelected)return null;return root.dataset.numberName+'|'+root.dataset.numeralSelected+'|'+root.dataset.wordSelected;}
+function nelNumberReadFormMatch(root){if(!root?.dataset.numberName||root.dataset.nameListened!=='true'||!root.dataset.numeralSelected||!root.dataset.wordSelected)return null;return root.dataset.numberName+'|'+root.dataset.numeralSelected+'|'+root.dataset.wordSelected;}
 function nelNumberWordDeck(range=[]){
   const [from,to]=range;
   return '<div class="nel-number-word-deck">'+Array.from({length:to-from+1},(_,i)=>from+i).map(n=>
@@ -2213,7 +2214,7 @@ function nelNumberLessonCore(step){
     const opts=[6,7,8].map(n=>nelNumberLessonCase(n));
     return '<div class="nel-number-lesson-core">'+nelNumberSpeechButton(c.numberName,'Hedef sayı adını dinle')+'<div class="nel-number-lesson-choice-grid mixed">'+opts.map(x=>'<button type="button" data-number-mixed="'+x.n+'" disabled><span class="nel-number-form-card numeral static">'+x.n+'</span><span class="nel-number-form-card word static">'+esc(x.numberWord.value)+'</span>'+nelNumberQuantityVisual(x.quantities[3])+'</button>').join('')+'</div><p class="nel-number-help" id="nelNumberHelp">Önce hedef sesi dinle, sonra aynı sayıyı gösteren kartı seç.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
   }
-  return '<div class="nel-number-lesson-core"><div class="nel-number-context-tag"><small>GÜNLÜK YAŞAM</small><strong>'+esc(c.numeral.value)+'</strong><span>Bir takvim, kapı veya sıra numarası düşün.</span></div><div class="nel-number-real-world"><b>1</b><span>Çevrende bir rakam bul.</span><b>2</b><span>Rakamın sayı adını söyle.</span><b>3</b><span>O kadar küçük nesne göster.</span></div><button type="button" class="nel-number-confirm" id="nelNumberConfirm">Gerçek bir örnek buldum</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
+  return '<div class="nel-number-lesson-core"><div class="nel-number-context-tag"><small>GÜNLÜK YAŞAM</small><strong>'+esc(c.numeral.value)+'</strong><span>Bir listede, tarifte, oyun kartında veya malzeme etiketinde miktar bildiren rakamı düşün.</span></div><div class="nel-number-real-world"><b>1</b><span>Miktar bildiren bir rakam bul.</span><b>2</b><span>Rakamın sayı adını söyle.</span><b>3</b><span>O kadar küçük nesne göster.</span></div><button type="button" class="nel-number-confirm" id="nelNumberConfirm">Gerçek bir örnek buldum</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
 }
 function wireNelNumberLessonStep(step,next){
   const reveal=()=>{$('#nelNumberResult')?.classList.add('revealed');next.disabled=false;};
@@ -3999,7 +4000,7 @@ function updateManipulatorStatus(q){
   }
   else if(q.response?.interaction==='nel-conservation-relation-choice') node.textContent=value?'Bir ilişki seçtin. Şimdi kontrol et.':'Miktarın aynı mı, daha çok mu, daha az mı olduğunu seç.';
   else if(q.response?.interaction==='nel-number-link-builder') node.textContent=value?'Bir rakam kartı seçtin. Şimdi kontrol et.':'Miktara uyan rakam kartını seç.';
-  else if(q.response?.interaction==='nel-number-form-match'){const root=$('.nel-number-form-match');node.textContent=root?.dataset.numeralSelected&&root?.dataset.wordSelected?'Rakam ve sayı sözcüğü eşleşmeleri hazır. Şimdi kontrol et.':'Sayı adını dinle; bir rakam ve bir sayı sözcüğü seç.';}
+  else if(q.response?.interaction==='nel-number-form-match'){const root=$('.nel-number-form-match');if(root?.dataset.nameListened!=='true')node.textContent='Önce sayı adını dinle.';else node.textContent=root?.dataset.numeralSelected&&root?.dataset.wordSelected?'Ses, rakam ve sayı sözcüğü eşleşmeleri hazır. Şimdi kontrol et.':'Şimdi bir rakam ve bir sayı sözcüğü seç.';}
   else if(q.response?.interaction==='nel-reliable-count-set'){
     const root=$('.nel-reliable-count-set'),all=root?.querySelectorAll('[data-reliable-item]').length||0,counted=root?.querySelectorAll('[data-reliable-item].counted').length||0;node.textContent=counted===all&&all?'Bütün nesneler bir kez sayıldı. Şimdi kontrol et.':counted+' / '+all+' nesne sayıldı.';
   }
