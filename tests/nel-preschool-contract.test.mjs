@@ -55,6 +55,9 @@ assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelConservation10'),'Path B metadata must reserve the conservation skill');
 assert.equal(preschoolIds.has('nelNumberRepresentations10'),true,'number representations enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
+assert.equal(preschoolIds.has('nelNumeralFormation10'),false,'numeral formation must remain contract-only until its generator and production interaction exist');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumeralFormation10'),'Path B metadata must reserve numeral formation');
+assert.equal(app.includes('renderNelNumeralFormationLessonStep'),false,'contract slice must not add numeral-formation Learn UI yet');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -134,6 +137,29 @@ for(const [code,ids] of Object.entries(PRESCHOOL_NEL_KSD_MAP)){
   for(const id of ids) assert.ok(allPlannedProductSkills.has(id),'KSD '+code+' references a skill outside the canonical preschool paths: '+id);
 }
 for(const concept of PRESCHOOL_NEL_SUPPORTING_CONCEPTS) assert.ok(allPlannedProductSkills.has(concept.skillId),'supporting concept must belong to a canonical preschool path: '+concept.skillId);
+
+const formationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumeralFormation10;
+assert.equal(formationContract.status,'contract-only');
+assert.deepEqual(formationContract.officialKsd,['3.6']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.6'],['nelNumeralFormation10']);
+assert.deepEqual(formationContract.productNumeralRange,[1,10]);
+assert.equal(formationContract.productBoundaryNotOfficialCeiling,true,'1..10 must remain an explicit SAYMERA product boundary rather than an invented official KSD ceiling');
+assert.equal(formationContract.dependsOnRepresentationSkill,'nelNumberRepresentations10','numeral production must build on already-understood number representation');
+assert.deepEqual(formationContract.productionModes,['material-form','guided-trace','free-form-copy','meaningful-record']);
+assert.deepEqual(formationContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Yaz',explain:'Anlat',transfer:'Taşı'});
+assert.deepEqual(formationContract.practice.sections.map(s=>s.id),['form-numeral-material','follow-numeral-path','write-known-numeral','explain-written-record','record-meaningful-number']);
+assert.deepEqual(formationContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.equal(formationContract.scoringBoundary.intentionalNumeralProduction,true);
+assert.equal(formationContract.scoringBoundary.recognisableNumeralIdentity,true);
+assert.equal(formationContract.scoringBoundary.exactStrokeOrderRequired,false,'stroke order must not become an unsupported mathematics mastery gate');
+assert.equal(formationContract.scoringBoundary.penmanshipAestheticsScored,false,'penmanship aesthetics must not contaminate mathematics evidence');
+assert.equal(formationContract.scoringBoundary.speedScored,false,'motor speed must not contaminate mathematics evidence');
+assert.equal(formationContract.sourceGrounding.playdoughFormationExample,true,'contract must preserve the official playdough numeral-formation example');
+assert.equal(formationContract.sourceGrounding.meaningfulWritingContextExample,'recording-game-score','contract must preserve the official meaningful game-score writing example');
+assert.equal(formationContract.sourceGrounding.cpaBridge,true);
+assert.equal(formationContract.numeralTen.twoDigitNumeral,true);
+assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
+assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
 const representationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumberRepresentations10;
 assert.equal(representationContract.practice.sections.length,5);
@@ -481,7 +507,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -496,6 +522,14 @@ assert.ok(contract.includes('**KSD 3.4**')&&contract.includes('**KSD 3.5**'),'nu
 assert.ok(contract.includes('**number name**')&&contract.includes('**numeral**')&&contract.includes('**number word**')&&contract.includes('**quantity**'),'representation contract must distinguish spoken name, numeral, written word and quantity');
 assert.ok(contract.includes('not a claim that KSD 3.4/3.5 explicitly state a 10-only ceiling'),'product limit must not be misrepresented as an official NEL ceiling');
 assert.ok(contract.includes('do **not** score handwriting/formation here'),'number representation must stay separate from KSD 3.6 numeral formation');
+assert.ok(contract.includes('**NEL KSD 3.6 — “Write numbers in numeral.”**'),'numeral-formation research boundary must anchor the official KSD wording');
+assert.ok(contract.includes('form the numeral 5 using playdough'),'research contract must preserve the official material-formation example');
+assert.ok(contract.includes('recording scores for a game'),'research contract must preserve the official meaningful-writing example');
+assert.ok(contract.includes('not an official KSD ceiling'),'1..10 formation scope must be identified as a product boundary');
+assert.ok(contract.includes('exact stroke order is **not** a mathematics mastery requirement'),'unsupported stroke-order grading must remain outside mastery');
+assert.ok(contract.includes('handwriting beauty, neatness and speed are **not** mathematics scores'),'fine-motor aesthetics/speed must not contaminate mathematics mastery');
+assert.ok(contract.includes('the `0` in `10` is a glyph component'),'the two-digit numeral 10 boundary must distinguish glyph formation from zero-quantity mastery');
+assert.ok(contract.includes('**Yaz:** intentionally produce the numeral'),'KSD 3.6 is the deliberate preschool exception where the symbol evidence is child-facing writing');
 assert.ok(contract.includes('Kur · Gör · Göster · Anlat · Taşı'));
 assert.ok(contract.includes('**NEL KSD 3.3**'),'research contract must explicitly anchor conservation to KSD 3.3');
 assert.ok(contract.includes('discrete quantity/cardinality'),'conservation scope must stay on discrete quantity rather than unrelated conservation tasks');
