@@ -2191,46 +2191,66 @@ function bindNelNumberFormMatch(root,onChange,blocked=()=>false){
 function nelNumberReadFormMatch(root){if(!root?.dataset.numberName||!root.dataset.numeralSelected||!root.dataset.wordSelected)return null;return root.dataset.numberName+'|'+root.dataset.numeralSelected+'|'+root.dataset.wordSelected;}
 function nelNumberWordDeck(range=[]){
   const [from,to]=range;
-  return '<div class="nel-number-word-deck">'+Array.from({length:to-from+1},(_,i)=>from+i).map(n=>'<article data-number-word-card="'+n+'"><strong>'+n+'</strong><b>'+esc(NEL_NUMBER_WORDS[n])+'</b><button type="button" data-rote-speech="'+esc(NEL_NUMBER_WORDS[n])+'">🔊 Dinle</button><button type="button" class="nel-number-word-open" data-number-word-open="'+n+'">Bu kartı gördüm</button></article>').join('')+'</div>';
+  return '<div class="nel-number-word-deck">'+Array.from({length:to-from+1},(_,i)=>from+i).map(n=>
+    '<article data-number-word-card="'+n+'"><strong>'+n+'</strong><b>'+esc(NEL_NUMBER_WORDS[n])+'</b>'+
+    '<button type="button" data-rote-speech="'+esc(NEL_NUMBER_WORDS[n])+'" data-number-word-listen="'+n+'">🔊 Dinle</button>'+
+    '<button type="button" class="nel-number-word-open" data-number-word-open="'+n+'" disabled>Bu kartı gördüm</button></article>'
+  ).join('')+'</div>';
 }
 function nelNumberLessonCore(step){
   const c=step.case;
-  if(step.kind==='quantity-name')return '<div class="nel-number-lesson-core">'+nelNumberQuantityVisual(c.quantities[0])+nelNumberSpeechButton(c.numberName)+'<button type="button" class="nel-number-confirm" id="nelNumberConfirm">Miktarı ve sayı adını bağladım</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='quantity-name')return '<div class="nel-number-lesson-core">'+nelNumberQuantityVisual(c.quantities[0])+nelNumberSpeechButton(c.numberName)+'<button type="button" class="nel-number-confirm" id="nelNumberConfirm" disabled>Miktarı ve sayı adını bağladım</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
   if(step.kind==='quantity-numeral')return '<div class="nel-number-lesson-core">'+nelNumberQuantityVisual(c.quantities[2])+'<div class="nel-number-form-card numeral hero">'+esc(c.numeral.value)+'</div><button type="button" class="nel-number-confirm" id="nelNumberConfirm">Aynı sayıyı gösterdiklerini gördüm</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
   if(step.kind==='models')return '<div class="nel-number-lesson-core"><div class="nel-number-model-cycle" id="nelNumberModelCycle" data-model-index="0">'+nelNumberQuantityVisual(c.quantities[0])+'</div><button type="button" class="nel-number-confirm" id="nelNumberNextModel">Sonraki gösterim</button><p class="nel-number-help" id="nelNumberHelp">1 / 4 gösterim</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
-  if(step.kind==='numeral-name')return '<div class="nel-number-lesson-core"><div class="nel-number-form-card numeral hero">'+esc(c.numeral.value)+'</div>'+nelNumberSpeechButton(c.numberName)+'<button type="button" class="nel-number-confirm" id="nelNumberConfirm">Rakam ile sesi bağladım</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
-  if(step.kind==='word-deck')return '<div class="nel-number-lesson-core">'+nelNumberWordDeck(step.range)+'<p class="nel-number-help" id="nelNumberHelp">Bütün kartları gör ve dinle.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='numeral-name')return '<div class="nel-number-lesson-core"><div class="nel-number-form-card numeral hero">'+esc(c.numeral.value)+'</div>'+nelNumberSpeechButton(c.numberName)+'<button type="button" class="nel-number-confirm" id="nelNumberConfirm" disabled>Rakam ile sesi bağladım</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='word-deck')return '<div class="nel-number-lesson-core">'+nelNumberWordDeck(step.range)+'<p class="nel-number-help" id="nelNumberHelp">Her kartta önce sayı adını dinle, sonra kartı gördüğünü işaretle.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
   if(step.kind==='word-quantity'){
     const options=[nelNumberLessonQuantity(7,'ten-frame'),nelNumberLessonQuantity(8,'ten-frame'),nelNumberLessonQuantity(9,'ten-frame')];
     return '<div class="nel-number-lesson-core"><div class="nel-number-form-card word hero">'+esc(c.numberWord.value)+'</div><div class="nel-number-lesson-choice-grid">'+options.map(o=>'<button type="button" data-number-lesson-quantity="'+o.n+'">'+nelNumberQuantityVisual(o)+'</button>').join('')+'</div><p class="nel-number-help" id="nelNumberHelp">Yazılı sayı sözcüğünün anlattığı miktarı seç.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
   }
-  if(step.kind==='four-way')return '<div class="nel-number-lesson-core"><div class="nel-number-four-way">'+nelNumberSpeechButton(c.numberName)+'<button type="button" data-number-four-part="numeral" class="nel-number-form-card numeral">'+esc(c.numeral.value)+'</button><button type="button" data-number-four-part="word" class="nel-number-form-card word">'+esc(c.numberWord.value)+'</button><button type="button" data-number-four-part="quantity" class="nel-number-quantity-button">'+nelNumberQuantityVisual(c.quantities[2])+'</button></div><p class="nel-number-help" id="nelNumberHelp">Üç görünür kartın hepsine dokun ve sayı adını dinle.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='four-way')return '<div class="nel-number-lesson-core"><div class="nel-number-four-way">'+nelNumberSpeechButton(c.numberName)+'<button type="button" data-number-four-part="numeral" class="nel-number-form-card numeral">'+esc(c.numeral.value)+'</button><button type="button" data-number-four-part="word" class="nel-number-form-card word">'+esc(c.numberWord.value)+'</button><button type="button" data-number-four-part="quantity" class="nel-number-quantity-button">'+nelNumberQuantityVisual(c.quantities[2])+'</button></div><p class="nel-number-help" id="nelNumberHelp">Sayı adını dinle ve üç görünür gösterimin hepsine dokun.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
   if(step.kind==='mixed'){
     const opts=[6,7,8].map(n=>nelNumberLessonCase(n));
-    return '<div class="nel-number-lesson-core">'+nelNumberSpeechButton(c.numberName,'Hedef sayı adını dinle')+'<div class="nel-number-lesson-choice-grid mixed">'+opts.map(x=>'<button type="button" data-number-mixed="'+x.n+'"><span class="nel-number-form-card numeral static">'+x.n+'</span><span class="nel-number-form-card word static">'+esc(x.numberWord.value)+'</span>'+nelNumberQuantityVisual(x.quantities[3])+'</button>').join('')+'</div><p class="nel-number-help" id="nelNumberHelp">Hedef sesle aynı sayıyı gösteren kartı seç.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
+    return '<div class="nel-number-lesson-core">'+nelNumberSpeechButton(c.numberName,'Hedef sayı adını dinle')+'<div class="nel-number-lesson-choice-grid mixed">'+opts.map(x=>'<button type="button" data-number-mixed="'+x.n+'" disabled><span class="nel-number-form-card numeral static">'+x.n+'</span><span class="nel-number-form-card word static">'+esc(x.numberWord.value)+'</span>'+nelNumberQuantityVisual(x.quantities[3])+'</button>').join('')+'</div><p class="nel-number-help" id="nelNumberHelp">Önce hedef sesi dinle, sonra aynı sayıyı gösteren kartı seç.</p><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
   }
   return '<div class="nel-number-lesson-core"><div class="nel-number-context-tag"><small>GÜNLÜK YAŞAM</small><strong>'+esc(c.numeral.value)+'</strong><span>Bir takvim, kapı veya sıra numarası düşün.</span></div><div class="nel-number-real-world"><b>1</b><span>Çevrende bir rakam bul.</span><b>2</b><span>Rakamın sayı adını söyle.</span><b>3</b><span>O kadar küçük nesne göster.</span></div><button type="button" class="nel-number-confirm" id="nelNumberConfirm">Gerçek bir örnek buldum</button><div class="nel-number-result" id="nelNumberResult">'+esc(step.result)+'</div></div>';
 }
 function wireNelNumberLessonStep(step,next){
   const reveal=()=>{$('#nelNumberResult')?.classList.add('revealed');next.disabled=false;};
-  bindNelRoteSpeech($('.nel-number-lesson-core'));
-  if(['quantity-name','quantity-numeral','numeral-name','transfer'].includes(step.kind)){$('#nelNumberConfirm')?.addEventListener('click',reveal);return;}
+  const lessonRoot=$('.nel-number-lesson-core');
+  bindNelRoteSpeech(lessonRoot);
+  if(step.kind==='quantity-name'||step.kind==='numeral-name'){
+    const confirm=$('#nelNumberConfirm'),listen=lessonRoot?.querySelector('[data-rote-speech]');
+    listen?.addEventListener('click',()=>{if(confirm)confirm.disabled=false;});
+    confirm?.addEventListener('click',reveal);
+    return;
+  }
+  if(step.kind==='quantity-numeral'||step.kind==='transfer'){$('#nelNumberConfirm')?.addEventListener('click',reveal);return;}
   if(step.kind==='models'){
     const box=$('#nelNumberModelCycle'),button=$('#nelNumberNextModel'),models=step.case.quantities;
-    button?.addEventListener('click',()=>{let i=Number(box.dataset.modelIndex||0)+1;if(i>=models.length){button.disabled=true;reveal();return;}box.dataset.modelIndex=String(i);box.innerHTML=nelNumberQuantityVisual(models[i]);$('#nelNumberHelp').textContent=(i+1)+' / '+models.length+' gösterim';if(i===models.length-1)button.textContent='Dört gösterimi tamamla';});return;
+    button?.addEventListener('click',()=>{let i=Number(box.dataset.modelIndex||0)+1;if(i>=models.length){button.disabled=true;reveal();return;}box.dataset.modelIndex=String(i);box.innerHTML=nelNumberQuantityVisual(models[i]);$('#nelNumberHelp').textContent=(i+1)+' / '+models.length+' gösterim';if(i===models.length-1)button.textContent='Dört gösterimi tamamla';});
+    return;
   }
   if(step.kind==='word-deck'){
     const root=$('.nel-number-word-deck'),seen=new Set();
-    root?.querySelectorAll('[data-number-word-open]').forEach(button=>button.addEventListener('click',()=>{seen.add(button.dataset.numberWordOpen);button.closest('article')?.classList.add('seen');button.disabled=true;$('#nelNumberHelp').textContent=seen.size+' / '+root.querySelectorAll('article').length+' kart görüldü';if(seen.size===root.querySelectorAll('article').length)reveal();}));return;
+    root?.querySelectorAll('[data-number-word-listen]').forEach(button=>button.addEventListener('click',()=>{const card=button.closest('article');card?.classList.add('listened');card?.querySelector('[data-number-word-open]')?.removeAttribute('disabled');}));
+    root?.querySelectorAll('[data-number-word-open]').forEach(button=>button.addEventListener('click',()=>{if(button.disabled)return;seen.add(button.dataset.numberWordOpen);button.closest('article')?.classList.add('seen');button.disabled=true;$('#nelNumberHelp').textContent=seen.size+' / '+root.querySelectorAll('article').length+' kart görüldü';if(seen.size===root.querySelectorAll('article').length)reveal();}));
+    return;
   }
   if(step.kind==='word-quantity'){
-    $('[data-number-lesson-quantity]').forEach(button=>button.addEventListener('click',()=>{if(Number(button.dataset.numberLessonQuantity)!==step.case.n){$('#nelNumberHelp').textContent='Sözcüğü sesli söyle ve miktarı yeniden karşılaştır.';return;}button.classList.add('selected');reveal();}));return;
+    $$('[data-number-lesson-quantity]').forEach(button=>button.addEventListener('click',()=>{if(Number(button.dataset.numberLessonQuantity)!==step.case.n){$('#nelNumberHelp').textContent='Sözcüğü sesli söyle ve miktarı yeniden karşılaştır.';return;}button.classList.add('selected');reveal();}));
+    return;
   }
   if(step.kind==='four-way'){
-    const seen=new Set();$('[data-number-four-part]').forEach(button=>button.addEventListener('click',()=>{seen.add(button.dataset.numberFourPart);button.classList.add('selected');if(seen.size===3)reveal();}));return;
+    const seen=new Set();
+    lessonRoot?.querySelector('[data-rote-speech]')?.addEventListener('click',()=>{seen.add('name');if(seen.size===4)reveal();});
+    $$('[data-number-four-part]').forEach(button=>button.addEventListener('click',()=>{seen.add(button.dataset.numberFourPart);button.classList.add('selected');if(seen.size===4)reveal();}));
+    return;
   }
   if(step.kind==='mixed'){
-    $('[data-number-mixed]').forEach(button=>button.addEventListener('click',()=>{if(Number(button.dataset.numberMixed)!==step.case.n){$('#nelNumberHelp').textContent='Hedef sayı adını yeniden dinle; rakam, sözcük ve miktarın üçünü birlikte kontrol et.';return;}button.classList.add('selected');reveal();}));return;
+    lessonRoot?.querySelector('[data-rote-speech]')?.addEventListener('click',()=>$$('[data-number-mixed]').forEach(button=>button.disabled=false));
+    $$('[data-number-mixed]').forEach(button=>button.addEventListener('click',()=>{if(button.disabled)return;if(Number(button.dataset.numberMixed)!==step.case.n){$('#nelNumberHelp').textContent='Hedef sayı adını yeniden dinle; rakam, sözcük ve miktarın üçünü birlikte kontrol et.';return;}button.classList.add('selected');reveal();}));
+    return;
   }
 }
 function completeNelNumberLessonStep(skill,index){
