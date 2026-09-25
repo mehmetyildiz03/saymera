@@ -2630,7 +2630,7 @@ function nelPartWholeSplitBuilderVisual(v={},contextMode=false){
   return '<div class="nel-part-whole-split-builder '+(contextMode?'context-mode':'')+'" data-part-whole-whole="'+whole+'" data-target-left="'+Number(target.left)+'" data-target-right="'+Number(target.right)+'" data-part-whole-mode="'+(contextMode?'parts':'split')+'">'+
     (contextMode?'<div class="nel-part-whole-context-label">'+(v.context==='fingers'?'PARMAK ETKİNLİĞİ':'BONCUK ETKİNLİĞİ')+'</div>':'')+
     '<div class="nel-part-whole-source"><small>BÜTÜN · '+whole+' NESNE</small><div data-part-whole-source>'+items.map(item=>nelPartWholeTokenMarkup(item,true)).join('')+'</div></div>'+
-    '<div class="nel-part-whole-bins"><button type="button" data-part-whole-bin="left"><span>SOL PARÇA</span><b data-part-whole-count="left">0</b><div data-part-whole-bin-items="left"></div></button><button type="button" data-part-whole-bin="right"><span>SAĞ PARÇA</span><b data-part-whole-count="right">0</b><div data-part-whole-bin-items="right"></div></button></div>'+
+    '<div class="nel-part-whole-bins"><div role="button" tabindex="0" data-part-whole-bin="left"><span>SOL PARÇA</span><b data-part-whole-count="left">0</b><div data-part-whole-bin-items="left"></div></div><div role="button" tabindex="0" data-part-whole-bin="right"><span>SAĞ PARÇA</span><b data-part-whole-count="right">0</b><div data-part-whole-bin-items="right"></div></div></div>'+
     '<p data-part-whole-status>Bir nesne seç, sonra taşıyacağın parçaya dokun.</p><button type="button" class="nel-part-whole-reset" data-part-whole-reset>Baştan ayır</button></div>';
 }
 function bindNelPartWholeSplit(root,onChange,blocked=()=>false){
@@ -2648,7 +2648,11 @@ function bindNelPartWholeSplit(root,onChange,blocked=()=>false){
     root.classList.toggle('ready',exact);onChange?.();
   };
   root.querySelectorAll('[data-part-whole-item]').forEach(item=>item.addEventListener('click',()=>{if(blocked())return;root.querySelectorAll('[data-part-whole-item]').forEach(x=>x.classList.remove('selected'));selected=item;item.classList.add('selected');}));
-  root.querySelectorAll('[data-part-whole-bin]').forEach(bin=>bin.addEventListener('click',event=>{if(blocked()||!selected||event.target.closest('[data-part-whole-item]'))return;const target=root.querySelector('[data-part-whole-bin-items="'+bin.dataset.partWholeBin+'"]');selected.classList.remove('selected');target?.appendChild(selected);selected=null;refresh();}));
+  const placeInBin=bin=>{if(blocked()||!selected)return;const target=root.querySelector('[data-part-whole-bin-items="'+bin.dataset.partWholeBin+'"]');selected.classList.remove('selected');target?.appendChild(selected);selected=null;refresh();};
+  root.querySelectorAll('[data-part-whole-bin]').forEach(bin=>{
+    bin.addEventListener('click',event=>{if(event.target.closest('[data-part-whole-item]'))return;placeInBin(bin);});
+    bin.addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;event.preventDefault();placeInBin(bin);});
+  });
   root.querySelector('[data-part-whole-reset]')?.addEventListener('click',()=>{if(blocked())return;[...root.querySelectorAll('[data-part-whole-item]')].forEach(item=>{item.classList.remove('selected');source?.appendChild(item);});selected=null;refresh();});
   refresh();
 }
