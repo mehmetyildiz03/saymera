@@ -99,7 +99,7 @@ assert.ok(app.includes('data-number-word-listen')&&app.includes('data-number-wor
 assert.ok(app.includes("if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map"),'Inspector must expose number-representation Learn steps');
 for(const type of ['nel-number-quantity','nel-number-link-builder','nel-number-quantity-focus','nel-number-form-match','nel-number-equivalent-set','nel-number-context-tag']) assert.ok(app.includes("case '"+type+"'"),'missing number-representation renderer '+type);
 assert.ok(app.includes("interaction==='nel-number-link-builder'")&&app.includes("interaction==='nel-number-form-match'"),'number-representation manipulatives must be wired for read/status/bind');
-assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'number representations and numeral formation must stay lesson-first');
+assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'number representations, numeral formation and quantity comparison must stay lesson-first');
 assert.equal(/(^|[^$])\$\('\[data-number-(?:four-part|mixed|lesson-quantity)\]'\)\.forEach/m.test(app),false,'multi-option number Learn interactions must not use single-element selector semantics');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
