@@ -3246,7 +3246,7 @@ function genNelPartWhole10(rep,d,rng,concept){
   const x=c.anchor;
   if(rep==='build'){
     const expected=nelPartWholeSplitExpected(x);
-    return qTask('nelPartWhole10','build','Bütün nesneleri iki gruba ayır. İki grup da boş kalmasın.',expected,{kind:'manipulative',interaction:'nel-part-whole-split',expectedValue:expected,checkLabel:'Parçalarımı kontrol et'},{
+    return qTask('nelPartWhole10','build','Bütün nesneleri '+x.split.left+' ve '+x.split.right+' nesnelik iki parçaya ayır.',expected,{kind:'manipulative',interaction:'nel-part-whole-split',expectedValue:expected,checkLabel:'Parçalarımı kontrol et'},{
       taskKind:'nel-part-whole-split-build',taskLabel:'Aynı bütünü iki parçaya ayır',
       visual:{type:'nel-part-whole-split-builder',whole:x.whole,items:x.items,targetSplit:x.split,context:x.context},
       hint:'Bütün nesnelerin her biri yalnız bir grupta olsun.',explain:'Bütün '+x.whole+' nesnenin hepsi iki parçanın içinde kaldı.'
@@ -3277,7 +3277,7 @@ function genNelPartWhole10(rep,d,rng,concept){
     });
   }
   const y=c.transfer;
-  return qTask('nelPartWhole10','transfer','Boncukları iki gruba ayır ve iki parçadaki miktarları göster.',nelPartWholeNameExpected(y),{kind:'manipulative',interaction:'nel-part-whole-context-split',expectedValue:nelPartWholeNameExpected(y),checkLabel:'Boncuk parçalarımı kontrol et'},{
+  return qTask('nelPartWhole10','transfer','Boncukları '+y.split.left+' ve '+y.split.right+' nesnelik iki parçaya ayır ve parça miktarlarını göster.',nelPartWholeNameExpected(y),{kind:'manipulative',interaction:'nel-part-whole-context-split',expectedValue:nelPartWholeNameExpected(y),checkLabel:'Boncuk parçalarımı kontrol et'},{
     taskKind:'nel-part-whole-transfer-bracelet',taskLabel:'Parça-bütünü boncuk etkinliğine taşı',
     visual:{type:'nel-part-whole-context-split',whole:y.whole,items:y.items,targetSplit:y.split,context:'bracelet'},
     hint:'Aynı boncukları iki gruba ayır; boncuk ekleme veya çıkarma.',explain:'Aynı '+y.whole+' boncuk iki parçaya ayrıldı: '+y.split.left+' ve '+y.split.right+'.'
@@ -6038,7 +6038,7 @@ function nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='split-whole-objects'){
     const expected=nelPartWholeSplitExpected(x);
-    return qTask('nelPartWhole10','build','Bütün nesneleri iki boş olmayan parçaya ayır.',expected,{kind:'manipulative',interaction:'nel-part-whole-split',expectedValue:expected,checkLabel:'Parçalamamı kontrol et'},{
+    return qTask('nelPartWhole10','build','Bütün nesneleri '+x.split.left+' ve '+x.split.right+' nesnelik iki parçaya ayır.',expected,{kind:'manipulative',interaction:'nel-part-whole-split',expectedValue:expected,checkLabel:'Parçalamamı kontrol et'},{
       taskKind:'nel-practice-part-whole-split-'+taskIndex,taskLabel:'Bütünü iki parçaya ayır',
       visual:{type:'nel-part-whole-split-builder',whole:x.whole,items:x.items,targetSplit:x.split,context:'blocks'},
       hint:'Her nesne yalnız bir parçada olsun ve bütün nesneler kullanılsın.',explain:'Aynı '+x.whole+' nesne iki parçanın içinde kaldı.'
@@ -6068,7 +6068,7 @@ function nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng){
     });
   }
   if(sectionId==='transfer-fingers-bracelet'){
-    return qTask('nelPartWhole10','transfer','Aynı boncukları iki gruba ayır ve parça miktarlarını göster.',nelPartWholeNameExpected(x),{kind:'manipulative',interaction:'nel-part-whole-context-split',expectedValue:nelPartWholeNameExpected(x),checkLabel:'Boncuk parçalarımı kontrol et'},{
+    return qTask('nelPartWhole10','transfer','Aynı boncukları '+x.split.left+' ve '+x.split.right+' nesnelik iki parçaya ayır ve parça miktarlarını göster.',nelPartWholeNameExpected(x),{kind:'manipulative',interaction:'nel-part-whole-context-split',expectedValue:nelPartWholeNameExpected(x),checkLabel:'Boncuk parçalarımı kontrol et'},{
       taskKind:'nel-practice-part-whole-transfer-'+taskIndex,taskLabel:'Parça-bütünü boncuk ve parmak bağlamına taşı',
       visual:{type:'nel-part-whole-context-split',whole:x.whole,items:x.items,targetSplit:x.split,context:taskIndex%2?'fingers':'bracelet'},
       hint:'Aynı bütünü koru; yalnız nesneleri iki parçaya ayır.',explain:'Bütün '+x.whole+' nesne iki parça olarak gösterildi.'
