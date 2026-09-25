@@ -1441,3 +1441,76 @@ button.nel-number-form-card{cursor:pointer}.nel-number-form-card.numeral{font-si
   .nel-numeral-quantity-link .nel-number-quantity{width:100%}
   .nel-numeral-written-record{grid-template-columns:1fr}.nel-numeral-record-symbol{min-height:110px;font-size:64px}
 }
+
+
+/* hidden NEL preschool quantity-comparison reference lesson */
+.practice-content.quantity-comparison-practice{overflow-y:auto;display:block}
+.quantity-comparison-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
+.quantity-comparison-question-stage .quantity-comparison-stage{height:auto;max-height:none;min-height:0;overflow:visible;place-items:start center;padding:12px}
+.nel-quantity-lesson-stage{width:min(900px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-quantity-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-quantity-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-quantity-section-track span.active{background:var(--violet-soft);border-color:#cbbbe1;color:#6f5390}
+.nel-quantity-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:4px 0}
+.nel-quantity-lesson-core{width:min(780px,100%);display:grid;justify-items:center;gap:11px}
+.nel-quantity-set-pair{width:min(720px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+.nel-quantity-set{min-width:0;min-height:164px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);padding:12px;display:grid;grid-template-rows:auto 1fr;gap:9px}
+.nel-quantity-set>small{font-size:8px;font-weight:950;letter-spacing:.09em;color:var(--muted);text-align:center}
+.nel-quantity-items{min-width:0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px}
+.nel-quantity-set.compact-row .nel-quantity-items{gap:5px}
+.nel-quantity-set.spread-row .nel-quantity-items{gap:20px}
+.nel-quantity-set.two-row .nel-quantity-items{display:grid;grid-template-columns:repeat(5,minmax(28px,1fr));justify-items:center;align-content:center;gap:7px}
+.nel-quantity-set.staggered .nel-quantity-items{display:grid;grid-template-columns:repeat(5,minmax(28px,1fr));justify-items:center;align-content:center;gap:8px}
+.nel-quantity-set.staggered .nel-quantity-token:nth-child(even){transform:translateY(13px)}
+.nel-quantity-token{width:calc(40px * var(--quantity-scale,1));height:calc(40px * var(--quantity-scale,1));min-width:32px;min-height:32px;max-width:52px;max-height:52px;border-radius:50%;display:grid;place-items:center;border:2px solid transparent;font-size:calc(20px * var(--quantity-scale,1));font-weight:950;line-height:1;transition:transform .14s,border-color .14s,box-shadow .14s,opacity .14s}
+button.nel-quantity-token{cursor:pointer}
+.nel-quantity-token.tone-blue,.nel-quantity-graph-object.tone-blue{background:var(--blue-soft);border-color:#a9c8dd;color:#315f82}
+.nel-quantity-token.tone-red,.nel-quantity-graph-object.tone-red{background:var(--coral-soft);border-color:#efb7ad;color:#995548}
+.nel-quantity-token.tone-green,.nel-quantity-graph-object.tone-green{background:var(--teal-soft);border-color:#9bcfc3;color:#17695d}
+.nel-quantity-token.tone-yellow,.nel-quantity-graph-object.tone-yellow{background:var(--sun-soft);border-color:#ead28c;color:#86661e}
+.nel-quantity-token.selected{box-shadow:0 0 0 4px rgba(91,121,145,.18);transform:scale(1.08)}
+.nel-quantity-token.paired{border-color:#67aa9a;box-shadow:inset 0 0 0 3px rgba(103,170,154,.15)}
+.nel-quantity-token.paired:after{content:attr(data-pair-index);position:absolute;width:17px;height:17px;border-radius:50%;background:var(--navy);color:white;display:grid;place-items:center;font-size:7px;font-weight:950;transform:translate(14px,-14px)}
+.nel-quantity-token{position:relative}
+.nel-quantity-token.unmatched{border-color:#d68b78;box-shadow:0 0 0 4px rgba(214,139,120,.13)}
+.nel-quantity-pair-builder{width:min(720px,100%);display:grid;gap:9px}
+.nel-quantity-pair-instruction,.nel-quantity-pair-summary,.nel-quantity-help{margin:0;text-align:center;font-size:10px;font-weight:850;color:var(--muted)}
+.nel-quantity-pair-summary{min-height:35px;padding:8px 12px;border-radius:12px;background:var(--paper-2);border:1px solid var(--line)}
+.nel-quantity-relation-choice{width:min(720px,100%);display:grid;gap:10px;justify-items:center}
+.nel-quantity-relation-buttons{width:min(720px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.nel-quantity-relation-buttons button,.nel-quantity-language-pair button,.nel-quantity-confirm{min-height:48px;padding:9px 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-size:10px;font-weight:900;color:var(--navy)}
+.nel-quantity-relation-buttons button.selected,.nel-quantity-language-pair button.selected,.nel-quantity-relation-buttons button:hover,.nel-quantity-language-pair button:hover{background:var(--violet-soft);border-color:#c7b1df}
+.nel-quantity-language-pair{width:min(520px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.nel-quantity-proof{width:min(620px,100%);padding:14px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:grid;gap:8px}
+.nel-quantity-proof-head,.nel-quantity-proof-row{display:grid;grid-template-columns:1fr 74px 1fr;align-items:center;justify-items:center;gap:7px}
+.nel-quantity-proof-head{font-size:8px;font-weight:950;letter-spacing:.09em;color:var(--muted)}
+.nel-quantity-proof-rows{display:grid;gap:5px}
+.nel-quantity-proof-row{min-height:46px;border-bottom:1px dashed rgba(180,174,163,.45)}
+.nel-quantity-proof-row:last-child{border-bottom:0}
+.nel-quantity-proof-row b{font-size:17px;color:var(--muted)}
+.nel-quantity-proof>p{margin:3px 0 0;text-align:center;font-size:10px;font-weight:850;color:var(--muted)}
+.nel-quantity-object-graph{width:min(680px,100%);padding:14px;border:1px solid var(--line);border-radius:22px;background:var(--paper-2);display:grid;gap:10px}
+.nel-quantity-graph-kicker{font-size:8px;font-weight:950;letter-spacing:.1em;color:var(--muted);text-align:center}
+.nel-quantity-graph-row{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:8px}
+.nel-quantity-graph-row>small{font-size:8px;font-weight:950;color:var(--muted)}
+.nel-quantity-graph-row>div{min-height:44px;display:grid;grid-template-columns:repeat(10,minmax(18px,1fr));gap:4px;align-items:center;border-bottom:1px solid var(--line)}
+.nel-quantity-graph-object{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid transparent;font-size:13px;justify-self:center}
+.nel-quantity-lesson-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(650px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:11px;font-weight:900;text-align:center}
+.nel-quantity-lesson-result.revealed{opacity:1;transform:none}
+@media(max-width:699px){
+  .practice-content.quantity-comparison-practice{padding-bottom:28px}
+  .nel-quantity-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-quantity-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}.nel-quantity-section-track span{flex:0 0 auto}
+  .nel-quantity-set-pair{grid-template-columns:1fr;gap:7px}
+  .nel-quantity-set{min-height:118px;padding:9px}.nel-quantity-set.spread-row .nel-quantity-items{gap:13px}
+  .nel-quantity-relation-buttons,.nel-quantity-language-pair{grid-template-columns:1fr;gap:6px}
+  .nel-quantity-proof-head,.nel-quantity-proof-row{grid-template-columns:1fr 48px 1fr}
+  .nel-quantity-graph-row{grid-template-columns:56px 1fr}
+  .nel-quantity-graph-row>div{grid-template-columns:repeat(10,minmax(18px,1fr));gap:2px}
+  .nel-quantity-graph-object{width:22px;height:22px;font-size:10px}
+}
+@media(max-height:760px) and (min-width:700px){
+  .nel-quantity-set{min-height:128px}
+  .nel-quantity-lesson-stage{gap:8px}
+  .nel-quantity-lesson-visual{padding:0}
+}

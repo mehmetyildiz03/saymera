@@ -48,8 +48,8 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
@@ -58,6 +58,22 @@ assert.equal(preschoolIds.has('nelNumberRepresentations10'),true,'number represe
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
 assert.equal(preschoolIds.has('nelNumeralFormation10'),true,'numeral formation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumeralFormation10'),'Path B metadata must reserve numeral formation');
+assert.equal(preschoolIds.has('nelCompareQuantities10'),true,'quantity comparison enters the hidden runnable registry only after its generator exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelCompareQuantities10'),'Path B metadata must reserve quantity comparison');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.compareOrder100.includes('nelCompareQuantities10'),'quantity comparison should bridge to later numerical comparison without becoming a hard prerequisite');
+assert.equal(app.includes("if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }"),true,'quantity comparison must teach before checking once Learn UI exists');
+const quantityLessonIds=['pair-same-four','pair-more-five-three','see-right-more','resist-size-spacing','fewer-language','less-language','same-ten','reverse-relation','explain-leftover','object-graph'];
+for(const id of quantityLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL quantity-comparison Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelCompareQuantities10') return NEL_QUANTITY_COMPARE_LESSON_STEPS.map"),'Inspector must expose quantity-comparison Learn steps');
+for(const type of ['nel-quantity-pair-builder','nel-quantity-set-pair','nel-quantity-relation-choice','nel-quantity-paired-proof','nel-quantity-object-graph']) assert.ok(app.includes("case '"+type+"'"),'missing quantity-comparison renderer '+type);
+for(const interaction of ['nel-quantity-pair-sets','nel-quantity-relation-choice']) assert.ok(app.includes("'"+interaction+"'"),'missing quantity-comparison runtime interaction '+interaction);
+assert.ok(app.includes('bindNelQuantityPairBuilder')&&app.includes('nelQuantityPairRead'),'one-to-one set comparison must be an active child interaction');
+assert.ok(app.includes("root.dataset.pairComplete='true'"),'pairing must complete only after the smaller set is fully one-to-one matched');
+assert.ok(app.includes("classList.add('unmatched')"),'unmatched objects must be made visible as comparison evidence');
+assert.ok(app.includes("data-quantity-context="),'real-object graph transfer must carry semantic context metadata');
+assert.ok(styles.includes('.nel-quantity-set.spread-row')&&styles.includes('.nel-quantity-set.compact-row'),'quantity UI must vary spacing without changing cardinality');
+assert.ok(styles.includes('.nel-quantity-token.unmatched'),'quantity UI must visibly surface unmatched objects');
+assert.ok(styles.includes('.nel-quantity-graph-row'),'real-object graph transfer must have a dedicated visual row model');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelNumeralFormation10'),'numeral production should bridge to P1 number representation/writing without becoming a hard prerequisite');
 assert.equal(app.includes("if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }"),true,'numeral formation must teach before checking once Learn UI exists');
 const numeralLessonIds=['form-one','trace-two','trace-three','trace-four','playdough-five','trace-six','trace-seven','trace-eight','trace-nine','write-ten'];
@@ -73,7 +89,7 @@ assert.ok(app.includes("nelNumeralReadBoard($('.nel-numeral-board'))"),'Practice
 assert.ok(styles.includes('.nel-numeral-svg')&&styles.includes('touch-action:none'),'numeral formation board must suppress browser pan/zoom while drawing with touch or stylus');
 assert.ok(styles.includes('.nel-numeral-paper{width:min(390px,86vw);aspect-ratio:1/1'),'formation canvas must remain a large square interaction area without horizontal overflow');
 assert.ok(styles.includes('.nel-numeral-board.material-mode .nel-numeral-user-stroke'),'material formation must be visually distinct from pencil/stylus formation');
-assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'numeral formation must be lesson-first');
+assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'numeral formation and quantity comparison must be lesson-first');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -83,7 +99,7 @@ assert.ok(app.includes('data-number-word-listen')&&app.includes('data-number-wor
 assert.ok(app.includes("if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map"),'Inspector must expose number-representation Learn steps');
 for(const type of ['nel-number-quantity','nel-number-link-builder','nel-number-quantity-focus','nel-number-form-match','nel-number-equivalent-set','nel-number-context-tag']) assert.ok(app.includes("case '"+type+"'"),'missing number-representation renderer '+type);
 assert.ok(app.includes("interaction==='nel-number-link-builder'")&&app.includes("interaction==='nel-number-form-match'"),'number-representation manipulatives must be wired for read/status/bind');
-assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'number representations and numeral formation must stay lesson-first');
+assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'number representations, numeral formation and quantity comparison must stay lesson-first');
 assert.equal(/(^|[^$])\$\('\[data-number-(?:four-part|mixed|lesson-quantity)\]'\)\.forEach/m.test(app),false,'multi-option number Learn interactions must not use single-element selector semantics');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
@@ -177,6 +193,33 @@ assert.equal(formationContract.numeralTen.twoDigitNumeral,true);
 assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
+const quantityCompareContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelCompareQuantities10;
+assert.equal(quantityCompareContract.status,'implemented');
+assert.deepEqual(quantityCompareContract.officialKsd,['3.7']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.7'],['nelCompareQuantities10']);
+assert.equal(quantityCompareContract.maximumSetSize,10);
+assert.equal(quantityCompareContract.compares,'quantity-of-two-sets');
+assert.equal(quantityCompareContract.distinctFromAttributeComparison,true);
+assert.deepEqual(quantityCompareContract.officialLanguage,['same-as','more-than','fewer-than','less-than']);
+assert.deepEqual(quantityCompareContract.childLanguageTr,{sameAs:'aynı sayıda',moreThan:'daha çok',fewerThan:'daha az sayıda',lessThan:'daha az'});
+assert.equal(quantityCompareContract.localisationBoundary.preserveOfficialSourceTermsInMetadata,true);
+assert.equal(quantityCompareContract.localisationBoundary.forceEnglishFewerLessDistinctionInTurkish,false);
+assert.deepEqual(quantityCompareContract.teachingProgression.first,['same-as','more-than']);
+assert.deepEqual(quantityCompareContract.teachingProgression.then,['fewer-than','less-than']);
+assert.equal(quantityCompareContract.comparisonEvidence.oneToOnePairing,true);
+assert.equal(quantityCompareContract.comparisonEvidence.unmatchedItems,true);
+assert.equal(quantityCompareContract.comparisonEvidence.occupiedAreaIsQuantityCue,false);
+assert.equal(quantityCompareContract.comparisonEvidence.itemSizeIsQuantityCue,false);
+assert.equal(quantityCompareContract.comparisonEvidence.spacingIsQuantityCue,false);
+assert.equal(quantityCompareContract.comparisonEvidence.formalComparisonSymbolsRequired,false);
+assert.equal(quantityCompareContract.supportedExtension.id,'how-many-more-fewer');
+assert.equal(quantityCompareContract.supportedExtension.afterCoreRelation,true);
+assert.equal(quantityCompareContract.supportedExtension.masteryRequiredForKsd37,false);
+assert.equal(quantityCompareContract.sourceGrounding.realObjectGraphExample,true);
+assert.deepEqual(quantityCompareContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+assert.deepEqual(quantityCompareContract.practice.sections.map(s=>s.id),['pair-sets-one-to-one','see-same-or-more','use-fewer-less-language','explain-leftover-relation','transfer-real-object-graph']);
+assert.deepEqual(quantityCompareContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+
 const representationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumberRepresentations10;
 assert.equal(representationContract.practice.sections.length,5);
 assert.deepEqual(representationContract.practice.sections.map(s=>s.id),['build-quantity-link','see-same-number','match-name-numeral-word','explain-equivalent-forms','transfer-number-context']);
@@ -205,7 +248,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
@@ -485,6 +528,61 @@ for(const section of formationContract.practice.sections){
   }
 }
 
+const quantityCompareConcept=createConceptInstance('nelCompareQuantities10',1,rng);
+assert.equal(quantityCompareConcept.skillId,'nelCompareQuantities10');
+for(const sample of [quantityCompareConcept.anchor,quantityCompareConcept.symbol,quantityCompareConcept.transfer]){
+  assert.ok(sample.leftN>=1&&sample.leftN<=10&&sample.rightN>=1&&sample.rightN<=10,'both KSD 3.7 sets must stay within 1..10');
+  assert.equal(sample.left.items.length,sample.leftN);
+  assert.equal(sample.right.items.length,sample.rightN);
+  const expected=sample.leftN===sample.rightN?'same-as':sample.leftN>sample.rightN?'more-than':'fewer-than';
+  assert.equal(sample.relation,expected,'quantity relation must derive from cardinality rather than layout or object size');
+  assert.equal(sample.difference,Math.abs(sample.leftN-sample.rightN));
+  if(sample.relation==='fewer-than') assert.deepEqual(sample.language.sourceTerms,['fewer-than','less-than'],'official less/fewer language roles must remain represented in metadata');
+  assert.ok(sample.left.tokenScale!==sample.right.tokenScale||sample.left.layout!==sample.right.layout,'comparison cases should vary irrelevant visual cues so area/spacing cannot be memorised');
+}
+
+const quantityBuild=generateQuestion('nelCompareQuantities10','build',1,rng,quantityCompareConcept);
+const quantitySee=generateQuestion('nelCompareQuantities10','see',1,rng,quantityCompareConcept);
+const quantityShow=generateQuestion('nelCompareQuantities10','symbol',1,rng,quantityCompareConcept);
+const quantityExplain=generateQuestion('nelCompareQuantities10','explain',1,rng,quantityCompareConcept);
+const quantityTransfer=generateQuestion('nelCompareQuantities10','transfer',1,rng,quantityCompareConcept);
+assert.equal(quantityBuild.response.interaction,'nel-quantity-pair-sets');
+assert.equal(quantitySee.response.kind,'choice');
+assert.equal(quantityShow.response.interaction,'nel-quantity-relation-choice');
+assert.equal(quantityExplain.response.kind,'choice');
+assert.equal(/\b\d+\s+nesne\s+(?:artıyor|kalıyor)/i.test([quantityExplain.prompt,quantityExplain.hint,quantityExplain.explain,...(quantityExplain.response?.options||[]).map(o=>o.label||o.value)].join(' ')),false,'core KSD 3.7 explanation must use unmatched-object relation without requiring a numerical difference');
+assert.equal(quantityTransfer.response.interaction,'nel-quantity-relation-choice');
+assert.equal(quantityTransfer.visual.context,'real-object-graph');
+for(const q of [quantityBuild,quantitySee,quantityShow,quantityExplain,quantityTransfer]){
+  assert.notEqual(q.response.kind,'number-input','KSD 3.7 must compare concrete sets and language rather than typed numerals');
+  const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+  assert.equal(/[<>]/.test(childText),false,'KSD 3.7 child tasks must not pull formal comparison symbols forward: '+childText);
+  assert.equal(/kaç tane daha (?:çok|az)/i.test(childText),false,'how-many-more/fewer is a supported extension, not core KSD 3.7 mastery evidence');
+}
+
+const quantityRelations=new Set();
+for(const section of quantityCompareContract.practice.sections){
+  const qs=Array.from({length:14},(_,i)=>generateLessonPracticeQuestion('nelCompareQuantities10',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelCompareQuantities10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    assert.notEqual(q.response.kind,'number-input',section.id+' must not reduce set comparison to numeral entry');
+    const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+    assert.equal(/[<>]/.test(childText),false,section.id+' must remain verbal/concrete rather than formal-symbol based');
+    assert.equal(/kaç tane daha (?:çok|az)/i.test(childText),false,section.id+' must not turn the optional difference extension into a core mastery gate');
+    const visual=q.visual||{};
+    if(visual.left?.count!=null&&visual.right?.count!=null){
+      assert.ok(visual.left.count<=10&&visual.right.count<=10,'practice sets must stay within official maximum 10 each');
+      quantityRelations.add(visual.left.count===visual.right.count?'same':visual.left.count>visual.right.count?'left-more':'right-more');
+      assert.ok(visual.left.items?.length===visual.left.count&&visual.right.items?.length===visual.right.count);
+    }
+    if(section==='pair-sets-one-to-one') assert.equal(q.response.interaction,'nel-quantity-pair-sets');
+    if(section==='use-fewer-less-language') assert.equal(q.response.interaction,'nel-quantity-relation-choice');
+    if(section==='transfer-real-object-graph') assert.equal(q.visual?.context,'real-object-graph');
+  }
+}
+assert.ok(quantityRelations.has('same')&&quantityRelations.has('left-more')&&quantityRelations.has('right-more'),'practice must cover equal and both unequal directions across varied cases');
+
 const representationConcept=createConceptInstance('nelNumberRepresentations10',1,rng);
 assert.equal(representationConcept.skillId,'nelNumberRepresentations10');
 assert.ok(representationConcept.anchor.n>=1&&representationConcept.anchor.n<=10,'number representation concept must stay within product scope 1..10');
@@ -574,7 +672,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -583,11 +681,23 @@ assert.ok(contract.includes('**1.1**')&&contract.includes('**1.2**'),'daily-life
 assert.ok(contract.includes('**3.2.1**')&&contract.includes('**3.2.4**'),'reliable-counting subskills must be documented');
 assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark number representations complete');
 assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark numeral formation complete');
-assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve quantity comparison as the next Path B skill');
-assert.ok(contract.includes('Status after SAYMERA v1.21.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark quantity comparison complete');
+assert.ok(contract.includes('nelPartWhole10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve part-whole as the next Path B skill');
+assert.ok(contract.includes('Status after SAYMERA v1.22.0'),'research contract status must match the implemented release boundary');
 assert.ok(contract.includes('v1.21.0 reference implementation'),'research contract must document the numeral-formation implementation slice');
 assert.ok(contract.includes('visibly off-path scribbling is rejected'),'implementation notes must preserve scribble-rejection evidence');
 assert.ok(contract.includes('same numeral path drawn in reverse direction is accepted'),'implementation notes must preserve stroke-direction independence');
+assert.ok(contract.includes('**NEL KSD 3.7**'),'quantity-comparison research boundary must anchor official KSD 3.7');
+assert.ok(contract.includes('two sets of up to 10 things each'),'KSD 3.7 boundary must preserve the official two-set and 10-each limit');
+assert.ok(contract.includes('same as')&&contract.includes('more than')&&contract.includes('fewer than')&&contract.includes('less than'),'official KSD 3.7 relation language must stay explicit');
+assert.ok(contract.includes('real-object graph'),'research boundary must preserve the official real-object-graph style example');
+assert.ok(contract.includes('KSD 2.1 / `nelCompareAttributes`'),'quantity comparison must be explicitly distinguished from attribute comparison');
+assert.ok(contract.includes('`<` and `>` are not KSD 3.7 mastery targets'),'preschool quantity comparison must not be converted to formal symbol mastery');
+assert.ok(contract.includes('aynı sayıda')&&contract.includes('daha çok')&&contract.includes('daha az sayıda'),'Turkish child-facing relation language must be documented');
+assert.ok(contract.includes('Supported extension, not an extra KSD 3.7 mastery gate'),'how-many-more/fewer must remain an Educators Guide extension rather than an invented KSD endpoint');
+assert.ok(contract.includes('v1.22.0 reference implementation'),'research contract must document the quantity-comparison implementation slice');
+assert.ok(contract.includes('one-to-one pairing exposes unmatched objects'),'implementation notes must preserve pairing/unmatched proof as the concrete comparison model');
+assert.ok(contract.includes('formal `<` and `>` symbols are excluded'),'implementation notes must preserve the no-formal-symbol boundary');
 assert.ok(contract.includes('Re-verified on **2026-09-25**'),'research contract must record the latest official-source verification');
 assert.ok(contract.includes('**KSD 3.4**')&&contract.includes('**KSD 3.5**'),'number-representation research boundary must anchor both official KSDs');
 assert.ok(contract.includes('**number name**')&&contract.includes('**numeral**')&&contract.includes('**number word**')&&contract.includes('**quantity**'),'representation contract must distinguish spoken name, numeral, written word and quantity');
