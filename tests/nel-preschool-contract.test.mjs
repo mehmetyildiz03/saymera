@@ -58,7 +58,18 @@ assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.
 assert.equal(preschoolIds.has('nelNumeralFormation10'),true,'numeral formation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumeralFormation10'),'Path B metadata must reserve numeral formation');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelNumeralFormation10'),'numeral production should bridge to P1 number representation/writing without becoming a hard prerequisite');
-assert.equal(app.includes('renderNelNumeralFormationLessonStep'),false,'generator slice must still stop before numeral-formation Learn UI');
+assert.equal(app.includes("if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }"),true,'numeral formation must teach before checking once Learn UI exists');
+const numeralLessonIds=['form-one','trace-two','trace-three','trace-four','playdough-five','trace-six','trace-seven','trace-eight','trace-nine','write-ten'];
+for(const id of numeralLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL numeral-formation Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelNumeralFormation10') return NEL_NUMERAL_FORMATION_LESSON_STEPS.map"),'Inspector must expose numeral-formation Learn steps for browser QA');
+for(const type of ['nel-numeral-material-form','nel-numeral-draw-board','nel-numeral-written-record']) assert.ok(app.includes("case '"+type+"'"),'missing numeral-formation renderer '+type);
+for(const interaction of ['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record']) assert.ok(app.includes("'"+interaction+"'"),'missing numeral-formation runtime interaction '+interaction);
+assert.ok(app.includes('pointerdown')&&app.includes('pointermove')&&app.includes('pointerup'),'numeral formation must support pointer/touch/stylus drawing rather than keypad entry');
+assert.ok(app.includes("root.dataset.numeralReady=pass?'true':'false'"),'drawing completion must come from geometric formation evidence');
+assert.ok(app.includes('guideRatios')&&app.includes('onPathRatio>=.5'),'formation acceptance must combine core-guide coverage with on-path evidence');
+assert.ok(app.includes("exactStrokeOrderRequired")===false,'child runtime must not introduce an exact stroke-order gate');
+assert.ok(app.includes("nelNumeralReadBoard($('.nel-numeral-board'))"),'Practice must read actual drawn numeral evidence');
+assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'numeral formation must be lesson-first');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -68,7 +79,7 @@ assert.ok(app.includes('data-number-word-listen')&&app.includes('data-number-wor
 assert.ok(app.includes("if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map"),'Inspector must expose number-representation Learn steps');
 for(const type of ['nel-number-quantity','nel-number-link-builder','nel-number-quantity-focus','nel-number-form-match','nel-number-equivalent-set','nel-number-context-tag']) assert.ok(app.includes("case '"+type+"'"),'missing number-representation renderer '+type);
 assert.ok(app.includes("interaction==='nel-number-link-builder'")&&app.includes("interaction==='nel-number-form-match'"),'number-representation manipulatives must be wired for read/status/bind');
-assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','number1000'"),'number representations must be lesson-first');
+assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'number representations and numeral formation must stay lesson-first');
 assert.equal(/(^|[^$])\$\('\[data-number-(?:four-part|mixed|lesson-quantity)\]'\)\.forEach/m.test(app),false,'multi-option number Learn interactions must not use single-element selector semantics');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
@@ -190,7 +201,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
