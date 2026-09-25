@@ -155,7 +155,7 @@ for(const [code,ids] of Object.entries(PRESCHOOL_NEL_KSD_MAP)){
 for(const concept of PRESCHOOL_NEL_SUPPORTING_CONCEPTS) assert.ok(allPlannedProductSkills.has(concept.skillId),'supporting concept must belong to a canonical preschool path: '+concept.skillId);
 
 const formationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumeralFormation10;
-assert.equal(formationContract.status,'generator-ready');
+assert.equal(formationContract.status,'implemented');
 assert.deepEqual(formationContract.officialKsd,['3.6']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.6'],['nelNumeralFormation10']);
 assert.deepEqual(formationContract.productNumeralRange,[1,10]);
@@ -582,8 +582,12 @@ assert.ok(contract.includes('18 official Numeracy KSDs'),'research contract must
 assert.ok(contract.includes('**1.1**')&&contract.includes('**1.2**'),'daily-life Numeracy KSDs must be explicit, not implied only');
 assert.ok(contract.includes('**3.2.1**')&&contract.includes('**3.2.4**'),'reliable-counting subskills must be documented');
 assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark number representations complete');
-assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve numeral formation as the next Path B skill');
-assert.ok(contract.includes('Status after SAYMERA v1.20.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark numeral formation complete');
+assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve quantity comparison as the next Path B skill');
+assert.ok(contract.includes('Status after SAYMERA v1.21.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('v1.21.0 reference implementation'),'research contract must document the numeral-formation implementation slice');
+assert.ok(contract.includes('visibly off-path scribbling is rejected'),'implementation notes must preserve scribble-rejection evidence');
+assert.ok(contract.includes('same numeral path drawn in reverse direction is accepted'),'implementation notes must preserve stroke-direction independence');
 assert.ok(contract.includes('Re-verified on **2026-09-25**'),'research contract must record the latest official-source verification');
 assert.ok(contract.includes('**KSD 3.4**')&&contract.includes('**KSD 3.5**'),'number-representation research boundary must anchor both official KSDs');
 assert.ok(contract.includes('**number name**')&&contract.includes('**numeral**')&&contract.includes('**number word**')&&contract.includes('**quantity**'),'representation contract must distinguish spoken name, numeral, written word and quantity');
