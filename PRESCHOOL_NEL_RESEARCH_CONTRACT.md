@@ -151,6 +151,32 @@ Recommended product progression:
    Distinguish this from KSD 3.2 order irrelevance. Order irrelevance asks whether counting the same set from a different starting point/order gives the same total. Conservation asks whether changing the **spatial arrangement itself** changes the quantity. SAYMERA must preserve both as separate evidence.
 
 5. `nelNumberRepresentations10` — number name ↔ numeral ↔ number word ↔ quantity
+
+   Official role: this product skill jointly implements **KSD 3.4** (recognise numbers in numeral and written-word forms) and **KSD 3.5** (connect spoken number name / numeral / written number word with quantity).
+
+   Representation contract:
+   - **number name** = the spoken name of the number; it is not the same evidence as reading a written word;
+   - **numeral** = the written mathematical symbol, e.g. `5`;
+   - **number word** = the written language form, localised in SAYMERA (e.g. Turkish `beş`);
+   - **quantity** = the amount itself, shown through varied concrete/pictorial representations rather than a single dot-card template.
+
+   NEL Educators' Guide examples include objects, fingers, ten frames, tally marks and base-10 materials as ways to represent quantity. SAYMERA does not need to use every material in every lesson, but the child must learn that the same quantity can appear in more than one representation.
+
+   Product boundary:
+   - reference implementation will use quantities **1–10** to stay coherent with the surrounding early-number work; this is a SAYMERA product boundary, not a claim that KSD 3.4/3.5 explicitly state a 10-only ceiling;
+   - teach each representation link before testing it;
+   - preserve audio for spoken number names so general reading ability does not become the only route to mathematical evidence;
+   - written number-word recognition still needs genuine visual evidence because KSD 3.4 explicitly includes words;
+   - do **not** score handwriting/formation here; numeral production belongs to separate KSD 3.6 / `nelNumeralFormation10`;
+   - do not let a child pass by memorising one fixed dot arrangement; vary the quantity model.
+
+   Planned evidence:
+   - **Kur:** build/select a quantity, then attach the matching numeral or word card;
+   - **Gör:** recognise the same quantity across varied representations;
+   - **Göster:** match spoken name, numeral and written word to quantity in both directions;
+   - **Anlat:** identify which representations mean the same amount and why;
+   - **Taşı:** find/use numerals and quantities in an authentic daily-life context.
+
 6. `nelNumeralFormation10` — form/write numerals 1–10 without making handwriting quality a mathematics mastery contaminant
 7. `nelCompareQuantities10` — same / more / fewer / less; later “how many more/fewer?”
 8. `nelPartWhole10` — compose/decompose quantities up to 10 in multiple ways
