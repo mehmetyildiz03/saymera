@@ -50,6 +50,7 @@ assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-re
 
 for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
 for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),false,'part-whole must remain contract-only until a generator/runtime exists');
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
@@ -61,6 +62,9 @@ assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.
 assert.equal(preschoolIds.has('nelCompareQuantities10'),true,'quantity comparison enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelCompareQuantities10'),'Path B metadata must reserve quantity comparison');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.compareOrder100.includes('nelCompareQuantities10'),'quantity comparison should bridge to later numerical comparison without becoming a hard prerequisite');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelPartWhole10'),'Path B metadata must reserve part-whole');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.numberBonds10.includes('nelPartWhole10'),'part-whole should bridge to later P1 number bonds without becoming a hard prerequisite');
+assert.equal(app.includes('renderNelPartWholeLessonStep'),false,'contract slice must not add part-whole Learn UI yet');
 assert.equal(app.includes("if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }"),true,'quantity comparison must teach before checking once Learn UI exists');
 const quantityLessonIds=['pair-same-four','pair-more-five-three','see-right-more','resist-size-spacing','fewer-language','less-language','same-ten','reverse-relation','explain-leftover','object-graph'];
 for(const id of quantityLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL quantity-comparison Learn step '+id);
@@ -192,6 +196,34 @@ assert.equal(formationContract.sourceGrounding.cpaBridge,true);
 assert.equal(formationContract.numeralTen.twoDigitNumeral,true);
 assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
+
+const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
+assert.equal(partWholeContract.status,'contract-only');
+assert.deepEqual(partWholeContract.officialKsd,['3.8']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.8'],['nelPartWhole10']);
+assert.equal(partWholeContract.officialMaximumWhole,10);
+assert.deepEqual(partWholeContract.productWholeRange,[2,10]);
+assert.equal(partWholeContract.productMinimumNotOfficialFloor,true,'2..10 reference range must be identified as a SAYMERA product choice');
+assert.equal(partWholeContract.concept,'parts-form-a-whole');
+assert.equal(partWholeContract.decompositionBoundary.minimumParts,2);
+assert.equal(partWholeContract.decompositionBoundary.referenceCoreParts,2);
+assert.equal(partWholeContract.decompositionBoundary.supportsMoreThanTwoParts,true,'contract must preserve the official broader two-or-more-parts idea');
+assert.equal(partWholeContract.decompositionBoundary.positivePartsInCore,true);
+assert.equal(partWholeContract.decompositionBoundary.zeroPartCore,false,'zero-part decompositions must not be invented as a core NEL 3.8 target');
+assert.equal(partWholeContract.decompositionBoundary.swappedPartsRemainValid,true);
+assert.equal(partWholeContract.decompositionBoundary.multipleDecompositionsOfSameWhole,true);
+assert.equal(partWholeContract.symbolicBoundary.numeralsMayLabelQuantities,true);
+assert.equal(partWholeContract.symbolicBoundary.formalAdditionEquationRequired,false,'formal addition equations must not define preschool part-whole mastery');
+assert.equal(partWholeContract.symbolicBoundary.numberBondDiagramRequired,false,'P1-style number-bond diagrams must not be back-ported as a preschool requirement');
+assert.equal(partWholeContract.symbolicBoundary.symbolicEquationAsPrimaryDefinition,false);
+assert.equal(partWholeContract.sourceGrounding.colouredBlockTowerExample,true);
+assert.equal(partWholeContract.sourceGrounding.braceletBeadsSplitExample,true);
+assert.equal(partWholeContract.sourceGrounding.fingerPlayExample,true);
+assert.equal(partWholeContract.sourceGrounding.dailyRoutineReinforcement,true);
+assert.equal(partWholeContract.sourceGrounding.futureAdditionSubtractionFoundation,true);
+assert.deepEqual(partWholeContract.practice.sections.map(s=>s.id),['split-whole-objects','see-multiple-decompositions','name-parts-forming-whole','explain-same-whole-different-parts','transfer-fingers-bracelet']);
+assert.deepEqual(partWholeContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(partWholeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
 const quantityCompareContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelCompareQuantities10;
 assert.equal(quantityCompareContract.status,'implemented');
@@ -672,7 +704,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -696,6 +728,15 @@ assert.ok(contract.includes('`<` and `>` are not KSD 3.7 mastery targets'),'pres
 assert.ok(contract.includes('aynı sayıda')&&contract.includes('daha çok')&&contract.includes('daha az sayıda'),'Turkish child-facing relation language must be documented');
 assert.ok(contract.includes('Supported extension, not an extra KSD 3.7 mastery gate'),'how-many-more/fewer must remain an Educators Guide extension rather than an invented KSD endpoint');
 assert.ok(contract.includes('v1.22.0 reference implementation'),'research contract must document the quantity-comparison implementation slice');
+assert.ok(contract.includes('**NEL KSD 3.8**'),'part-whole research boundary must anchor official KSD 3.8');
+assert.ok(contract.includes('quantity of up to 10'),'part-whole boundary must preserve the official maximum whole of 10');
+assert.ok(contract.includes('tower of five blocks')&&contract.includes('bracelet/bead activity'),'research contract must preserve official concrete part-whole examples');
+assert.ok(contract.includes('2 and 3, 3 and 2, 1 and 4, and 4 and 1'),'research contract must preserve multiple and swapped decompositions of 5');
+assert.ok(contract.includes('two or more parts'),'part-whole contract must not narrow the official concept to exactly two parts');
+assert.ok(contract.includes('wholes **2–10**'),'lower reference bound must be documented as a product choice');
+assert.ok(contract.includes('zero-part decompositions are **not** a core target'),'zero must not be silently invented into KSD 3.8');
+assert.ok(contract.includes('formal addition equation')&&contract.includes('not required'),'part-whole meaning must precede formal operation equations');
+assert.ok(contract.includes('P1 number-bond completion must not be back-ported'),'preschool part-whole must remain foundational rather than a copied Primary number-bond lesson');
 assert.ok(contract.includes('one-to-one pairing exposes unmatched objects'),'implementation notes must preserve pairing/unmatched proof as the concrete comparison model');
 assert.ok(contract.includes('formal `<` and `>` symbols are excluded'),'implementation notes must preserve the no-formal-symbol boundary');
 assert.ok(contract.includes('Re-verified on **2026-09-25**'),'research contract must record the latest official-source verification');
