@@ -3915,18 +3915,19 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
-  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10';
+  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10';
   $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').classList.toggle('subitise-practice',subitise);
   $('#practiceContent').classList.toggle('conservation-practice',conservation);
   $('#practiceContent').classList.toggle('number-representation-practice',numberRep);
   $('#practiceContent').classList.toggle('numeral-formation-practice',numeralFormation);
   $('#practiceContent').classList.toggle('quantity-comparison-practice',quantityCompare);
+  $('#practiceContent').classList.toggle('part-whole-practice',partWhole);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''}">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''} ${partWhole?'part-whole-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''} ${quantityCompare?'quantity-comparison-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''} ${quantityCompare?'quantity-comparison-stage':''} ${partWhole?'part-whole-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
@@ -3990,6 +3991,8 @@ function wireManipulator(q){
   if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) bindNelNumeralBoard($('.nel-numeral-board'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-quantity-pair-sets') bindNelQuantityPairBuilder($('.nel-quantity-pair-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-quantity-relation-choice') bindNelQuantityRelation($('.nel-quantity-relation-choice, .nel-quantity-object-graph'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-part-whole-split'||interaction==='nel-part-whole-context-split') bindNelPartWholeSplit($('.nel-part-whole-split-builder'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-part-whole-name-parts') bindNelPartWholeName($('.nel-part-whole-name-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-count-set') bindNelReliableCountSet($('.nel-reliable-count-set'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-next-word') bindNelReliableNextWord($('.nel-reliable-next-word'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-cardinality') bindNelReliableCardinality($('.nel-reliable-cardinality'),()=>updateManipulatorStatus(q),()=>answered);
@@ -4351,6 +4354,8 @@ function readManipulatorValue(q){
   if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) return nelNumeralReadBoard($('.nel-numeral-board'));
   if(interaction==='nel-quantity-pair-sets') return nelQuantityPairRead($('.nel-quantity-pair-builder'));
   if(interaction==='nel-quantity-relation-choice') return nelQuantityRelationRead($('.nel-quantity-relation-choice, .nel-quantity-object-graph'));
+  if(interaction==='nel-part-whole-split'||interaction==='nel-part-whole-context-split') return nelPartWholeReadSplit($('.nel-part-whole-split-builder'));
+  if(interaction==='nel-part-whole-name-parts') return nelPartWholeReadName($('.nel-part-whole-name-builder'));
   if(interaction==='nel-reliable-count-set') return nelReliableReadCountSet($('.nel-reliable-count-set'));
   if(interaction==='nel-reliable-next-word') return $('.nel-reliable-next-word')?.dataset.reliableSelected ?? null;
   if(interaction==='nel-reliable-cardinality') return nelReliableReadCardinality($('.nel-reliable-cardinality'));
@@ -4460,6 +4465,11 @@ function updateManipulatorStatus(q){
     node.textContent=root?.dataset.pairComplete==='true'?'Bire bir eşleştirme tamamlandı. Şimdi kontrol et.':paired+' / '+target+' çift eşleşti.';
   }
   else if(q.response?.interaction==='nel-quantity-relation-choice') node.textContent=value?'Bir miktar ilişkisi seçtin. Şimdi kontrol et.':'Aynı sayıda, daha çok veya daha az ilişkisini seç.';
+  else if(q.response?.interaction==='nel-part-whole-split'||q.response?.interaction==='nel-part-whole-context-split'){
+    const root=$('.nel-part-whole-split-builder'),left=root?.querySelectorAll('[data-part-whole-bin-items="left"] [data-part-whole-item]').length||0,right=root?.querySelectorAll('[data-part-whole-bin-items="right"] [data-part-whole-item]').length||0;
+    node.textContent=value?'İki parça hedef miktarlarda hazır. Şimdi kontrol et.':'Sol parça '+left+', sağ parça '+right+'. Bütün nesneleri hedef parçalara taşı.';
+  }
+  else if(q.response?.interaction==='nel-part-whole-name-parts') node.textContent=value?'İki parça miktarı seçildi. Şimdi kontrol et.':'Sol ve sağ parçanın miktarlarını seç.';
   else if(q.response?.interaction==='nel-reliable-count-set'){
     const root=$('.nel-reliable-count-set'),all=root?.querySelectorAll('[data-reliable-item]').length||0,counted=root?.querySelectorAll('[data-reliable-item].counted').length||0;node.textContent=counted===all&&all?'Bütün nesneler bir kez sayıldı. Şimdi kontrol et.':counted+' / '+all+' nesne sayıldı.';
   }
@@ -4864,6 +4874,12 @@ function renderVisual(v,q){
     case 'nel-quantity-relation-choice': return nelQuantityRelationChoiceVisual(v);
     case 'nel-quantity-paired-proof': return nelQuantityPairedProofVisual(v);
     case 'nel-quantity-object-graph': return nelQuantityObjectGraphVisual(v);
+    case 'nel-part-whole-whole-set': return nelPartWholeWholeSetVisual(v);
+    case 'nel-part-whole-split-builder': return nelPartWholeSplitBuilderVisual(v);
+    case 'nel-part-whole-split-preview': return nelPartWholeSplitPreviewVisual(v);
+    case 'nel-part-whole-name-builder': return nelPartWholeNameBuilderVisual(v);
+    case 'nel-part-whole-multiple-splits': return nelPartWholeMultipleSplitsVisual(v);
+    case 'nel-part-whole-context-split': return nelPartWholeContextSplitVisual(v);
     case 'nel-reliable-count-set': return nelReliableCountSetVisual(v);
     case 'nel-reliable-next-word': return nelReliableNextWordVisual(v);
     case 'nel-reliable-cardinality': return nelReliableCardinalityVisual(v);
