@@ -183,7 +183,7 @@ async function completePractice(page,section){
   if(section==='explain-leftover-relation'){
     const proof=page.locator('.nel-quantity-proof');
     const rows=proof.locator('.nel-quantity-proof-row');
-    const left=await rows.locator('> .nel-quantity-token:first-child').count().catch(()=>0);
+    assert.ok(await rows.count()>=1,'paired proof must contain comparison rows');
     const visual=page.locator('#visualStage');
     const leftTokens=await visual.locator('.nel-quantity-proof-row > .nel-quantity-token:nth-child(1)').count();
     const rightTokens=await visual.locator('.nel-quantity-proof-row > .nel-quantity-token:nth-child(3)').count();
