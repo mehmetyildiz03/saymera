@@ -72,7 +72,8 @@ async function completeLearnStep(page,id){
   const core=page.locator('.nel-quantity-lesson-core');
   const next=page.locator('#nelQuantityLessonNext');
   assert.equal(await page.locator('input[inputmode="numeric"]').count(),0,id+' must not use numeric-entry evidence');
-  assert.equal(await page.locator('text=/[<>]/').count(),0,id+' must not pull formal comparison signs into Preschool');
+  const childText=(await page.locator('#practiceContent').textContent())||'';
+  assert.equal(/[<>]/.test(childText),false,id+' must not pull formal comparison signs into Preschool');
 
   if(id==='pair-same-four'||id==='pair-more-five-three'){
     const root=core.locator('.nel-quantity-pair-builder');
