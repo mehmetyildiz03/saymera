@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit, patternContinuationRule, numeralFormationCaseFor, quantityCompareCaseFor
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit, patternContinuationRule, numeralFormationCaseFor, quantityCompareCaseFor, partWholeCaseFor
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -2594,6 +2594,114 @@ function renderNelCompareQuantitiesLessonStep(skill,index=null){
   const next=$('#nelQuantityLessonNext');wireNelCompareQuantitiesLessonStep(step,next);next?.addEventListener('click',()=>completeNelCompareQuantitiesLessonStep(skill,at));
 }
 
+
+const NEL_PART_WHOLE_LESSON_VERSION=1;
+const NEL_PART_WHOLE_SECTIONS=['BÜTÜN','PARÇALA','FARKLI YOLLAR','ADLANDIR','ANLAT','HAYATA TAŞI'];
+const NEL_PART_WHOLE_LESSON_STEPS=[
+  {id:'whole-five',section:'BÜTÜN',kind:'whole',whole:5,title:'Önce bütün beşi görelim.',body:'Beş bloğun hepsi tek bütün kümede. Birazdan aynı blokları parçalara ayıracağız.',result:'Bütün, elimizdeki beş nesnenin tamamıdır.'},
+  {id:'split-five-2-3',section:'PARÇALA',kind:'split',whole:5,left:2,title:'Beşi iki parçaya ayır.',body:'Aynı beş bloğu 2 nesnelik ve 3 nesnelik iki parçaya taşı.',result:'İki parça farklı büyüklükte; bütün nesnelerin hepsi hâlâ burada.'},
+  {id:'split-five-1-4',section:'FARKLI YOLLAR',kind:'split',whole:5,left:1,title:'Aynı beş başka türlü de ayrılabilir.',body:'Bu kez beşi 1 nesnelik ve 4 nesnelik iki parçaya ayır.',result:'Aynı bütün için başka bir parçalanma oluşturdun.'},
+  {id:'swap-five-4-1',section:'FARKLI YOLLAR',kind:'split',whole:5,left:4,title:'Parçaların yeri değişebilir.',body:'Şimdi 4 nesneyi sola, 1 nesneyi sağa taşı.',result:'Parçaların yeri değişti; bütün yine aynı beş nesne.'},
+  {id:'many-splits-six',section:'FARKLI YOLLAR',kind:'gallery',whole:6,splits:[[1,5],[2,4],[3,3]],title:'Altı için birden fazla parçalanma var.',body:'Üç farklı parçalanmaya sırayla dokun. Hepsi aynı altı bütünü gösteriyor.',result:'Bir bütünü tek bir parçalanmayı ezberleyerek değil, farklı biçimlerde görebiliriz.'},
+  {id:'three-parts-six',section:'FARKLI YOLLAR',kind:'three-parts',whole:6,parts:[1,2,3],title:'Bir bütün ikiden fazla parçaya da ayrılabilir.',body:'Altı nesneyi üç grupta gör: 1 nesne, 2 nesne ve 3 nesne.',result:'Bütün yalnız iki parçaya bağlı değildir; iki veya daha fazla parça olabilir.'},
+  {id:'name-seven-3-4',section:'ADLANDIR',kind:'name',whole:7,left:3,title:'Parçaların miktarlarını adlandır.',body:'Yedi nesnenin iki parçasını ayrı ayrı say ve parça miktarlarını seç.',result:'Sol parça 3, sağ parça 4 nesne; bütün yedi nesne.'},
+  {id:'explain-eight',section:'ANLAT',kind:'explain',whole:8,left:3,title:'Parçalar değişse de bütün neden aynı?',body:'İki farklı parçalanmayı incele ve doğru açıklamayı seç.',result:'Bütün nesnelerin hepsi parçalarda kaldığı için bütün miktarı değişmedi.'},
+  {id:'bracelet-nine',section:'HAYATA TAŞI',kind:'context',whole:9,left:4,context:'bracelet',title:'Boncukları iki parçaya ayır.',body:'Aynı dokuz boncuğu 4 ve 5 boncukluk iki gruba taşı.',result:'Gerçek nesnelerde de aynı bütünü farklı parçalarda gösterebiliriz.'},
+  {id:'fingers-ten',section:'HAYATA TAŞI',kind:'fingers',whole:10,parts:[5,5],title:'Parmaklarınla bir bütünü parçalara göster.',body:'İki eldeki beşer parmağı birlikte düşün. İki parça, aynı onluk bütünü gösteriyor.',result:'Günlük beden hareketleri de parça-bütün ilişkisini görünür kılabilir.'}
+];
+function nelPartWholeSectionTrack(step){
+  return '<div class="nel-part-whole-section-track">'+NEL_PART_WHOLE_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelPartWholeTokenMarkup(item,interactive=false){
+  const tag=interactive?'button':'span';
+  return '<'+tag+(interactive?' type="button"':'')+' class="nel-part-whole-token tone-'+esc(item.tone||'blue')+'" data-part-whole-item="'+esc(item.id)+'">'+esc(item.symbol||'●')+'</'+tag+'>';
+}
+function nelPartWholeWholeSetVisual(v={}){
+  const items=v.items||Array.from({length:Number(v.whole)||0},(_,i)=>({id:'whole-'+i,symbol:'●',tone:['blue','green','yellow','red'][i%4]}));
+  return '<div class="nel-part-whole-whole-set" data-part-whole-whole="'+Number(v.whole||items.length)+'"><small>BÜTÜN</small><div>'+items.map(item=>nelPartWholeTokenMarkup(item)).join('')+'</div><strong>'+Number(v.whole||items.length)+' nesne</strong></div>';
+}
+function nelPartWholeSplitPreviewVisual(v={}){
+  const whole=Number(v.whole)||0,left=Number(v.split?.left)||0,right=Number(v.split?.right)||0;
+  const dots=n=>Array.from({length:n},()=>'<i></i>').join('');
+  return '<div class="nel-part-whole-split-preview" data-preview-whole="'+whole+'" data-preview-left="'+left+'" data-preview-right="'+right+'"><div><small>SOL PARÇA</small><span>'+dots(left)+'</span><b>'+left+'</b></div><em>aynı bütün</em><div><small>SAĞ PARÇA</small><span>'+dots(right)+'</span><b>'+right+'</b></div></div>';
+}
+function nelPartWholeSplitBuilderVisual(v={},contextMode=false){
+  const whole=Number(v.whole)||0,target=v.targetSplit||{left:1,right:Math.max(1,whole-1)},items=v.items||[];
+  return '<div class="nel-part-whole-split-builder '+(contextMode?'context-mode':'')+'" data-part-whole-whole="'+whole+'" data-target-left="'+Number(target.left)+'" data-target-right="'+Number(target.right)+'" data-part-whole-mode="'+(contextMode?'parts':'split')+'">'+
+    (contextMode?'<div class="nel-part-whole-context-label">'+(v.context==='fingers'?'PARMAK ETKİNLİĞİ':'BONCUK ETKİNLİĞİ')+'</div>':'')+
+    '<div class="nel-part-whole-source"><small>BÜTÜN · '+whole+' NESNE</small><div data-part-whole-source>'+items.map(item=>nelPartWholeTokenMarkup(item,true)).join('')+'</div></div>'+
+    '<div class="nel-part-whole-bins"><button type="button" data-part-whole-bin="left"><span>SOL PARÇA</span><b data-part-whole-count="left">0</b><div data-part-whole-bin-items="left"></div></button><button type="button" data-part-whole-bin="right"><span>SAĞ PARÇA</span><b data-part-whole-count="right">0</b><div data-part-whole-bin-items="right"></div></button></div>'+
+    '<p data-part-whole-status>Bir nesne seç, sonra taşıyacağın parçaya dokun.</p><button type="button" class="nel-part-whole-reset" data-part-whole-reset>Baştan ayır</button></div>';
+}
+function bindNelPartWholeSplit(root,onChange,blocked=()=>false){
+  if(!root)return;
+  let selected=null;
+  const source=root.querySelector('[data-part-whole-source]');
+  const refresh=()=>{
+    const left=root.querySelectorAll('[data-part-whole-bin-items="left"] [data-part-whole-item]').length,right=root.querySelectorAll('[data-part-whole-bin-items="right"] [data-part-whole-item]').length;
+    const whole=Number(root.dataset.partWholeWhole)||0,targetLeft=Number(root.dataset.targetLeft)||0,targetRight=Number(root.dataset.targetRight)||0;
+    root.querySelector('[data-part-whole-count="left"]').textContent=String(left);root.querySelector('[data-part-whole-count="right"]').textContent=String(right);
+    const all=left+right===whole&&left>0&&right>0,exact=all&&left===targetLeft&&right===targetRight;
+    root.dataset.partWholeReady=exact?'true':'false';
+    const status=root.querySelector('[data-part-whole-status]');
+    if(status)status.textContent=exact?'İki parça hazır.':all?'İki parça da dolu; hedef miktarları yeniden kontrol et.':'Bütün nesneleri iki parçaya taşı.';
+    root.classList.toggle('ready',exact);onChange?.();
+  };
+  root.querySelectorAll('[data-part-whole-item]').forEach(item=>item.addEventListener('click',()=>{if(blocked())return;root.querySelectorAll('[data-part-whole-item]').forEach(x=>x.classList.remove('selected'));selected=item;item.classList.add('selected');}));
+  root.querySelectorAll('[data-part-whole-bin]').forEach(bin=>bin.addEventListener('click',event=>{if(blocked()||!selected||event.target.closest('[data-part-whole-item]'))return;const target=root.querySelector('[data-part-whole-bin-items="'+bin.dataset.partWholeBin+'"]');selected.classList.remove('selected');target?.appendChild(selected);selected=null;refresh();}));
+  root.querySelector('[data-part-whole-reset]')?.addEventListener('click',()=>{if(blocked())return;[...root.querySelectorAll('[data-part-whole-item]')].forEach(item=>{item.classList.remove('selected');source?.appendChild(item);});selected=null;refresh();});
+  refresh();
+}
+function nelPartWholeReadSplit(root){
+  if(!root||root.dataset.partWholeReady!=='true')return null;
+  const left=root.querySelectorAll('[data-part-whole-bin-items="left"] [data-part-whole-item]').length,right=root.querySelectorAll('[data-part-whole-bin-items="right"] [data-part-whole-item]').length,whole=Number(root.dataset.partWholeWhole)||0;
+  return root.dataset.partWholeMode==='parts'?'parts|'+left+'|'+right+'|whole|'+whole:'split|'+whole+'|'+left+'|'+right;
+}
+function nelPartWholeNameBuilderVisual(v={}){
+  const left=v.partition?.left||{},right=v.partition?.right||{},options=v.options||[];
+  const part=(side,data)=>'<div class="nel-part-whole-fixed-part"><small>'+(side==='left'?'SOL PARÇA':'SAĞ PARÇA')+'</small><div>'+(data.items||[]).map(item=>nelPartWholeTokenMarkup(item)).join('')+'</div><div class="nel-part-whole-number-row">'+options.map(n=>'<button type="button" data-part-whole-name="'+side+'" data-part-whole-number="'+n+'">'+n+'</button>').join('')+'</div></div>';
+  return '<div class="nel-part-whole-name-builder" data-part-whole-whole="'+Number(v.whole||0)+'">'+part('left',left)+part('right',right)+'<p data-part-whole-name-status>İki parçanın miktarını seç.</p></div>';
+}
+function bindNelPartWholeName(root,onChange,blocked=()=>false){
+  if(!root)return;
+  root.querySelectorAll('[data-part-whole-name]').forEach(button=>button.addEventListener('click',()=>{if(blocked())return;const side=button.dataset.partWholeName;root.querySelectorAll('[data-part-whole-name="'+side+'"]').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');root.dataset[side+'Part']=button.dataset.partWholeNumber;const status=root.querySelector('[data-part-whole-name-status]');if(status)status.textContent=root.dataset.leftPart&&root.dataset.rightPart?'İki parça adlandırıldı.':'Diğer parçanın miktarını da seç.';onChange?.();}));
+}
+function nelPartWholeReadName(root){if(!root?.dataset.leftPart||!root.dataset.rightPart)return null;return 'parts|'+root.dataset.leftPart+'|'+root.dataset.rightPart+'|whole|'+root.dataset.partWholeWhole;}
+function nelPartWholeMultipleSplitsVisual(v={}){return '<div class="nel-part-whole-multiple-splits"><strong>AYNI BÜTÜN · '+Number(v.whole||0)+'</strong><div>'+(v.splits||[]).map(split=>nelPartWholeSplitPreviewVisual({whole:v.whole,split})).join('')+'</div></div>';}
+function nelPartWholeContextSplitVisual(v={}){return nelPartWholeSplitBuilderVisual(v,true);}
+function nelPartWholeThreePartsVisual(whole,parts=[]){const tones=['blue','green','yellow'];return '<div class="nel-part-whole-three-parts" data-three-part-whole="'+whole+'">'+parts.map((n,i)=>'<button type="button" data-three-part="'+i+'"><small>'+(i+1)+'. PARÇA</small><div>'+Array.from({length:n},()=>'<i class="tone-'+tones[i]+'"></i>').join('')+'</div><b>'+n+'</b></button>').join('')+'</div>';}
+function nelPartWholeFingersVisual(){return '<div class="nel-part-whole-fingers"><div><span>🖐️</span><b>5</b></div><strong>aynı bütün</strong><div><span>🖐️</span><b>5</b></div></div>';}
+function nelPartWholeLessonCore(step){
+  const sample=partWholeCaseFor(step.whole,step.left||1);
+  if(step.kind==='whole')return '<div class="nel-part-whole-lesson-core">'+nelPartWholeWholeSetVisual({whole:sample.whole,items:sample.items})+'<button type="button" class="nel-part-whole-confirm" id="nelPartWholeConfirm">Bütün nesneleri gördüm</button><div class="nel-part-whole-result" id="nelPartWholeResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='split'||step.kind==='context')return '<div class="nel-part-whole-lesson-core">'+(step.kind==='context'?nelPartWholeContextSplitVisual({whole:sample.whole,items:sample.items,targetSplit:sample.split,context:step.context}):nelPartWholeSplitBuilderVisual({whole:sample.whole,items:sample.items,targetSplit:sample.split}))+'<div class="nel-part-whole-result" id="nelPartWholeResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='gallery')return '<div class="nel-part-whole-lesson-core"><div class="nel-part-whole-gallery">'+(step.splits||[]).map((split,i)=>'<button type="button" data-part-gallery="'+i+'">'+nelPartWholeSplitPreviewVisual({whole:step.whole,split:{left:split[0],right:split[1]}})+'</button>').join('')+'</div><p class="nel-part-whole-help" id="nelPartWholeHelp">Üç parçalanmayı da incele.</p><div class="nel-part-whole-result" id="nelPartWholeResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='three-parts')return '<div class="nel-part-whole-lesson-core">'+nelPartWholeThreePartsVisual(step.whole,step.parts)+'<p class="nel-part-whole-help" id="nelPartWholeHelp">Üç parçanın hepsine dokun.</p><div class="nel-part-whole-result" id="nelPartWholeResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='name')return '<div class="nel-part-whole-lesson-core">'+nelPartWholeNameBuilderVisual({whole:sample.whole,partition:sample.partition,options:Array.from({length:sample.whole-1},(_,i)=>i+1)})+'<div class="nel-part-whole-result" id="nelPartWholeResult">'+esc(step.result)+'</div></div>';
+  if(step.kind==='explain'){const other=partWholeCaseFor(step.whole,Math.min(step.whole-1,(step.left||1)+1));return '<div class="nel-part-whole-lesson-core">'+nelPartWholeMultipleSplitsVisual({whole:step.whole,splits:[sample.split,other.split],items:sample.items})+'<div class="nel-part-whole-explain-options"><button type="button" data-part-explain="correct">Bütün nesnelerin hepsi parçalarda kaldı.</button><button type="button" data-part-explain="wrong">Parçalar değişince bütün de değişir.</button></div><p class="nel-part-whole-help" id="nelPartWholeHelp">Doğru açıklamayı seç.</p><div class="nel-part-whole-result" id="nelPartWholeResult">'+esc(step.result)+'</div></div>';}
+  return '<div class="nel-part-whole-lesson-core">'+nelPartWholeFingersVisual()+'<button type="button" class="nel-part-whole-confirm" id="nelPartWholeConfirm">İki beşlik parçayı gördüm</button><div class="nel-part-whole-result" id="nelPartWholeResult">'+esc(step.result)+'</div></div>';
+}
+function wireNelPartWholeLessonStep(step,next){
+  const core=$('.nel-part-whole-lesson-core'),result=$('#nelPartWholeResult'),reveal=()=>{result?.classList.add('revealed');if(next)next.disabled=false;};
+  if(step.kind==='whole'||step.kind==='fingers'){$('#nelPartWholeConfirm')?.addEventListener('click',reveal);return;}
+  if(step.kind==='split'||step.kind==='context'){const root=core?.querySelector('.nel-part-whole-split-builder');bindNelPartWholeSplit(root,()=>{if(root?.dataset.partWholeReady==='true')reveal();});return;}
+  if(step.kind==='gallery'){const seen=new Set();core?.querySelectorAll('[data-part-gallery]').forEach(button=>button.addEventListener('click',()=>{seen.add(button.dataset.partGallery);button.classList.add('seen');$('#nelPartWholeHelp').textContent=seen.size+' / '+core.querySelectorAll('[data-part-gallery]').length+' parçalanma incelendi';if(seen.size===core.querySelectorAll('[data-part-gallery]').length)reveal();}));return;}
+  if(step.kind==='three-parts'){const seen=new Set();core?.querySelectorAll('[data-three-part]').forEach(button=>button.addEventListener('click',()=>{seen.add(button.dataset.threePart);button.classList.add('seen');if(seen.size===3)reveal();}));return;}
+  if(step.kind==='name'){const root=core?.querySelector('.nel-part-whole-name-builder'),target=partWholeCaseFor(step.whole,step.left);bindNelPartWholeName(root,()=>{if(nelPartWholeReadName(root)==='parts|'+target.split.left+'|'+target.split.right+'|whole|'+target.whole)reveal();});return;}
+  if(step.kind==='explain'){core?.querySelectorAll('[data-part-explain]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.partExplain==='correct'){button.classList.add('selected');reveal();}else $('#nelPartWholeHelp').textContent='Bütün nesneler hâlâ iki parçadan birinde mi, ona bak.';}));}
+}
+function completeNelPartWholeLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_PART_WHOLE_LESSON_VERSION;
+  if(next>=NEL_PART_WHOLE_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}saveState();session.lessonStepIndex=next;renderNelPartWholeLessonStep(skill,next);
+}
+function renderNelPartWholeLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_PART_WHOLE_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_PART_WHOLE_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_PART_WHOLE_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);$('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_PART_WHOLE_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_PART_WHOLE_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-part-whole-lesson-stage" data-nel-part-whole-step="'+esc(step.id)+'">'+nelPartWholeSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_PART_WHOLE_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-part-whole-lesson-visual">'+nelPartWholeLessonCore(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelPartWholeLessonNext" disabled>'+(at===NEL_PART_WHOLE_LESSON_STEPS.length-1?'Sayı hissi yolunu tamamla':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelPartWholeLessonNext');wireNelPartWholeLessonStep(step,next);next?.addEventListener('click',()=>completeNelPartWholeLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -3175,6 +3283,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelNumeralFormation10') return NEL_NUMERAL_FORMATION_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelCompareQuantities10') return NEL_QUANTITY_COMPARE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelPartWhole10') return NEL_PART_WHOLE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -3764,6 +3873,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }
   if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }
   if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }
+  if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
