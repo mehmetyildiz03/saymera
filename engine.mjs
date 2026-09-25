@@ -2100,6 +2100,7 @@ function nelNumeralFormationCase(n){
   };
 }
 function nelNumeralFormationCases(){ return Array.from({length:10},(_,i)=>nelNumeralFormationCase(i+1)); }
+export function numeralFormationCaseFor(n){ return nelNumeralFormationCase(n); }
 function nelNumeralFormationExpected(x){ return 'formed-'+x.n; }
 function nelNumeralExplainChoices(x,rng){
   const answer='Bu yazı '+x.numberWord+' sayısını kaydediyor.';
