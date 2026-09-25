@@ -53,7 +53,17 @@ assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelConservation10'),'Path B metadata must reserve the conservation skill');
 assert.equal(preschoolIds.has('nelNumberRepresentations10'),true,'number representations enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
-assert.equal(app.includes('renderNelNumberRepresentationsLessonStep'),false,'generator slice must still stop before number-representation Learn UI');
+assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
+const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
+for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
+assert.ok(app.includes("range:[1,5]")&&app.includes("range:[6,10]"),'all written number words 1..10 must be introduced before mixed word evidence');
+assert.ok(app.indexOf("id:'words-six-ten'")<app.indexOf("id:'word-quantity-eight'"),'written number words must be taught before word-to-quantity checking');
+assert.ok(app.includes('data-number-word-listen')&&app.includes('data-number-word-open')&&app.includes('disabled>Bu kartı gördüm'),'number-word cards must require spoken-name exposure before acknowledgement');
+assert.ok(app.includes("if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map"),'Inspector must expose number-representation Learn steps');
+for(const type of ['nel-number-quantity','nel-number-link-builder','nel-number-quantity-focus','nel-number-form-match','nel-number-equivalent-set','nel-number-context-tag']) assert.ok(app.includes("case '"+type+"'"),'missing number-representation renderer '+type);
+assert.ok(app.includes("interaction==='nel-number-link-builder'")&&app.includes("interaction==='nel-number-form-match'"),'number-representation manipulatives must be wired for read/status/bind');
+assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','number1000'"),'number representations must be lesson-first');
+assert.equal(app.includes("$('[data-number-four-part]').forEach"),false,'multi-option number Learn interactions must not use single-element selector semantics');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
 for(const id of conservationLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL conservation Learn step '+id);
@@ -182,6 +192,11 @@ assert.ok(app.includes("const NEL_SUBITISE_FLASH_MS=650;"),'subitising must use 
 assert.ok(app.includes('data-flash-state="idle"'),'subitising must start with the target hidden');
 assert.ok(app.includes("root.dataset.flashReady='true'"),'subitising response must unlock only after the flash has ended');
 assert.ok(app.includes("frame.dataset.flashState='ready'"),'subitising target must transition to a closed/ready state');
+
+assert.ok(app.includes("const NEL_NUMBER_WORDS=['','bir','iki','üç','dört','beş','altı','yedi','sekiz','dokuz','on'];"),'Turkish localisation must provide written number words 1..10');
+assert.ok(app.includes("model==='fingers'")&&app.includes("model==='ten-frame'")&&app.includes("model==='tally'"),'number representation UI must render varied quantity models');
+assert.ok(app.includes("data-rote-speech")&&app.includes("Hedef sayı adını dinle"),'spoken number-name evidence must stay audio-addressable');
+assert.ok(app.includes("data-number-mixed=\"'+x.n+'\" disabled"),'mixed representation choice must stay locked until the spoken number name is heard');
 
 let seed=711;
 const rng=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
