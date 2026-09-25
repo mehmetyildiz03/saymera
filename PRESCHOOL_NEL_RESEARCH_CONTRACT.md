@@ -275,7 +275,37 @@ Recommended product progression:
    - Practice has five evidence sections: one-to-one pairing, same/more recognition, less-language use, leftover-based explanation and real-object-graph transfer;
    - Chromium and WebKit QA cover phone and tablet viewports, one-to-one graph alignment, anti-spacing/anti-size cues, Review and Inspector sandbox isolation.
 
-8. `nelPartWhole10` — compose/decompose quantities up to 10 in multiple ways
+8. `nelPartWhole10` — name the parts that form a whole quantity up to 10
+
+   **Official role:** implements **NEL KSD 3.8** — **“Name the parts that form the whole in a quantity of up to 10”**, with official examples such as 5 being made up of 2 and 3, or 1 and 4.
+
+   **Source-derived teaching guidance (NEL Educators' Guide 2022):**
+   - part-whole means understanding that a number can be split into parts;
+   - a whole number can be represented in **two or more parts**;
+   - the guide uses a **tower of five blocks** in two colours to show different ways of composing the same whole;
+   - it also uses a **bracelet/bead activity** where the same beads are moved into two groups and the two part quantities are named;
+   - the guide explicitly records multiple decompositions of 5, including **2 and 3, 3 and 2, 1 and 4, and 4 and 1**;
+   - **finger play during routines/transitions** is suggested to reinforce different parts that make 5;
+   - this understanding is identified as a foundation for later addition and subtraction.
+
+   **SAYMERA mathematical boundary:**
+   - the official maximum whole is **10**;
+   - the initial digital reference range will be wholes **2–10**, because the core interaction uses two **non-empty** parts; this lower bound is a SAYMERA product choice, not an official NEL minimum;
+   - the reference flow begins with **two-part decompositions**, because that is the dominant official example structure, while preserving the broader idea that a whole may be represented in **two or more parts**;
+   - several different decompositions of the **same whole** must be shown; one memorised split is not enough;
+   - swapping the positions of two parts remains a valid representation of the same whole (e.g. 2-and-3 / 3-and-2);
+   - zero-part decompositions are **not** a core target unless later official evidence supports bringing zero into this preschool KSD;
+   - numerals may label already-understood quantities, but a formal addition equation such as `2 + 3 = 5` is **not required** to define or master KSD 3.8;
+   - a Primary-style number-bond diagram is not required as the preschool mastery representation.
+
+   **Planned evidence:**
+   - **Kur:** physically/digitally split one fixed whole set into two non-empty parts without changing the total;
+   - **Gör:** recognise several different splits that still make the same whole;
+   - **Göster:** name/select the two part quantities that form the whole;
+   - **Anlat:** explain that the parts changed but all original objects still belong to the same whole;
+   - **Taşı:** use fingers, beads/bracelet, coloured blocks or another real-object context to show a new split.
+
+   This skill bridges naturally to later P1 number bonds, but **P1 number-bond completion must not be back-ported as the preschool mastery definition**.
 
 Rote counting, reliable counting and subitising may develop in parallel; this list is an instructional recommendation, not a claim that one must be fully mastered before the next can be experienced.
 
