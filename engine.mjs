@@ -479,6 +479,63 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelCompareQuantities10:{
+    version:1,
+    status:'contract-only',
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    officialKsd:['3.7'],
+    maximumSetSize:10,
+    compares:'quantity-of-two-sets',
+    distinctFromAttributeComparison:true,
+    officialLanguage:['same-as','more-than','fewer-than','less-than'],
+    childLanguageTr:{
+      sameAs:'aynı sayıda',
+      moreThan:'daha çok',
+      fewerThan:'daha az sayıda',
+      lessThan:'daha az'
+    },
+    localisationBoundary:{
+      preserveOfficialSourceTermsInMetadata:true,
+      forceEnglishFewerLessDistinctionInTurkish:false
+    },
+    teachingProgression:{
+      first:['same-as','more-than'],
+      then:['fewer-than','less-than'],
+      sourceRole:'Educators Guide developmental guidance'
+    },
+    comparisonEvidence:{
+      oneToOnePairing:true,
+      unmatchedItems:true,
+      countingAllowed:true,
+      occupiedAreaIsQuantityCue:false,
+      itemSizeIsQuantityCue:false,
+      spacingIsQuantityCue:false,
+      formalComparisonSymbolsRequired:false
+    },
+    supportedExtension:{
+      id:'how-many-more-fewer',
+      afterCoreRelation:true,
+      masteryRequiredForKsd37:false,
+      sourceRole:'Educators Guide next-step extension after same/more/less relation is established'
+    },
+    sourceGrounding:{
+      compareObjectGroups:true,
+      verbalComparison:true,
+      realObjectGraphExample:true
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'pair-sets-one-to-one',label:'İki kümeyi bire bir eşleştir',phase:'model',representation:'build'},
+        {id:'see-same-or-more',label:'Aynı sayıda mı, daha çok mu gör',phase:'representation',representation:'see'},
+        {id:'use-fewer-less-language',label:'Daha az olan kümeyi uygun dille göster',phase:'symbol',representation:'symbol'},
+        {id:'explain-leftover-relation',label:'Artan veya eşleşen nesnelerle nedenini anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-real-object-graph',label:'Karşılaştırmayı gerçek nesne grafiğine taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -919,6 +976,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         formationContract.numeralTen?.zeroQuantityTarget===false &&
         PRESCHOOL_NEL_KSD_MAP['3.6']?.includes('nelNumeralFormation10'),
       formationContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const quantityCompareContract=lessonContractFor('nelCompareQuantities10');
+    add(
+      'nel-compare-quantities-contract',
+      'NEL KSD 3.7 iki kümenin miktarını sözlü ilişkiyle karşılaştırıyor; biçim, alan ve < > sembollerini ölçüt yapmıyor',
+      !quantityCompareContract.provisional &&
+        quantityCompareContract.status==='contract-only' &&
+        quantityCompareContract.officialKsd?.join(',')==='3.7' &&
+        quantityCompareContract.maximumSetSize===10 &&
+        quantityCompareContract.comparisonEvidence?.oneToOnePairing===true &&
+        quantityCompareContract.comparisonEvidence?.occupiedAreaIsQuantityCue===false &&
+        quantityCompareContract.comparisonEvidence?.formalComparisonSymbolsRequired===false &&
+        quantityCompareContract.supportedExtension?.masteryRequiredForKsd37===false &&
+        PRESCHOOL_NEL_KSD_MAP['3.7']?.includes('nelCompareQuantities10'),
+      quantityCompareContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
