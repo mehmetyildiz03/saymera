@@ -140,6 +140,8 @@ export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
   ageBand:'4–6',
   endpoint:'end-of-K2',
   portalUpdated:'2025-05-29',
+  countingPageUpdated:'2025-12-31',
+  verifiedAt:'2026-09-25',
   sources:{
     framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
     numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
@@ -2720,7 +2722,7 @@ function genNelNumberRepresentations10(rep,d,rng,concept){
   return qTask('nelNumberRepresentations10','transfer','Günlük bir yerde miktar bildiren rakamla aynı miktarı gösteren kartı bul.','quantity-'+y.n,{kind:'visual-choice',options:nelNumberQuantityChoices(y,rng,['objects','fingers','ten-frame','tally'][y.n%4])},{
     taskKind:'nel-number-transfer-context',taskLabel:'Sayı temsilini günlük yaşama taşı',
     visual:{type:'nel-number-context-tag',numeral:y.numeral,context:['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'][y.n%4]},
-    hint:'Etiketteki rakamın anlattığı miktarı bul.',explain:y.numeral.value+' rakamı günlük yaşamda da '+y.n+' miktarını gösterebilir.'
+    hint:'Gördüğün rakamın anlattığı miktarı bul.',explain:y.numeral.value+' rakamı günlük yaşamda da '+y.n+' miktarını gösterebilir.'
   });
 }
 
