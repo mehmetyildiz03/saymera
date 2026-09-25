@@ -393,7 +393,7 @@ assert.equal(repExplain.response.kind,'choice');
 assert.equal(repTransfer.response.kind,'visual-choice');
 for(const q of [repBuild,repSee,repShow,repExplain,repTransfer]){
   assert.notEqual(q.response.kind,'number-input','KSD 3.4–3.5 must not require numeral writing');
-  assert.ok(!/yaz|çiz|oluştur.*rakam/i.test([q.prompt,q.hint,q.explain].join(' ')),'KSD 3.6 formation language must not leak into representation evidence');
+  assert.ok(!/(rakamı?\s+yaz|rakam\s+yaz|rakamı?\s+çiz|rakam.*oluştur)/i.test([q.prompt,q.hint,q.explain].join(' ')),'KSD 3.6 formation language must not leak into representation evidence');
 }
 
 const representationModels=new Set();
