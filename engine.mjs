@@ -134,6 +134,107 @@ export const P2_LESSON_CONTRACTS = {
 };
 
 
+export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
+  framework:'Singapore MOE Nurturing Early Learners Framework 2022',
+  learningArea:'Numeracy',
+  ageBand:'4–6',
+  endpoint:'end-of-K2',
+  portalUpdated:'2025-05-29',
+  sources:{
+    framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
+    numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
+    educatorsGuide:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/EG2022/Nurturing%20Early%20Learners%202022%20Educators%20Guide%20Numeracy_new.pdf'
+  }
+};
+
+export const PRESCHOOL_NEL_CURRICULUM = [
+  {
+    goalId:'1',
+    title:'Günlük deneyimlerde matematiği sev ve kullan',
+    mode:'cross-cutting',
+    ksd:[
+      {code:'1.1',label:'Matematik fikir ve süreçlerinin günlük yaşamda neden ve nasıl işe yaradığını fark et',crossCutting:true,requiredEvidence:['context','transfer']},
+      {code:'1.2',label:'Günlük yaşamda uygun matematik dilini kullan',crossCutting:true,requiredEvidence:['explain','context']}
+    ]
+  },
+  {
+    goalId:'2',
+    title:'İlişkileri ve örüntüleri anla',
+    pathId:'relationships-patterns',
+    ksd:[
+      {code:'2.1',label:'En az bir özelliğe göre eşleştir, sınıfla ve karşılaştır',skillIds:['nelMatchAttributes','nelSortAttributes','nelCompareAttributes'],attributes:['colour','shape','size','length','height','child-determined']},
+      {code:'2.2',label:'Nesneleri özelliklerine veya olay sırasına göre sırala',skillIds:['nelOrderAttributes'],attributes:['size','length','height','child-determined','event-sequence']},
+      {code:'2.3',label:'Örüntüyü tanı, devam ettir ve oluştur',skillIds:['nelPatterns'],patternActions:['recognise','extend','create']},
+      {code:'2.4',label:'Fark edilen ve oluşturulan ilişkileri ve örüntüleri tarif et',skillIds:['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns'],requiredEvidence:['explain']}
+    ]
+  },
+  {
+    goalId:'3',
+    title:'Sayma becerileri ve sayı hissi geliştir',
+    pathId:'counting-number-sense',
+    ksd:[
+      {code:'3.1',label:'Sayı adlarını en az 20’ye kadar sırayla söyle',skillIds:['nelRoteCount20'],minimumEndpoint:20},
+      {
+        code:'3.2',
+        label:'En az 10 nesneye kadar güvenilir say',
+        skillIds:['nelReliableCount10'],
+        minimumEndpoint:10,
+        subskills:[
+          {code:'3.2.1',label:'Her nesneyi bir sayı adıyla bire bir eşleştir',evidenceSectionId:'one-to-one-count'},
+          {code:'3.2.2',label:'Sayı adlarının sabit sırasını koru',evidenceSectionId:'stable-order-count'},
+          {code:'3.2.3',label:'Son söylenen sayı adının toplam miktarı verdiğini kullan',evidenceSectionId:'cardinality-count'},
+          {code:'3.2.4',label:'Başlangıç noktası değişse de aynı kümenin toplamının değişmediğini fark et',evidenceSectionId:'order-irrelevance'}
+        ]
+      },
+      {code:'3.3',label:'10’a kadar bir kümenin düzen değişse de miktarının aynı kaldığını fark et',skillIds:['nelConservation10'],maximumSetSize:10,invariant:'quantity-under-rearrangement'},
+      {code:'3.4',label:'Sayıları rakam ve sayı sözcüğü biçiminde tanı',skillIds:['nelNumberRepresentations10'],forms:['numeral','number-word']},
+      {code:'3.5',label:'Sayı adı, rakam ve/veya sayı sözcüğünü bir kümenin miktarıyla eşleştir',skillIds:['nelNumberRepresentations10'],forms:['number-name','numeral','number-word','quantity']},
+      {code:'3.6',label:'Sayıları rakamla yaz',skillIds:['nelNumeralFormation10'],output:'numeral-formation'},
+      {code:'3.7',label:'10’a kadar iki kümenin miktarını uygun karşılaştırma diliyle karşılaştır',skillIds:['nelCompareQuantities10'],maximumSetSize:10,language:['same-as','more-than','fewer-than','less-than']},
+      {code:'3.8',label:'10’a kadar bir bütünün hangi parçalardan oluştuğunu adlandır',skillIds:['nelPartWhole10'],maximumWhole:10}
+    ]
+  },
+  {
+    goalId:'4',
+    title:'Temel şekilleri ve uzamsal kavramları anla',
+    pathId:'shapes-space',
+    ksd:[
+      {code:'4.1',label:'Daire, kare, dikdörtgen ve üçgeni tanı',skillIds:['nelBasicShapes'],shapes:['circle','square','rectangle','triangle']},
+      {code:'4.2',label:'Dört temel şeklin özelliklerini fark et',skillIds:['nelShapeAttributes'],shapes:['circle','square','rectangle','triangle'],requiredEvidence:['attributes']},
+      {code:'4.3',label:'Temel şekilleri kullanarak başka şekiller veya figürler oluştur',skillIds:['nelShapeCompose'],requiredEvidence:['compose']},
+      {code:'4.4',label:'Konum, yön ve uzaklık ilişkilerini fark et ve kullan',skillIds:['nelSpatialRelations'],relations:['top','bottom','in-front-of','behind','up','down','left','right','far','near']}
+    ]
+  }
+];
+
+export const PRESCHOOL_NEL_SUPPORTING_CONCEPTS = [
+  {
+    id:'subitising',
+    label:'Küçük miktarı tek tek saymadan bir bakışta fark etme',
+    skillId:'nelSubitise5',
+    strand:'counting-number-sense',
+    officialNumberedKsd:false,
+    sourceRole:'Educators Guide supporting number-sense ability'
+  }
+];
+
+export const PRESCHOOL_NEL_PEDAGOGY = {
+  approaches:[
+    'concrete-pictorial-abstract',
+    'manipulatives-and-games',
+    'stories-songs-and-rhymes',
+    'prompting-questions',
+    'problem-solving-opportunities',
+    'daily-routines-and-transitions'
+  ],
+  assessment:{
+    mode:'observation-in-play-and-daily-activity',
+    worksheetFirst:false
+  },
+  environment:['physical','interactional','temporal'],
+  digitalRole:'complement-physical-play-and-real-objects'
+};
+
 export const PRESCHOOL_NEL_PATHS = [
   {
     id:'relationships-patterns',
@@ -152,24 +253,18 @@ export const PRESCHOOL_NEL_PATHS = [
   }
 ];
 
-export const PRESCHOOL_NEL_KSD_MAP = {
-  '2.1':['nelMatchAttributes','nelSortAttributes','nelCompareAttributes'],
-  '2.2':['nelOrderAttributes'],
-  '2.3':['nelPatterns'],
-  '2.4':['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns'],
-  '3.1':['nelRoteCount20'],
-  '3.2':['nelReliableCount10'],
-  '3.3':['nelConservation10'],
-  '3.4':['nelNumberRepresentations10'],
-  '3.5':['nelNumberRepresentations10'],
-  '3.6':['nelNumeralFormation10'],
-  '3.7':['nelCompareQuantities10'],
-  '3.8':['nelPartWhole10'],
-  '4.1':['nelBasicShapes'],
-  '4.2':['nelShapeAttributes'],
-  '4.3':['nelShapeCompose'],
-  '4.4':['nelSpatialRelations']
-};
+export const PRESCHOOL_NEL_CROSS_CUTTING_KSDS = Object.fromEntries(
+  PRESCHOOL_NEL_CURRICULUM.flatMap(goal=>goal.ksd).filter(item=>item.crossCutting).map(item=>[item.code,item])
+);
+
+export const PRESCHOOL_NEL_KSD_MAP = Object.fromEntries(
+  PRESCHOOL_NEL_CURRICULUM
+    .flatMap(goal=>goal.ksd)
+    .filter(item=>Array.isArray(item.skillIds)&&item.skillIds.length)
+    .map(item=>[item.code,[...item.skillIds]])
+);
+
+export const PRESCHOOL_NEL_OFFICIAL_KSD_CODES = PRESCHOOL_NEL_CURRICULUM.flatMap(goal=>goal.ksd.map(item=>item.code));
 
 export const PRESCHOOL_TO_P1_BRIDGES = {
   number20:['nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10'],
