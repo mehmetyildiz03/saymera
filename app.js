@@ -2178,7 +2178,8 @@ function nelNumberEquivalentSetVisual(v={}){
     nelNumberQuantityVisual(v.quantity||{})+'</div>';
 }
 function nelNumberContextTagVisual(v={}){
-  return '<div class="nel-number-context-tag"><small>'+esc(String(v.context||'GÜNLÜK').toUpperCase())+'</small><strong>'+esc(v.numeral?.value||'')+'</strong><span>Bu rakamı günlük bir yerde gördüğünü düşün.</span></div>';
+  const context=String(v.context||'günlük');
+  return '<div class="nel-number-context-tag" data-number-context="'+esc(context)+'"><small>'+esc(context.toLocaleUpperCase('tr-TR'))+'</small><strong>'+esc(v.numeral?.value||'')+'</strong><span>Bu rakamı günlük bir yerde gördüğünü düşün.</span></div>';
 }
 function bindNelNumberLink(root,onChange,blocked=()=>false){
   root?.querySelectorAll('[data-nel-number-link]').forEach(button=>button.addEventListener('click',()=>{if(blocked())return;root.querySelectorAll('[data-nel-number-link]').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');root.dataset.numberSelected=button.dataset.nelNumberLink;onChange?.();}));
