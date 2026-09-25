@@ -1,6 +1,8 @@
 # SAYMERA — Preschool NEL Curriculum Contract v2
 
-Status: RESEARCHED CONTRACT. This document defines the canonical Singapore preschool numeracy scope before runtime migration.
+Status: CANONICAL MASTER CURRICULUM CONTRACT. This document defines the Singapore preschool Numeracy scope, product mapping and acceptance gates before live Preschool v2 navigation migration.
+
+Current reference baseline: **NEL Framework 2022** + current MOE NEL Numeracy portal (portal checked against the May 2025 update).
 
 ## 1. Source authority
 
@@ -42,63 +44,58 @@ This matters because the current Primary Mathematics syllabus explicitly assumes
 
 ## 3. NEL canonical learning goals
 
+The code-level source of truth is `PRESCHOOL_NEL_CURRICULUM` in `engine.mjs`. It preserves all **18 official Numeracy KSDs**. Product skills are allowed to split one KSD into multiple evidence experiences, but they may not silently invent a new official KSD.
+
 ### Learning Goal 1 — Daily-life numeracy
 
-Cross-cutting, not a separate mastery chapter:
-- understand how and why numeracy is useful in daily life;
-- use appropriate mathematical language in daily situations.
+This is **cross-cutting**, not a fourth mastery path.
 
-Every preschool reference skill should include authentic transfer, conversation or real-world action.
+- **1.1** — notice how and why numeracy is useful in daily life;
+- **1.2** — use appropriate mathematical language in daily situations.
+
+Product rule: every implemented Preschool v2 lesson contract must contain both:
+- a real-world/context transfer section;
+- a child-appropriate explanation/reasoning section.
 
 ### Learning Goal 2 — Relationships and patterns
 
-Official KSD:
-- match, sort and compare by at least one attribute;
-- order by attributes or event sequence;
-- recognise, extend and create patterns;
-- describe relationships and patterns.
+- **2.1** — match, sort and compare using at least one relevant attribute;
+- **2.2** — order by attributes or event sequence;
+- **2.3** — recognise, extend and create patterns;
+- **2.4** — describe recognised/created relationships and patterns.
 
 Suggested developmental progression:
 **Matching → Sorting → Comparing → Ordering → Patterning**
 
-This is a development guide, not a hard lock across the whole preschool profile.
+This is a developmental guide, not a hard profile-wide lock.
 
 ### Learning Goal 3 — Counting skills and number sense
 
-Official KSD:
-- rote count to at least 20;
-- count reliably up to at least 10 things;
-- conserve quantity for sets up to at least 10;
-- recognise numbers in numerals and words;
-- match number name / numeral / number word to a quantity;
-- write numbers in numeral;
-- compare two quantities up to 10 using same / more / fewer / less;
-- name parts that form a whole up to 10.
+- **3.1** — rote-count to at least 20;
+- **3.2** — count reliably to at least 10 things;
+- **3.3** — conserve quantity when a set of up to 10 is rearranged;
+- **3.4** — recognise number representations in numeral and number-word form;
+- **3.5** — connect number name / numeral / number word with quantity;
+- **3.6** — write/form numerals;
+- **3.7** — compare two sets up to 10 using same/more/fewer/less language;
+- **3.8** — identify parts that form a whole up to 10.
 
-Reliable counting must preserve the four NEL principles:
-- one-to-one correspondence;
-- stable order;
-- cardinality;
-- order irrelevance.
+The Educators' Guide refines **3.2 Reliable counting** into four separately observable principles:
+- **3.2.1** one-to-one correspondence;
+- **3.2.2** stable order;
+- **3.2.3** cardinality;
+- **3.2.4** order irrelevance.
 
-Number-sense teaching also uses:
-- subitising;
-- conservation of quantity;
-- quantity comparison;
-- part–whole relationships.
+`nelReliableCount10` must retain evidence for all four.
+
+**Subitising is supporting Number Sense pedagogy, not a numbered KSD.** SAYMERA keeps `nelSubitise5` as a product skill but the master curriculum marks it explicitly as supporting rather than pretending it is a new official KSD.
 
 ### Learning Goal 4 — Shapes and spatial concepts
 
-Official KSD:
-- recognise circle, square, rectangle and triangle;
-- notice their attributes;
-- use basic shapes to form other shapes or figures;
-- develop position, direction and distance concepts:
-  - top / bottom;
-  - in front of / behind;
-  - up / down;
-  - left / right;
-  - far / near.
+- **4.1** — recognise circle, square, rectangle and triangle;
+- **4.2** — attend to the attributes of those four shapes;
+- **4.3** — compose other shapes/figures from the basic shapes;
+- **4.4** — use position, direction and distance concepts: top/bottom, in front/behind, up/down, left/right, far/near.
 
 ## 4. SAYMERA Preschool v2 paths
 
@@ -167,6 +164,32 @@ Recommended product progression:
 2. `nelShapeAttributes` — describe relevant attributes, not colour or orientation
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
+
+### Current Preschool v2 implementation status
+
+Status after SAYMERA v1.19.0:
+
+Product skill | NEL role | Status
+---|---|---
+`nelMatchAttributes` | 2.1 / supports 2.4 | ✅ implemented + browser QA
+`nelSortAttributes` | 2.1 / supports 2.4 | ✅ implemented + browser QA
+`nelCompareAttributes` | 2.1 / supports 2.4 | ✅ implemented + browser QA
+`nelOrderAttributes` | 2.2 / supports 2.4 | ✅ implemented + browser QA
+`nelPatterns` | 2.3 + 2.4 | ✅ implemented + browser QA
+`nelRoteCount20` | 3.1 | ✅ implemented + browser QA
+`nelReliableCount10` | 3.2 + 3.2.1–3.2.4 | ✅ implemented + browser QA
+`nelSubitise5` | supporting Number Sense | ✅ implemented + browser QA
+`nelConservation10` | 3.3 | ✅ implemented + browser QA
+`nelNumberRepresentations10` | 3.4 + 3.5 | **NEXT**
+`nelNumeralFormation10` | 3.6 | planned
+`nelCompareQuantities10` | 3.7 | planned
+`nelPartWhole10` | 3.8 | planned
+`nelBasicShapes` | 4.1 | planned
+`nelShapeAttributes` | 4.2 | planned
+`nelShapeCompose` | 4.3 | planned
+`nelSpatialRelations` | 4.4 | planned
+
+This table is a product implementation snapshot, not a claim that NEL itself prescribes this software order.
 
 ## 5. Symbol and formal-operation boundary
 
@@ -297,8 +320,9 @@ The first reference skill should come from the simplest official pre-number prog
 ## 13. Acceptance gates
 
 Preschool v2 is not accepted until tests prove:
-- all official NEL Numeracy KSD 2.1–2.4, 3.1–3.8 and 4.1–4.4 map to product skills;
-- daily-life numeracy is cross-cutting;
+- all 18 official NEL Numeracy KSDs (1.1–1.2, 2.1–2.4, 3.1–3.8, 4.1–4.4) exist in the canonical master curriculum;
+- KSD 1.1 and 1.2 are enforced cross-cutting rather than turned into isolated mastery chapters;
+- every implemented Preschool v2 lesson includes context/transfer and mathematical explanation evidence;
 - no preschool comparison task requires `< >`;
 - part–whole can reach 10 and does not require formal addition notation as the core concept;
 - reliable counting explicitly exercises one-to-one, stable order, cardinality and order irrelevance;
