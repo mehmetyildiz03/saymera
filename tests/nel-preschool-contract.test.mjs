@@ -538,6 +538,7 @@ assert.equal(quantityBuild.response.interaction,'nel-quantity-pair-sets');
 assert.equal(quantitySee.response.kind,'choice');
 assert.equal(quantityShow.response.interaction,'nel-quantity-relation-choice');
 assert.equal(quantityExplain.response.kind,'choice');
+assert.equal(/\b\d+\s+nesne\s+(?:artıyor|kalıyor)/i.test([quantityExplain.prompt,quantityExplain.hint,quantityExplain.explain,...(quantityExplain.response?.options||[]).map(o=>o.label||o.value)].join(' ')),false,'core KSD 3.7 explanation must use unmatched-object relation without requiring a numerical difference');
 assert.equal(quantityTransfer.response.interaction,'nel-quantity-relation-choice');
 assert.equal(quantityTransfer.visual.context,'real-object-graph');
 for(const q of [quantityBuild,quantitySee,quantityShow,quantityExplain,quantityTransfer]){
