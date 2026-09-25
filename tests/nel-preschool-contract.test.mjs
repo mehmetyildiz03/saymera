@@ -47,17 +47,18 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelConservation10'),'Path B metadata must reserve the conservation skill');
 assert.equal(preschoolIds.has('nelNumberRepresentations10'),true,'number representations enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
-assert.equal(preschoolIds.has('nelNumeralFormation10'),false,'numeral formation must remain contract-only until its generator and production interaction exist');
+assert.equal(preschoolIds.has('nelNumeralFormation10'),true,'numeral formation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumeralFormation10'),'Path B metadata must reserve numeral formation');
-assert.equal(app.includes('renderNelNumeralFormationLessonStep'),false,'contract slice must not add numeral-formation Learn UI yet');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelNumeralFormation10'),'numeral production should bridge to P1 number representation/writing without becoming a hard prerequisite');
+assert.equal(app.includes('renderNelNumeralFormationLessonStep'),false,'generator slice must still stop before numeral-formation Learn UI');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -139,7 +140,7 @@ for(const [code,ids] of Object.entries(PRESCHOOL_NEL_KSD_MAP)){
 for(const concept of PRESCHOOL_NEL_SUPPORTING_CONCEPTS) assert.ok(allPlannedProductSkills.has(concept.skillId),'supporting concept must belong to a canonical preschool path: '+concept.skillId);
 
 const formationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumeralFormation10;
-assert.equal(formationContract.status,'contract-only');
+assert.equal(formationContract.status,'generator-ready');
 assert.deepEqual(formationContract.officialKsd,['3.6']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.6'],['nelNumeralFormation10']);
 assert.deepEqual(formationContract.productNumeralRange,[1,10]);
@@ -417,6 +418,57 @@ assert.equal(subExplain.response.interaction,'nel-subitise-flash-explain');
 assert.equal(subTransfer.response.interaction,'nel-subitise-flash-audio');
 assert.ok(['dice','domino'].includes(subTransfer.visual.pattern.context),'subitising transfer must use dice/domino structure');
 assert.ok(subStructured.visual.flashMs<=800&&subStructured.visual.flashMs>=250,'subitising flash duration must stay short');
+
+const formationConcept=createConceptInstance('nelNumeralFormation10',1,rng);
+assert.equal(formationConcept.skillId,'nelNumeralFormation10');
+for(const sample of [formationConcept.anchor,formationConcept.symbol,formationConcept.transfer]){
+  assert.ok(sample.n>=1&&sample.n<=10,'numeral formation concept must stay within SAYMERA scope 1..10');
+  assert.equal(sample.numeral,String(sample.n));
+  assert.equal(sample.zeroQuantityTarget,false);
+  assert.equal(sample.guides.length,sample.n===10?2:1,'10 must use two digit guides; single-digit numerals one guide');
+  if(sample.n===10) assert.deepEqual(sample.digits,['1','0']);
+  else assert.equal(sample.digits.includes('0'),false,'zero glyph must not appear as an independent target in the 1..9 cases');
+  for(const guide of sample.guides){
+    assert.equal(guide.exactStrokeOrderRequired,false);
+    assert.ok(guide.minimumHitRatio>=.7&&guide.minimumHitRatio<=.9,'formation tolerance must require recognisable coverage without pixel-perfect tracing');
+    assert.ok(guide.tolerance>=10,'young-child formation must use a broad spatial tolerance');
+    assert.ok(guide.points.length>=4,'each digit guide needs enough geometric checkpoints to reject a single tap');
+    for(const [x,y] of guide.points) assert.ok(x>=0&&x<=100&&y>=0&&y<=100,'guide coordinates must stay normalized');
+  }
+}
+
+const formationBuild=generateQuestion('nelNumeralFormation10','build',1,rng,formationConcept);
+const formationSee=generateQuestion('nelNumeralFormation10','see',1,rng,formationConcept);
+const formationWrite=generateQuestion('nelNumeralFormation10','symbol',1,rng,formationConcept);
+const formationExplain=generateQuestion('nelNumeralFormation10','explain',1,rng,formationConcept);
+const formationTransfer=generateQuestion('nelNumeralFormation10','transfer',1,rng,formationConcept);
+assert.equal(formationBuild.response.interaction,'nel-numeral-material-form');
+assert.equal(formationSee.response.interaction,'nel-numeral-guided-trace');
+assert.equal(formationWrite.response.interaction,'nel-numeral-free-write');
+assert.equal(formationExplain.response.kind,'choice');
+assert.equal(formationTransfer.response.interaction,'nel-numeral-context-record');
+assert.equal(formationSee.visual.guideVisible,true);
+assert.equal(formationWrite.visual.guideVisible,false,'independent numeral writing must not reveal the hidden acceptance guide');
+assert.equal(formationTransfer.visual.context.kind,'game-score','meaningful transfer must preserve the official game-score style example');
+for(const q of [formationBuild,formationSee,formationWrite,formationExplain,formationTransfer]){
+  assert.notEqual(q.response.kind,'number-input','KSD 3.6 must collect actual formation/writing evidence rather than keyboard numeral entry');
+  assert.equal(/güzel yaz|hızlı yaz|tek.*sıra|doğru.*stroke/i.test([q.prompt,q.hint,q.explain].join(' ')),false,'penmanship aesthetics, speed or exact stroke order must not become mathematics feedback');
+}
+
+for(const section of formationContract.practice.sections){
+  const qs=Array.from({length:12},(_,i)=>generateLessonPracticeQuestion('nelNumeralFormation10',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelNumeralFormation10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    assert.notEqual(q.response.kind,'number-input',section.id+' must require formation/meaning evidence rather than numeric keypad entry');
+    if(q.visual?.guides){
+      assert.ok(q.visual.guides.every(g=>g.exactStrokeOrderRequired===false),'practice guides must remain stroke-order independent');
+      assert.ok(q.visual.guides.flatMap(g=>g.points).length>=4,'practice formation visuals need real geometric evidence');
+    }
+    if(section==='write-known-numeral') assert.equal(q.visual?.guideVisible,false,'independent write practice must keep acceptance guides hidden');
+    if(section==='record-meaningful-number') assert.equal(q.visual?.context?.kind,'game-score','transfer must be meaningful numeral recording, not decontextualized worksheet copying');
+  }
+}
 
 const representationConcept=createConceptInstance('nelNumberRepresentations10',1,rng);
 assert.equal(representationConcept.skillId,'nelNumberRepresentations10');
