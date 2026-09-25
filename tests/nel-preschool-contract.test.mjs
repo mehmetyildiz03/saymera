@@ -4,7 +4,7 @@ import {
   skillsFor,PRESCHOOL_NEL_PATHS,PRESCHOOL_NEL_KSD_MAP,PRESCHOOL_NEL_CROSS_CUTTING_KSDS,
   PRESCHOOL_NEL_OFFICIAL_KSD_CODES,PRESCHOOL_NEL_CURRICULUM,PRESCHOOL_NEL_SUPPORTING_CONCEPTS,
   PRESCHOOL_NEL_PEDAGOGY,PRESCHOOL_NEL_SOURCE_AUTHORITY,PRESCHOOL_TO_P1_BRIDGES,
-  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,
+  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,partWholeCaseFor,
   defaultState,runPedagogyStateAudit
 } from '../engine.mjs';
 
@@ -48,9 +48,9 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
-assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),false,'part-whole must remain contract-only until a generator/runtime exists');
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),true,'part-whole enters the hidden runnable registry only after its generator exists');
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
@@ -198,7 +198,7 @@ assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
 const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
-assert.equal(partWholeContract.status,'contract-only');
+assert.equal(partWholeContract.status,'generator-ready');
 assert.deepEqual(partWholeContract.officialKsd,['3.8']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.8'],['nelPartWhole10']);
 assert.equal(partWholeContract.officialMaximumWhole,10);
@@ -224,6 +224,56 @@ assert.equal(partWholeContract.sourceGrounding.futureAdditionSubtractionFoundati
 assert.deepEqual(partWholeContract.practice.sections.map(s=>s.id),['split-whole-objects','see-multiple-decompositions','name-parts-forming-whole','explain-same-whole-different-parts','transfer-fingers-bracelet']);
 assert.deepEqual(partWholeContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(partWholeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
+const partWholeConcept=createConceptInstance('nelPartWhole10',1,rng);
+assert.equal(partWholeConcept.skillId,'nelPartWhole10');
+for(const sample of [partWholeConcept.anchor,partWholeConcept.symbol,partWholeConcept.transfer]){
+  assert.ok(sample.whole>=2&&sample.whole<=10,'part-whole case must stay inside product range 2..10');
+  assert.ok(sample.split.left>=1&&sample.split.right>=1,'core part-whole split must keep both parts non-empty');
+  assert.equal(sample.split.left+sample.split.right,sample.whole,'part quantities must reconstruct the whole internally');
+  assert.equal(sample.partition.left.count+sample.partition.right.count,sample.whole);
+  const sourceIds=sample.items.map(x=>x.id).sort();
+  const splitIds=[...sample.partition.left.itemIds,...sample.partition.right.itemIds].sort();
+  assert.deepEqual(splitIds,sourceIds,'partition must preserve every original object exactly once');
+  assert.equal(new Set(splitIds).size,splitIds.length,'no original object may be duplicated across parts');
+  assert.ok(sample.decompositions.every(d=>d.left>=1&&d.right>=1&&d.left+d.right===sample.whole),'all core decompositions must use positive parts forming the same whole');
+  if(sample.whole>=3) assert.ok(sample.decompositions.length>=2,'whole >=3 must expose multiple decompositions');
+}
+
+const fiveCases=Array.from({length:4},(_,i)=>partWholeCaseFor(5,i+1));
+assert.deepEqual(fiveCases.map(x=>[x.split.left,x.split.right]),[[1,4],[2,3],[3,2],[4,1]],'whole 5 must preserve official multiple and swapped decompositions');
+
+const partBuild=generateQuestion('nelPartWhole10','build',1,rng,partWholeConcept);
+const partSee=generateQuestion('nelPartWhole10','see',1,rng,partWholeConcept);
+const partShow=generateQuestion('nelPartWhole10','symbol',1,rng,partWholeConcept);
+const partExplain=generateQuestion('nelPartWhole10','explain',1,rng,partWholeConcept);
+const partTransfer=generateQuestion('nelPartWhole10','transfer',1,rng,partWholeConcept);
+assert.equal(partBuild.response.interaction,'nel-part-whole-split');
+assert.equal(partSee.response.kind,'visual-choice');
+assert.equal(partShow.response.interaction,'nel-part-whole-name-parts');
+assert.equal(partExplain.response.kind,'choice');
+assert.equal(partTransfer.response.interaction,'nel-part-whole-context-split');
+
+for(const q of [partBuild,partSee,partShow,partExplain,partTransfer]){
+  assert.notEqual(q.response.kind,'number-input','KSD 3.8 must collect part-whole evidence rather than keyboard arithmetic');
+  const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label??o.value??'')].join(' ');
+  assert.equal(/[+=>]/.test(childText),false,'formal operation/comparison notation must not define child-facing preschool part-whole evidence: '+childText);
+  assert.equal(/number.?bond|sayı bağı/i.test(childText),false,'Primary number-bond terminology must not be back-ported into preschool evidence');
+}
+assert.equal(partBuild.visual.items.length,partWholeConcept.anchor.whole,'build visual must start from the complete whole set');
+assert.equal(partTransfer.visual.context,'bracelet','transfer must preserve an official-style real-object context');
+
+for(const section of partWholeContract.practice.sections){
+  const qs=Array.from({length:14},(_,i)=>generateLessonPracticeQuestion('nelPartWhole10',section.id,i,1,rng));
+  assert.ok(qs.every(q=>q.skillId==='nelPartWhole10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    assert.notEqual(q.response.kind,'number-input',section.id+' must not become missing-addend keypad work');
+    const text=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label??o.value??'')].join(' ');
+    assert.equal(/[+=>]/.test(text),false,section.id+' must remain pre-formal and equation-free in child-facing copy');
+    assert.equal(/0\s*(?:ve|ile)|(?:ve|ile)\s*0/.test(text),false,section.id+' must not introduce zero-part decompositions');
+  }
+}
 
 const quantityCompareContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelCompareQuantities10;
 assert.equal(quantityCompareContract.status,'implemented');
