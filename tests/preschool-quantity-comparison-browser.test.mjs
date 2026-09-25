@@ -8,7 +8,7 @@ import {defaultState} from '../engine.mjs';
 
 const externalBase=process.env.SAYMERA_TEST_URL||null;
 let activeBase=externalBase||'http://127.0.0.1:48190';
-const repoRoot=fileURLToPath(new URL('..',import.meta.url));
+const repoRoot=resolve(fileURLToPath(new URL('..',import.meta.url)));
 await mkdir('preschool-quantity-comparison-test-results',{recursive:true});
 const mimeTypes={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.webmanifest':'application/manifest+json'};
 async function startServerFor(index){
