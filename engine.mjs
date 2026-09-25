@@ -440,6 +440,45 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelNumeralFormation10:{
+    version:1,
+    status:'contract-only',
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    officialKsd:['3.6'],
+    productNumeralRange:[1,10],
+    productBoundaryNotOfficialCeiling:true,
+    dependsOnRepresentationSkill:'nelNumberRepresentations10',
+    productionModes:['material-form','guided-trace','free-form-copy','meaningful-record'],
+    scoringBoundary:{
+      intentionalNumeralProduction:true,
+      recognisableNumeralIdentity:true,
+      exactStrokeOrderRequired:false,
+      penmanshipAestheticsScored:false,
+      speedScored:false
+    },
+    numeralTen:{
+      twoDigitNumeral:true,
+      digitComponents:['1','0'],
+      zeroQuantityTarget:false
+    },
+    sourceGrounding:{
+      playdoughFormationExample:true,
+      meaningfulWritingContextExample:'recording-game-score',
+      cpaBridge:true
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Yaz',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'form-numeral-material',label:'Rakam biçimini malzemeyle kur',phase:'model',representation:'build'},
+        {id:'follow-numeral-path',label:'Rakamı geniş bir yol üzerinde izleyip oluştur',phase:'representation',representation:'see'},
+        {id:'write-known-numeral',label:'Bildiğin sayının rakamını üret',phase:'symbol',representation:'symbol'},
+        {id:'explain-written-record',label:'Yazdığın rakamın hangi sayıyı kaydettiğini anlat',phase:'reasoning',representation:'explain'},
+        {id:'record-meaningful-number',label:'Oyunda veya günlük etkinlikte anlamlı bir sayıyı kaydet',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -864,6 +903,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         PRESCHOOL_NEL_KSD_MAP['3.4']?.includes('nelNumberRepresentations10') &&
         PRESCHOOL_NEL_KSD_MAP['3.5']?.includes('nelNumberRepresentations10'),
       representationContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const formationContract=lessonContractFor('nelNumeralFormation10');
+    add(
+      'nel-numeral-formation-contract',
+      'NEL KSD 3.6 rakam üretimini el yazısı estetiği veya tek zorunlu çizgi sırasıyla karıştırmıyor',
+      !formationContract.provisional &&
+        formationContract.status==='contract-only' &&
+        formationContract.officialKsd?.join(',')==='3.6' &&
+        formationContract.scoringBoundary?.intentionalNumeralProduction===true &&
+        formationContract.scoringBoundary?.recognisableNumeralIdentity===true &&
+        formationContract.scoringBoundary?.exactStrokeOrderRequired===false &&
+        formationContract.scoringBoundary?.penmanshipAestheticsScored===false &&
+        formationContract.numeralTen?.zeroQuantityTarget===false &&
+        PRESCHOOL_NEL_KSD_MAP['3.6']?.includes('nelNumeralFormation10'),
+      formationContract.practice.sections.map(section=>section.id).join(' → ')
     );
   }
 
