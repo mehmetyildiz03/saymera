@@ -147,11 +147,12 @@ async function exercisePractice(page,section){
     const name=await root.getAttribute('data-number-name');
     assert.match(name||'',/^name-\d+$/);
     const n=(name||'').replace('name-','');
-    await root.locator('[data-rote-speech]').tap();
     await root.locator('[data-nel-number-numeral="numeral-'+n+'"]').tap();
-    assert.equal(await page.locator('#checkManipulator').isEnabled(),true);
-    assert.equal((await page.locator('#manipulatorStatus').textContent()||'').includes('hazır'),false,'one form alone must not count as a complete match');
     await root.locator('[data-nel-number-word="word-'+n+'"]').tap();
+    assert.match((await page.locator('#manipulatorStatus').textContent())||'',/Önce sayı adını dinle/i,'visual forms alone must not complete spoken-number evidence');
+    await page.locator('#checkManipulator').tap();
+    assert.equal(await page.locator('.feedback-card').count(),0,'Practice must not submit before the spoken number name is heard');
+    await root.locator('[data-rote-speech]').tap();
     assert.match((await page.locator('#manipulatorStatus').textContent())||'',/hazır/i);
     await page.locator('#checkManipulator').tap();
     return;
@@ -162,8 +163,12 @@ async function exercisePractice(page,section){
     return;
   }
   if(section==='transfer-number-context'){
-    const n=(await page.locator('.nel-number-context-tag strong').textContent()||'').trim();
+    const tag=page.locator('.nel-number-context-tag');
+    const n=(await tag.locator('strong').textContent()||'').trim();
+    const context=(await tag.locator('small').textContent()||'').toLocaleLowerCase('tr-TR');
     assert.match(n,/^(10|[1-9])$/);
+    assert.ok(['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'].some(x=>context.includes(x)),'transfer must use a quantity-bearing daily-life context');
+    assert.equal(/kapı|otobüs|takvim|dolap/.test(context),false,'nominal/date/location number contexts must not stand in for quantity evidence');
     await page.locator('[data-answer="quantity-'+n+'"]').tap();
     return;
   }
