@@ -2,7 +2,7 @@
 
 Status: CANONICAL MASTER CURRICULUM CONTRACT. This document defines the Singapore preschool Numeracy scope, product mapping and acceptance gates before live Preschool v2 navigation migration.
 
-Current reference baseline: **NEL Framework 2022** + current MOE NEL Numeracy portal (portal checked against the May 2025 update).
+Current reference baseline: **NEL Framework 2022** + current MOE NEL Numeracy portal. Re-verified on **2026-09-25**; the NEL framework overview reports its 2025-05-29 update and the Counting Skills & Number Sense page reports a 2025-12-31 update.
 
 ## 1. Source authority
 
@@ -170,12 +170,21 @@ Recommended product progression:
    - do **not** score handwriting/formation here; numeral production belongs to separate KSD 3.6 / `nelNumeralFormation10`;
    - do not let a child pass by memorising one fixed dot arrangement; vary the quantity model.
 
-   Planned evidence:
+   Implemented evidence:
    - **Kur:** build/select a quantity, then attach the matching numeral or word card;
    - **Gör:** recognise the same quantity across varied representations;
    - **Göster:** match spoken name, numeral and written word to quantity in both directions;
    - **Anlat:** identify which representations mean the same amount and why;
    - **Taşı:** find/use numerals and quantities in an authentic daily-life context.
+
+   v1.20.0 reference implementation:
+   - 10 Learn steps teach quantity → spoken number name → numeral → written number word → mixed representation links before checking;
+   - written number words 1–10 are introduced explicitly;
+   - spoken number-name evidence requires an actual listen action in both Learn and the form-matching Practice task;
+   - quantity models rotate across objects, fingers, ten frame and tally marks;
+   - daily-life transfer uses quantity-bearing contexts rather than treating door/bus/date identifiers as cardinal evidence;
+   - 5 Practice sections plus Review are covered by Chromium and WebKit browser QA on phone and tablet viewports;
+   - no numeral handwriting or numeric-entry task is used in this skill.
 
 6. `nelNumeralFormation10` — form/write numerals 1–10 without making handwriting quality a mathematics mastery contaminant
 7. `nelCompareQuantities10` — same / more / fewer / less; later “how many more/fewer?”
@@ -193,7 +202,7 @@ Recommended product progression:
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.19.0:
+Status after SAYMERA v1.20.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -206,8 +215,8 @@ Product skill | NEL role | Status
 `nelReliableCount10` | 3.2 + 3.2.1–3.2.4 | ✅ implemented + browser QA
 `nelSubitise5` | supporting Number Sense | ✅ implemented + browser QA
 `nelConservation10` | 3.3 | ✅ implemented + browser QA
-`nelNumberRepresentations10` | 3.4 + 3.5 | **NEXT**
-`nelNumeralFormation10` | 3.6 | planned
+`nelNumberRepresentations10` | 3.4 + 3.5 | ✅ implemented + browser QA
+`nelNumeralFormation10` | 3.6 | **NEXT**
 `nelCompareQuantities10` | 3.7 | planned
 `nelPartWhole10` | 3.8 | planned
 `nelBasicShapes` | 4.1 | planned
