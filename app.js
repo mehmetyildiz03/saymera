@@ -1,7 +1,7 @@
 import {
   REPRESENTATIONS, REPRESENTATION_META, PROFILE_META, skillsFor, defaultState, ensureSkillState,
   masteryPercent, evidenceCoverage, generateQuestion, generateLearningQuestion, createConceptInstance, applyAnswer, consumeReview,
-  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit, patternContinuationRule
+  profileSummary, representationGap, prerequisitesReady, supportsLearningCycle, buildLearningCyclePlan, evaluatePracticeCheckpoint, classifyFractionPaint, currentCurriculumSkill, curriculumSkillUnlocked, ensureLearningArchitectureState, curriculumUnitsFor, lessonProgressSnapshot, lessonAccessState, lessonContractFor, recordPracticeSectionAttempt, resetPracticeSectionCycle, generateLessonPracticeQuestion, practiceSectionCompletionAllowed, runPedagogyStateAudit, patternContinuationRule, numeralFormationCaseFor
 } from './engine.mjs';
 
 const STORAGE_KEY='saymera.math.v2';
@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -2267,6 +2267,162 @@ function renderNelNumberRepresentationsLessonStep(skill,index=null){
   const next=$('#nelNumberLessonNext');wireNelNumberLessonStep(step,next);next?.addEventListener('click',()=>completeNelNumberLessonStep(skill,at));
 }
 
+
+const NEL_NUMERAL_FORMATION_LESSON_VERSION=1;
+const NEL_NUMERAL_FORMATION_SECTIONS=['HAMURLA KUR','YOLU İZLE','İKİ RAKAM'];
+const NEL_NUMERAL_FORMATION_LESSON_STEPS=[
+  {id:'form-one',section:'HAMURLA KUR',kind:'material',n:1,title:'1 rakamının biçimini kur.',body:'Sanal hamur izini geniş yolun üzerine yay.',result:'1 rakamının biçimini oluşturdun.'},
+  {id:'trace-two',section:'YOLU İZLE',kind:'guided',n:2,title:'2 rakamının yolunu izle.',body:'Geniş yol boyunca ilerle ve 2 rakamını tamamla.',result:'2 rakamını baştan sona oluşturdun.'},
+  {id:'trace-three',section:'YOLU İZLE',kind:'guided',n:3,title:'3 rakamının iki kıvrımını oluştur.',body:'Yolu takip ederek üst ve alt kıvrımı birbirine bağla.',result:'3 rakamının iki kıvrımı tek biçimde birleşti.'},
+  {id:'trace-four',section:'YOLU İZLE',kind:'guided',n:4,title:'4 rakamının parçalarını birleştir.',body:'Rakamın köşe ve çizgilerinden geçerek biçimi tamamla.',result:'4 rakamının parçaları birlikte tanınan biçimi oluşturdu.'},
+  {id:'playdough-five',section:'HAMURLA KUR',kind:'material',n:5,title:'5 rakamını hamur iziyle kur.',body:'Parmağınla veya kaleminle yolu takip ederek 5 rakamını oluştur.',result:'5 rakamını malzeme oluşturur gibi biçimlendirdin.'},
+  {id:'trace-six',section:'YOLU İZLE',kind:'guided',n:6,title:'6 rakamının kıvrımını tamamla.',body:'Üstten aşağı inen yolu ve alt halkayı birleştir.',result:'6 rakamının kıvrımı tamamlandı.'},
+  {id:'trace-seven',section:'YOLU İZLE',kind:'guided',n:7,title:'7 rakamının iki yönünü bağla.',body:'Üst çizgiyi ve aşağı inen çizgiyi aynı rakamda birleştir.',result:'7 rakamının iki bölümü bir araya geldi.'},
+  {id:'trace-eight',section:'YOLU İZLE',kind:'guided',n:8,title:'8 rakamının iki halkasını oluştur.',body:'Üst ve alt halkadan geçerek 8 rakamını tamamla.',result:'8 rakamının iki halkası tamamlandı.'},
+  {id:'trace-nine',section:'YOLU İZLE',kind:'guided',n:9,title:'9 rakamının halkasını ve kuyruğunu kur.',body:'Önce halkayı, sonra aşağı uzanan yolu tamamla.',result:'9 rakamının biçimi tamamlandı.'},
+  {id:'write-ten',section:'İKİ RAKAM',kind:'guided-context',n:10,title:'10 iki rakamla yazılır.',body:'On puanı kaydetmek için 1 ve 0 yollarının ikisini de tamamla.',result:'1 ve 0 yan yana gelince 10 rakamı oluştu.'}
+];
+function nelNumeralFormationSectionTrack(step){
+  return '<div class="nel-numeral-section-track">'+NEL_NUMERAL_FORMATION_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelNumeralGuidesAttr(guides=[]){ return esc(encodeURIComponent(JSON.stringify(guides))); }
+function nelNumeralGuideMarkup(guides=[]){
+  return guides.map(guide=>'<polyline class="nel-numeral-guide" data-numeral-guide="'+esc(guide.id)+'" points="'+guide.points.map(point=>point.join(',')).join(' ')+'"></polyline>').join('');
+}
+function nelNumeralContextBanner(context={}){
+  if(context?.kind!=='game-score')return '';
+  return '<div class="nel-numeral-context-banner"><span>OYUN SKORU</span><strong>Skorunu rakamla kaydet</strong></div>';
+}
+function nelNumeralBoardVisual(v={},material=false){
+  const guides=v.guides||[],mode=v.mode||'guided',showGuide=v.guideVisible!==false;
+  const quantity=v.quantity?'<div class="nel-numeral-quantity-link"><span>BU MİKTAR</span>'+nelNumberQuantityVisual(v.quantity)+'</div>':'';
+  return '<div class="nel-numeral-board '+(material?'material-mode':'')+'" data-numeral="'+esc(v.numeral||'')+'" data-numeral-mode="'+esc(mode)+'" data-numeral-guides="'+nelNumeralGuidesAttr(guides)+'" data-numeral-ready="false">'+
+    nelNumeralContextBanner(v.context||{})+quantity+
+    '<div class="nel-numeral-paper"><svg class="nel-numeral-svg" viewBox="0 0 100 100" role="img" aria-label="Rakam oluşturma alanı">'+
+      (showGuide?'<g class="nel-numeral-guides">'+nelNumeralGuideMarkup(guides)+'</g>':'')+
+      '<g class="nel-numeral-strokes" data-numeral-strokes></g></svg>'+
+      '<div class="nel-numeral-start-note">'+(material?'Hamur izini yolun üzerine yay':'Parmağınla ya da kaleminle çiz')+'</div>'+
+    '</div>'+
+    '<div class="nel-numeral-board-actions"><button type="button" data-numeral-clear>Temizle</button><span data-numeral-board-status>Rakamı oluştur.</span></div>'+
+  '</div>';
+}
+function nelNumeralMaterialVisual(v={}){ return nelNumeralBoardVisual({...v,mode:v.mode||'material',guideVisible:true},true); }
+function nelNumeralWrittenRecordVisual(v={}){
+  return '<div class="nel-numeral-written-record"><div class="nel-numeral-record-symbol">'+esc(v.numeral||'')+'</div>'+(v.quantity?nelNumberQuantityVisual(v.quantity):'')+'</div>';
+}
+function nelNumeralGuidesFromRoot(root){
+  try{return JSON.parse(decodeURIComponent(root?.dataset.numeralGuides||''));}catch{return [];}
+}
+function nelNumeralDist(a,b){return Math.hypot(Number(a.x)-Number(b.x),Number(a.y)-Number(b.y));}
+function nelNumeralPointSegmentDistance(point,a,b){
+  const vx=b.x-a.x,vy=b.y-a.y,wx=point.x-a.x,wy=point.y-a.y,den=vx*vx+vy*vy;
+  if(!den)return nelNumeralDist(point,a);
+  const t=Math.max(0,Math.min(1,(wx*vx+wy*vy)/den));
+  return Math.hypot(point.x-(a.x+t*vx),point.y-(a.y+t*vy));
+}
+function nelNumeralDistanceToGuide(point,guide){
+  const pts=(guide.points||[]).map(([x,y])=>({x:Number(x),y:Number(y)}));
+  if(pts.length<2)return pts.length?nelNumeralDist(point,pts[0]):Infinity;
+  let best=Infinity;
+  for(let i=1;i<pts.length;i++)best=Math.min(best,nelNumeralPointSegmentDistance(point,pts[i-1],pts[i]));
+  return best;
+}
+function nelNumeralEvaluate(root){
+  const guides=nelNumeralGuidesFromRoot(root),samples=root?._nelNumeralSamples||[];
+  if(!root||!guides.length||!samples.length)return {pass:false,coverage:0,onPathRatio:0,guideRatios:[]};
+  const guideRatios=guides.map(guide=>{
+    const tolerance=Number(guide.tolerance)||14,points=guide.points||[];
+    const hit=points.filter(([x,y])=>samples.some(sample=>Math.hypot(sample.x-Number(x),sample.y-Number(y))<=tolerance)).length;
+    return points.length?hit/points.length:0;
+  });
+  const onPath=samples.filter(sample=>guides.some(guide=>nelNumeralDistanceToGuide(sample,guide)<=(Number(guide.tolerance)||14)*1.2)).length;
+  const onPathRatio=onPath/samples.length;
+  const coverage=guideRatios.length?Math.min(...guideRatios):0;
+  const requiredSamples=Math.max(10,guides.reduce((sum,guide)=>sum+(guide.points?.length||0),0)*2);
+  const pass=samples.length>=requiredSamples && guides.every((guide,index)=>guideRatios[index]>=(Number(guide.minimumHitRatio)||.78)) && onPathRatio>=.5;
+  root.dataset.numeralReady=pass?'true':'false';
+  root.dataset.numeralCoverage=String(Math.round(coverage*100));
+  root.dataset.numeralOnPath=String(Math.round(onPathRatio*100));
+  return {pass,coverage,onPathRatio,guideRatios};
+}
+function nelNumeralSvgPoint(svg,event){
+  const rect=svg.getBoundingClientRect();
+  return {x:Math.max(0,Math.min(100,(event.clientX-rect.left)/Math.max(1,rect.width)*100)),y:Math.max(0,Math.min(100,(event.clientY-rect.top)/Math.max(1,rect.height)*100))};
+}
+function nelNumeralAddSample(root,point){
+  root._nelNumeralSamples||=[];
+  const prev=root._nelNumeralSamples.at(-1);
+  if(prev&&root._nelNumeralStrokeOpen){
+    const d=Math.max(0.001,nelNumeralDist(prev,point)),steps=Math.max(1,Math.ceil(d/2.2));
+    for(let i=1;i<=steps;i++)root._nelNumeralSamples.push({x:prev.x+(point.x-prev.x)*(i/steps),y:prev.y+(point.y-prev.y)*(i/steps)});
+  }else root._nelNumeralSamples.push(point);
+}
+function nelNumeralStrokePath(points=[]){
+  return points.map((point,index)=>(index?'L':'M')+point.x.toFixed(1)+' '+point.y.toFixed(1)).join(' ');
+}
+function bindNelNumeralBoard(root,onChange,blocked=()=>false){
+  if(!root||root.dataset.numeralBound==='true')return;
+  root.dataset.numeralBound='true';root._nelNumeralSamples=[];root._nelNumeralStrokes=[];root._nelNumeralStrokeOpen=false;
+  const svg=root.querySelector('.nel-numeral-svg'),layer=root.querySelector('[data-numeral-strokes]'),status=root.querySelector('[data-numeral-board-status]');
+  if(!svg||!layer)return;
+  let activePointer=null,current=null,path=null;
+  const refresh=()=>{
+    const result=nelNumeralEvaluate(root);
+    if(status)status.textContent=result.pass?'Rakam hazır.':'Yolun eksik kalan bölümlerini tamamla.';
+    root.classList.toggle('ready',result.pass);
+    onChange?.(result);
+  };
+  const begin=event=>{
+    if(blocked())return;
+    event.preventDefault();activePointer=event.pointerId;svg.setPointerCapture?.(event.pointerId);
+    current=[];root._nelNumeralStrokes.push(current);root._nelNumeralStrokeOpen=false;
+    path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('class','nel-numeral-user-stroke');layer.appendChild(path);
+    const point=nelNumeralSvgPoint(svg,event);current.push(point);nelNumeralAddSample(root,point);root._nelNumeralStrokeOpen=true;path.setAttribute('d',nelNumeralStrokePath(current));
+  };
+  const move=event=>{
+    if(activePointer!==event.pointerId||blocked())return;
+    event.preventDefault();const point=nelNumeralSvgPoint(svg,event),last=current?.at(-1);
+    if(last&&nelNumeralDist(last,point)<.7)return;
+    current.push(point);nelNumeralAddSample(root,point);path?.setAttribute('d',nelNumeralStrokePath(current));
+  };
+  const end=event=>{
+    if(activePointer!==event.pointerId)return;
+    event.preventDefault();root._nelNumeralStrokeOpen=false;activePointer=null;svg.releasePointerCapture?.(event.pointerId);refresh();
+  };
+  svg.addEventListener('pointerdown',begin);svg.addEventListener('pointermove',move);svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  root.querySelector('[data-numeral-clear]')?.addEventListener('click',()=>{
+    if(blocked())return;root._nelNumeralSamples=[];root._nelNumeralStrokes=[];root._nelNumeralStrokeOpen=false;layer.innerHTML='';root.dataset.numeralReady='false';root.dataset.numeralCoverage='0';root.classList.remove('ready');if(status)status.textContent='Rakamı yeniden oluştur.';onChange?.({pass:false,coverage:0,onPathRatio:0,guideRatios:[]});
+  });
+}
+function nelNumeralReadBoard(root){
+  if(!root||root.dataset.numeralReady!=='true')return null;
+  return 'formed-'+root.dataset.numeral;
+}
+function nelNumeralFormationLessonVisual(step){
+  const sample=numeralFormationCaseFor(step.n);
+  const context=step.kind==='guided-context'?{kind:'game-score',value:sample.n,label:'oyun skoru'}:null;
+  const visual={type:step.kind==='material'?'nel-numeral-material-form':'nel-numeral-draw-board',numeral:sample.numeral,guides:sample.guides,quantity:sample.quantity,guideVisible:true,mode:step.kind==='material'?'material':step.kind==='guided-context'?'guided-context':'guided',context};
+  return step.kind==='material'?nelNumeralMaterialVisual(visual):nelNumeralBoardVisual(visual);
+}
+function wireNelNumeralFormationLessonStep(step,next){
+  const root=$('.nel-numeral-board'),result=$('#nelNumeralResult');
+  bindNelNumeralBoard(root,state=>{
+    if(!state.pass)return;
+    result?.classList.add('revealed');if(next)next.disabled=false;
+  });
+}
+function completeNelNumeralFormationLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_NUMERAL_FORMATION_LESSON_VERSION;
+  if(next>=NEL_NUMERAL_FORMATION_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}saveState();session.lessonStepIndex=next;renderNelNumeralFormationLessonStep(skill,next);
+}
+function renderNelNumeralFormationLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_NUMERAL_FORMATION_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_NUMERAL_FORMATION_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_NUMERAL_FORMATION_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);$('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_NUMERAL_FORMATION_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_NUMERAL_FORMATION_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-numeral-lesson-stage" data-nel-numeral-step="'+esc(step.id)+'">'+nelNumeralFormationSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_NUMERAL_FORMATION_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-numeral-lesson-visual">'+nelNumeralFormationLessonVisual(step)+'<div class="nel-numeral-result" id="nelNumeralResult">'+esc(step.result)+'</div></div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelNumeralLessonNext" disabled>'+(at===NEL_NUMERAL_FORMATION_LESSON_STEPS.length-1?'Sayı hissi yoluna devam':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelNumeralLessonNext');wireNelNumeralFormationLessonStep(step,next);next?.addEventListener('click',()=>completeNelNumeralFormationLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -2846,6 +3002,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelSubitise5') return NEL_SUBITISE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelConservation10') return NEL_CONSERVATION_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelNumeralFormation10') return NEL_NUMERAL_FORMATION_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -3433,6 +3590,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelSubitise5'){ renderNelSubitiseLessonStep(skill); return; }
   if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }
   if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }
+  if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -3474,16 +3632,17 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
-  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10';
+  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10';
   $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').classList.toggle('subitise-practice',subitise);
   $('#practiceContent').classList.toggle('conservation-practice',conservation);
   $('#practiceContent').classList.toggle('number-representation-practice',numberRep);
+  $('#practiceContent').classList.toggle('numeral-formation-practice',numeralFormation);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''}">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
@@ -3544,6 +3703,7 @@ function wireManipulator(q){
   if(interaction==='nel-conservation-relation-choice') bindNelConservationRelation($('.nel-conservation-relation'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-number-link-builder') bindNelNumberLink($('.nel-number-link-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-number-form-match') bindNelNumberFormMatch($('.nel-number-form-match'),()=>updateManipulatorStatus(q),()=>answered);
+  if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) bindNelNumeralBoard($('.nel-numeral-board'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-count-set') bindNelReliableCountSet($('.nel-reliable-count-set'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-next-word') bindNelReliableNextWord($('.nel-reliable-next-word'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-cardinality') bindNelReliableCardinality($('.nel-reliable-cardinality'),()=>updateManipulatorStatus(q),()=>answered);
@@ -3902,6 +4062,7 @@ function readManipulatorValue(q){
   if(interaction==='nel-conservation-relation-choice') return $('.nel-conservation-relation')?.dataset.conservationSelected ?? null;
   if(interaction==='nel-number-link-builder') return $('.nel-number-link-builder')?.dataset.numberSelected ?? null;
   if(interaction==='nel-number-form-match') return nelNumberReadFormMatch($('.nel-number-form-match'));
+  if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) return nelNumeralReadBoard($('.nel-numeral-board'));
   if(interaction==='nel-reliable-count-set') return nelReliableReadCountSet($('.nel-reliable-count-set'));
   if(interaction==='nel-reliable-next-word') return $('.nel-reliable-next-word')?.dataset.reliableSelected ?? null;
   if(interaction==='nel-reliable-cardinality') return nelReliableReadCardinality($('.nel-reliable-cardinality'));
@@ -4002,6 +4163,10 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='nel-conservation-relation-choice') node.textContent=value?'Bir ilişki seçtin. Şimdi kontrol et.':'Miktarın aynı mı, daha çok mu, daha az mı olduğunu seç.';
   else if(q.response?.interaction==='nel-number-link-builder') node.textContent=value?'Bir rakam kartı seçtin. Şimdi kontrol et.':'Miktara uyan rakam kartını seç.';
   else if(q.response?.interaction==='nel-number-form-match'){const root=$('.nel-number-form-match');if(root?.dataset.nameListened!=='true')node.textContent='Önce sayı adını dinle.';else node.textContent=root?.dataset.numeralSelected&&root?.dataset.wordSelected?'Ses, rakam ve sayı sözcüğü eşleşmeleri hazır. Şimdi kontrol et.':'Şimdi bir rakam ve bir sayı sözcüğü seç.';}
+  else if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(q.response?.interaction)){
+    const root=$('.nel-numeral-board'),ready=root?.dataset.numeralReady==='true',coverage=Number(root?.dataset.numeralCoverage||0);
+    node.textContent=ready?'Rakam biçimi hazır. Şimdi kontrol et.':coverage?'Rakamın bazı bölümleri hazır; eksik kalan bölümleri tamamla.':'Rakamı çizim alanında oluştur.';
+  }
   else if(q.response?.interaction==='nel-reliable-count-set'){
     const root=$('.nel-reliable-count-set'),all=root?.querySelectorAll('[data-reliable-item]').length||0,counted=root?.querySelectorAll('[data-reliable-item].counted').length||0;node.textContent=counted===all&&all?'Bütün nesneler bir kez sayıldı. Şimdi kontrol et.':counted+' / '+all+' nesne sayıldı.';
   }
@@ -4398,6 +4563,9 @@ function renderVisual(v,q){
     case 'nel-number-form-match': return nelNumberFormMatchVisual(v);
     case 'nel-number-equivalent-set': return nelNumberEquivalentSetVisual(v);
     case 'nel-number-context-tag': return nelNumberContextTagVisual(v);
+    case 'nel-numeral-material-form': return nelNumeralMaterialVisual(v);
+    case 'nel-numeral-draw-board': return nelNumeralBoardVisual(v);
+    case 'nel-numeral-written-record': return nelNumeralWrittenRecordVisual(v);
     case 'nel-reliable-count-set': return nelReliableCountSetVisual(v);
     case 'nel-reliable-next-word': return nelReliableNextWordVisual(v);
     case 'nel-reliable-cardinality': return nelReliableCardinalityVisual(v);
