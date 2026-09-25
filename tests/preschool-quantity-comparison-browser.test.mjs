@@ -18,7 +18,7 @@ async function startServerFor(index){
   const server=createServer(async(req,res)=>{
     try{
       const pathname=decodeURIComponent(new URL(req.url||'/','http://127.0.0.1').pathname);
-      const relative=pathname==='/'?'index.html':pathname.replace(/^\\/+/, '');
+      const relative=pathname==='/'?'index.html':pathname.split('/').filter(Boolean).join('/');
       const filePath=resolve(repoRoot,relative);
       if(filePath!==repoRoot&&!filePath.startsWith(repoRoot+sep)){res.writeHead(403);res.end('Forbidden');return;}
       const data=await readFile(filePath);
