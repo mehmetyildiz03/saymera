@@ -1,21 +1,40 @@
 import assert from 'node:assert/strict';
 import {chromium,webkit} from 'playwright';
-import {spawn} from 'node:child_process';
-import {mkdir} from 'node:fs/promises';
+import {createServer} from 'node:http';
+import {mkdir,readFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {extname,resolve,sep} from 'node:path';
 import {defaultState} from '../engine.mjs';
 
 const externalBase=process.env.SAYMERA_TEST_URL||null;
-let activeBase=externalBase||'http://127.0.0.1:4190';
+let activeBase=externalBase||'http://127.0.0.1:48190';
+const repoRoot=fileURLToPath(new URL('..',import.meta.url));
 await mkdir('preschool-quantity-comparison-test-results',{recursive:true});
+const mimeTypes={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.webmanifest':'application/manifest+json'};
 async function startServerFor(index){
   if(externalBase){activeBase=externalBase;return null;}
-  const port=4190+index;
+  const port=48190+index;
   activeBase='http://127.0.0.1:'+port;
-  const child=spawn('python3',['-m','http.server',String(port)],{cwd:new URL('..',import.meta.url),stdio:'ignore'});
-  let ready=false;
-  for(let i=0;i<80;i++){try{if((await fetch(activeBase)).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}
-  if(!ready){child.kill();throw new Error('Local SAYMERA test server did not become ready on '+activeBase);}
-  return child;
+  const server=createServer(async(req,res)=>{
+    try{
+      const pathname=decodeURIComponent(new URL(req.url||'/','http://127.0.0.1').pathname);
+      const relative=pathname==='/'?'index.html':pathname.replace(/^\\/+/, '');
+      const filePath=resolve(repoRoot,relative);
+      if(filePath!==repoRoot&&!filePath.startsWith(repoRoot+sep)){res.writeHead(403);res.end('Forbidden');return;}
+      const data=await readFile(filePath);
+      res.writeHead(200,{'Content-Type':mimeTypes[extname(filePath)]||'application/octet-stream','Cache-Control':'no-store'});
+      res.end(data);
+    }catch{
+      res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8'});
+      res.end('Not found');
+    }
+  });
+  await new Promise((resolveReady,reject)=>{
+    const onError=error=>reject(error);
+    server.once('error',onError);
+    server.listen(port,'127.0.0.1',()=>{server.off('error',onError);resolveReady();});
+  });
+  return server;
 }
 
 const initial=defaultState();
@@ -310,6 +329,6 @@ for(let configIndex=0;configIndex<configs.length;configIndex++){
     }
   }finally{
     await browser.close();
-    localServer?.kill();
+    if(localServer) await new Promise((resolveClose,reject)=>localServer.close(error=>error?reject(error):resolveClose()));
   }
 }
