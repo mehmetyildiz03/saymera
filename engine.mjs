@@ -730,13 +730,34 @@ export function runPedagogyStateAudit(state,now=Date.now()){
   );
 
   if(state.profile==='preschool'){
-    const expectedKsd=['2.1','2.2','2.3','2.4','3.1','3.2','3.3','3.4','3.5','3.6','3.7','3.8','4.1','4.2','4.3','4.4'];
-    const missingKsd=expectedKsd.filter(code=>!(PRESCHOOL_NEL_KSD_MAP[code]?.length));
+    const mappedOfficialKsd=PRESCHOOL_NEL_OFFICIAL_KSD_CODES.filter(code=>!PRESCHOOL_NEL_CROSS_CUTTING_KSDS[code]);
+    const missingKsd=mappedOfficialKsd.filter(code=>!(PRESCHOOL_NEL_KSD_MAP[code]?.length));
+    const missingCrossCutting=['1.1','1.2'].filter(code=>!PRESCHOOL_NEL_CROSS_CUTTING_KSDS[code]);
     add(
       'nel-ksd-coverage',
-      'NEL Numeracy KSD 2.1–2.4, 3.1–3.8 ve 4.1–4.4 ürün becerilerine eşlenmiş',
-      missingKsd.length===0,
-      missingKsd.length?'Eksik KSD: '+missingKsd.join(', '):'16 resmi KSD grubu eşlenmiş.'
+      'NEL Numeracy 18 resmi KSD kanonik master map içinde korunuyor',
+      PRESCHOOL_NEL_OFFICIAL_KSD_CODES.length===18 && missingKsd.length===0 && missingCrossCutting.length===0,
+      missingKsd.length||missingCrossCutting.length
+        ?'Eksik: '+[...missingCrossCutting,...missingKsd].join(', ')
+        :'1.1–1.2 cross-cutting + 2.1–4.4 ürün eşlemesi tamam.'
+    );
+    const crossCuttingGaps=Object.entries(PRESCHOOL_NEL_LESSON_CONTRACTS).filter(([,lessonContract])=>{
+      const sections=lessonContract.practice?.sections||[];
+      return !sections.some(section=>section.phase==='context'&&section.representation==='transfer') ||
+        !sections.some(section=>section.phase==='reasoning'&&section.representation==='explain');
+    }).map(([skillId])=>skillId);
+    add(
+      'nel-daily-life-cross-cutting',
+      'NEL 1.1–1.2 her uygulanmış Preschool v2 derste bağlam/taşıma ve matematik dili kanıtı olarak yaşatılıyor',
+      crossCuttingGaps.length===0,
+      crossCuttingGaps.length?'Eksik kontrat: '+crossCuttingGaps.join(', '):'Tüm uygulanmış NEL v2 ders kontratları cross-cutting kanıt taşıyor.'
+    );
+    add(
+      'nel-supporting-concepts',
+      'Subitising resmî numaralı KSD gibi gösterilmiyor',
+      PRESCHOOL_NEL_SUPPORTING_CONCEPTS.some(item=>item.skillId==='nelSubitise5'&&item.officialNumberedKsd===false) &&
+        !Object.values(PRESCHOOL_NEL_KSD_MAP).flat().includes('nelSubitise5'),
+      'Supporting Number Sense becerisi ayrı metadata ile izleniyor.'
     );
     const p1WithPreschoolPrereq=SKILLS.filter(skill=>skill.profile==='grade1'&&(skill.prerequisite||[]).some(id=>SKILLS.find(s=>s.id===id)?.profile==='preschool'));
     add(
