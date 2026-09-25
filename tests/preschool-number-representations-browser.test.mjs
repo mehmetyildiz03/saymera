@@ -165,9 +165,9 @@ async function exercisePractice(page,section){
   if(section==='transfer-number-context'){
     const tag=page.locator('.nel-number-context-tag');
     const n=(await tag.locator('strong').textContent()||'').trim();
-    const context=(await tag.locator('small').textContent()||'').toLocaleLowerCase('tr-TR');
+    const context=(await tag.getAttribute('data-number-context')||'').toLocaleLowerCase('tr-TR');
     assert.match(n,/^(10|[1-9])$/);
-    assert.ok(['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'].some(x=>context.includes(x)),'transfer must use a quantity-bearing daily-life context');
+    assert.ok(['alışveriş listesi','tarif kartı','oyun kartı','malzeme etiketi'].some(x=>context===x),'transfer must use a quantity-bearing daily-life context');
     assert.equal(/kapı|otobüs|takvim|dolap/.test(context),false,'nominal/date/location number contexts must not stand in for quantity evidence');
     await page.locator('[data-answer="quantity-'+n+'"]').tap();
     return;
