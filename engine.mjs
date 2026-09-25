@@ -536,6 +536,50 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelPartWhole10:{
+    version:1,
+    status:'contract-only',
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    officialKsd:['3.8'],
+    officialMaximumWhole:10,
+    productWholeRange:[2,10],
+    productMinimumNotOfficialFloor:true,
+    concept:'parts-form-a-whole',
+    decompositionBoundary:{
+      minimumParts:2,
+      referenceCoreParts:2,
+      supportsMoreThanTwoParts:true,
+      positivePartsInCore:true,
+      zeroPartCore:false,
+      swappedPartsRemainValid:true,
+      multipleDecompositionsOfSameWhole:true
+    },
+    symbolicBoundary:{
+      numeralsMayLabelQuantities:true,
+      formalAdditionEquationRequired:false,
+      numberBondDiagramRequired:false,
+      symbolicEquationAsPrimaryDefinition:false
+    },
+    sourceGrounding:{
+      colouredBlockTowerExample:true,
+      braceletBeadsSplitExample:true,
+      fingerPlayExample:true,
+      dailyRoutineReinforcement:true,
+      futureAdditionSubtractionFoundation:true
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'split-whole-objects',label:'Bir bütünü iki parçaya ayır',phase:'model',representation:'build'},
+        {id:'see-multiple-decompositions',label:'Aynı bütünün farklı parçalara ayrılabildiğini gör',phase:'representation',representation:'see'},
+        {id:'name-parts-forming-whole',label:'Bütünü oluşturan parçaları adlandır',phase:'symbol',representation:'symbol'},
+        {id:'explain-same-whole-different-parts',label:'Parçalar değişse de bütünün neden aynı kaldığını anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-fingers-bracelet',label:'Parça-bütünü parmak veya boncuk etkinliğine taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -977,6 +1021,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         formationContract.numeralTen?.zeroQuantityTarget===false &&
         PRESCHOOL_NEL_KSD_MAP['3.6']?.includes('nelNumeralFormation10'),
       formationContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const partWholeContract=lessonContractFor('nelPartWhole10');
+    add(
+      'nel-part-whole-contract',
+      'NEL KSD 3.8 parça-bütün sözleşmesi somut parçalama ve çoklu ayrışımları formal işlem denkleminden önce tutuyor',
+      !partWholeContract.provisional &&
+        partWholeContract.status==='contract-only' &&
+        partWholeContract.officialKsd?.join(',')==='3.8' &&
+        partWholeContract.officialMaximumWhole===10 &&
+        partWholeContract.decompositionBoundary?.minimumParts===2 &&
+        partWholeContract.decompositionBoundary?.multipleDecompositionsOfSameWhole===true &&
+        partWholeContract.symbolicBoundary?.formalAdditionEquationRequired===false &&
+        partWholeContract.sourceGrounding?.braceletBeadsSplitExample===true &&
+        PRESCHOOL_NEL_KSD_MAP['3.8']?.includes('nelPartWhole10'),
+      partWholeContract.practice.sections.map(section=>section.id).join(' → ')
     );
     const quantityCompareContract=lessonContractFor('nelCompareQuantities10');
     add(
