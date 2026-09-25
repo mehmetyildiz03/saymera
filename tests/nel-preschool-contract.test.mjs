@@ -58,6 +58,9 @@ assert.equal(preschoolIds.has('nelNumberRepresentations10'),true,'number represe
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumberRepresentations10'),'Path B metadata must reserve number representations');
 assert.equal(preschoolIds.has('nelNumeralFormation10'),true,'numeral formation enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelNumeralFormation10'),'Path B metadata must reserve numeral formation');
+assert.equal(preschoolIds.has('nelCompareQuantities10'),false,'quantity comparison must remain contract-only until its concrete comparison generator exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelCompareQuantities10'),'Path B metadata must reserve quantity comparison');
+assert.equal(app.includes('renderNelCompareQuantitiesLessonStep'),false,'contract slice must not add quantity-comparison Learn UI yet');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.number20.includes('nelNumeralFormation10'),'numeral production should bridge to P1 number representation/writing without becoming a hard prerequisite');
 assert.equal(app.includes("if(skill.id==='nelNumeralFormation10'){ renderNelNumeralFormationLessonStep(skill); return; }"),true,'numeral formation must teach before checking once Learn UI exists');
 const numeralLessonIds=['form-one','trace-two','trace-three','trace-four','playdough-five','trace-six','trace-seven','trace-eight','trace-nine','write-ten'];
@@ -176,6 +179,33 @@ assert.equal(formationContract.sourceGrounding.cpaBridge,true);
 assert.equal(formationContract.numeralTen.twoDigitNumeral,true);
 assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
+
+const quantityCompareContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelCompareQuantities10;
+assert.equal(quantityCompareContract.status,'contract-only');
+assert.deepEqual(quantityCompareContract.officialKsd,['3.7']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.7'],['nelCompareQuantities10']);
+assert.equal(quantityCompareContract.maximumSetSize,10);
+assert.equal(quantityCompareContract.compares,'quantity-of-two-sets');
+assert.equal(quantityCompareContract.distinctFromAttributeComparison,true);
+assert.deepEqual(quantityCompareContract.officialLanguage,['same-as','more-than','fewer-than','less-than']);
+assert.deepEqual(quantityCompareContract.childLanguageTr,{sameAs:'aynı sayıda',moreThan:'daha çok',fewerThan:'daha az sayıda',lessThan:'daha az'});
+assert.equal(quantityCompareContract.localisationBoundary.preserveOfficialSourceTermsInMetadata,true);
+assert.equal(quantityCompareContract.localisationBoundary.forceEnglishFewerLessDistinctionInTurkish,false);
+assert.deepEqual(quantityCompareContract.teachingProgression.first,['same-as','more-than']);
+assert.deepEqual(quantityCompareContract.teachingProgression.then,['fewer-than','less-than']);
+assert.equal(quantityCompareContract.comparisonEvidence.oneToOnePairing,true);
+assert.equal(quantityCompareContract.comparisonEvidence.unmatchedItems,true);
+assert.equal(quantityCompareContract.comparisonEvidence.occupiedAreaIsQuantityCue,false);
+assert.equal(quantityCompareContract.comparisonEvidence.itemSizeIsQuantityCue,false);
+assert.equal(quantityCompareContract.comparisonEvidence.spacingIsQuantityCue,false);
+assert.equal(quantityCompareContract.comparisonEvidence.formalComparisonSymbolsRequired,false);
+assert.equal(quantityCompareContract.supportedExtension.id,'how-many-more-fewer');
+assert.equal(quantityCompareContract.supportedExtension.afterCoreRelation,true);
+assert.equal(quantityCompareContract.supportedExtension.masteryRequiredForKsd37,false);
+assert.equal(quantityCompareContract.sourceGrounding.realObjectGraphExample,true);
+assert.deepEqual(quantityCompareContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+assert.deepEqual(quantityCompareContract.practice.sections.map(s=>s.id),['pair-sets-one-to-one','see-same-or-more','use-fewer-less-language','explain-leftover-relation','transfer-real-object-graph']);
+assert.deepEqual(quantityCompareContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 
 const representationContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelNumberRepresentations10;
 assert.equal(representationContract.practice.sections.length,5);
@@ -574,7 +604,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -588,6 +618,14 @@ assert.ok(contract.includes('Status after SAYMERA v1.21.0'),'research contract s
 assert.ok(contract.includes('v1.21.0 reference implementation'),'research contract must document the numeral-formation implementation slice');
 assert.ok(contract.includes('visibly off-path scribbling is rejected'),'implementation notes must preserve scribble-rejection evidence');
 assert.ok(contract.includes('same numeral path drawn in reverse direction is accepted'),'implementation notes must preserve stroke-direction independence');
+assert.ok(contract.includes('**NEL KSD 3.7**'),'quantity-comparison research boundary must anchor official KSD 3.7');
+assert.ok(contract.includes('two sets of up to 10 things each'),'KSD 3.7 boundary must preserve the official two-set and 10-each limit');
+assert.ok(contract.includes('same as')&&contract.includes('more than')&&contract.includes('fewer than')&&contract.includes('less than'),'official KSD 3.7 relation language must stay explicit');
+assert.ok(contract.includes('real-object graph'),'research boundary must preserve the official real-object-graph style example');
+assert.ok(contract.includes('KSD 2.1 / `nelCompareAttributes`'),'quantity comparison must be explicitly distinguished from attribute comparison');
+assert.ok(contract.includes('`<` and `>` are not KSD 3.7 mastery targets'),'preschool quantity comparison must not be converted to formal symbol mastery');
+assert.ok(contract.includes('aynı sayıda')&&contract.includes('daha çok')&&contract.includes('daha az sayıda'),'Turkish child-facing relation language must be documented');
+assert.ok(contract.includes('Supported extension, not an extra KSD 3.7 mastery gate'),'how-many-more/fewer must remain an Educators Guide extension rather than an invented KSD endpoint');
 assert.ok(contract.includes('Re-verified on **2026-09-25**'),'research contract must record the latest official-source verification');
 assert.ok(contract.includes('**KSD 3.4**')&&contract.includes('**KSD 3.5**'),'number-representation research boundary must anchor both official KSDs');
 assert.ok(contract.includes('**number name**')&&contract.includes('**numeral**')&&contract.includes('**number word**')&&contract.includes('**quantity**'),'representation contract must distinguish spoken name, numeral, written word and quantity');
