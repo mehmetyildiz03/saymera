@@ -584,7 +584,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelBasicShapes:{
     version:1,
-    status:'generator-ready',
+    status:'implemented',
     unitId:'nel-shapes-space',
     pathId:'shapes-space',
     officialKsd:['4.1'],
@@ -1093,7 +1093,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'nel-basic-shapes-contract',
       'NEL KSD 4.1 temel şekil sözleşmesi dört şekli boyut/yön değişiminden bağımsız tanımayı 4.2 özellik öğretiminden ayırıyor',
       !basicShapesContract.provisional &&
-        basicShapesContract.status==='generator-ready' &&
+        basicShapesContract.status==='implemented' &&
         basicShapesContract.officialKsd?.join(',')==='4.1' &&
         basicShapesContract.officialShapes?.join(',')==='circle,square,rectangle,triangle' &&
         basicShapesContract.recognitionBoundary?.variedSizes===true &&
