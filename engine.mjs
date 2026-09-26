@@ -2491,10 +2491,10 @@ function nelPartWholeExplainChoices(x,rng){
 }
 
 const NEL_BASIC_SHAPE_META={
-  circle:{nameTr:'daire',rotations:[0,25,70,130],contexts:['duvar saati yüzü','yuvarlak etiket','tabak üst görünümü']},
-  square:{nameTr:'kare',rotations:[0,45,90,135],contexts:['kare karo','kare not kâğıdı','kare pencere bölmesi']},
-  rectangle:{nameTr:'dikdörtgen',rotations:[0,90,18,108],contexts:['kapı yüzü','kitap kapağı','dikdörtgen kart']},
-  triangle:{nameTr:'üçgen',rotations:[0,60,120,180],contexts:['üçgen bayrak','çatı yüzü','üçgen işaret']}
+  circle:{nameTr:'daire',rotations:[0,25,70,130],contexts:['duvar saati yüzü','etiket yüzü','tabak üst görünümü']},
+  square:{nameTr:'kare',rotations:[0,45,90,135],contexts:['yer karosu','not kâğıdı','pencere bölmesi']},
+  rectangle:{nameTr:'dikdörtgen',rotations:[0,90,18,108],contexts:['kapı yüzü','kitap kapağı','kart yüzü']},
+  triangle:{nameTr:'üçgen',rotations:[0,60,120,180],contexts:['bayrak parçası','çatı yüzü','uyarı işareti']}
 };
 const NEL_BASIC_SHAPE_SIZES=['small','medium','large'];
 const NEL_BASIC_SHAPE_TONES=['blue','amber','rose','green'];
