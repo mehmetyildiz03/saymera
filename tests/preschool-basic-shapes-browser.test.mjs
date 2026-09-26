@@ -46,7 +46,7 @@ async function completeLearn(page,id){
     const shape=await targetShape(core);
     const choices=core.locator('[data-basic-shape-choice]');
     assert.equal(await choices.count(),4,'match Learn must show exactly four basic-shape options');
-    await choices.filter({has:page.locator('[data-basic-shape="'+shape+'"]')}).first().tap();
+    await core.locator('[data-basic-shape-choice="'+shape+'"]').tap();
     return;
   }
   if(id==='name-circle-square'||id==='name-triangle-rectangle'){
