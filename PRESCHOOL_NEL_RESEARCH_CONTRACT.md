@@ -345,12 +345,22 @@ Recommended product progression:
    - **KSD 4.3** owns composing new shapes/figures from basic shapes;
    - **KSD 4.4** owns position, direction and distance language.
 
-   **Planned evidence:**
+   **Implemented evidence:**
    - **Kur:** match a basic-shape piece to another instance of the same shape;
    - **Gör:** recognise the same shape across different size and orientation;
    - **Göster:** select/name daire, kare, dikdörtgen or üçgen without requiring written-word reading;
    - **Anlat:** show that rotating or resizing the figure does not change its shape name, without requiring KSD 4.2 property vocabulary;
    - **Taşı:** find the same 2D shape in a classroom/immediate-environment style scene.
+
+   v1.24.0 reference implementation:
+   - 10 Learn steps introduce and revisit circle, square, rectangle and triangle before checking;
+   - the same shape is shown across different sizes, colours and orientations so prototype memorisation is not enough;
+   - a rotated square remains explicitly a square, and triangles are shown in more than one orientation;
+   - rectangle examples include more than one orientation while keeping KSD 4.2 side/attribute reasoning out of the mastery gate;
+   - child-facing naming can be heard through audio, so written-word reading is not required to demonstrate shape knowledge;
+   - environmental transfer uses 2D faces/examples in an immediate-environment style scene and avoids labels that reveal the answer;
+   - Practice has five evidence sections: matching a shape, recognising varied instances, naming the shape, explaining identity under rotation/size change, and finding it in the environment;
+   - Chromium and WebKit QA cover phone and tablet viewports, rotated-shape invariance, environment transfer, Review, horizontal overflow and Inspector sandbox isolation.
 
 2. `nelShapeAttributes` — describe relevant attributes, not colour or orientation
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
@@ -358,7 +368,7 @@ Recommended product progression:
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.23.0:
+Status after SAYMERA v1.24.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -375,8 +385,8 @@ Product skill | NEL role | Status
 `nelNumeralFormation10` | 3.6 | ✅ implemented + browser QA
 `nelCompareQuantities10` | 3.7 | ✅ implemented + browser QA
 `nelPartWhole10` | 3.8 | ✅ implemented + browser QA
-`nelBasicShapes` | 4.1 | **NEXT**
-`nelShapeAttributes` | 4.2 | planned
+`nelBasicShapes` | 4.1 | ✅ implemented + browser QA
+`nelShapeAttributes` | 4.2 | **NEXT**
 `nelShapeCompose` | 4.3 | planned
 `nelSpatialRelations` | 4.4 | planned
 
