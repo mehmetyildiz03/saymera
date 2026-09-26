@@ -142,6 +142,7 @@ export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
   portalUpdated:'2025-05-29',
   countingPageUpdated:'2025-12-31',
   verifiedAt:'2026-09-25',
+  shapesVerifiedAt:'2026-09-26',
   sources:{
     framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
     numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
@@ -577,6 +578,54 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
         {id:'name-parts-forming-whole',label:'Bütünü oluşturan parçaları adlandır',phase:'symbol',representation:'symbol'},
         {id:'explain-same-whole-different-parts',label:'Parçalar değişse de bütünün neden aynı kaldığını anlat',phase:'reasoning',representation:'explain'},
         {id:'transfer-fingers-bracelet',label:'Parça-bütünü parmak veya boncuk etkinliğine taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
+  },
+  nelBasicShapes:{
+    version:1,
+    status:'contract-only',
+    unitId:'nel-shapes-space',
+    pathId:'shapes-space',
+    officialKsd:['4.1'],
+    officialShapes:['circle','square','rectangle','triangle'],
+    childLanguageTr:{
+      circle:'daire',
+      square:'kare',
+      rectangle:'dikdörtgen',
+      triangle:'üçgen'
+    },
+    recognitionBoundary:{
+      recogniseAndName:true,
+      variedSizes:true,
+      variedOrientations:true,
+      classroomAndImmediateEnvironment:true,
+      colourIsDefiningCue:false,
+      sizeIsDefiningCue:false,
+      orientationIsDefiningCue:false,
+      readingRequiredForNaming:false
+    },
+    separationFromLaterKsd:{
+      shapeAttributesKsd:'4.2',
+      requireSideCountingForMastery:false,
+      requireEqualSideReasoningForMastery:false,
+      shapeCompositionKsd:'4.3',
+      spatialRelationsKsd:'4.4'
+    },
+    sourceGrounding:{
+      recogniseAndNameFourShapes:true,
+      classroomImmediateEnvironmentExample:true,
+      differentSizesAndOrientationsExample:true,
+      manipulateLookTouchHold:true
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'match-basic-shape',label:'Aynı temel şekli eşleştir',phase:'model',representation:'build'},
+        {id:'recognise-varied-shape',label:'Boyutu ve yönü değişse de şekli tanı',phase:'representation',representation:'see'},
+        {id:'name-basic-shape',label:'Daire, kare, dikdörtgen ve üçgeni adlandır',phase:'symbol',representation:'symbol'},
+        {id:'explain-shape-identity',label:'Döndürme veya boyut değişince adın neden aynı kaldığını anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-environment-shape',label:'Temel şekli sınıf ve günlük çevrede bul',phase:'context',representation:'transfer'}
       ]
     },
     review:{enabled:true}
@@ -1037,6 +1086,20 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         partWholeContract.sourceGrounding?.braceletBeadsSplitExample===true &&
         PRESCHOOL_NEL_KSD_MAP['3.8']?.includes('nelPartWhole10'),
       partWholeContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const basicShapesContract=lessonContractFor('nelBasicShapes');
+    add(
+      'nel-basic-shapes-contract',
+      'NEL KSD 4.1 temel şekil sözleşmesi dört şekli boyut/yön değişiminden bağımsız tanımayı 4.2 özellik öğretiminden ayırıyor',
+      !basicShapesContract.provisional &&
+        basicShapesContract.status==='contract-only' &&
+        basicShapesContract.officialKsd?.join(',')==='4.1' &&
+        basicShapesContract.officialShapes?.join(',')==='circle,square,rectangle,triangle' &&
+        basicShapesContract.recognitionBoundary?.variedSizes===true &&
+        basicShapesContract.recognitionBoundary?.variedOrientations===true &&
+        basicShapesContract.separationFromLaterKsd?.requireSideCountingForMastery===false &&
+        PRESCHOOL_NEL_KSD_MAP['4.1']?.includes('nelBasicShapes'),
+      basicShapesContract.practice.sections.map(section=>section.id).join(' → ')
     );
     const quantityCompareContract=lessonContractFor('nelCompareQuantities10');
     add(
