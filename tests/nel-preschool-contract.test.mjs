@@ -29,6 +29,7 @@ assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.learningArea,'Numeracy');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.ageBand,'4–6');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.countingPageUpdated,'2025-12-31');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.verifiedAt,'2026-09-25');
+assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapesVerifiedAt,'2026-09-26');
 assert.equal(PRESCHOOL_NEL_CURRICULUM.length,4,'Numeracy must preserve the four official learning goals');
 assert.deepEqual(PRESCHOOL_NEL_CURRICULUM.map(goal=>goal.goalId),['1','2','3','4']);
 assert.equal(PRESCHOOL_NEL_CURRICULUM[0].mode,'cross-cutting','Learning Goal 1 is not a separate mastery path');
@@ -64,6 +65,10 @@ assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.compareOrder100.includes('nelCompareQuantities10'),'quantity comparison should bridge to later numerical comparison without becoming a hard prerequisite');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelPartWhole10'),'Path B metadata must reserve part-whole');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.numberBonds10.includes('nelPartWhole10'),'part-whole should bridge to later P1 number bonds without becoming a hard prerequisite');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelBasicShapes'),'Path C metadata must reserve basic-shape recognition');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelBasicShapes'),'basic-shape recognition should bridge to P1 geometry without becoming a hard prerequisite');
+assert.equal(preschoolIds.has('nelBasicShapes'),false,'basic shapes must remain contract-only until its generator exists');
+assert.equal(app.includes('renderNelBasicShapesLessonStep'),false,'contract slice must not add basic-shape Learn UI yet');
 assert.equal(app.includes("if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }"),true,'part-whole must teach before checking once Learn UI exists');
 const partWholeLessonIds=['whole-five','split-five-2-3','split-five-1-4','swap-five-4-1','many-splits-six','three-parts-six','name-seven-3-4','explain-eight','bracelet-nine','fingers-ten'];
 for(const id of partWholeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL part-whole Learn step '+id);
@@ -207,6 +212,29 @@ assert.equal(formationContract.sourceGrounding.cpaBridge,true);
 assert.equal(formationContract.numeralTen.twoDigitNumeral,true);
 assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
+
+const basicShapesContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelBasicShapes;
+assert.equal(basicShapesContract.status,'contract-only');
+assert.deepEqual(basicShapesContract.officialKsd,['4.1']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.1'],['nelBasicShapes']);
+assert.deepEqual(basicShapesContract.officialShapes,['circle','square','rectangle','triangle']);
+assert.deepEqual(basicShapesContract.childLanguageTr,{circle:'daire',square:'kare',rectangle:'dikdörtgen',triangle:'üçgen'});
+assert.equal(basicShapesContract.recognitionBoundary.recogniseAndName,true);
+assert.equal(basicShapesContract.recognitionBoundary.variedSizes,true);
+assert.equal(basicShapesContract.recognitionBoundary.variedOrientations,true);
+assert.equal(basicShapesContract.recognitionBoundary.classroomAndImmediateEnvironment,true);
+assert.equal(basicShapesContract.recognitionBoundary.colourIsDefiningCue,false);
+assert.equal(basicShapesContract.recognitionBoundary.sizeIsDefiningCue,false);
+assert.equal(basicShapesContract.recognitionBoundary.orientationIsDefiningCue,false);
+assert.equal(basicShapesContract.recognitionBoundary.readingRequiredForNaming,false,'shape naming must not become a reading test');
+assert.equal(basicShapesContract.separationFromLaterKsd.shapeAttributesKsd,'4.2');
+assert.equal(basicShapesContract.separationFromLaterKsd.requireSideCountingForMastery,false,'side counting belongs to KSD 4.2, not KSD 4.1 mastery');
+assert.equal(basicShapesContract.separationFromLaterKsd.requireEqualSideReasoningForMastery,false,'equal-side reasoning belongs to KSD 4.2');
+assert.equal(basicShapesContract.separationFromLaterKsd.shapeCompositionKsd,'4.3');
+assert.equal(basicShapesContract.separationFromLaterKsd.spatialRelationsKsd,'4.4');
+assert.deepEqual(basicShapesContract.practice.sections.map(s=>s.id),['match-basic-shape','recognise-varied-shape','name-basic-shape','explain-shape-identity','transfer-environment-shape']);
+assert.deepEqual(basicShapesContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(basicShapesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
 const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
 assert.equal(partWholeContract.status,'implemented');
@@ -767,7 +795,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -780,6 +808,11 @@ assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ im
 assert.ok(contract.includes('nelPartWhole10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark part-whole complete');
 assert.ok(contract.includes('nelBasicShapes')&&contract.includes('**NEXT**'),'implementation snapshot must preserve basic shapes as the next Preschool v2 skill');
 assert.ok(contract.includes('Status after SAYMERA v1.23.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.1'),'Path C research contract must anchor basic shapes to official KSD 4.1');
+assert.ok(contract.includes('classrooms and immediate environment'),'KSD 4.1 research boundary must preserve the official environmental recognition example');
+assert.ok(contract.includes('size and orientation'),'KSD 4.1 must explicitly generalise across size and orientation');
+assert.ok(contract.includes('side counting or equal-side explanations are not required for 4.1 mastery'),'KSD 4.1 must stay separate from KSD 4.2 shape attributes');
+assert.ok(contract.includes('spoken/audio shape names remain available'),'shape naming evidence must not silently become a literacy gate');
 assert.ok(contract.includes('v1.21.0 reference implementation'),'research contract must document the numeral-formation implementation slice');
 assert.ok(contract.includes('visibly off-path scribbling is rejected'),'implementation notes must preserve scribble-rejection evidence');
 assert.ok(contract.includes('same numeral path drawn in reverse direction is accepted'),'implementation notes must preserve stroke-direction independence');
