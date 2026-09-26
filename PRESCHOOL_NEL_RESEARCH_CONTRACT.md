@@ -322,13 +322,53 @@ Rote counting, reliable counting and subitising may develop in parallel; this li
 
 Recommended product progression:
 1. `nelBasicShapes` — recognise and name circle, square, rectangle, triangle across size/orientation
+
+   **Official role:** implements **NEL KSD 4.1 — recognise the four basic shapes: circle, square, rectangle and triangle.**
+
+   **Source-derived observation and teaching guidance (NEL Framework / Educators' Guide 2022):**
+   - children should recognise and name the four basic shapes in their **classrooms and immediate environment**;
+   - shape recognition must survive changes in **size and orientation** rather than depending on one prototype;
+   - children learn shape names while they **look at, touch and hold** objects/shapes in their environment;
+   - the guide notes that children often recognise circles and squares before other shapes, but this is developmental guidance, not a reason to omit rectangle or triangle from the KSD.
+
+   **SAYMERA KSD 4.1 boundary:**
+   - the complete official target set is exactly **circle / square / rectangle / triangle**;
+   - Turkish child-facing names are **daire / kare / dikdörtgen / üçgen**;
+   - colour, absolute size and orientation are deliberately varied because none of them defines shape identity;
+   - a square remains a square when rotated; a triangle does not have to point upward; rectangles appear in horizontal and vertical orientations;
+   - naming evidence must not depend on reading fluency: spoken/audio shape names remain available in child-facing naming tasks;
+   - environmental examples should preserve the underlying 2D shape rather than confusing a whole 3D object with a 2D shape.
+
+   **Separation from later shape KSDs:**
+   - **KSD 4.2 / `nelShapeAttributes`** owns explicit attribute reasoning such as number of sides and equal-side properties;
+   - KSD 4.1 may expose varied examples, but **side counting or equal-side explanations are not required for 4.1 mastery**;
+   - **KSD 4.3** owns composing new shapes/figures from basic shapes;
+   - **KSD 4.4** owns position, direction and distance language.
+
+   **Implemented evidence:**
+   - **Kur:** match a basic-shape piece to another instance of the same shape;
+   - **Gör:** recognise the same shape across different size and orientation;
+   - **Göster:** select/name daire, kare, dikdörtgen or üçgen without requiring written-word reading;
+   - **Anlat:** show that rotating or resizing the figure does not change its shape name, without requiring KSD 4.2 property vocabulary;
+   - **Taşı:** find the same 2D shape in a classroom/immediate-environment style scene.
+
+   v1.24.0 reference implementation:
+   - 10 Learn steps introduce and revisit circle, square, rectangle and triangle before checking;
+   - the same shape is shown across different sizes, colours and orientations so prototype memorisation is not enough;
+   - a rotated square remains explicitly a square, and triangles are shown in more than one orientation;
+   - rectangle examples include more than one orientation while keeping KSD 4.2 side/attribute reasoning out of the mastery gate;
+   - child-facing naming can be heard through audio, so written-word reading is not required to demonstrate shape knowledge;
+   - environmental transfer uses 2D faces/examples in an immediate-environment style scene and avoids labels that reveal the answer;
+   - Practice has five evidence sections: matching a shape, recognising varied instances, naming the shape, explaining identity under rotation/size change, and finding it in the environment;
+   - Chromium and WebKit QA cover phone and tablet viewports, rotated-shape invariance, environment transfer, Review, horizontal overflow and Inspector sandbox isolation.
+
 2. `nelShapeAttributes` — describe relevant attributes, not colour or orientation
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.23.0:
+Status after SAYMERA v1.24.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -345,8 +385,8 @@ Product skill | NEL role | Status
 `nelNumeralFormation10` | 3.6 | ✅ implemented + browser QA
 `nelCompareQuantities10` | 3.7 | ✅ implemented + browser QA
 `nelPartWhole10` | 3.8 | ✅ implemented + browser QA
-`nelBasicShapes` | 4.1 | **NEXT**
-`nelShapeAttributes` | 4.2 | planned
+`nelBasicShapes` | 4.1 | ✅ implemented + browser QA
+`nelShapeAttributes` | 4.2 | **NEXT**
 `nelShapeCompose` | 4.3 | planned
 `nelSpatialRelations` | 4.4 | planned
 
