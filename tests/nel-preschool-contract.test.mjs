@@ -50,8 +50,8 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),true,'part-whole enters the hidden runnable registry only after its generator exists');
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
@@ -126,7 +126,7 @@ const lessonFirstStart=app.indexOf('const LESSON_FIRST_SKILLS=new Set([');
 const lessonFirstEnd=app.indexOf(']);',lessonFirstStart);
 assert.ok(lessonFirstStart>=0&&lessonFirstEnd>lessonFirstStart,'LESSON_FIRST_SKILLS registry must exist');
 const lessonFirstBlock=app.slice(lessonFirstStart,lessonFirstEnd);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes']) assert.ok(lessonFirstBlock.includes("'"+id+"'"),'NEL reference skill must teach before checking: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes']) assert.ok(lessonFirstBlock.includes("'"+id+"'"),'NEL reference skill must teach before checking: '+id);
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -254,7 +254,7 @@ assert.deepEqual(basicShapesContract.practice.sections.map(s=>s.phase),['model',
 assert.deepEqual(basicShapesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
 const shapeAttributesContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelShapeAttributes;
-assert.equal(shapeAttributesContract.status,'contract-only');
+assert.equal(shapeAttributesContract.status,'generator-ready');
 assert.deepEqual(shapeAttributesContract.officialKsd,['4.2']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.2'],['nelShapeAttributes']);
 assert.equal(shapeAttributesContract.dependsOnRecognitionSkill,'nelBasicShapes');
@@ -287,8 +287,10 @@ assert.equal(shapeAttributesContract.productClarifications.sourceExamplesAndProd
 assert.deepEqual(shapeAttributesContract.practice.sections.map(s=>s.id),['trace-shape-boundary','see-shape-attributes','match-shape-attribute-clues','explain-shape-by-attributes','transfer-environment-attributes']);
 assert.deepEqual(shapeAttributesContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(shapeAttributesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
-assert.equal(preschoolIds.has('nelShapeAttributes'),false,'shape attributes must remain contract-only until its generator exists');
-assert.equal(app.includes('renderNelShapeAttributesLessonStep'),false,'contract slice must not add KSD 4.2 Learn UI yet');
+assert.equal(preschoolIds.has('nelShapeAttributes'),true,'shape attributes enters the hidden runnable registry only after its generator exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelShapeAttributes'),'Path C metadata must reserve shape attributes');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelShapeAttributes'),'shape attributes should bridge to P1 geometry without becoming a hard prerequisite');
+assert.equal(app.includes('renderNelShapeAttributesLessonStep'),false,'generator slice must still stop before KSD 4.2 Learn UI');
 
 const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
 assert.equal(partWholeContract.status,'implemented');
@@ -365,6 +367,86 @@ for(const section of basicShapesContract.practice.sections){
 for(const shape of officialShapes) assert.ok([...shapeVariants].some(v=>v.startsWith(shape+'|')),'Practice must include '+shape);
 assert.ok([...shapeVariants].some(v=>/\|(45|60|90|120|135|180)\|/.test(v)),'Practice must include rotated non-prototype shapes');
 assert.ok([...shapeVariants].some(v=>v.includes('|small|'))&&[...shapeVariants].some(v=>v.includes('|large|')),'Practice must vary size');
+
+let shapeAttributeSeed=4202;
+const shapeAttributeRng=()=>((shapeAttributeSeed=(shapeAttributeSeed*1664525+1013904223)>>>0)/2**32);
+const shapeAttributeConcept=createConceptInstance('nelShapeAttributes',1,shapeAttributeRng);
+assert.equal(shapeAttributeConcept.skillId,'nelShapeAttributes');
+for(const sample of [shapeAttributeConcept.anchor,shapeAttributeConcept.symbol,shapeAttributeConcept.transfer]){
+  assert.ok(officialShapes.has(sample.shape),'KSD 4.2 concept cases must stay within the four official basic shapes');
+  assert.equal(sample.item.shape,sample.shape);
+  assert.equal(sample.attributes.shape,sample.shape);
+  assert.equal(sample.irrelevantCues.colour,sample.item.tone);
+  assert.equal(sample.irrelevantCues.size,sample.item.size);
+  assert.equal(sample.irrelevantCues.orientation,sample.item.rotation);
+  assert.equal(typeof sample.attributes.childSummary,'string');
+  assert.equal(typeof sample.attributes.safeIdentityClue,'string');
+}
+const triangleAttr=[shapeAttributeConcept.anchor,shapeAttributeConcept.symbol,shapeAttributeConcept.transfer].find(x=>x.shape==='triangle');
+if(triangleAttr) assert.equal(triangleAttr.attributes.straightSides,3);
+const shapeAttrBuild=generateQuestion('nelShapeAttributes','build',1,shapeAttributeRng,shapeAttributeConcept);
+const shapeAttrSee=generateQuestion('nelShapeAttributes','see',1,shapeAttributeRng,shapeAttributeConcept);
+const shapeAttrShow=generateQuestion('nelShapeAttributes','symbol',1,shapeAttributeRng,shapeAttributeConcept);
+const shapeAttrExplain=generateQuestion('nelShapeAttributes','explain',1,shapeAttributeRng,shapeAttributeConcept);
+const shapeAttrTransfer=generateQuestion('nelShapeAttributes','transfer',1,shapeAttributeRng,shapeAttributeConcept);
+assert.equal(shapeAttrBuild.response.interaction,'nel-shape-attribute-inspect');
+assert.equal(shapeAttrSee.response.kind,'choice');
+assert.equal(shapeAttrShow.response.interaction,'nel-shape-attribute-audio-clue');
+assert.equal(shapeAttrExplain.response.kind,'choice');
+assert.equal(shapeAttrTransfer.response.interaction,'nel-shape-attribute-audio-clue');
+assert.equal(shapeAttrTransfer.visual.case.flatShapeOnly,true,'environment transfer must assess the visible 2D face/outline rather than a whole 3D object');
+assert.equal(shapeAttrTransfer.visual.case.objectIdentityNotAssessed,true);
+assert.ok(shapeAttrShow.visual.options.every(o=>o.kind==='shape-attribute-audio-clue'&&o.label==='Dinle'&&o.speech),'attribute clues must be audio-addressable rather than dependent on reading');
+
+const shapeAttributeProfiles=new Map();
+const shapeAttributeVariants=new Set();
+for(const section of shapeAttributesContract.practice.sections){
+  const qs=Array.from({length:20},(_,i)=>generateLessonPracticeQuestion('nelShapeAttributes',section.id,i,1,shapeAttributeRng));
+  assert.ok(qs.every(q=>q.skillId==='nelShapeAttributes'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    assert.notEqual(q.response.kind,'number-input');
+    const visual=q.visual||{};
+    const cases=[visual.case,visual.left,visual.right].filter(Boolean);
+    for(const x of cases){
+      if(x.shape){
+        shapeAttributeProfiles.set(x.shape,x.attributes);
+        shapeAttributeVariants.add(x.shape+'|'+x.item?.size+'|'+x.item?.rotation+'|'+x.item?.tone);
+      }
+    }
+    const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label??o.value??''),...(visual.options||[]).map(o=>o.speech||'')].join(' ');
+    assert.equal(/aç[ıi]\s*(?:ölç|derece)|paralel|dik\s*kenar(?:lar)?\s*birbirine/i.test(childText),false,section.id+' must not pull formal geometry vocabulary/measurement into KSD 4.2');
+    assert.equal(/rengi.*(?:şekli|özelliği).*belir|büyüklüğü.*(?:şekli|özelliği).*belir|yönü.*(?:şekli|özelliği).*belir/i.test(childText),false,section.id+' must not make colour/size/orientation a defining shape attribute');
+    if(section==='match-shape-attribute-clues'||section==='transfer-environment-attributes'){
+      assert.equal(q.response.interaction,'nel-shape-attribute-audio-clue');
+      assert.ok(q.visual.options.every(o=>o.speech&&o.label==='Dinle'),'attribute clue matching must remain audio-addressable');
+      const rectangle=q.visual.options.find(o=>o.value==='attributes-rectangle');
+      if(rectangle){
+        assert.match(rectangle.speech,/bütün kenarları aynı uzunlukta olmayan/i,'rectangle clue must disambiguate the non-square reference exemplar');
+        assert.equal(/^4 düz kenarı ve 4 köşesi olan şekli bul\.?$/i.test(rectangle.speech),false,'4 sides + 4 corners alone is ambiguous between square and rectangle');
+      }
+      const square=q.visual.options.find(o=>o.value==='attributes-square');
+      if(square) assert.match(square.speech,/eşit uzunlukta/i,'square clue must preserve the explicit equal-side attribute');
+    }
+    if(section==='trace-shape-boundary'){
+      assert.equal(q.response.interaction,'nel-shape-attribute-inspect');
+      assert.ok(Array.isArray(q.visual.inspect.required)&&q.visual.inspect.required.length>=1);
+    }
+  }
+}
+for(const shape of officialShapes) assert.ok(shapeAttributeProfiles.has(shape),'KSD 4.2 Practice must cover '+shape);
+assert.equal(shapeAttributeProfiles.get('circle').straightSides,0);
+assert.equal(shapeAttributeProfiles.get('circle').corners,0);
+assert.equal(shapeAttributeProfiles.get('circle').continuousCurvedBoundary,true);
+assert.equal(shapeAttributeProfiles.get('triangle').straightSides,3);
+assert.equal(shapeAttributeProfiles.get('triangle').corners,3);
+assert.equal(shapeAttributeProfiles.get('square').straightSides,4);
+assert.equal(shapeAttributeProfiles.get('square').allSidesEqual,true);
+assert.equal(shapeAttributeProfiles.get('rectangle').straightSides,4);
+assert.equal(shapeAttributeProfiles.get('rectangle').oppositeSidesEqual,true);
+assert.equal(shapeAttributeProfiles.get('rectangle').referenceExemplarNonSquare,true);
+assert.ok([...shapeAttributeVariants].some(v=>/\|(45|60|90|120|135|180)\|/.test(v)),'KSD 4.2 must preserve attributes under rotated examples');
+assert.ok([...shapeAttributeVariants].some(v=>v.includes('|small|'))&&[...shapeAttributeVariants].some(v=>v.includes('|large|')),'KSD 4.2 must vary irrelevant size cues');
 
 let partWholeSeed=3808;
 const partWholeRng=()=>((partWholeSeed=(partWholeSeed*1664525+1013904223)>>>0)/2**32);
