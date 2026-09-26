@@ -539,7 +539,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelPartWhole10:{
     version:1,
-    status:'generator-ready',
+    status:'implemented',
     unitId:'nel-counting-number-sense',
     pathId:'counting-number-sense',
     officialKsd:['3.8'],
