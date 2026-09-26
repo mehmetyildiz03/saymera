@@ -30,6 +30,7 @@ assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.ageBand,'4–6');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.countingPageUpdated,'2025-12-31');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.verifiedAt,'2026-09-25');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapesVerifiedAt,'2026-09-26');
+assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapeAttributesVerifiedAt,'2026-09-27');
 assert.equal(PRESCHOOL_NEL_CURRICULUM.length,4,'Numeracy must preserve the four official learning goals');
 assert.deepEqual(PRESCHOOL_NEL_CURRICULUM.map(goal=>goal.goalId),['1','2','3','4']);
 assert.equal(PRESCHOOL_NEL_CURRICULUM[0].mode,'cross-cutting','Learning Goal 1 is not a separate mastery path');
@@ -251,6 +252,43 @@ assert.equal(basicShapesContract.separationFromLaterKsd.spatialRelationsKsd,'4.4
 assert.deepEqual(basicShapesContract.practice.sections.map(s=>s.id),['match-basic-shape','recognise-varied-shape','name-basic-shape','explain-shape-identity','transfer-environment-shape']);
 assert.deepEqual(basicShapesContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(basicShapesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
+const shapeAttributesContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelShapeAttributes;
+assert.equal(shapeAttributesContract.status,'contract-only');
+assert.deepEqual(shapeAttributesContract.officialKsd,['4.2']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.2'],['nelShapeAttributes']);
+assert.equal(shapeAttributesContract.dependsOnRecognitionSkill,'nelBasicShapes');
+assert.deepEqual(shapeAttributesContract.officialShapes,['circle','square','rectangle','triangle']);
+assert.equal(shapeAttributesContract.sourceExplicitExamples.triangle.straightSides,3,'official NEL example must preserve triangle = three sides');
+assert.equal(shapeAttributesContract.sourceExplicitExamples.square.straightSides,4);
+assert.equal(shapeAttributesContract.sourceExplicitExamples.square.allSidesEqual,true,'official NEL example must preserve square = four equal sides');
+assert.equal(shapeAttributesContract.productGeometryReference.circle.straightSides,0);
+assert.equal(shapeAttributesContract.productGeometryReference.circle.corners,0);
+assert.equal(shapeAttributesContract.productGeometryReference.circle.continuousCurvedBoundary,true);
+assert.equal(shapeAttributesContract.productGeometryReference.circle.explicitNelExample,false,'product geometry detail must not be misrepresented as an explicit NEL example');
+assert.equal(shapeAttributesContract.productGeometryReference.triangle.corners,3);
+assert.equal(shapeAttributesContract.productGeometryReference.square.corners,4);
+assert.equal(shapeAttributesContract.productGeometryReference.rectangle.straightSides,4);
+assert.equal(shapeAttributesContract.productGeometryReference.rectangle.corners,4);
+assert.equal(shapeAttributesContract.productGeometryReference.rectangle.oppositeSidesEqual,true);
+assert.equal(shapeAttributesContract.productGeometryReference.rectangle.referenceExemplarsNonSquare,true);
+assert.equal(shapeAttributesContract.productGeometryReference.rectangle.explicitNelExample,false,'rectangle detail is product geometry reference, not a quoted NEL example');
+assert.equal(shapeAttributesContract.boundary.colourIsDefiningAttribute,false);
+assert.equal(shapeAttributesContract.boundary.absoluteSizeIsDefiningAttribute,false);
+assert.equal(shapeAttributesContract.boundary.orientationIsDefiningAttribute,false);
+assert.equal(shapeAttributesContract.boundary.angleMeasurementRequired,false);
+assert.equal(shapeAttributesContract.boundary.formalParallelPerpendicularVocabularyRequired,false);
+assert.equal(shapeAttributesContract.boundary.squareRectangleHierarchyRequired,false,'formal square/rectangle class hierarchy must not be a preschool mastery gate');
+assert.equal(shapeAttributesContract.boundary.threeDimensionalSolidAttributesIncluded,false);
+assert.equal(shapeAttributesContract.boundary.compositionRequired,false);
+assert.equal(shapeAttributesContract.productClarifications.twoLongTwoShortAsUniversalDefinition,false,'rectangle must not be defined universally as two long and two short sides');
+assert.equal(shapeAttributesContract.productClarifications.squareRectangleHierarchyDeferred,true);
+assert.equal(shapeAttributesContract.productClarifications.sourceExamplesAndProductDefinitionsDistinguished,true);
+assert.deepEqual(shapeAttributesContract.practice.sections.map(s=>s.id),['trace-shape-boundary','see-shape-attributes','match-shape-attribute-clues','explain-shape-by-attributes','transfer-environment-attributes']);
+assert.deepEqual(shapeAttributesContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(shapeAttributesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+assert.equal(preschoolIds.has('nelShapeAttributes'),false,'shape attributes must remain contract-only until its generator exists');
+assert.equal(app.includes('renderNelShapeAttributesLessonStep'),false,'contract slice must not add KSD 4.2 Learn UI yet');
 
 const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
 assert.equal(partWholeContract.status,'implemented');
@@ -859,7 +897,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract','nel-shape-attributes-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -876,6 +914,14 @@ assert.ok(contract.includes('Status after SAYMERA v1.24.0'),'research contract s
 assert.ok(contract.includes('v1.24.0 reference implementation'),'research contract must document the basic-shapes implementation slice');
 assert.ok(contract.includes('a rotated square remains explicitly a square'),'implementation notes must preserve orientation invariance');
 assert.ok(contract.includes('written-word reading is not required'),'shape naming must not become a literacy gate');
+assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.2'),'Path C research contract must anchor shape attributes to official KSD 4.2');
+assert.ok(contract.includes('**a triangle has three sides**')&&contract.includes('**a square has four equal sides**'),'research contract must preserve the explicit NEL shape-attribute examples');
+assert.ok(contract.includes('source-explicit examples separately'),'repo must distinguish direct NEL examples from product geometry definitions');
+assert.ok(contract.includes('no straight sides or corners')&&contract.includes('continuous curved boundary'),'circle product geometry reference must stay explicit without being mislabeled as a NEL quote');
+assert.ok(contract.includes('opposite sides match in length'),'rectangle product geometry reference must be documented');
+assert.ok(contract.includes('not** teach “two long sides and two short sides” as a universal definition'),'rectangle pedagogy must avoid an over-narrow false universal');
+assert.ok(contract.includes('formal square-is-a-rectangle classification hierarchy'),'formal shape-class hierarchy must remain outside KSD 4.2 mastery');
+assert.ok(contract.includes('measuring angles')&&contract.includes('parallel/perpendicular'),'formal geometry vocabulary/measurement must remain outside preschool KSD 4.2');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.1'),'Path C research contract must anchor basic shapes to official KSD 4.1');
 assert.ok(contract.includes('classrooms and immediate environment'),'KSD 4.1 research boundary must preserve the official environmental recognition example');
 assert.ok(contract.includes('size and orientation'),'KSD 4.1 must explicitly generalise across size and orientation');
