@@ -49,8 +49,8 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),true,'part-whole enters the hidden runnable registry only after its generator exists');
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
@@ -67,8 +67,8 @@ assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.numberBonds10.includes('nelPartWhole10'),'part-whole should bridge to later P1 number bonds without becoming a hard prerequisite');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelBasicShapes'),'Path C metadata must reserve basic-shape recognition');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelBasicShapes'),'basic-shape recognition should bridge to P1 geometry without becoming a hard prerequisite');
-assert.equal(preschoolIds.has('nelBasicShapes'),false,'basic shapes must remain contract-only until its generator exists');
-assert.equal(app.includes('renderNelBasicShapesLessonStep'),false,'contract slice must not add basic-shape Learn UI yet');
+assert.equal(preschoolIds.has('nelBasicShapes'),true,'basic shapes enters the hidden runnable registry only after its generator exists');
+assert.equal(app.includes('renderNelBasicShapesLessonStep'),false,'generator slice must still stop before basic-shape Learn UI');
 assert.equal(app.includes("if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }"),true,'part-whole must teach before checking once Learn UI exists');
 const partWholeLessonIds=['whole-five','split-five-2-3','split-five-1-4','swap-five-4-1','many-splits-six','three-parts-six','name-seven-3-4','explain-eight','bracelet-nine','fingers-ten'];
 for(const id of partWholeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL part-whole Learn step '+id);
@@ -214,7 +214,7 @@ assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
 const basicShapesContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelBasicShapes;
-assert.equal(basicShapesContract.status,'contract-only');
+assert.equal(basicShapesContract.status,'generator-ready');
 assert.deepEqual(basicShapesContract.officialKsd,['4.1']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.1'],['nelBasicShapes']);
 assert.deepEqual(basicShapesContract.officialShapes,['circle','square','rectangle','triangle']);
@@ -263,6 +263,54 @@ assert.equal(partWholeContract.sourceGrounding.futureAdditionSubtractionFoundati
 assert.deepEqual(partWholeContract.practice.sections.map(s=>s.id),['split-whole-objects','see-multiple-decompositions','name-parts-forming-whole','explain-same-whole-different-parts','transfer-fingers-bracelet']);
 assert.deepEqual(partWholeContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(partWholeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
+let basicShapeSeed=4101;
+const basicShapeRng=()=>((basicShapeSeed=(basicShapeSeed*1664525+1013904223)>>>0)/2**32);
+const basicShapeConcept=createConceptInstance('nelBasicShapes',1,basicShapeRng);
+assert.equal(basicShapeConcept.skillId,'nelBasicShapes');
+const officialShapes=new Set(['circle','square','rectangle','triangle']);
+for(const sample of [basicShapeConcept.anchor,basicShapeConcept.symbol,basicShapeConcept.transfer]){
+  assert.ok(officialShapes.has(sample.shape),'KSD 4.1 concept cases must use only the four official basic shapes');
+  assert.ok(['small','medium','large'].includes(sample.size));
+  assert.equal(typeof sample.rotation,'number');
+  assert.ok(['daire','kare','dikdörtgen','üçgen'].includes(sample.nameTr));
+}
+const shapeBuild=generateQuestion('nelBasicShapes','build',1,basicShapeRng,basicShapeConcept);
+const shapeSee=generateQuestion('nelBasicShapes','see',1,basicShapeRng,basicShapeConcept);
+const shapeShow=generateQuestion('nelBasicShapes','symbol',1,basicShapeRng,basicShapeConcept);
+const shapeExplain=generateQuestion('nelBasicShapes','explain',1,basicShapeRng,basicShapeConcept);
+const shapeTransfer=generateQuestion('nelBasicShapes','transfer',1,basicShapeRng,basicShapeConcept);
+assert.equal(shapeBuild.response.interaction,'nel-basic-shape-match');
+assert.equal(shapeSee.response.kind,'visual-choice');
+assert.equal(shapeShow.response.interaction,'nel-basic-shape-audio-name');
+assert.equal(shapeExplain.response.kind,'choice');
+assert.equal(shapeTransfer.response.kind,'visual-choice');
+assert.ok(shapeShow.visual.options.every(o=>o.kind==='shape-name-audio'&&o.label==='Dinle'&&o.speech),'shape naming must be audio-addressable rather than dependent on reading');
+for(const q of [shapeBuild,shapeSee,shapeShow,shapeExplain,shapeTransfer]){
+  const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+  assert.equal(/\b(?:üç|dört)\s+kenar\b|eşit\s+kenar|köşe\s+say/i.test(childText),false,'KSD 4.2 explicit attribute mastery must not leak into KSD 4.1 child tasks');
+}
+const shapeVariants=new Set();
+for(const section of basicShapesContract.practice.sections){
+  const qs=Array.from({length:16},(_,i)=>generateLessonPracticeQuestion('nelBasicShapes',section.id,i,1,basicShapeRng));
+  assert.ok(qs.every(q=>q.skillId==='nelBasicShapes'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    const visual=q.visual||{};
+    for(const item of [visual.item,visual.target,visual.left,visual.right,...(visual.options||[])].filter(Boolean)){
+      if(item.shape) shapeVariants.add(item.shape+'|'+item.size+'|'+item.rotation+'|'+item.tone);
+    }
+    const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label||o.value)].join(' ');
+    assert.equal(/\b(?:üç|dört)\s+kenar\b|eşit\s+kenar|köşe\s+say/i.test(childText),false,section.id+' must remain KSD 4.1 recognition/naming rather than KSD 4.2 attribute assessment');
+    if(section==='name-basic-shape'){
+      assert.equal(q.response.interaction,'nel-basic-shape-audio-name');
+      assert.ok(q.visual.options.every(o=>o.label==='Dinle'&&o.speech),'shape-name Practice must remain audio-addressable');
+    }
+  }
+}
+for(const shape of officialShapes) assert.ok([...shapeVariants].some(v=>v.startsWith(shape+'|')),'Practice must include '+shape);
+assert.ok([...shapeVariants].some(v=>/\|(45|60|90|120|135|180)\|/.test(v)),'Practice must include rotated non-prototype shapes');
+assert.ok([...shapeVariants].some(v=>v.includes('|small|'))&&[...shapeVariants].some(v=>v.includes('|large|')),'Practice must vary size');
 
 let partWholeSeed=3808;
 const partWholeRng=()=>((partWholeSeed=(partWholeSeed*1664525+1013904223)>>>0)/2**32);
