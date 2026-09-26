@@ -415,9 +415,13 @@ for(const section of shapeAttributesContract.practice.sections){
         shapeAttributeVariants.add(x.shape+'|'+x.item?.size+'|'+x.item?.rotation+'|'+x.item?.tone);
       }
     }
-    const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label??o.value??''),...(visual.options||[]).map(o=>o.speech||'')].join(' ');
-    assert.equal(/aç[ıi]\s*(?:ölç|derece)|paralel|dik\s*kenar(?:lar)?\s*birbirine/i.test(childText),false,section.id+' must not pull formal geometry vocabulary/measurement into KSD 4.2');
-    assert.equal(/rengi.*(?:şekli|özelliği).*belir|büyüklüğü.*(?:şekli|özelliği).*belir|yönü.*(?:şekli|özelliği).*belir/i.test(childText),false,section.id+' must not make colour/size/orientation a defining shape attribute');
+    const instructionalText=[q.prompt,q.hint,q.explain].join(' ');
+    const allVisibleText=[instructionalText,...(q.response?.options||[]).map(o=>o.label??o.value??''),...(visual.options||[]).map(o=>o.speech||'')].join(' ');
+    assert.equal(/aç[ıi]\s*(?:ölç|derece)|paralel|dik\s*kenar(?:lar)?\s*birbirine/i.test(allVisibleText),false,section.id+' must not pull formal geometry vocabulary/measurement into KSD 4.2');
+    assert.equal(/rengi.*(?:şekli|özelliği).*belir|büyüklüğü.*(?:şekli|özelliği).*belir|yönü.*(?:şekli|özelliği).*belir/i.test(instructionalText),false,section.id+' correct instruction/explanation must not make colour/size/orientation a defining shape attribute');
+    if(q.response?.kind==='choice'){
+      assert.equal(/rengi|büyüklüğü|yönü/i.test(String(q.answer||q.response?.expectedValue||'')),false,section.id+' correct answer must be based on shape attributes, not irrelevant visual cues');
+    }
     if(section==='match-shape-attribute-clues'||section==='transfer-environment-attributes'){
       assert.equal(q.response.interaction,'nel-shape-attribute-audio-clue');
       assert.ok(q.visual.options.every(o=>o.speech&&o.label==='Dinle'),'attribute clue matching must remain audio-addressable');
