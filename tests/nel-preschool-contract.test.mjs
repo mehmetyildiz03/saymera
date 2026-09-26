@@ -209,7 +209,7 @@ assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
 const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
-assert.equal(partWholeContract.status,'generator-ready');
+assert.equal(partWholeContract.status,'implemented');
 assert.deepEqual(partWholeContract.officialKsd,['3.8']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.8'],['nelPartWhole10']);
 assert.equal(partWholeContract.officialMaximumWhole,10);
