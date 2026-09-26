@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -2836,6 +2836,186 @@ function renderNelBasicShapesLessonStep(skill,index=null){
   const next=$('#nelBasicShapeLessonNext');wireNelBasicShapesLessonStep(step,next);next?.addEventListener('click',()=>completeNelBasicShapesLessonStep(skill,at));
 }
 
+
+const NEL_SHAPE_ATTRIBUTES_LESSON_VERSION=1;
+const NEL_SHAPE_ATTRIBUTES_SECTIONS=['SINIRI İNCELE','DEĞİŞSE DE','İPUCUNU DİNLE','ANLAT','ÇEVREYE TAŞI'];
+const NEL_SHAPE_ATTRIBUTE_UI_PROFILE={
+  circle:{
+    summary:'Düz kenarı ve köşesi yok; sınırı eğridir.',
+    clue:'Düz kenarı ve köşesi yok; sınırı eğri olan şekli bul.',
+    straightSides:0,corners:0,curved:true
+  },
+  triangle:{
+    summary:'3 düz kenarı ve 3 köşesi vardır.',
+    clue:'3 düz kenarı ve 3 köşesi olan şekli bul.',
+    straightSides:3,corners:3
+  },
+  square:{
+    summary:'4 düz kenarı ve 4 köşesi vardır; 4 kenarı da eşit uzunluktadır.',
+    clue:'4 düz kenarı eşit uzunlukta olan şekli bul.',
+    straightSides:4,corners:4,allSidesEqual:true
+  },
+  rectangle:{
+    summary:'4 düz kenarı ve 4 köşesi vardır; bu örnekte bütün kenarlar aynı uzunlukta değildir.',
+    clue:'4 düz kenarı ve 4 köşesi olan, bu örnekte bütün kenarları aynı uzunlukta olmayan şekli bul.',
+    straightSides:4,corners:4,referenceNonSquare:true
+  }
+};
+function nelShapeAttributeLessonCase(shape,size='medium',rotation=0,tone='blue',context=null){
+  const item=nelBasicShapeLessonItem(shape,size,rotation,tone,context);
+  return {shape,nameTr:NEL_BASIC_SHAPE_NAMES[shape],item,attributes:{...NEL_SHAPE_ATTRIBUTE_UI_PROFILE[shape]}};
+}
+function nelShapeAttributeRequired(caseObj){
+  const p=caseObj.attributes||{};
+  if(caseObj.shape==='circle') return ['curved-boundary'];
+  const required=[
+    ...Array.from({length:p.straightSides||0},(_,i)=>'side-'+(i+1)),
+    ...Array.from({length:p.corners||0},(_,i)=>'corner-'+(i+1))
+  ];
+  if(caseObj.shape==='square') required.push('equal-sides');
+  return required;
+}
+function nelShapeAttributeInspectLabel(id){
+  if(id==='curved-boundary') return 'Eğri sınırı takip et';
+  if(id==='equal-sides') return '4 kenarı birlikte karşılaştır';
+  if(id.startsWith('side-')) return 'Düz kenar '+id.split('-')[1];
+  if(id.startsWith('corner-')) return 'Köşe '+id.split('-')[1];
+  return id;
+}
+function nelShapeAttributeAudioOptions(){
+  return ['circle','square','rectangle','triangle'].map(shape=>({
+    value:'attributes-'+shape,label:'Dinle',speech:NEL_SHAPE_ATTRIBUTE_UI_PROFILE[shape].clue,shape
+  }));
+}
+const NEL_SHAPE_ATTRIBUTES_LESSON_STEPS=[
+  {id:'triangle-three-sides',section:'SINIRI İNCELE',kind:'inspect',case:nelShapeAttributeLessonCase('triangle','large',0,'rose'),title:'Üçgenin sınırını incele.',body:'Düz kenarları ve köşeleri tek tek fark et.',result:'Üçgenin 3 düz kenarı ve 3 köşesi vardır.'},
+  {id:'square-four-equal',section:'SINIRI İNCELE',kind:'inspect',case:nelShapeAttributeLessonCase('square','large',0,'amber'),title:'Karenin kenarlarını karşılaştır.',body:'Kenarları, köşeleri ve kenar uzunluklarının birbirine uyup uymadığını incele.',result:'Karenin 4 düz kenarı ve 4 köşesi vardır; 4 kenarı da eşit uzunluktadır.'},
+  {id:'circle-curved-boundary',section:'SINIRI İNCELE',kind:'inspect',case:nelShapeAttributeLessonCase('circle','large',0,'blue'),title:'Dairenin çevresini takip et.',body:'Düz kenar veya köşe aramak yerine eğri sınırı incele.',result:'Dairenin düz kenarı ve köşesi yoktur; sınırı eğridir.'},
+  {id:'rectangle-four-corners',section:'SINIRI İNCELE',kind:'inspect',case:nelShapeAttributeLessonCase('rectangle','large',0,'green'),title:'Dikdörtgenin sınırını incele.',body:'Bu kare olmayan dikdörtgen örneğinin düz kenarlarını ve köşelerini tek tek bul.',result:'Bu dikdörtgen örneğinde 4 düz kenar ve 4 köşe vardır.'},
+  {id:'triangle-rotation-attributes',section:'DEĞİŞSE DE',kind:'invariance',case:nelShapeAttributeLessonCase('triangle','medium',0,'rose'),other:nelShapeAttributeLessonCase('triangle','large',120,'green'),title:'Üçgen dönünce özellikleri kaybolmaz.',body:'İki görünüşü karşılaştır ve aynı kalan şekil özelliklerine karar ver.',result:'Yön ve büyüklük değişti; üç düz kenar ve üç köşe yine kaldı.'},
+  {id:'square-rotation-attributes',section:'DEĞİŞSE DE',kind:'invariance',case:nelShapeAttributeLessonCase('square','small',0,'blue'),other:nelShapeAttributeLessonCase('square','large',45,'rose'),title:'Kare döndüğünde kenarları yine eşittir.',body:'Renk, boyut ve yön değişse de kenar özelliklerini karşılaştır.',result:'Karenin dört eşit kenar özelliği dönüşle değişmedi.'},
+  {id:'triangle-clue',section:'İPUCUNU DİNLE',kind:'audio',case:nelShapeAttributeLessonCase('triangle','medium',60,'amber'),answer:'triangle',title:'Özellik ipucunu dinle.',body:'Şekle bak ve onu doğru anlatan sesli ipucunu seç.',result:'3 düz kenar ve 3 köşe ipucu üçgenle eşleşir.'},
+  {id:'rectangle-safe-clue',section:'İPUCUNU DİNLE',kind:'audio',case:nelShapeAttributeLessonCase('rectangle','medium',90,'green'),answer:'rectangle',title:'Kareyle karışmayan dikdörtgen ipucunu bul.',body:'Bu kare olmayan dikdörtgen örneği için doğru özellik ipucunu dinle.',result:'Bu örnekte 4 kenar ve 4 köşe vardır; bütün kenarlar aynı uzunlukta değildir.'},
+  {id:'explain-not-colour',section:'ANLAT',kind:'explain',case:nelShapeAttributeLessonCase('square','large',45,'green'),answer:'attributes',title:'Şekli neyle anlatmak daha uygun?',body:'Renk, boyut ve yön yerine şeklin kendi sınır özelliklerine bak.',result:'Şekli anlatırken kenar, köşe ve ilgili sınır özelliklerini kullanırız.'},
+  {id:'environment-attributes',section:'ÇEVREYE TAŞI',kind:'environment',case:nelShapeAttributeLessonCase('rectangle','medium',90,'blue','kitap kapağı'),answer:'rectangle',title:'Çevredeki düz yüzün özelliklerini incele.',body:'Nesnenin adına değil, görünen 2B yüzün sınırına bak ve doğru ipucunu dinle.',result:'Çevredeki düz yüzleri de kenar, köşe ve sınır özellikleriyle inceleyebiliriz.'}
+];
+function nelShapeAttributeSectionTrack(step){
+  return '<div class="nel-shape-attribute-section-track">'+NEL_SHAPE_ATTRIBUTES_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelShapeAttributeCardVisual(v={}){
+  const c=v.case||v;
+  return '<div class="nel-shape-attribute-card" data-attribute-card="'+esc(c.shape||'')+'">'+nelBasicShapeGlyph(c.item||{})+'</div>';
+}
+function nelShapeAttributeInspectVisual(v={}){
+  const c=v.case||{},required=v.inspect?.required||nelShapeAttributeRequired(c);
+  return '<div class="nel-shape-attribute-inspect" data-attribute-shape="'+esc(c.shape||'')+'" data-attribute-required="'+esc(required.join('|'))+'" data-attribute-ready="false">'+
+    '<div class="nel-shape-attribute-focus">'+nelBasicShapeGlyph(c.item||{})+'</div>'+
+    '<div class="nel-shape-attribute-checks">'+required.map(id=>'<button type="button" data-attribute-check="'+esc(id)+'">'+esc(nelShapeAttributeInspectLabel(id))+'</button>').join('')+'</div>'+
+    '<p class="nel-shape-attribute-inspect-status" data-attribute-inspect-status>Şeklin sınırını adım adım incele.</p>'+
+  '</div>';
+}
+function nelShapeAttributePairVisual(v={}){
+  const left=v.left||{},right=v.right||{};
+  return '<div class="nel-shape-attribute-pair"><div>'+nelShapeAttributeCardVisual({case:left})+'</div><span>↔</span><div>'+nelShapeAttributeCardVisual({case:right})+'</div></div>';
+}
+function nelShapeAttributeClueVisual(v={}){
+  const c=v.case||{};
+  return '<div class="nel-shape-attribute-clue-match" data-attribute-target="'+esc(c.shape||'')+'">'+
+    nelShapeAttributeCardVisual({case:c})+
+    '<div class="nel-shape-attribute-audio-options">'+(v.options||[]).map(option=>'<button type="button" data-shape-attribute-clue="'+esc(String(option.value||'').replace('attributes-',''))+'" data-rote-speech="'+esc(option.speech||'')+'">🔊 <span>Dinle</span></button>').join('')+'</div>'+
+  '</div>';
+}
+function nelShapeAttributeEnvironmentVisual(v={}){
+  const c=v.case||{},context=c.context||c.item?.context||'çevre örneği';
+  return '<div class="nel-shape-attribute-environment" data-attribute-context="'+esc(context)+'">'+
+    '<div class="nel-shape-attribute-context-face">'+nelBasicShapeGlyph(c.item||{})+'<span>'+esc(context)+'</span></div>'+
+    '<div class="nel-shape-attribute-audio-options">'+(v.options||[]).map(option=>'<button type="button" data-shape-attribute-clue="'+esc(String(option.value||'').replace('attributes-',''))+'" data-rote-speech="'+esc(option.speech||'')+'">🔊 <span>Dinle</span></button>').join('')+'</div>'+
+  '</div>';
+}
+function bindNelShapeAttributeInspect(root,onChange,blocked=()=>false){
+  if(!root)return;
+  root.querySelectorAll('[data-attribute-check]').forEach(button=>button.addEventListener('click',()=>{
+    if(blocked())return;
+    button.classList.toggle('selected');
+    const required=String(root.dataset.attributeRequired||'').split('|').filter(Boolean);
+    const selected=[...root.querySelectorAll('[data-attribute-check].selected')].map(x=>x.dataset.attributeCheck);
+    const ready=required.length>0&&required.every(id=>selected.includes(id));
+    root.dataset.attributeReady=ready?'true':'false';
+    const status=root.querySelector('[data-attribute-inspect-status]');
+    if(status)status.textContent=ready?'Bütün gerekli özellikleri inceledin.':selected.length+' / '+required.length+' özellik incelendi.';
+    onChange?.();
+  }));
+}
+function bindNelShapeAttributeAudio(root,onChange,blocked=()=>false){
+  if(!root)return;bindNelRoteSpeech(root);
+  root.querySelectorAll('[data-shape-attribute-clue]').forEach(button=>button.addEventListener('click',()=>{
+    if(blocked())return;
+    root.querySelectorAll('[data-shape-attribute-clue]').forEach(x=>x.classList.remove('selected'));
+    button.classList.add('selected');root.dataset.attributeSelected='attributes-'+button.dataset.shapeAttributeClue;onChange?.();
+  }));
+}
+function nelShapeAttributeReadInspect(root){
+  if(!root||root.dataset.attributeReady!=='true')return null;
+  return 'attributes-'+root.dataset.attributeShape;
+}
+function nelShapeAttributeReadAudio(root){return root?.dataset.attributeSelected||null;}
+function nelShapeAttributeLessonOptions(){
+  return nelShapeAttributeAudioOptions();
+}
+function nelShapeAttributeLessonCore(step){
+  if(step.kind==='inspect'){
+    return '<div class="nel-shape-attribute-lesson-core">'+nelShapeAttributeInspectVisual({case:step.case,inspect:{required:nelShapeAttributeRequired(step.case)}})+'<div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+  }
+  if(step.kind==='invariance'){
+    return '<div class="nel-shape-attribute-lesson-core">'+nelShapeAttributePairVisual({left:step.case,right:step.other})+
+      '<div class="nel-shape-attribute-explain-options"><button type="button" data-shape-attribute-explain="same">Kenar ve köşe özellikleri aynı kaldı.</button><button type="button" data-shape-attribute-explain="colour">Renk değiştiği için özellikler değişti.</button><button type="button" data-shape-attribute-explain="turn">Döndüğü için başka özellikleri oldu.</button></div>'+
+      '<p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">İki görünüşü sınır özellikleriyle karşılaştır.</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+  }
+  if(step.kind==='audio'){
+    return '<div class="nel-shape-attribute-lesson-core">'+nelShapeAttributeClueVisual({case:step.case,options:nelShapeAttributeLessonOptions()})+'<p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">Sesli ipuçlarını dinle.</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+  }
+  if(step.kind==='explain'){
+    return '<div class="nel-shape-attribute-lesson-core">'+nelShapeAttributeCardVisual({case:step.case})+
+      '<div class="nel-shape-attribute-explain-options"><button type="button" data-shape-attribute-explain="attributes">Kenar, köşe ve sınır özelliklerine bakarım.</button><button type="button" data-shape-attribute-explain="colour">Rengine bakarım.</button><button type="button" data-shape-attribute-explain="size">Ne kadar büyük olduğuna bakarım.</button></div>'+
+      '<p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">Şeklin kendisini anlatan bilgiyi seç.</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+  }
+  return '<div class="nel-shape-attribute-lesson-core">'+nelShapeAttributeEnvironmentVisual({case:step.case,options:nelShapeAttributeLessonOptions()})+'<p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">Çevredeki düz yüzün özelliklerine uyan ipucunu dinle.</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+}
+function wireNelShapeAttributesLessonStep(step,next){
+  const root=$('.nel-shape-attribute-lesson-core'),help=$('#nelShapeAttributeHelp'),result=$('#nelShapeAttributeResult');
+  const finish=()=>{result?.classList.add('revealed');if(help)help.textContent='';next.disabled=false;};
+  if(step.kind==='inspect'){
+    const inspect=root?.querySelector('.nel-shape-attribute-inspect');
+    bindNelShapeAttributeInspect(inspect,()=>{if(nelShapeAttributeReadInspect(inspect)==='attributes-'+step.case.shape)finish();});
+    return;
+  }
+  if(step.kind==='audio'||step.kind==='environment'){
+    const selector=step.kind==='environment'?'.nel-shape-attribute-environment':'.nel-shape-attribute-clue-match';
+    const audio=root?.querySelector(selector);
+    bindNelShapeAttributeAudio(audio,()=>{
+      const value=nelShapeAttributeReadAudio(audio);
+      if(value==='attributes-'+step.answer)finish();
+      else if(value)help.textContent='Şeklin sınırına yeniden bak ve ipuçlarını tekrar dinle.';
+    });
+    return;
+  }
+  root?.querySelectorAll('[data-shape-attribute-explain]').forEach(button=>button.addEventListener('click',()=>{
+    if(button.dataset.shapeAttributeExplain===step.answer){button.classList.add('selected');finish();}
+    else if(help)help.textContent='Renk, büyüklük veya yön yerine şeklin sınırındaki özellikleri düşün.';
+  }));
+}
+function completeNelShapeAttributesLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_SHAPE_ATTRIBUTES_LESSON_VERSION;
+  if(next>=NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}saveState();session.lessonStepIndex=next;renderNelShapeAttributesLessonStep(skill,next);
+}
+function renderNelShapeAttributesLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_SHAPE_ATTRIBUTES_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);$('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-shape-attribute-lesson-stage" data-nel-shape-attribute-step="'+esc(step.id)+'">'+nelShapeAttributeSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-shape-attribute-lesson-visual">'+nelShapeAttributeLessonCore(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelShapeAttributeLessonNext" disabled>'+(at===NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length-1?'Şekil yoluna devam':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelShapeAttributeLessonNext');wireNelShapeAttributesLessonStep(step,next);next?.addEventListener('click',()=>completeNelShapeAttributesLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -3419,6 +3599,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelCompareQuantities10') return NEL_QUANTITY_COMPARE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelPartWhole10') return NEL_PART_WHOLE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelBasicShapes') return NEL_BASIC_SHAPES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelShapeAttributes') return NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -4010,6 +4191,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }
   if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }
   if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }
+  if(skill.id==='nelShapeAttributes'){ renderNelShapeAttributesLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -4051,7 +4233,7 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
-  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',basicShapes=q.skillId==='nelBasicShapes';
+  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',basicShapes=q.skillId==='nelBasicShapes',shapeAttributes=q.skillId==='nelShapeAttributes';
   $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').classList.toggle('subitise-practice',subitise);
   $('#practiceContent').classList.toggle('conservation-practice',conservation);
@@ -4060,11 +4242,12 @@ function renderQuestion(){
   $('#practiceContent').classList.toggle('quantity-comparison-practice',quantityCompare);
   $('#practiceContent').classList.toggle('part-whole-practice',partWhole);
   $('#practiceContent').classList.toggle('basic-shapes-practice',basicShapes);
+  $('#practiceContent').classList.toggle('shape-attributes-practice',shapeAttributes);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''} ${partWhole?'part-whole-question-stage':''} ${basicShapes?'basic-shapes-question-stage':''}">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''} ${partWhole?'part-whole-question-stage':''} ${basicShapes?'basic-shapes-question-stage':''} ${shapeAttributes?'shape-attributes-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''} ${quantityCompare?'quantity-comparison-stage':''} ${partWhole?'part-whole-stage':''} ${basicShapes?'basic-shapes-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''} ${quantityCompare?'quantity-comparison-stage':''} ${partWhole?'part-whole-stage':''} ${basicShapes?'basic-shapes-stage':''} ${shapeAttributes?'shape-attributes-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
@@ -4132,6 +4315,8 @@ function wireManipulator(q){
   if(interaction==='nel-part-whole-name-parts') bindNelPartWholeName($('.nel-part-whole-name-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-basic-shape-match') bindNelBasicShapeMatch($('.nel-basic-shape-match'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-basic-shape-audio-name') bindNelBasicShapeAudioName($('.nel-basic-shape-name'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-shape-attribute-inspect') bindNelShapeAttributeInspect($('.nel-shape-attribute-inspect'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-shape-attribute-audio-clue') bindNelShapeAttributeAudio($('.nel-shape-attribute-clue-match, .nel-shape-attribute-environment'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-count-set') bindNelReliableCountSet($('.nel-reliable-count-set'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-next-word') bindNelReliableNextWord($('.nel-reliable-next-word'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-reliable-cardinality') bindNelReliableCardinality($('.nel-reliable-cardinality'),()=>updateManipulatorStatus(q),()=>answered);
@@ -4497,6 +4682,8 @@ function readManipulatorValue(q){
   if(interaction==='nel-part-whole-name-parts') return nelPartWholeReadName($('.nel-part-whole-name-builder'));
   if(interaction==='nel-basic-shape-match') return nelBasicShapeRead($('.nel-basic-shape-match'));
   if(interaction==='nel-basic-shape-audio-name') return nelBasicShapeRead($('.nel-basic-shape-name'));
+  if(interaction==='nel-shape-attribute-inspect') return nelShapeAttributeReadInspect($('.nel-shape-attribute-inspect'));
+  if(interaction==='nel-shape-attribute-audio-clue') return nelShapeAttributeReadAudio($('.nel-shape-attribute-clue-match, .nel-shape-attribute-environment'));
   if(interaction==='nel-reliable-count-set') return nelReliableReadCountSet($('.nel-reliable-count-set'));
   if(interaction==='nel-reliable-next-word') return $('.nel-reliable-next-word')?.dataset.reliableSelected ?? null;
   if(interaction==='nel-reliable-cardinality') return nelReliableReadCardinality($('.nel-reliable-cardinality'));
@@ -4613,6 +4800,11 @@ function updateManipulatorStatus(q){
   else if(q.response?.interaction==='nel-part-whole-name-parts') node.textContent=value?'İki parça miktarı seçildi. Şimdi kontrol et.':'Sol ve sağ parçanın miktarlarını seç.';
   else if(q.response?.interaction==='nel-basic-shape-match') node.textContent=value?'Bir şekil eşleştirdin. Şimdi kontrol et.':'Hedefle aynı temel şekli seç.';
   else if(q.response?.interaction==='nel-basic-shape-audio-name') node.textContent=value?'Bir sesli şekil adı seçtin. Şimdi kontrol et.':'Şekil adlarını dinle ve birini seç.';
+  else if(q.response?.interaction==='nel-shape-attribute-inspect'){
+    const root=$('.nel-shape-attribute-inspect'),required=String(root?.dataset.attributeRequired||'').split('|').filter(Boolean).length,selected=root?.querySelectorAll('[data-attribute-check].selected').length||0;
+    node.textContent=value?'Gerekli şekil özelliklerini inceledin. Şimdi kontrol et.':selected+' / '+required+' özellik incelendi.';
+  }
+  else if(q.response?.interaction==='nel-shape-attribute-audio-clue') node.textContent=value?'Bir sesli özellik ipucu seçtin. Şimdi kontrol et.':'Özellik ipuçlarını dinle ve birini seç.';
   else if(q.response?.interaction==='nel-reliable-count-set'){
     const root=$('.nel-reliable-count-set'),all=root?.querySelectorAll('[data-reliable-item]').length||0,counted=root?.querySelectorAll('[data-reliable-item].counted').length||0;node.textContent=counted===all&&all?'Bütün nesneler bir kez sayıldı. Şimdi kontrol et.':counted+' / '+all+' nesne sayıldı.';
   }
@@ -5028,6 +5220,11 @@ function renderVisual(v,q){
     case 'nel-basic-shape-pair': return nelBasicShapePairVisual(v);
     case 'nel-basic-shape-match': return nelBasicShapeMatchVisual(v);
     case 'nel-basic-shape-name': return nelBasicShapeNameVisual(v);
+    case 'nel-shape-attribute-inspect': return nelShapeAttributeInspectVisual(v);
+    case 'nel-shape-attribute-pair': return nelShapeAttributePairVisual(v);
+    case 'nel-shape-attribute-clue-match': return nelShapeAttributeClueVisual(v);
+    case 'nel-shape-attribute-card': return nelShapeAttributeCardVisual(v);
+    case 'nel-shape-attribute-environment': return nelShapeAttributeEnvironmentVisual(v);
     case 'nel-reliable-count-set': return nelReliableCountSetVisual(v);
     case 'nel-reliable-next-word': return nelReliableNextWordVisual(v);
     case 'nel-reliable-cardinality': return nelReliableCardinalityVisual(v);

@@ -362,7 +362,49 @@ Recommended product progression:
    - Practice has five evidence sections: matching a shape, recognising varied instances, naming the shape, explaining identity under rotation/size change, and finding it in the environment;
    - Chromium and WebKit QA cover phone and tablet viewports, rotated-shape invariance, environment transfer, Review, horizontal overflow and Inspector sandbox isolation.
 
-2. `nelShapeAttributes` — describe relevant attributes, not colour or orientation
+2. `nelShapeAttributes` — notice and describe the attributes of the four basic shapes
+
+   **Official role:** implements **NEL KSD 4.2 — develop an awareness of the attributes of the four basic shapes.**
+
+   **What the current NEL source explicitly exemplifies:**
+   - identify and describe shapes based on their attributes;
+   - **a triangle has three sides**;
+   - **a square has four equal sides**;
+   - shape understanding should continue across different sizes and orientations.
+
+   The Educators' Guide gives these as examples rather than an exhaustive four-shape definition table. SAYMERA therefore records source-explicit examples separately from its standard geometry reference instead of presenting every product definition as a direct NEL quotation.
+
+   **SAYMERA geometry reference for child-facing exploration:**
+   - **daire:** no straight sides or corners; one continuous curved boundary;
+   - **üçgen:** three straight sides and three corners;
+   - **kare:** four straight sides and four corners; all four sides equal in length;
+   - **dikdörtgen:** four straight sides and four corners; opposite sides match in length in the reference examples.
+
+   **Important rectangle/square boundary:**
+   - NEL names **square and rectangle separately** as the four preschool basic shapes;
+   - SAYMERA will use clearly non-square rectangle exemplars when a task needs the child to distinguish the two names;
+   - it will **not** teach “two long sides and two short sides” as a universal definition of every rectangle;
+   - it will **not** make the formal square-is-a-rectangle classification hierarchy a KSD 4.2 mastery requirement. That issue can be handled later at a curriculum-appropriate level rather than creating a preschool contradiction.
+
+   **What does not define the shape:**
+   - colour;
+   - absolute size;
+   - orientation/rotation.
+
+   **What KSD 4.2 does not require in SAYMERA:**
+   - measuring angles;
+   - formal vocabulary such as parallel/perpendicular;
+   - 3D solid attributes;
+   - composing figures from shapes — that belongs to **KSD 4.3**;
+   - position/direction/distance vocabulary — that belongs to **KSD 4.4**.
+
+   **Planned evidence:**
+   - **Kur:** touch/trace the boundary and mark relevant straight sides/corners or curved boundary;
+   - **Gör:** notice the same defining attributes when a shape is resized or rotated;
+   - **Göster:** match a named basic shape with an age-appropriate attribute clue;
+   - **Anlat:** describe why the shape fits using attributes rather than colour, size or direction;
+   - **Taşı:** inspect the 2D face/outline of a nearby object and describe the relevant shape attributes.
+
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
