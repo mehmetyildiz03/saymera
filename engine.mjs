@@ -143,6 +143,7 @@ export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
   countingPageUpdated:'2025-12-31',
   verifiedAt:'2026-09-25',
   shapesVerifiedAt:'2026-09-26',
+  shapeAttributesVerifiedAt:'2026-09-27',
   sources:{
     framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
     numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
@@ -629,6 +630,59 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelShapeAttributes:{
+    version:1,
+    status:'contract-only',
+    unitId:'nel-shapes-space',
+    pathId:'shapes-space',
+    officialKsd:['4.2'],
+    dependsOnRecognitionSkill:'nelBasicShapes',
+    officialShapes:['circle','square','rectangle','triangle'],
+    sourceExplicitExamples:{
+      triangle:{straightSides:3},
+      square:{straightSides:4,allSidesEqual:true}
+    },
+    productGeometryReference:{
+      circle:{straightSides:0,corners:0,continuousCurvedBoundary:true,explicitNelExample:false},
+      triangle:{straightSides:3,corners:3,explicitNelExample:true},
+      square:{straightSides:4,corners:4,allSidesEqual:true,explicitNelExample:true},
+      rectangle:{straightSides:4,corners:4,oppositeSidesEqual:true,referenceExemplarsNonSquare:true,explicitNelExample:false}
+    },
+    childVocabularyTr:['düz kenar','köşe','eşit uzunlukta','eğri sınır'],
+    boundary:{
+      colourIsDefiningAttribute:false,
+      absoluteSizeIsDefiningAttribute:false,
+      orientationIsDefiningAttribute:false,
+      angleMeasurementRequired:false,
+      formalParallelPerpendicularVocabularyRequired:false,
+      squareRectangleHierarchyRequired:false,
+      threeDimensionalSolidAttributesIncluded:false,
+      compositionRequired:false
+    },
+    productClarifications:{
+      nonSquareRectangleExamplesUsed:true,
+      twoLongTwoShortAsUniversalDefinition:false,
+      squareRectangleHierarchyDeferred:true,
+      sourceExamplesAndProductDefinitionsDistinguished:true
+    },
+    sourceGrounding:{
+      identifyDescribeByAttributes:true,
+      triangleThreeSidesExample:true,
+      squareFourEqualSidesExample:true,
+      differentSizesOrientationsRemainRelevant:true
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'trace-shape-boundary',label:'Şeklin kenar ve köşelerini dokunarak incele',phase:'model',representation:'build'},
+        {id:'see-shape-attributes',label:'Yönü ve boyutu değişse de özellikleri fark et',phase:'representation',representation:'see'},
+        {id:'match-shape-attribute-clues',label:'Şekli uygun özellik ipuçlarıyla eşleştir',phase:'symbol',representation:'symbol'},
+        {id:'explain-shape-by-attributes',label:'Şekli özellikleriyle anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-environment-attributes',label:'Çevredeki düz şeklin özelliklerini incele',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -1101,6 +1155,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         basicShapesContract.separationFromLaterKsd?.requireSideCountingForMastery===false &&
         PRESCHOOL_NEL_KSD_MAP['4.1']?.includes('nelBasicShapes'),
       basicShapesContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const shapeAttributesContract=lessonContractFor('nelShapeAttributes');
+    add(
+      'nel-shape-attributes-contract',
+      'NEL KSD 4.2 şekil özelliklerini renk/yön/boyuttan ayırıyor ve resmî örneklerle ürün geometri tanımlarını birbirine karıştırmıyor',
+      !shapeAttributesContract.provisional &&
+        shapeAttributesContract.status==='contract-only' &&
+        shapeAttributesContract.officialKsd?.join(',')==='4.2' &&
+        shapeAttributesContract.sourceExplicitExamples?.triangle?.straightSides===3 &&
+        shapeAttributesContract.sourceExplicitExamples?.square?.allSidesEqual===true &&
+        shapeAttributesContract.boundary?.orientationIsDefiningAttribute===false &&
+        shapeAttributesContract.boundary?.squareRectangleHierarchyRequired===false &&
+        shapeAttributesContract.productClarifications?.sourceExamplesAndProductDefinitionsDistinguished===true &&
+        PRESCHOOL_NEL_KSD_MAP['4.2']?.includes('nelShapeAttributes'),
+      shapeAttributesContract.practice.sections.map(section=>section.id).join(' → ')
     );
     const quantityCompareContract=lessonContractFor('nelCompareQuantities10');
     add(
