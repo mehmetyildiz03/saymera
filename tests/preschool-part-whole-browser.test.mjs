@@ -201,7 +201,7 @@ async function completeReview(page){
 
 for(let configIndex=0;configIndex<configs.length;configIndex++){
   const config=configs[configIndex];
-  const localServer=await startLocalServer(4190+configIndex);
+  const localServer=await startLocalServer(47190+configIndex);
   const browser=await config.type.launch({headless:true});
   const context=await browser.newContext({viewport:config.viewport,isMobile:true,hasTouch:true,serviceWorkers:'block'});
   await context.addInitScript(value=>{if(!localStorage.getItem('saymera.math.v2'))localStorage.setItem('saymera.math.v2',value)},saved);
