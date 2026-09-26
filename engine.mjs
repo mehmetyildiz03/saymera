@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -536,6 +536,50 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelPartWhole10:{
+    version:1,
+    status:'implemented',
+    unitId:'nel-counting-number-sense',
+    pathId:'counting-number-sense',
+    officialKsd:['3.8'],
+    officialMaximumWhole:10,
+    productWholeRange:[2,10],
+    productMinimumNotOfficialFloor:true,
+    concept:'parts-form-a-whole',
+    decompositionBoundary:{
+      minimumParts:2,
+      referenceCoreParts:2,
+      supportsMoreThanTwoParts:true,
+      positivePartsInCore:true,
+      zeroPartCore:false,
+      swappedPartsRemainValid:true,
+      multipleDecompositionsOfSameWhole:true
+    },
+    symbolicBoundary:{
+      numeralsMayLabelQuantities:true,
+      formalAdditionEquationRequired:false,
+      numberBondDiagramRequired:false,
+      symbolicEquationAsPrimaryDefinition:false
+    },
+    sourceGrounding:{
+      colouredBlockTowerExample:true,
+      braceletBeadsSplitExample:true,
+      fingerPlayExample:true,
+      dailyRoutineReinforcement:true,
+      futureAdditionSubtractionFoundation:true
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'split-whole-objects',label:'Bir bütünü iki parçaya ayır',phase:'model',representation:'build'},
+        {id:'see-multiple-decompositions',label:'Aynı bütünün farklı parçalara ayrılabildiğini gör',phase:'representation',representation:'see'},
+        {id:'name-parts-forming-whole',label:'Bütünü oluşturan parçaları adlandır',phase:'symbol',representation:'symbol'},
+        {id:'explain-same-whole-different-parts',label:'Parçalar değişse de bütünün neden aynı kaldığını anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-fingers-bracelet',label:'Parça-bütünü parmak veya boncuk etkinliğine taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -584,6 +628,7 @@ export const SKILLS = [
   skill('nelNumberRepresentations10','preschool','Sayı adı, rakam, sayı sözcüğü ve miktarı eşleştir','Sayma & Sayı Hissi','rose',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelNumeralFormation10','preschool','Rakamları anlamlı biçimde oluştur ve yaz','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelCompareQuantities10','preschool','İki kümenin miktarını karşılaştır','Sayma & Sayı Hissi','violet',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelPartWhole10','preschool','10’a kadar bütünü parçalara ayır ve parçaları adlandır','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -977,6 +1022,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         formationContract.numeralTen?.zeroQuantityTarget===false &&
         PRESCHOOL_NEL_KSD_MAP['3.6']?.includes('nelNumeralFormation10'),
       formationContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const partWholeContract=lessonContractFor('nelPartWhole10');
+    add(
+      'nel-part-whole-contract',
+      'NEL KSD 3.8 parça-bütün sözleşmesi somut parçalama ve çoklu ayrışımları formal işlem denkleminden önce tutuyor',
+      !partWholeContract.provisional &&
+        partWholeContract.status==='implemented' &&
+        partWholeContract.officialKsd?.join(',')==='3.8' &&
+        partWholeContract.officialMaximumWhole===10 &&
+        partWholeContract.decompositionBoundary?.minimumParts===2 &&
+        partWholeContract.decompositionBoundary?.multipleDecompositionsOfSameWhole===true &&
+        partWholeContract.symbolicBoundary?.formalAdditionEquationRequired===false &&
+        partWholeContract.sourceGrounding?.braceletBeadsSplitExample===true &&
+        PRESCHOOL_NEL_KSD_MAP['3.8']?.includes('nelPartWhole10'),
+      partWholeContract.practice.sections.map(section=>section.id).join(' → ')
     );
     const quantityCompareContract=lessonContractFor('nelCompareQuantities10');
     add(
@@ -2276,6 +2336,96 @@ function nelQuantityExplainChoices(x,rng){
 }
 function nelQuantityCoreCases(filter=()=>true){ return nelQuantityCompareCases().filter(filter); }
 
+function nelPartWholeItems(whole,prefix='whole'){
+  return Array.from({length:Number(whole)},(_,index)=>({
+    id:'part-whole-'+prefix+'-'+whole+'-'+(index+1),
+    symbol:['●','■','★','◆'][index%4],
+    tone:['blue','green','yellow','red'][index%4],
+    index:index+1
+  }));
+}
+function nelPartWholeDecompositions(whole){
+  const w=Math.max(2,Math.min(10,Number(whole)||2));
+  return Array.from({length:w-1},(_,i)=>{
+    const left=i+1,right=w-left;
+    return {id:'split-'+w+'-'+left+'-'+right,left,right,whole:w};
+  });
+}
+function nelPartWholePartition(items,leftCount){
+  const left=items.slice(0,leftCount),right=items.slice(leftCount);
+  return {
+    left:{count:left.length,itemIds:left.map(item=>item.id),items:left},
+    right:{count:right.length,itemIds:right.map(item=>item.id),items:right}
+  };
+}
+function nelPartWholeCase(whole,splitIndex=0,{context='blocks'}={}){
+  const w=Math.max(2,Math.min(10,Number(whole)||2)),items=nelPartWholeItems(w,'w'+w);
+  const decompositions=nelPartWholeDecompositions(w);
+  const split=decompositions[((splitIndex%decompositions.length)+decompositions.length)%decompositions.length];
+  return {
+    id:'part-whole-'+w+'-'+split.left+'-'+split.right,
+    whole:w,
+    items,
+    split,
+    partition:nelPartWholePartition(items,split.left),
+    decompositions,
+    context
+  };
+}
+function nelPartWholeCases(){
+  const contexts=['blocks','bracelet','fingers'];
+  const out=[];
+  for(let whole=2;whole<=10;whole++){
+    const ds=nelPartWholeDecompositions(whole);
+    for(let i=0;i<ds.length;i++) out.push(nelPartWholeCase(whole,i,{context:contexts[(whole+i)%contexts.length]}));
+  }
+  return out;
+}
+export function partWholeCaseFor(whole,left=1){
+  const w=Math.max(2,Math.min(10,Number(whole)||2));
+  const index=Math.max(0,Math.min(w-2,Number(left)-1));
+  return nelPartWholeCase(w,index);
+}
+function nelPartWholeSplitExpected(x){return 'split|'+x.whole+'|'+x.split.left+'|'+x.split.right;}
+function nelPartWholeNameExpected(x){return 'parts|'+x.split.left+'|'+x.split.right+'|whole|'+x.whole;}
+function nelPartWholePartitionPreservesWhole(x){
+  const source=(x.items||[]).map(item=>item.id).sort(),joined=[...(x.partition?.left?.itemIds||[]),...(x.partition?.right?.itemIds||[])].sort();
+  return source.length===joined.length&&source.every((id,index)=>id===joined[index])&&new Set(joined).size===joined.length;
+}
+function nelPartWholeOtherSplit(x,offset=1){
+  const ds=x.decompositions||[];
+  const current=ds.findIndex(d=>d.left===x.split.left&&d.right===x.split.right);
+  const next=ds[(Math.max(0,current)+Math.max(1,offset))%Math.max(1,ds.length)]||x.split;
+  return nelPartWholeCase(x.whole,next.left-1,{context:x.context});
+}
+function nelPartWholeSplitOptions(x,rng){
+  const correct={left:x.split.left,right:x.split.right,whole:x.whole};
+  const candidates=[];
+  for(let left=1;left<=Math.min(10,x.whole+2);left++){
+    for(let right=1;right<=Math.min(10,x.whole+2);right++){
+      if(left===correct.left&&right===correct.right) continue;
+      if(left+right===x.whole) continue;
+      candidates.push({left,right,whole:x.whole});
+    }
+  }
+  const distractors=shuffled(candidates,rng).slice(0,3);
+  return shuffled([correct,...distractors].map(option=>({
+    value:'parts|'+option.left+'|'+option.right+'|whole|'+option.whole,
+    label:option.left+' ve '+option.right+' parçaları; bütün '+option.whole
+  })),rng);
+}
+function nelPartWholeExplainAnswer(x){
+  return 'Bütün nesnelerin hepsi iki parçadan birinde kaldı; hiçbir nesne eklenmedi veya çıkarılmadı.';
+}
+function nelPartWholeExplainChoices(x,rng){
+  const answer=nelPartWholeExplainAnswer(x);
+  return semanticChoices(answer,[
+    'Parçaların yeri değişince bütünün miktarı da değişir.',
+    'Bir parçayı daha büyük çizmek bütüne yeni nesne ekler.',
+    'Parçaların renkleri toplam nesne miktarını belirler.'
+  ],rng);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2496,6 +2646,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelNumberRepresentations10') return make('nel-number-representations-1-to-10',nelNumberRepresentationCases());
   if(skillId==='nelNumeralFormation10') return make('nel-numeral-formation-1-to-10',nelNumeralFormationCases());
   if(skillId==='nelCompareQuantities10') return make('nel-quantity-comparison-two-sets-to-10',nelQuantityCompareCases());
+  if(skillId==='nelPartWhole10') return make('nel-part-whole-to-10',nelPartWholeCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -3087,6 +3238,49 @@ function genNelCompareQuantities10(rep,d,rng,concept){
     taskKind:'nel-quantity-transfer-object-graph',taskLabel:'Miktar karşılaştırmasını gerçek nesne grafiğine taşı',
     visual:{type:'nel-quantity-object-graph',left:y.left,right:y.right,options:nelQuantityRelationChoices(y,rng,{sideAnswer:true}),context:'real-object-graph'},
     hint:'Her sıradaki nesneleri bire bir karşılaştır; daha uzun görünen boşluğa değil nesne sayısına bak.',explain:answer
+  });
+}
+
+function genNelPartWhole10(rep,d,rng,concept){
+  const c=concept?.skillId==='nelPartWhole10'?concept:createConceptInstance('nelPartWhole10',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    const expected=nelPartWholeSplitExpected(x);
+    return qTask('nelPartWhole10','build','Bütün nesneleri '+x.split.left+' ve '+x.split.right+' nesnelik iki parçaya ayır.',expected,{kind:'manipulative',interaction:'nel-part-whole-split',expectedValue:expected,checkLabel:'Parçalarımı kontrol et'},{
+      taskKind:'nel-part-whole-split-build',taskLabel:'Aynı bütünü iki parçaya ayır',
+      visual:{type:'nel-part-whole-split-builder',whole:x.whole,items:x.items,targetSplit:x.split,context:x.context},
+      hint:'Bütün nesnelerin her biri yalnız bir grupta olsun.',explain:'Bütün '+x.whole+' nesnenin hepsi iki parçanın içinde kaldı.'
+    });
+  }
+  if(rep==='see'){
+    const y=nelPartWholeOtherSplit(x,1);
+    return qTask('nelPartWhole10','see','Aynı bütün başka hangi iki parçaya ayrılmış?',nelPartWholeNameExpected(y),{kind:'visual-choice',options:nelPartWholeSplitOptions(y,rng).map(option=>({value:option.value,visual:{type:'nel-part-whole-split-preview',whole:y.whole,split:{left:Number(option.value.split('|')[1]),right:Number(option.value.split('|')[2])}},ariaLabel:option.label}))},{
+      taskKind:'nel-part-whole-see-multiple',taskLabel:'Aynı bütün için başka bir parçalanmayı gör',
+      visual:{type:'nel-part-whole-whole-set',whole:y.whole,items:y.items},
+      hint:'Parçalar farklı olabilir; iki parçadaki bütün nesneler birlikte aynı bütünü oluşturmalı.',explain:y.split.left+' ve '+y.split.right+', aynı '+y.whole+' bütününün başka iki parçasıdır.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelPartWhole10','symbol','Gösterilen bütünü oluşturan iki parça kaç nesne?',nelPartWholeNameExpected(y),{kind:'manipulative',interaction:'nel-part-whole-name-parts',expectedValue:nelPartWholeNameExpected(y),checkLabel:'Parçaları kontrol et'},{
+      taskKind:'nel-part-whole-name-parts',taskLabel:'Bütünü oluşturan parça miktarlarını adlandır',
+      visual:{type:'nel-part-whole-name-builder',whole:y.whole,partition:y.partition,options:Array.from({length:y.whole-1},(_,i)=>i+1)},
+      hint:'Sol ve sağ parçadaki nesneleri ayrı ayrı say.',explain:'Bir parçada '+y.split.left+', diğer parçada '+y.split.right+' nesne var; bütün '+y.whole+'.'
+    });
+  }
+  if(rep==='explain'){
+    const answer=nelPartWholeExplainAnswer(x);
+    return qBase('nelPartWhole10','explain','Parçalar değişse de neden aynı bütünü gösteriyor?',answer,nelPartWholeExplainChoices(x,rng),{
+      taskKind:'nel-part-whole-explain-same-whole',taskLabel:'Farklı parçalanmalarda bütünün neden aynı olduğunu açıkla',
+      visual:{type:'nel-part-whole-multiple-splits',whole:x.whole,splits:[x.split,nelPartWholeOtherSplit(x,1).split],items:x.items},
+      hint:'Bütün nesneler hâlâ var mı, yoksa biri eklendi ya da çıkarıldı mı?',explain:answer
+    });
+  }
+  const y=c.transfer;
+  return qTask('nelPartWhole10','transfer','Boncukları '+y.split.left+' ve '+y.split.right+' nesnelik iki parçaya ayır ve parça miktarlarını göster.',nelPartWholeNameExpected(y),{kind:'manipulative',interaction:'nel-part-whole-context-split',expectedValue:nelPartWholeNameExpected(y),checkLabel:'Boncuk parçalarımı kontrol et'},{
+    taskKind:'nel-part-whole-transfer-bracelet',taskLabel:'Parça-bütünü boncuk etkinliğine taşı',
+    visual:{type:'nel-part-whole-context-split',whole:y.whole,items:y.items,targetSplit:y.split,context:'bracelet'},
+    hint:'Aynı boncukları iki gruba ayır; boncuk ekleme veya çıkarma.',explain:'Aynı '+y.whole+' boncuk iki parçaya ayrıldı: '+y.split.left+' ve '+y.split.right+'.'
   });
 }
 
@@ -4841,6 +5035,7 @@ const GENERATORS={
   nelNumberRepresentations10:genNelNumberRepresentations10,
   nelNumeralFormation10:genNelNumeralFormation10,
   nelCompareQuantities10:genNelCompareQuantities10,
+  nelPartWhole10:genNelPartWhole10,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -5838,6 +6033,50 @@ function nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng
   throw new Error('Unknown nelCompareQuantities10 practice section: '+sectionId);
 }
 
+function nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelPartWholeCases();
+  const x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='split-whole-objects'){
+    const expected=nelPartWholeSplitExpected(x);
+    return qTask('nelPartWhole10','build','Bütün nesneleri '+x.split.left+' ve '+x.split.right+' nesnelik iki parçaya ayır.',expected,{kind:'manipulative',interaction:'nel-part-whole-split',expectedValue:expected,checkLabel:'Parçalamamı kontrol et'},{
+      taskKind:'nel-practice-part-whole-split-'+taskIndex,taskLabel:'Bütünü iki parçaya ayır',
+      visual:{type:'nel-part-whole-split-builder',whole:x.whole,items:x.items,targetSplit:x.split,context:'blocks'},
+      hint:'Her nesne yalnız bir parçada olsun ve bütün nesneler kullanılsın.',explain:'Aynı '+x.whole+' nesne iki parçanın içinde kaldı.'
+    });
+  }
+  if(sectionId==='see-multiple-decompositions'){
+    const y=nelPartWholeOtherSplit(x,1);
+    return qTask('nelPartWhole10','see','Aynı bütünü gösteren başka parçalanmayı seç.',nelPartWholeNameExpected(y),{kind:'visual-choice',options:nelPartWholeSplitOptions(y,rng).map(option=>({value:option.value,visual:{type:'nel-part-whole-split-preview',whole:y.whole,split:{left:Number(option.value.split('|')[1]),right:Number(option.value.split('|')[2])}},ariaLabel:option.label}))},{
+      taskKind:'nel-practice-part-whole-multiple-'+taskIndex,taskLabel:'Aynı bütün için farklı parçalanmaları gör',
+      visual:{type:'nel-part-whole-whole-set',whole:y.whole,items:y.items},
+      hint:'İki parça birlikte aynı bütün miktarını vermeli.',explain:y.split.left+' ve '+y.split.right+' parçaları aynı '+y.whole+' bütününü oluşturur.'
+    });
+  }
+  if(sectionId==='name-parts-forming-whole'){
+    return qTask('nelPartWhole10','symbol','Bütünü oluşturan sol ve sağ parça kaç nesne?',nelPartWholeNameExpected(x),{kind:'manipulative',interaction:'nel-part-whole-name-parts',expectedValue:nelPartWholeNameExpected(x),checkLabel:'Parça miktarlarımı kontrol et'},{
+      taskKind:'nel-practice-part-whole-name-'+taskIndex,taskLabel:'Parça miktarlarını adlandır',
+      visual:{type:'nel-part-whole-name-builder',whole:x.whole,partition:x.partition,options:Array.from({length:x.whole-1},(_,i)=>i+1)},
+      hint:'İki parçadaki nesneleri ayrı ayrı say.',explain:'Parçalar '+x.split.left+' ve '+x.split.right+'; bütün '+x.whole+'.'
+    });
+  }
+  if(sectionId==='explain-same-whole-different-parts'){
+    const answer=nelPartWholeExplainAnswer(x);
+    return qBase('nelPartWhole10','explain','İki farklı parçalanma neden aynı bütünü gösteriyor?',answer,nelPartWholeExplainChoices(x,rng),{
+      taskKind:'nel-practice-part-whole-explain-'+taskIndex,taskLabel:'Aynı bütünü farklı parçalarda açıkla',
+      visual:{type:'nel-part-whole-multiple-splits',whole:x.whole,splits:[x.split,nelPartWholeOtherSplit(x,1).split],items:x.items},
+      hint:'Nesnelerin hepsinin iki parçadan birinde kaldığına bak.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-fingers-bracelet'){
+    return qTask('nelPartWhole10','transfer','Aynı boncukları '+x.split.left+' ve '+x.split.right+' nesnelik iki parçaya ayır ve parça miktarlarını göster.',nelPartWholeNameExpected(x),{kind:'manipulative',interaction:'nel-part-whole-context-split',expectedValue:nelPartWholeNameExpected(x),checkLabel:'Boncuk parçalarımı kontrol et'},{
+      taskKind:'nel-practice-part-whole-transfer-'+taskIndex,taskLabel:'Parça-bütünü boncuk ve parmak bağlamına taşı',
+      visual:{type:'nel-part-whole-context-split',whole:x.whole,items:x.items,targetSplit:x.split,context:taskIndex%2?'fingers':'bracelet'},
+      hint:'Aynı bütünü koru; yalnız nesneleri iki parçaya ayır.',explain:'Bütün '+x.whole+' nesne iki parça olarak gösterildi.'
+    });
+  }
+  throw new Error('Unknown nelPartWhole10 practice section: '+sectionId);
+}
+
 function nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelNumeralFormationCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='form-numeral-material'){
@@ -6256,7 +6495,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelCompareQuantities10') q=nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelPartWhole10') q=nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelCompareQuantities10') q=nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelNumeralFormation10') q=nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelNumberRepresentations10') q=nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelConservation10') q=nelConservationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -6333,6 +6573,7 @@ const CONCEPT_KEYS={
   nelNumberRepresentations10:'nel-number-representations-1-to-10',
   nelNumeralFormation10:'nel-numeral-formation-1-to-10',
   nelCompareQuantities10:'nel-quantity-comparison-two-sets-to-10',
+  nelPartWhole10:'nel-part-whole-to-10',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',

@@ -4,7 +4,7 @@ import {
   skillsFor,PRESCHOOL_NEL_PATHS,PRESCHOOL_NEL_KSD_MAP,PRESCHOOL_NEL_CROSS_CUTTING_KSDS,
   PRESCHOOL_NEL_OFFICIAL_KSD_CODES,PRESCHOOL_NEL_CURRICULUM,PRESCHOOL_NEL_SUPPORTING_CONCEPTS,
   PRESCHOOL_NEL_PEDAGOGY,PRESCHOOL_NEL_SOURCE_AUTHORITY,PRESCHOOL_TO_P1_BRIDGES,
-  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,
+  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,partWholeCaseFor,
   defaultState,runPedagogyStateAudit
 } from '../engine.mjs';
 
@@ -48,8 +48,9 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),true,'part-whole enters the hidden runnable registry only after its generator exists');
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
 assert.equal(preschoolIds.has('nelConservation10'),true,'conservation enters the hidden runnable registry only after its generator exists');
@@ -61,6 +62,20 @@ assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.
 assert.equal(preschoolIds.has('nelCompareQuantities10'),true,'quantity comparison enters the hidden runnable registry only after its generator exists');
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelCompareQuantities10'),'Path B metadata must reserve quantity comparison');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.compareOrder100.includes('nelCompareQuantities10'),'quantity comparison should bridge to later numerical comparison without becoming a hard prerequisite');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='counting-number-sense')?.skillIds.includes('nelPartWhole10'),'Path B metadata must reserve part-whole');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.numberBonds10.includes('nelPartWhole10'),'part-whole should bridge to later P1 number bonds without becoming a hard prerequisite');
+assert.equal(app.includes("if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }"),true,'part-whole must teach before checking once Learn UI exists');
+const partWholeLessonIds=['whole-five','split-five-2-3','split-five-1-4','swap-five-4-1','many-splits-six','three-parts-six','name-seven-3-4','explain-eight','bracelet-nine','fingers-ten'];
+for(const id of partWholeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL part-whole Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelPartWhole10') return NEL_PART_WHOLE_LESSON_STEPS.map"),'Inspector must expose part-whole Learn steps for browser QA');
+for(const type of ['nel-part-whole-whole-set','nel-part-whole-split-builder','nel-part-whole-split-preview','nel-part-whole-name-builder','nel-part-whole-multiple-splits','nel-part-whole-context-split']) assert.ok(app.includes("case '"+type+"'"),'missing part-whole renderer '+type);
+for(const interaction of ['nel-part-whole-split','nel-part-whole-name-parts','nel-part-whole-context-split']) assert.ok(app.includes("'"+interaction+"'"),'missing part-whole runtime interaction '+interaction);
+assert.ok(app.includes('bindNelPartWholeSplit')&&app.includes('nelPartWholeReadSplit'),'part-whole split must be an active child interaction');
+assert.ok(app.includes("data-part-whole-mode="),'split/context runtime must preserve evidence mode');
+assert.ok(app.includes("role=\"button\" tabindex=\"0\" data-part-whole-bin"),'part-whole bins must avoid nested buttons and remain keyboard/touch targets');
+assert.ok(app.includes("id:'three-parts-six'")&&app.includes("parts:[1,2,3]"),'Learn flow must preserve the official broader two-or-more-parts concept');
+assert.ok(styles.includes('.nel-part-whole-bins')&&styles.includes('.nel-part-whole-token.selected'),'part-whole UI must expose large split targets and visible selected-object state');
+assert.ok(styles.includes('@media(max-width:699px)')&&styles.includes('.nel-part-whole-gallery{grid-template-columns:1fr}'),'part-whole flow must have a mobile-specific layout');
 assert.equal(app.includes("if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }"),true,'quantity comparison must teach before checking once Learn UI exists');
 const quantityLessonIds=['pair-same-four','pair-more-five-three','see-right-more','resist-size-spacing','fewer-language','less-language','same-ten','reverse-relation','explain-leftover','object-graph'];
 for(const id of quantityLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL quantity-comparison Learn step '+id);
@@ -89,7 +104,7 @@ assert.ok(app.includes("nelNumeralReadBoard($('.nel-numeral-board'))"),'Practice
 assert.ok(styles.includes('.nel-numeral-svg')&&styles.includes('touch-action:none'),'numeral formation board must suppress browser pan/zoom while drawing with touch or stylus');
 assert.ok(styles.includes('.nel-numeral-paper{width:min(390px,86vw);aspect-ratio:1/1'),'formation canvas must remain a large square interaction area without horizontal overflow');
 assert.ok(styles.includes('.nel-numeral-board.material-mode .nel-numeral-user-stroke'),'material formation must be visually distinct from pencil/stylus formation');
-assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'numeral formation and quantity comparison must be lesson-first');
+assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','number1000'"),'numeral formation and quantity comparison must be lesson-first');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -99,7 +114,7 @@ assert.ok(app.includes('data-number-word-listen')&&app.includes('data-number-wor
 assert.ok(app.includes("if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map"),'Inspector must expose number-representation Learn steps');
 for(const type of ['nel-number-quantity','nel-number-link-builder','nel-number-quantity-focus','nel-number-form-match','nel-number-equivalent-set','nel-number-context-tag']) assert.ok(app.includes("case '"+type+"'"),'missing number-representation renderer '+type);
 assert.ok(app.includes("interaction==='nel-number-link-builder'")&&app.includes("interaction==='nel-number-form-match'"),'number-representation manipulatives must be wired for read/status/bind');
-assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'number representations, numeral formation and quantity comparison must stay lesson-first');
+assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','number1000'"),'number representations, numeral formation and quantity comparison must stay lesson-first');
 assert.equal(/(^|[^$])\$\('\[data-number-(?:four-part|mixed|lesson-quantity)\]'\)\.forEach/m.test(app),false,'multi-option number Learn interactions must not use single-element selector semantics');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
@@ -193,6 +208,86 @@ assert.equal(formationContract.numeralTen.twoDigitNumeral,true);
 assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
+const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
+assert.equal(partWholeContract.status,'implemented');
+assert.deepEqual(partWholeContract.officialKsd,['3.8']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['3.8'],['nelPartWhole10']);
+assert.equal(partWholeContract.officialMaximumWhole,10);
+assert.deepEqual(partWholeContract.productWholeRange,[2,10]);
+assert.equal(partWholeContract.productMinimumNotOfficialFloor,true,'2..10 reference range must be identified as a SAYMERA product choice');
+assert.equal(partWholeContract.concept,'parts-form-a-whole');
+assert.equal(partWholeContract.decompositionBoundary.minimumParts,2);
+assert.equal(partWholeContract.decompositionBoundary.referenceCoreParts,2);
+assert.equal(partWholeContract.decompositionBoundary.supportsMoreThanTwoParts,true,'contract must preserve the official broader two-or-more-parts idea');
+assert.equal(partWholeContract.decompositionBoundary.positivePartsInCore,true);
+assert.equal(partWholeContract.decompositionBoundary.zeroPartCore,false,'zero-part decompositions must not be invented as a core NEL 3.8 target');
+assert.equal(partWholeContract.decompositionBoundary.swappedPartsRemainValid,true);
+assert.equal(partWholeContract.decompositionBoundary.multipleDecompositionsOfSameWhole,true);
+assert.equal(partWholeContract.symbolicBoundary.numeralsMayLabelQuantities,true);
+assert.equal(partWholeContract.symbolicBoundary.formalAdditionEquationRequired,false,'formal addition equations must not define preschool part-whole mastery');
+assert.equal(partWholeContract.symbolicBoundary.numberBondDiagramRequired,false,'P1-style number-bond diagrams must not be back-ported as a preschool requirement');
+assert.equal(partWholeContract.symbolicBoundary.symbolicEquationAsPrimaryDefinition,false);
+assert.equal(partWholeContract.sourceGrounding.colouredBlockTowerExample,true);
+assert.equal(partWholeContract.sourceGrounding.braceletBeadsSplitExample,true);
+assert.equal(partWholeContract.sourceGrounding.fingerPlayExample,true);
+assert.equal(partWholeContract.sourceGrounding.dailyRoutineReinforcement,true);
+assert.equal(partWholeContract.sourceGrounding.futureAdditionSubtractionFoundation,true);
+assert.deepEqual(partWholeContract.practice.sections.map(s=>s.id),['split-whole-objects','see-multiple-decompositions','name-parts-forming-whole','explain-same-whole-different-parts','transfer-fingers-bracelet']);
+assert.deepEqual(partWholeContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(partWholeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
+let partWholeSeed=3808;
+const partWholeRng=()=>((partWholeSeed=(partWholeSeed*1664525+1013904223)>>>0)/2**32);
+const partWholeConcept=createConceptInstance('nelPartWhole10',1,partWholeRng);
+assert.equal(partWholeConcept.skillId,'nelPartWhole10');
+for(const sample of [partWholeConcept.anchor,partWholeConcept.symbol,partWholeConcept.transfer]){
+  assert.ok(sample.whole>=2&&sample.whole<=10,'part-whole case must stay inside product range 2..10');
+  assert.ok(sample.split.left>=1&&sample.split.right>=1,'core part-whole split must keep both parts non-empty');
+  assert.equal(sample.split.left+sample.split.right,sample.whole,'part quantities must reconstruct the whole internally');
+  assert.equal(sample.partition.left.count+sample.partition.right.count,sample.whole);
+  const sourceIds=sample.items.map(x=>x.id).sort();
+  const splitIds=[...sample.partition.left.itemIds,...sample.partition.right.itemIds].sort();
+  assert.deepEqual(splitIds,sourceIds,'partition must preserve every original object exactly once');
+  assert.equal(new Set(splitIds).size,splitIds.length,'no original object may be duplicated across parts');
+  assert.ok(sample.decompositions.every(d=>d.left>=1&&d.right>=1&&d.left+d.right===sample.whole),'all core decompositions must use positive parts forming the same whole');
+  if(sample.whole>=3) assert.ok(sample.decompositions.length>=2,'whole >=3 must expose multiple decompositions');
+}
+
+const fiveCases=Array.from({length:4},(_,i)=>partWholeCaseFor(5,i+1));
+assert.deepEqual(fiveCases.map(x=>[x.split.left,x.split.right]),[[1,4],[2,3],[3,2],[4,1]],'whole 5 must preserve official multiple and swapped decompositions');
+
+const partBuild=generateQuestion('nelPartWhole10','build',1,partWholeRng,partWholeConcept);
+const partSee=generateQuestion('nelPartWhole10','see',1,partWholeRng,partWholeConcept);
+const partShow=generateQuestion('nelPartWhole10','symbol',1,partWholeRng,partWholeConcept);
+const partExplain=generateQuestion('nelPartWhole10','explain',1,partWholeRng,partWholeConcept);
+const partTransfer=generateQuestion('nelPartWhole10','transfer',1,partWholeRng,partWholeConcept);
+assert.equal(partBuild.response.interaction,'nel-part-whole-split');
+assert.equal(partSee.response.kind,'visual-choice');
+assert.equal(partShow.response.interaction,'nel-part-whole-name-parts');
+assert.equal(partExplain.response.kind,'choice');
+assert.equal(partTransfer.response.interaction,'nel-part-whole-context-split');
+
+for(const q of [partBuild,partSee,partShow,partExplain,partTransfer]){
+  assert.notEqual(q.response.kind,'number-input','KSD 3.8 must collect part-whole evidence rather than keyboard arithmetic');
+  const childText=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label??o.value??'')].join(' ');
+  assert.equal(/[+=>]/.test(childText),false,'formal operation/comparison notation must not define child-facing preschool part-whole evidence: '+childText);
+  assert.equal(/number.?bond|sayı bağı/i.test(childText),false,'Primary number-bond terminology must not be back-ported into preschool evidence');
+}
+assert.equal(partBuild.visual.items.length,partWholeConcept.anchor.whole,'build visual must start from the complete whole set');
+assert.equal(partTransfer.visual.context,'bracelet','transfer must preserve an official-style real-object context');
+
+for(const section of partWholeContract.practice.sections){
+  const qs=Array.from({length:14},(_,i)=>generateLessonPracticeQuestion('nelPartWhole10',section.id,i,1,partWholeRng));
+  assert.ok(qs.every(q=>q.skillId==='nelPartWhole10'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs){
+    assert.notEqual(q.response.kind,'number-input',section.id+' must not become missing-addend keypad work');
+    const text=[q.prompt,q.hint,q.explain,...(q.response?.options||[]).map(o=>o.label??o.value??'')].join(' ');
+    assert.equal(/[+=>]/.test(text),false,section.id+' must remain pre-formal and equation-free in child-facing copy');
+    assert.equal(/0\s*(?:ve|ile)|(?:ve|ile)\s*0/.test(text),false,section.id+' must not introduce zero-part decompositions');
+  }
+}
+
 const quantityCompareContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelCompareQuantities10;
 assert.equal(quantityCompareContract.status,'implemented');
 assert.deepEqual(quantityCompareContract.officialKsd,['3.7']);
@@ -248,7 +343,7 @@ assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"
 const sortLessonIds=['sort-colour','resort-shape','resort-size','sort-length','sort-height','discover-rule','explain-resort','real-world-sort'];
 for(const id of sortLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL sorting Learn step '+id);
 assert.ok(app.includes("if(skill.id==='nelSortAttributes'){ renderNelSortLessonStep(skill); return; }"));
-assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','number1000'"),'NEL reference skills must teach before checking');
+assert.ok(app.includes("'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','number1000'"),'NEL reference skills must teach before checking');
 
 const compareLessonIds=['compare-size','compare-small','compare-length-align','compare-length-same','compare-height','name-attribute','fair-compare','real-world-compare'];
 for(const id of compareLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL comparing Learn step '+id);
@@ -672,7 +767,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -682,8 +777,9 @@ assert.ok(contract.includes('**3.2.1**')&&contract.includes('**3.2.4**'),'reliab
 assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark number representations complete');
 assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark numeral formation complete');
 assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark quantity comparison complete');
-assert.ok(contract.includes('nelPartWhole10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve part-whole as the next Path B skill');
-assert.ok(contract.includes('Status after SAYMERA v1.22.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('nelPartWhole10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark part-whole complete');
+assert.ok(contract.includes('nelBasicShapes')&&contract.includes('**NEXT**'),'implementation snapshot must preserve basic shapes as the next Preschool v2 skill');
+assert.ok(contract.includes('Status after SAYMERA v1.23.0'),'research contract status must match the implemented release boundary');
 assert.ok(contract.includes('v1.21.0 reference implementation'),'research contract must document the numeral-formation implementation slice');
 assert.ok(contract.includes('visibly off-path scribbling is rejected'),'implementation notes must preserve scribble-rejection evidence');
 assert.ok(contract.includes('same numeral path drawn in reverse direction is accepted'),'implementation notes must preserve stroke-direction independence');
@@ -696,6 +792,16 @@ assert.ok(contract.includes('`<` and `>` are not KSD 3.7 mastery targets'),'pres
 assert.ok(contract.includes('aynı sayıda')&&contract.includes('daha çok')&&contract.includes('daha az sayıda'),'Turkish child-facing relation language must be documented');
 assert.ok(contract.includes('Supported extension, not an extra KSD 3.7 mastery gate'),'how-many-more/fewer must remain an Educators Guide extension rather than an invented KSD endpoint');
 assert.ok(contract.includes('v1.22.0 reference implementation'),'research contract must document the quantity-comparison implementation slice');
+assert.ok(contract.includes('v1.23.0 reference implementation'),'research contract must document the part-whole implementation slice');
+assert.ok(contract.includes('**NEL KSD 3.8**'),'part-whole research boundary must anchor official KSD 3.8');
+assert.ok(contract.includes('quantity of up to 10'),'part-whole boundary must preserve the official maximum whole of 10');
+assert.ok(contract.includes('tower of five blocks')&&contract.includes('bracelet/bead activity'),'research contract must preserve official concrete part-whole examples');
+assert.ok(contract.includes('2 and 3, 3 and 2, 1 and 4, and 4 and 1'),'research contract must preserve multiple and swapped decompositions of 5');
+assert.ok(contract.includes('two or more parts'),'part-whole contract must not narrow the official concept to exactly two parts');
+assert.ok(contract.includes('wholes **2–10**'),'lower reference bound must be documented as a product choice');
+assert.ok(contract.includes('zero-part decompositions are **not** a core target'),'zero must not be silently invented into KSD 3.8');
+assert.ok(contract.includes('formal addition equation')&&contract.includes('not required'),'part-whole meaning must precede formal operation equations');
+assert.ok(contract.includes('P1 number-bond completion must not be back-ported'),'preschool part-whole must remain foundational rather than a copied Primary number-bond lesson');
 assert.ok(contract.includes('one-to-one pairing exposes unmatched objects'),'implementation notes must preserve pairing/unmatched proof as the concrete comparison model');
 assert.ok(contract.includes('formal `<` and `>` symbols are excluded'),'implementation notes must preserve the no-formal-symbol boundary');
 assert.ok(contract.includes('Re-verified on **2026-09-25**'),'research contract must record the latest official-source verification');
