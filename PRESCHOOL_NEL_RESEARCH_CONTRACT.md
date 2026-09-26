@@ -322,6 +322,36 @@ Rote counting, reliable counting and subitising may develop in parallel; this li
 
 Recommended product progression:
 1. `nelBasicShapes` — recognise and name circle, square, rectangle, triangle across size/orientation
+
+   **Official role:** implements **NEL KSD 4.1 — recognise the four basic shapes: circle, square, rectangle and triangle.**
+
+   **Source-derived observation and teaching guidance (NEL Framework / Educators' Guide 2022):**
+   - children should recognise and name the four basic shapes in their **classrooms and immediate environment**;
+   - shape recognition must survive changes in **size and orientation** rather than depending on one prototype;
+   - children learn shape names while they **look at, touch and hold** objects/shapes in their environment;
+   - the guide notes that children often recognise circles and squares before other shapes, but this is developmental guidance, not a reason to omit rectangle or triangle from the KSD.
+
+   **SAYMERA KSD 4.1 boundary:**
+   - the complete official target set is exactly **circle / square / rectangle / triangle**;
+   - Turkish child-facing names are **daire / kare / dikdörtgen / üçgen**;
+   - colour, absolute size and orientation are deliberately varied because none of them defines shape identity;
+   - a square remains a square when rotated; a triangle does not have to point upward; rectangles appear in horizontal and vertical orientations;
+   - naming evidence must not depend on reading fluency: spoken/audio shape names remain available in child-facing naming tasks;
+   - environmental examples should preserve the underlying 2D shape rather than confusing a whole 3D object with a 2D shape.
+
+   **Separation from later shape KSDs:**
+   - **KSD 4.2 / `nelShapeAttributes`** owns explicit attribute reasoning such as number of sides and equal-side properties;
+   - KSD 4.1 may expose varied examples, but **side counting or equal-side explanations are not required for 4.1 mastery**;
+   - **KSD 4.3** owns composing new shapes/figures from basic shapes;
+   - **KSD 4.4** owns position, direction and distance language.
+
+   **Planned evidence:**
+   - **Kur:** match a basic-shape piece to another instance of the same shape;
+   - **Gör:** recognise the same shape across different size and orientation;
+   - **Göster:** select/name daire, kare, dikdörtgen or üçgen without requiring written-word reading;
+   - **Anlat:** show that rotating or resizing the figure does not change its shape name, without requiring KSD 4.2 property vocabulary;
+   - **Taşı:** find the same 2D shape in a classroom/immediate-environment style scene.
+
 2. `nelShapeAttributes` — describe relevant attributes, not colour or orientation
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
