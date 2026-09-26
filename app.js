@@ -2719,10 +2719,10 @@ function nelBasicShapeLessonOptions(target,variantIndex=0,environment=false){
     const rotations={circle:[0,25,70,130],square:[0,45,90,135],rectangle:[0,90,18,108],triangle:[0,60,120,180]};
     const sizes=['small','medium','large'];
     const contexts={
-      circle:['duvar saati yüzü','yuvarlak etiket','tabak üst görünümü'],
-      square:['kare karo','kare not kâğıdı','kare pencere bölmesi'],
-      rectangle:['kapı yüzü','kitap kapağı','dikdörtgen kart'],
-      triangle:['üçgen bayrak','çatı yüzü','üçgen işaret']
+      circle:['duvar saati yüzü','etiket yüzü','tabak üst görünümü'],
+      square:['yer karosu','not kâğıdı','pencere bölmesi'],
+      rectangle:['kapı yüzü','kitap kapağı','kart yüzü'],
+      triangle:['bayrak parçası','çatı yüzü','uyarı işareti']
     };
     return nelBasicShapeLessonItem(shape,sizes[(index+variantIndex)%3],rotations[shape][(variantIndex+index)%4],['blue','amber','rose','green'][index],environment?contexts[shape][variantIndex%3]:null,shape+'-lesson-'+variantIndex+'-'+index);
   });
