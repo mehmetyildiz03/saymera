@@ -68,7 +68,18 @@ assert.ok(PRESCHOOL_TO_P1_BRIDGES.numberBonds10.includes('nelPartWhole10'),'part
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelBasicShapes'),'Path C metadata must reserve basic-shape recognition');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelBasicShapes'),'basic-shape recognition should bridge to P1 geometry without becoming a hard prerequisite');
 assert.equal(preschoolIds.has('nelBasicShapes'),true,'basic shapes enters the hidden runnable registry only after its generator exists');
-assert.equal(app.includes('renderNelBasicShapesLessonStep'),false,'generator slice must still stop before basic-shape Learn UI');
+assert.equal(app.includes("if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }"),true,'basic shapes must teach before checking once Learn UI exists');
+const basicShapeLessonIds=['circle-match','square-rotate','triangle-turn','rectangle-turn','size-change','mixed-invariance','name-circle-square','name-triangle-rectangle','explain-invariance','environment-hunt'];
+for(const id of basicShapeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL basic-shape Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelBasicShapes') return NEL_BASIC_SHAPES_LESSON_STEPS.map"),'Inspector must expose basic-shape Learn steps');
+for(const type of ['nel-basic-shape-card','nel-basic-shape-context','nel-basic-shape-pair','nel-basic-shape-match','nel-basic-shape-name']) assert.ok(app.includes("case '"+type+"'"),'missing basic-shape renderer '+type);
+for(const interaction of ['nel-basic-shape-match','nel-basic-shape-audio-name']) assert.ok(app.includes("'"+interaction+"'"),'missing basic-shape runtime interaction '+interaction);
+assert.ok(app.includes("data-rote-speech")&&app.includes("data-basic-shape-name"),'shape naming must remain audio-addressable');
+assert.ok(app.includes("nelBasicShapeLessonItem('square','medium',0")&&app.includes("nelBasicShapeLessonItem('square','large',45"),'Learn must show square identity across orientation changes');
+assert.ok(app.includes("nelBasicShapeLessonItem('triangle','large',180")&&app.includes("nelBasicShapeLessonItem('triangle','medium',60"),'Learn must avoid an up-pointing-only triangle prototype');
+assert.ok(styles.includes('.nel-basic-shape-glyph.square')&&styles.includes('.nel-basic-shape-glyph.rectangle')&&styles.includes('.nel-basic-shape-glyph.triangle'),'UI must render four distinct basic-shape geometries');
+assert.ok(styles.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),'phone layout must keep shape choices usable without four-column compression');
+assert.equal(/üç kenar|dört kenar|eşit kenar|köşe say/i.test(app.slice(app.indexOf('const NEL_BASIC_SHAPES_LESSON_VERSION'),app.indexOf('function lessonBlueprintFor'))),false,'KSD 4.2 attribute teaching must not leak into KSD 4.1 Learn copy');
 assert.equal(app.includes("if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }"),true,'part-whole must teach before checking once Learn UI exists');
 const partWholeLessonIds=['whole-five','split-five-2-3','split-five-1-4','swap-five-4-1','many-splits-six','three-parts-six','name-seven-3-4','explain-eight','bracelet-nine','fingers-ten'];
 for(const id of partWholeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL part-whole Learn step '+id);
@@ -119,7 +130,7 @@ assert.ok(app.includes('data-number-word-listen')&&app.includes('data-number-wor
 assert.ok(app.includes("if(skillId==='nelNumberRepresentations10') return NEL_NUMBER_REP_LESSON_STEPS.map"),'Inspector must expose number-representation Learn steps');
 for(const type of ['nel-number-quantity','nel-number-link-builder','nel-number-quantity-focus','nel-number-form-match','nel-number-equivalent-set','nel-number-context-tag']) assert.ok(app.includes("case '"+type+"'"),'missing number-representation renderer '+type);
 assert.ok(app.includes("interaction==='nel-number-link-builder'")&&app.includes("interaction==='nel-number-form-match'"),'number-representation manipulatives must be wired for read/status/bind');
-assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','number1000'"),'number representations, numeral formation and quantity comparison must stay lesson-first');
+assert.ok(app.includes("'nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','number1000'"),'implemented NEL reference skills must stay lesson-first');
 assert.equal(/(^|[^$])\$\('\[data-number-(?:four-part|mixed|lesson-quantity)\]'\)\.forEach/m.test(app),false,'multi-option number Learn interactions must not use single-element selector semantics');
 assert.equal(app.includes("if(skill.id==='nelConservation10'){ renderNelConservationLessonStep(skill); return; }"),true,'conservation must teach before checking once Learn UI exists');
 const conservationLessonIds=['same-five','spread-five','array-six','circle-seven','random-eight','rearrange-nine','why-same','real-world'];
