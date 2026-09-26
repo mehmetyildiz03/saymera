@@ -298,7 +298,7 @@ Recommended product progression:
    - numerals may label already-understood quantities, but a formal addition equation such as `2 + 3 = 5` is **not required** to define or master KSD 3.8;
    - a Primary-style number-bond diagram is not required as the preschool mastery representation.
 
-   **Planned evidence:**
+   **Implemented evidence:**
    - **Kur:** physically/digitally split one fixed whole set into two non-empty parts without changing the total;
    - **Gör:** recognise several different splits that still make the same whole;
    - **Göster:** name/select the two part quantities that form the whole;
@@ -306,6 +306,15 @@ Recommended product progression:
    - **Taşı:** use fingers, beads/bracelet, coloured blocks or another real-object context to show a new split.
 
    This skill bridges naturally to later P1 number bonds, but **P1 number-bond completion must not be back-ported as the preschool mastery definition**.
+
+   v1.23.0 reference implementation:
+   - 10 Learn steps begin from one whole set, then build 2-and-3, 1-and-4 and swapped 4-and-1 decompositions of five before varying the whole;
+   - Learn explicitly shows multiple decompositions of the same whole and includes a three-part example so “two or more parts” is not reduced to a fixed two-box rule;
+   - child interaction moves the original objects into parts, so every object is used exactly once and the whole is preserved;
+   - Practice has five evidence sections: splitting the whole, recognising another decomposition, naming the parts, explaining why the whole is unchanged, and transferring to fingers/bracelet-style contexts;
+   - zero-part decompositions and formal addition equations are excluded from the core preschool evidence;
+   - no Primary number-bond terminology or diagram is required for KSD 3.8 mastery;
+   - Chromium and WebKit QA cover phone and tablet viewports, multiple and swapped decompositions, the three-part concept, Review, horizontal overflow and Inspector sandbox isolation.
 
 Rote counting, reliable counting and subitising may develop in parallel; this list is an instructional recommendation, not a claim that one must be fully mastered before the next can be experienced.
 
@@ -319,7 +328,7 @@ Recommended product progression:
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.22.0:
+Status after SAYMERA v1.23.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -335,8 +344,8 @@ Product skill | NEL role | Status
 `nelNumberRepresentations10` | 3.4 + 3.5 | ✅ implemented + browser QA
 `nelNumeralFormation10` | 3.6 | ✅ implemented + browser QA
 `nelCompareQuantities10` | 3.7 | ✅ implemented + browser QA
-`nelPartWhole10` | 3.8 | **NEXT**
-`nelBasicShapes` | 4.1 | planned
+`nelPartWhole10` | 3.8 | ✅ implemented + browser QA
+`nelBasicShapes` | 4.1 | **NEXT**
 `nelShapeAttributes` | 4.2 | planned
 `nelShapeCompose` | 4.3 | planned
 `nelSpatialRelations` | 4.4 | planned
