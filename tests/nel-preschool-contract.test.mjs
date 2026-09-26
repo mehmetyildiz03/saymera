@@ -230,7 +230,7 @@ assert.deepEqual(formationContract.numeralTen.digitComponents,['1','0']);
 assert.equal(formationContract.numeralTen.zeroQuantityTarget,false,'0 inside 10 is a written component here, not a separate zero-quantity target');
 
 const basicShapesContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelBasicShapes;
-assert.equal(basicShapesContract.status,'generator-ready');
+assert.equal(basicShapesContract.status,'implemented');
 assert.deepEqual(basicShapesContract.officialKsd,['4.1']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.1'],['nelBasicShapes']);
 assert.deepEqual(basicShapesContract.officialShapes,['circle','square','rectangle','triangle']);
@@ -870,8 +870,12 @@ assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('�
 assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark numeral formation complete');
 assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark quantity comparison complete');
 assert.ok(contract.includes('nelPartWhole10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark part-whole complete');
-assert.ok(contract.includes('nelBasicShapes')&&contract.includes('**NEXT**'),'implementation snapshot must preserve basic shapes as the next Preschool v2 skill');
-assert.ok(contract.includes('Status after SAYMERA v1.23.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('nelBasicShapes')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark basic shapes complete');
+assert.ok(contract.includes('nelShapeAttributes')&&contract.includes('**NEXT**'),'implementation snapshot must preserve shape attributes as the next Preschool v2 skill');
+assert.ok(contract.includes('Status after SAYMERA v1.24.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('v1.24.0 reference implementation'),'research contract must document the basic-shapes implementation slice');
+assert.ok(contract.includes('a rotated square remains explicitly a square'),'implementation notes must preserve orientation invariance');
+assert.ok(contract.includes('written-word reading is not required'),'shape naming must not become a literacy gate');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.1'),'Path C research contract must anchor basic shapes to official KSD 4.1');
 assert.ok(contract.includes('classrooms and immediate environment'),'KSD 4.1 research boundary must preserve the official environmental recognition example');
 assert.ok(contract.includes('size and orientation'),'KSD 4.1 must explicitly generalise across size and orientation');
