@@ -777,8 +777,9 @@ assert.ok(contract.includes('**3.2.1**')&&contract.includes('**3.2.4**'),'reliab
 assert.ok(contract.includes('nelNumberRepresentations10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark number representations complete');
 assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark numeral formation complete');
 assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark quantity comparison complete');
-assert.ok(contract.includes('nelPartWhole10')&&contract.includes('**NEXT**'),'implementation snapshot must preserve part-whole as the next Path B skill');
-assert.ok(contract.includes('Status after SAYMERA v1.22.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('nelPartWhole10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark part-whole complete');
+assert.ok(contract.includes('nelBasicShapes')&&contract.includes('**NEXT**'),'implementation snapshot must preserve basic shapes as the next Preschool v2 skill');
+assert.ok(contract.includes('Status after SAYMERA v1.23.0'),'research contract status must match the implemented release boundary');
 assert.ok(contract.includes('v1.21.0 reference implementation'),'research contract must document the numeral-formation implementation slice');
 assert.ok(contract.includes('visibly off-path scribbling is rejected'),'implementation notes must preserve scribble-rejection evidence');
 assert.ok(contract.includes('same numeral path drawn in reverse direction is accepted'),'implementation notes must preserve stroke-direction independence');
@@ -791,6 +792,7 @@ assert.ok(contract.includes('`<` and `>` are not KSD 3.7 mastery targets'),'pres
 assert.ok(contract.includes('aynı sayıda')&&contract.includes('daha çok')&&contract.includes('daha az sayıda'),'Turkish child-facing relation language must be documented');
 assert.ok(contract.includes('Supported extension, not an extra KSD 3.7 mastery gate'),'how-many-more/fewer must remain an Educators Guide extension rather than an invented KSD endpoint');
 assert.ok(contract.includes('v1.22.0 reference implementation'),'research contract must document the quantity-comparison implementation slice');
+assert.ok(contract.includes('v1.23.0 reference implementation'),'research contract must document the part-whole implementation slice');
 assert.ok(contract.includes('**NEL KSD 3.8**'),'part-whole research boundary must anchor official KSD 3.8');
 assert.ok(contract.includes('quantity of up to 10'),'part-whole boundary must preserve the official maximum whole of 10');
 assert.ok(contract.includes('tower of five blocks')&&contract.includes('bracelet/bead activity'),'research contract must preserve official concrete part-whole examples');
