@@ -75,6 +75,7 @@ assert.ok(app.includes("if(skillId==='nelBasicShapes') return NEL_BASIC_SHAPES_L
 for(const type of ['nel-basic-shape-card','nel-basic-shape-context','nel-basic-shape-pair','nel-basic-shape-match','nel-basic-shape-name']) assert.ok(app.includes("case '"+type+"'"),'missing basic-shape renderer '+type);
 for(const interaction of ['nel-basic-shape-match','nel-basic-shape-audio-name']) assert.ok(app.includes("'"+interaction+"'"),'missing basic-shape runtime interaction '+interaction);
 assert.ok(app.includes("data-rote-speech")&&app.includes("data-basic-shape-name"),'shape naming must remain audio-addressable');
+for(const leakingLabel of ['kare karo','kare not kâğıdı','kare pencere bölmesi','dikdörtgen kart','üçgen bayrak','üçgen işaret']) assert.equal(app.includes(leakingLabel),false,'environment label must not reveal the target shape name: '+leakingLabel);
 assert.ok(app.includes("nelBasicShapeLessonItem('square','medium',0")&&app.includes("nelBasicShapeLessonItem('square','large',45"),'Learn must show square identity across orientation changes');
 assert.ok(app.includes("nelBasicShapeLessonItem('triangle','large',180")&&app.includes("nelBasicShapeLessonItem('triangle','medium',60"),'Learn must avoid an up-pointing-only triangle prototype');
 assert.ok(styles.includes('.nel-basic-shape-glyph.square')&&styles.includes('.nel-basic-shape-glyph.rectangle')&&styles.includes('.nel-basic-shape-glyph.triangle'),'UI must render four distinct basic-shape geometries');
@@ -120,7 +121,7 @@ assert.ok(app.includes("nelNumeralReadBoard($('.nel-numeral-board'))"),'Practice
 assert.ok(styles.includes('.nel-numeral-svg')&&styles.includes('touch-action:none'),'numeral formation board must suppress browser pan/zoom while drawing with touch or stylus');
 assert.ok(styles.includes('.nel-numeral-paper{width:min(390px,86vw);aspect-ratio:1/1'),'formation canvas must remain a large square interaction area without horizontal overflow');
 assert.ok(styles.includes('.nel-numeral-board.material-mode .nel-numeral-user-stroke'),'material formation must be visually distinct from pencil/stylus formation');
-assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','number1000'"),'numeral formation and quantity comparison must be lesson-first');
+assert.ok(app.includes("'nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','number1000'"),'implemented NEL number/shape reference skills must stay lesson-first');
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
