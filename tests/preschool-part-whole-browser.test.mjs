@@ -23,7 +23,8 @@ const configs=[
 ];
 
 async function openInspector(page){
-  await page.goto(base+'/?inspect=1');
+  await page.goto(base+'/?inspect=1',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.locator('#inspectorProfile').waitFor({state:'visible',timeout:15000});
   await page.locator('#inspectorProfile').selectOption('preschool');
   await page.locator('#inspectorSkill').selectOption('nelPartWhole10');
 }
