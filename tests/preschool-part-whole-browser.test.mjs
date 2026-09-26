@@ -4,10 +4,20 @@ import {spawn} from 'node:child_process';
 import {mkdir} from 'node:fs/promises';
 import {defaultState} from '../engine.mjs';
 
-const base=process.env.SAYMERA_TEST_URL||'http://127.0.0.1:4190';
-const server=process.env.SAYMERA_TEST_URL?null:spawn('python3',['-m','http.server','4190'],{cwd:new URL('..',import.meta.url),stdio:'ignore'});
+let base=process.env.SAYMERA_TEST_URL||'';
 await mkdir('preschool-part-whole-test-results',{recursive:true});
-for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+
+async function startLocalServer(port){
+  if(process.env.SAYMERA_TEST_URL){base=process.env.SAYMERA_TEST_URL;return null;}
+  base='http://127.0.0.1:'+port;
+  const server=spawn('python3',['-m','http.server',String(port),'--bind','127.0.0.1'],{cwd:new URL('..',import.meta.url),stdio:'ignore'});
+  for(let i=0;i<80;i++){
+    try{if((await fetch(base,{cache:'no-store'})).ok)return server;}catch{}
+    await new Promise(r=>setTimeout(r,100));
+  }
+  server.kill();
+  throw new Error('Local SAYMERA test server did not become ready on port '+port);
+}
 
 const initial=defaultState();
 initial.profile='preschool';
@@ -189,16 +199,17 @@ async function completeReview(page){
   throw new Error('Part-whole Review response missing');
 }
 
-try{
-  for(const config of configs){
-    const browser=await config.type.launch({headless:true});
-    const context=await browser.newContext({viewport:config.viewport,isMobile:true,hasTouch:true,serviceWorkers:'block'});
-    await context.addInitScript(value=>{if(!localStorage.getItem('saymera.math.v2'))localStorage.setItem('saymera.math.v2',value)},saved);
-    const page=await context.newPage();
-    page.setDefaultTimeout(12000);
-    const errors=[];
-    page.on('pageerror',e=>errors.push(e.message));
-    try{
+for(let configIndex=0;configIndex<configs.length;configIndex++){
+  const config=configs[configIndex];
+  const localServer=await startLocalServer(4190+configIndex);
+  const browser=await config.type.launch({headless:true});
+  const context=await browser.newContext({viewport:config.viewport,isMobile:true,hasTouch:true,serviceWorkers:'block'});
+  await context.addInitScript(value=>{if(!localStorage.getItem('saymera.math.v2'))localStorage.setItem('saymera.math.v2',value)},saved);
+  const page=await context.newPage();
+  page.setDefaultTimeout(12000);
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  try{
       await openInspector(page);
       const steps=await page.locator('#inspectorLessonStep option').evaluateAll(xs=>xs.map(x=>({index:x.value,label:x.textContent})));
       assert.equal(steps.length,10,'part-whole must expose ten Learn steps');
@@ -243,9 +254,12 @@ try{
       assert.equal(await page.evaluate(()=>localStorage.getItem('saymera.math.v2')),saved,'Inspector must not write real preschool progress');
       assert.deepEqual(errors,[]);
       console.log(config.name+': PASS (10 Learn steps; multiple/swapped/3-part decompositions; 5 Practice sections; Review; no equations; width; sandbox)');
-    }catch(error){
-      await page.screenshot({path:'preschool-part-whole-test-results/'+config.name+'-failure.png',fullPage:false,animations:'disabled'});
-      throw error;
-    }finally{await browser.close();}
+  }catch(error){
+    await page.screenshot({path:'preschool-part-whole-test-results/'+config.name+'-failure.png',fullPage:false,animations:'disabled'});
+    throw error;
+  }finally{
+    await browser.close();
+    localServer?.kill();
+    if(localServer) await new Promise(r=>setTimeout(r,150));
   }
-}finally{server?.kill();}
+}
