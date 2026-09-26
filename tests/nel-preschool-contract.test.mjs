@@ -81,7 +81,10 @@ assert.ok(app.includes("nelBasicShapeLessonItem('square','medium',0")&&app.inclu
 assert.ok(app.includes("nelBasicShapeLessonItem('triangle','large',180")&&app.includes("nelBasicShapeLessonItem('triangle','medium',60"),'Learn must avoid an up-pointing-only triangle prototype');
 assert.ok(styles.includes('.nel-basic-shape-glyph.square')&&styles.includes('.nel-basic-shape-glyph.rectangle')&&styles.includes('.nel-basic-shape-glyph.triangle'),'UI must render four distinct basic-shape geometries');
 assert.ok(styles.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),'phone layout must keep shape choices usable without four-column compression');
-assert.equal(/üç kenar|dört kenar|eşit kenar|köşe say/i.test(app.slice(app.indexOf('const NEL_BASIC_SHAPES_LESSON_VERSION'),app.indexOf('function lessonBlueprintFor'))),false,'KSD 4.2 attribute teaching must not leak into KSD 4.1 Learn copy');
+const basicShapesLearnStart=app.indexOf('const NEL_BASIC_SHAPES_LESSON_VERSION');
+const basicShapesLearnEnd=app.indexOf('const NEL_SHAPE_ATTRIBUTES_LESSON_VERSION',basicShapesLearnStart);
+assert.ok(basicShapesLearnStart>=0&&basicShapesLearnEnd>basicShapesLearnStart,'KSD 4.1 and KSD 4.2 Learn blocks must have an explicit boundary');
+assert.equal(/üç kenar|dört kenar|eşit kenar|köşe say/i.test(app.slice(basicShapesLearnStart,basicShapesLearnEnd)),false,'KSD 4.2 attribute teaching must not leak into KSD 4.1 Learn copy');
 assert.equal(app.includes("if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }"),true,'part-whole must teach before checking once Learn UI exists');
 const partWholeLessonIds=['whole-five','split-five-2-3','split-five-1-4','swap-five-4-1','many-splits-six','three-parts-six','name-seven-3-4','explain-eight','bracelet-nine','fingers-ten'];
 for(const id of partWholeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL part-whole Learn step '+id);
