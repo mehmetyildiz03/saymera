@@ -23,8 +23,21 @@ const configs=[
 ];
 
 async function openInspector(page){
-  await page.goto(base+'/?inspect=1',{waitUntil:'domcontentloaded',timeout:30000});
-  await page.locator('#inspectorProfile').waitFor({state:'visible',timeout:15000});
+  let lastError=null;
+  for(let attempt=0;attempt<3;attempt++){
+    try{
+      await page.goto(base+'/?inspect=1',{waitUntil:'commit',timeout:15000});
+      await page.locator('#inspectorProfile').waitFor({state:'visible',timeout:15000});
+      lastError=null;
+      break;
+    }catch(error){
+      lastError=error;
+      await page.evaluate(()=>window.stop()).catch(()=>{});
+      if(await page.locator('#inspectorProfile').count()){ lastError=null; break; }
+      await page.waitForTimeout(250*(attempt+1));
+    }
+  }
+  if(lastError) throw lastError;
   await page.locator('#inspectorProfile').selectOption('preschool');
   await page.locator('#inspectorSkill').selectOption('nelPartWhole10');
 }
