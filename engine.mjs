@@ -2715,7 +2715,6 @@ function nelShapeAttributeInspectSpec(x){
   const required=Array.from({length:p.straightSides},(_,i)=>'side-'+(i+1))
     .concat(Array.from({length:p.corners},(_,i)=>'corner-'+(i+1)));
   if(x.shape==='square') required.push('equal-sides');
-  if(x.shape==='rectangle') required.push('non-square-reference');
   return {mode:'sides-corners',required,sideCount:p.straightSides,cornerCount:p.corners};
 }
 function nelShapeAttributeEnvironmentCase(x){
