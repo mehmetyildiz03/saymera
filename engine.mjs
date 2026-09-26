@@ -1028,7 +1028,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'nel-part-whole-contract',
       'NEL KSD 3.8 parça-bütün sözleşmesi somut parçalama ve çoklu ayrışımları formal işlem denkleminden önce tutuyor',
       !partWholeContract.provisional &&
-        partWholeContract.status==='generator-ready' &&
+        partWholeContract.status==='implemented' &&
         partWholeContract.officialKsd?.join(',')==='3.8' &&
         partWholeContract.officialMaximumWhole===10 &&
         partWholeContract.decompositionBoundary?.minimumParts===2 &&
