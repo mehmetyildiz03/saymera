@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -584,7 +584,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelBasicShapes:{
     version:1,
-    status:'contract-only',
+    status:'generator-ready',
     unitId:'nel-shapes-space',
     pathId:'shapes-space',
     officialKsd:['4.1'],
@@ -678,6 +678,7 @@ export const SKILLS = [
   skill('nelNumeralFormation10','preschool','Rakamları anlamlı biçimde oluştur ve yaz','Sayma & Sayı Hissi','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelCompareQuantities10','preschool','İki kümenin miktarını karşılaştır','Sayma & Sayı Hissi','violet',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelPartWhole10','preschool','10’a kadar bütünü parçalara ayır ve parçaları adlandır','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
+  skill('nelBasicShapes','preschool','Daire, kare, dikdörtgen ve üçgeni tanı','Şekil & Uzam','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -1092,7 +1093,7 @@ export function runPedagogyStateAudit(state,now=Date.now()){
       'nel-basic-shapes-contract',
       'NEL KSD 4.1 temel şekil sözleşmesi dört şekli boyut/yön değişiminden bağımsız tanımayı 4.2 özellik öğretiminden ayırıyor',
       !basicShapesContract.provisional &&
-        basicShapesContract.status==='contract-only' &&
+        basicShapesContract.status==='generator-ready' &&
         basicShapesContract.officialKsd?.join(',')==='4.1' &&
         basicShapesContract.officialShapes?.join(',')==='circle,square,rectangle,triangle' &&
         basicShapesContract.recognitionBoundary?.variedSizes===true &&
@@ -2489,6 +2490,82 @@ function nelPartWholeExplainChoices(x,rng){
   ],rng);
 }
 
+const NEL_BASIC_SHAPE_META={
+  circle:{nameTr:'daire',rotations:[0,25,70,130],contexts:['duvar saati yüzü','yuvarlak etiket','tabak üst görünümü']},
+  square:{nameTr:'kare',rotations:[0,45,90,135],contexts:['kare karo','kare not kâğıdı','kare pencere bölmesi']},
+  rectangle:{nameTr:'dikdörtgen',rotations:[0,90,18,108],contexts:['kapı yüzü','kitap kapağı','dikdörtgen kart']},
+  triangle:{nameTr:'üçgen',rotations:[0,60,120,180],contexts:['üçgen bayrak','çatı yüzü','üçgen işaret']}
+};
+const NEL_BASIC_SHAPE_SIZES=['small','medium','large'];
+const NEL_BASIC_SHAPE_TONES=['blue','amber','rose','green'];
+function nelBasicShapeInstance(shape,{size='medium',rotation=0,tone='blue',context=null,id=null}={}){
+  const meta=NEL_BASIC_SHAPE_META[shape];
+  return {
+    id:id||shape+'-'+size+'-'+String(rotation).replace('-','m')+'-'+tone,
+    shape,
+    nameTr:meta.nameTr,
+    size,
+    rotation:Number(rotation)||0,
+    tone,
+    context:context||null
+  };
+}
+function nelBasicShapeCases(){
+  const out=[];
+  for(const [shape,meta] of Object.entries(NEL_BASIC_SHAPE_META)){
+    for(let i=0;i<4;i++) out.push(nelBasicShapeInstance(shape,{
+      size:NEL_BASIC_SHAPE_SIZES[i%NEL_BASIC_SHAPE_SIZES.length],
+      rotation:meta.rotations[i%meta.rotations.length],
+      tone:NEL_BASIC_SHAPE_TONES[(i+Object.keys(NEL_BASIC_SHAPE_META).indexOf(shape))%NEL_BASIC_SHAPE_TONES.length],
+      context:meta.contexts[i%meta.contexts.length],
+      id:shape+'-variant-'+(i+1)
+    }));
+  }
+  return out;
+}
+function nelBasicShapeVariants(shape){
+  return nelBasicShapeCases().filter(x=>x.shape===shape);
+}
+function nelBasicShapeDifferentVariant(x,offset=1){
+  const variants=nelBasicShapeVariants(x.shape);
+  const index=Math.max(0,variants.findIndex(v=>v.id===x.id));
+  return variants[(index+offset)%variants.length];
+}
+function nelBasicShapeDistractors(shape,rng){
+  return shuffled(nelBasicShapeCases().filter(x=>x.shape!==shape),rng)
+    .filter((x,index,all)=>all.findIndex(y=>y.shape===x.shape)===index)
+    .slice(0,3);
+}
+function nelBasicShapeVisualChoices(target,rng,{sameShapeVariant=false,environment=false}={}){
+  const answer=sameShapeVariant?nelBasicShapeDifferentVariant(target,1):target;
+  const options=[answer,...nelBasicShapeDistractors(target.shape,rng).map((x,i)=>{
+    if(environment) return {...x,context:NEL_BASIC_SHAPE_META[x.shape].contexts[(i+1)%NEL_BASIC_SHAPE_META[x.shape].contexts.length]};
+    return nelBasicShapeDifferentVariant(x,(i%3)+1);
+  })];
+  return shuffled(options,rng).map(item=>({
+    value:item.shape===target.shape?'shape-'+target.shape:'shape-'+item.shape,
+    visual:{type:environment?'nel-basic-shape-context':'nel-basic-shape-card',item},
+    ariaLabel:'Şekil seçeneği'
+  }));
+}
+function nelBasicShapeAudioChoices(target,rng){
+  const items=[target.shape,...shuffled(Object.keys(NEL_BASIC_SHAPE_META).filter(shape=>shape!==target.shape),rng).slice(0,3)];
+  return shuffled(items,rng).map(shape=>({
+    value:'shape-'+shape,
+    label:'Dinle',
+    speech:NEL_BASIC_SHAPE_META[shape].nameTr,
+    kind:'shape-name-audio'
+  }));
+}
+function nelBasicShapeIdentityAnswer(){ return 'Döndürmek veya boyutunu değiştirmek şeklin adını değiştirmez.'; }
+function nelBasicShapeIdentityChoices(rng){
+  return semanticChoices(nelBasicShapeIdentityAnswer(),[
+    'Rengi değişince şeklin adı da değişir.',
+    'Büyüyen her şekil dikdörtgen olur.',
+    'Yana dönen her şekil başka bir şekle dönüşür.'
+  ],rng);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2710,6 +2787,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelNumeralFormation10') return make('nel-numeral-formation-1-to-10',nelNumeralFormationCases());
   if(skillId==='nelCompareQuantities10') return make('nel-quantity-comparison-two-sets-to-10',nelQuantityCompareCases());
   if(skillId==='nelPartWhole10') return make('nel-part-whole-to-10',nelPartWholeCases());
+  if(skillId==='nelBasicShapes') return make('nel-basic-shapes-four',nelBasicShapeCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -3344,6 +3422,49 @@ function genNelPartWhole10(rep,d,rng,concept){
     taskKind:'nel-part-whole-transfer-bracelet',taskLabel:'Parça-bütünü boncuk etkinliğine taşı',
     visual:{type:'nel-part-whole-context-split',whole:y.whole,items:y.items,targetSplit:y.split,context:'bracelet'},
     hint:'Aynı boncukları iki gruba ayır; boncuk ekleme veya çıkarma.',explain:'Aynı '+y.whole+' boncuk iki parçaya ayrıldı: '+y.split.left+' ve '+y.split.right+'.'
+  });
+}
+
+function genNelBasicShapes(rep,d,rng,concept){
+  const c=concept?.skillId==='nelBasicShapes'?concept:createConceptInstance('nelBasicShapes',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    const answer='shape-'+x.shape;
+    return qTask('nelBasicShapes','build','Hedef şeklin başka bir örneğini bul ve eşleştir.',answer,{kind:'manipulative',interaction:'nel-basic-shape-match',expectedValue:answer,checkLabel:'Eşimi kontrol et'},{
+      taskKind:'nel-basic-shape-match',taskLabel:'Aynı temel şekli farklı görünüşte eşleştir',
+      visual:{type:'nel-basic-shape-match',target:x,options:nelBasicShapeVisualChoices(x,rng,{sameShapeVariant:true}).map(o=>o.visual.item)},
+      hint:'Renge veya büyüklüğe değil, hangi temel şekil olduğuna bak.',explain:'İki görünüş de '+x.nameTr+' olarak adlandırılır.'
+    });
+  }
+  if(rep==='see'){
+    const y=nelBasicShapeDifferentVariant(x,2),answer='shape-'+x.shape;
+    return qTask('nelBasicShapes','see','Aynı şekli farklı boyut veya yönde gösteren kartı seç.',answer,{kind:'visual-choice',options:nelBasicShapeVisualChoices(y,rng,{sameShapeVariant:true})},{
+      taskKind:'nel-basic-shape-recognise-varied',taskLabel:'Boyut ve yön değişse de şekli tanı',
+      visual:{type:'nel-basic-shape-card',item:x},
+      hint:'Şekil dönebilir veya büyüyüp küçülebilir; adını koruyabilir.',explain:'Bu şekillerin ikisi de '+x.nameTr+'.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol,answer='shape-'+y.shape;
+    return qTask('nelBasicShapes','symbol','Şekle bak. Doğru şekil adını dinleyip seç.',answer,{kind:'manipulative',interaction:'nel-basic-shape-audio-name',expectedValue:answer,checkLabel:'Şekil adımı kontrol et'},{
+      taskKind:'nel-basic-shape-name',taskLabel:'Temel şekli adlandır',
+      visual:{type:'nel-basic-shape-name',item:y,options:nelBasicShapeAudioChoices(y,rng)},
+      hint:'Şekle bak, sonra seçeneklerin adlarını dinle.',explain:'Bu şeklin adı '+y.nameTr+'.'
+    });
+  }
+  if(rep==='explain'){
+    const y=nelBasicShapeDifferentVariant(x,3),answer=nelBasicShapeIdentityAnswer();
+    return qBase('nelBasicShapes','explain','Bu iki şekil neden aynı adla anılabilir?',answer,nelBasicShapeIdentityChoices(rng),{
+      taskKind:'nel-basic-shape-explain-invariance',taskLabel:'Boyut/yön değişse de şekil kimliğini açıkla',
+      visual:{type:'nel-basic-shape-pair',left:x,right:y},
+      hint:'Birinin yönü veya büyüklüğü değişmiş olabilir.',explain:answer
+    });
+  }
+  const y=c.transfer,answer='shape-'+y.shape;
+  return qTask('nelBasicShapes','transfer','Günlük çevrede aynı temel şekli gösteren nesne yüzünü bul.',answer,{kind:'visual-choice',options:nelBasicShapeVisualChoices(y,rng,{sameShapeVariant:true,environment:true})},{
+    taskKind:'nel-basic-shape-transfer-environment',taskLabel:'Temel şekli çevrede bul',
+    visual:{type:'nel-basic-shape-card',item:y},
+    hint:'Nesnenin ne işe yaradığına değil, gördüğün düz yüzün şekline bak.',explain:'Bu çevre örneğinde görülen düz şekil '+y.nameTr+'.'
   });
 }
 
@@ -5099,6 +5220,7 @@ const GENERATORS={
   nelNumeralFormation10:genNelNumeralFormation10,
   nelCompareQuantities10:genNelCompareQuantities10,
   nelPartWhole10:genNelPartWhole10,
+  nelBasicShapes:genNelBasicShapes,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -6140,6 +6262,51 @@ function nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng){
   throw new Error('Unknown nelPartWhole10 practice section: '+sectionId);
 }
 
+function nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelBasicShapeCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='match-basic-shape'){
+    const answer='shape-'+x.shape;
+    return qTask('nelBasicShapes','build','Hedefle aynı temel şekli olan parçayı eşleştir.',answer,{kind:'manipulative',interaction:'nel-basic-shape-match',expectedValue:answer,checkLabel:'Eşimi kontrol et'},{
+      taskKind:'nel-practice-basic-shape-match-'+taskIndex,taskLabel:'Aynı temel şekli eşleştir',
+      visual:{type:'nel-basic-shape-match',target:x,options:nelBasicShapeVisualChoices(x,rng,{sameShapeVariant:true}).map(o=>o.visual.item)},
+      hint:'Renk, boyut ve yön değişebilir; temel şekli karşılaştır.',explain:'Eşleşen iki örnek de '+x.nameTr+'.'
+    });
+  }
+  if(sectionId==='recognise-varied-shape'){
+    const target=nelBasicShapeDifferentVariant(x,(taskIndex%3)+1),answer='shape-'+x.shape;
+    return qTask('nelBasicShapes','see','Hedefle aynı şekli farklı görünüşte gösteren kartı seç.',answer,{kind:'visual-choice',options:nelBasicShapeVisualChoices(target,rng,{sameShapeVariant:true})},{
+      taskKind:'nel-practice-basic-shape-varied-'+taskIndex,taskLabel:'Farklı boyut ve yönde şekli tanı',
+      visual:{type:'nel-basic-shape-card',item:x},
+      hint:'Şeklin yönü ve boyutu değişse de aynı şekil olabilir.',explain:'Doğru kart '+x.nameTr+' biçimini koruyor.'
+    });
+  }
+  if(sectionId==='name-basic-shape'){
+    const answer='shape-'+x.shape;
+    return qTask('nelBasicShapes','symbol','Şeklin doğru adını dinleyip seç.',answer,{kind:'manipulative',interaction:'nel-basic-shape-audio-name',expectedValue:answer,checkLabel:'Adımı kontrol et'},{
+      taskKind:'nel-practice-basic-shape-name-'+taskIndex,taskLabel:'Temel şekli sesli adla eşleştir',
+      visual:{type:'nel-basic-shape-name',item:x,options:nelBasicShapeAudioChoices(x,rng)},
+      hint:'Şekle bak ve seçeneklerin adlarını dinle.',explain:'Bu şekil '+x.nameTr+'.'
+    });
+  }
+  if(sectionId==='explain-shape-identity'){
+    const answer=nelBasicShapeIdentityAnswer(),y=nelBasicShapeDifferentVariant(x,2);
+    return qBase('nelBasicShapes','explain','İki görünüş neden aynı temel şekildir?',answer,nelBasicShapeIdentityChoices(rng),{
+      taskKind:'nel-practice-basic-shape-explain-'+taskIndex,taskLabel:'Şekil kimliğinin yön ve boyuttan bağımsızlığını açıkla',
+      visual:{type:'nel-basic-shape-pair',left:x,right:y},
+      hint:'Renk, büyüklük ve yönün değişmesine rağmen şeklin adına bak.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-environment-shape'){
+    const answer='shape-'+x.shape;
+    return qTask('nelBasicShapes','transfer','Çevrede hedefle aynı düz şekli gösteren örneği seç.',answer,{kind:'visual-choice',options:nelBasicShapeVisualChoices(x,rng,{sameShapeVariant:true,environment:true})},{
+      taskKind:'nel-practice-basic-shape-transfer-'+taskIndex,taskLabel:'Temel şekli günlük çevrede bul',
+      visual:{type:'nel-basic-shape-card',item:x},
+      hint:'Nesnenin kendisine değil, görünen düz şekle bak.',explain:'Doğru çevre örneğinin düz şekli '+x.nameTr+'.'
+    });
+  }
+  throw new Error('Unknown nelBasicShapes practice section: '+sectionId);
+}
+
 function nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelNumeralFormationCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='form-numeral-material'){
@@ -6558,7 +6725,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelPartWhole10') q=nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelBasicShapes') q=nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelPartWhole10') q=nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelCompareQuantities10') q=nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelNumeralFormation10') q=nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelNumberRepresentations10') q=nelNumberRepresentationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -6637,6 +6805,7 @@ const CONCEPT_KEYS={
   nelNumeralFormation10:'nel-numeral-formation-1-to-10',
   nelCompareQuantities10:'nel-quantity-comparison-two-sets-to-10',
   nelPartWhole10:'nel-part-whole-to-10',
+  nelBasicShapes:'nel-basic-shapes-four',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
