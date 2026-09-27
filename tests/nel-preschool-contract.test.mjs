@@ -84,7 +84,17 @@ assert.ok(app.includes("nelBasicShapeLessonItem('square','medium',0")&&app.inclu
 assert.ok(app.includes("nelBasicShapeLessonItem('triangle','large',180")&&app.includes("nelBasicShapeLessonItem('triangle','medium',60"),'Learn must avoid an up-pointing-only triangle prototype');
 assert.ok(styles.includes('.nel-basic-shape-glyph.square')&&styles.includes('.nel-basic-shape-glyph.rectangle')&&styles.includes('.nel-basic-shape-glyph.triangle'),'UI must render four distinct basic-shape geometries');
 assert.ok(styles.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),'phone layout must keep shape choices usable without four-column compression');
-assert.equal(/üç kenar|dört kenar|eşit kenar|köşe say/i.test(app.slice(app.indexOf('const NEL_BASIC_SHAPES_LESSON_VERSION'),app.indexOf('function lessonBlueprintFor'))),false,'KSD 4.2 attribute teaching must not leak into KSD 4.1 Learn copy');
+assert.equal(/üç kenar|dört kenar|eşit kenar|köşe say/i.test(app.slice(app.indexOf('const NEL_BASIC_SHAPES_LESSON_VERSION'),app.indexOf('const NEL_SHAPE_ATTRIBUTES_LESSON_VERSION'))),false,'KSD 4.2 attribute teaching must not leak into KSD 4.1 Learn copy');
+assert.equal(app.includes("if(skill.id==='nelShapeAttributes'){ renderNelShapeAttributesLessonStep(skill); return; }"),true,'shape attributes must teach before checking once Learn UI exists');
+const shapeAttributeLessonIds=['triangle-three-sides','triangle-three-corners','square-four-sides','square-four-equal-sides','rectangle-four-corners','circle-no-straight-sides','circle-no-corners','rotate-square-attributes','resize-triangle-attributes','environment-rectangle-attributes'];
+for(const id of shapeAttributeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL shape-attribute Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelShapeAttributes') return NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.map"),'Inspector must expose shape-attribute Learn steps');
+assert.ok(app.includes('nelShapeAttributeBoardVisual')&&app.includes('data-attribute-marker'),'shape-attribute Learn must use active side/corner touch evidence');
+assert.ok(app.includes('data-shape-attribute-choice')&&app.includes('data-rote-speech'),'shape-attribute text choices must remain audio-addressable');
+assert.ok(app.includes("answer:'side-none'")&&app.includes("answer:'corner-none'"),'circle evidence must explicitly cover zero straight sides and zero corners');
+assert.ok(app.includes("id:'square-four-equal-sides'")&&app.includes('Karenin 4 kenarının hepsi eşit uzunluktadır.'),'Learn must preserve the official square equal-side example');
+assert.ok(styles.includes('.nel-shape-attribute-marker.seen')&&styles.includes('.nel-shape-attribute-choice-grid'),'shape-attribute UI must visibly expose touched attributes and choices');
+assert.ok(styles.includes('.nel-shape-attribute-choice-grid{grid-template-columns:1fr}'),'phone layout must stack attribute choices for readable touch targets');
 assert.equal(app.includes("if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }"),true,'part-whole must teach before checking once Learn UI exists');
 const partWholeLessonIds=['whole-five','split-five-2-3','split-five-1-4','swap-five-4-1','many-splits-six','three-parts-six','name-seven-3-4','explain-eight','bracelet-nine','fingers-ten'];
 for(const id of partWholeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL part-whole Learn step '+id);
@@ -257,7 +267,7 @@ assert.deepEqual(basicShapesContract.practice.sections.map(s=>s.phase),['model',
 assert.deepEqual(basicShapesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
 const shapeAttributesContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelShapeAttributes;
-assert.equal(shapeAttributesContract.status,'foundation');
+assert.equal(shapeAttributesContract.status,'implemented');
 assert.deepEqual(shapeAttributesContract.officialKsd,['4.2']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.2'],['nelShapeAttributes']);
 assert.deepEqual(shapeAttributesContract.officialShapes,['circle','square','rectangle','triangle']);
@@ -934,7 +944,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract','nel-shape-attributes-foundation-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract','nel-shape-attributes-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -946,12 +956,14 @@ assert.ok(contract.includes('nelNumeralFormation10')&&contract.includes('✅ imp
 assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark quantity comparison complete');
 assert.ok(contract.includes('nelPartWhole10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark part-whole complete');
 assert.ok(contract.includes('nelBasicShapes')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark basic shapes complete');
-assert.ok(contract.includes('nelShapeAttributes')&&contract.includes('engine + Practice foundation'),'implementation snapshot must preserve the KSD 4.2 foundation state');
+assert.ok(contract.includes('nelShapeAttributes')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark shape attributes complete');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.2'),'Path C research contract must anchor shape attributes to official KSD 4.2');
 assert.ok(contract.includes('triangle has three sides')&&contract.includes('square has four equal sides'),'KSD 4.2 research boundary must preserve the official shape-attribute examples');
 assert.ok(contract.includes('colour, absolute size and orientation are not defining attributes'),'attribute mastery must not drift into superficial visual cues');
 assert.ok(contract.includes('quadrilateral hierarchy is not a Preschool KSD 4.2 mastery requirement'),'preschool must not back-port later formal classification');
-assert.ok(contract.includes('Status after SAYMERA v1.24.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('Status after SAYMERA v1.25.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('v1.25.0 reference implementation'),'research contract must document the shape-attributes implementation slice');
+assert.ok(contract.includes('10 Learn steps')&&contract.includes('side/corner touch targets'),'shape-attributes implementation notes must preserve active child evidence');
 assert.ok(contract.includes('v1.24.0 reference implementation'),'research contract must document the basic-shapes implementation slice');
 assert.ok(contract.includes('a rotated square remains explicitly a square'),'implementation notes must preserve orientation invariance');
 assert.ok(contract.includes('written-word reading is not required'),'shape naming must not become a literacy gate');

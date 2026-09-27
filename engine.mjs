@@ -633,7 +633,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelShapeAttributes:{
     version:1,
-    status:'foundation',
+    status:'implemented',
     unitId:'nel-shapes-space',
     pathId:'shapes-space',
     officialKsd:['4.2'],
@@ -1152,9 +1152,10 @@ export function runPedagogyStateAudit(state,now=Date.now()){
     );
     const shapeAttributesContract=lessonContractFor('nelShapeAttributes');
     add(
-      'nel-shape-attributes-foundation-contract',
-      'NEL KSD 4.2 temel şekillerin kenar/köşe özelliklerini renk, boyut ve yönden ayıran motor sözleşmesini koruyor',
-      shapeAttributesContract.status==='foundation' &&
+      'nel-shape-attributes-contract',
+      'NEL KSD 4.2 temel şekillerin kenar/köşe özelliklerini renk, boyut ve yönden ayırarak tamamlanmış öğretim sözleşmesi olarak koruyor',
+      !shapeAttributesContract.provisional &&
+        shapeAttributesContract.status==='implemented' &&
         shapeAttributesContract.officialKsd?.join(',')==='4.2' &&
         shapeAttributesContract.attributeBoundary?.sidesAndCorners===true &&
         shapeAttributesContract.attributeBoundary?.squareFourEqualSides===true &&

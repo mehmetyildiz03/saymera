@@ -382,20 +382,29 @@ Recommended product progression:
    - formal proof, angle measurement, and the square/rectangle **quadrilateral hierarchy is not a Preschool KSD 4.2 mastery requirement**;
    - composing new figures remains KSD 4.3; position/direction/distance language remains KSD 4.4.
 
-   **Current engine foundation:**
+   **Implemented evidence:**
    - **Kur:** inspect/count straight sides and corners on a shown basic shape;
    - **Gör:** choose the attribute statement that fits the shown shape;
    - **Göster:** notice the square's four equal sides;
    - **Anlat:** explain why rotation/size changes do not change side/corner structure;
-   - **Taşı:** use the same attribute reasoning on a flat shape seen in an everyday-environment context;
-   - all five Practice sections currently reuse existing accessible choice + basic-shape visuals; a dedicated KSD 4.2 Learn interaction and browser QA are intentionally deferred to the next small implementation slice.
+   - **Taşı:** use the same attribute reasoning on a flat shape seen in an everyday-environment context.
+
+   v1.25.0 reference implementation:
+   - 10 Learn steps build attribute awareness through active side/corner touch targets, explicit no-straight-side/no-corner circle evidence, square equal-side evidence, invariance and environmental transfer;
+   - triangle Learn separately establishes three straight sides and three corners rather than collapsing both into a memorised label;
+   - square Learn establishes four sides and then asks the child to touch all four equal sides;
+   - rectangle Learn preserves four-corner evidence without introducing formal quadrilateral hierarchy;
+   - circle Learn explicitly distinguishes curved boundary from straight-side counting and records 0 straight sides / 0 corners in the SAYMERA product model;
+   - text-bearing Learn choices are audio-addressable so KSD 4.2 is not silently converted into a reading test;
+   - Practice retains five evidence sections aligned to Kur · Gör · Göster · Anlat · Taşı;
+   - Chromium and WebKit QA cover phone and tablet viewports, all 10 Learn steps, side/corner/equal-side touch evidence, rotation/size invariance, environment transfer, Practice, Review, horizontal overflow and Inspector sandbox isolation.
 
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.24.0:
+Status after SAYMERA v1.25.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -413,8 +422,8 @@ Product skill | NEL role | Status
 `nelCompareQuantities10` | 3.7 | ✅ implemented + browser QA
 `nelPartWhole10` | 3.8 | ✅ implemented + browser QA
 `nelBasicShapes` | 4.1 | ✅ implemented + browser QA
-`nelShapeAttributes` | 4.2 | 🟡 engine + Practice foundation; Learn/browser QA next
-`nelShapeCompose` | 4.3 | planned
+`nelShapeAttributes` | 4.2 | ✅ implemented + browser QA
+`nelShapeCompose` | 4.3 | **NEXT**
 `nelSpatialRelations` | 4.4 | planned
 
 This table is a product implementation snapshot, not a claim that NEL itself prescribes this software order.
