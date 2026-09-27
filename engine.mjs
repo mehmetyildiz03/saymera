@@ -2649,12 +2649,10 @@ function nelShapeAttributeCountAnswer(x){
   return x.attributes.sideCount+' düz kenar, '+x.attributes.cornerCount+' köşe';
 }
 function nelShapeAttributeCountChoices(x,rng){
-  const a=x.attributes,answer=nelShapeAttributeCountAnswer(x);
-  const wrong=[
-    Math.max(0,a.sideCount-1)+' düz kenar, '+a.cornerCount+' köşe',
-    (a.sideCount+1)+' düz kenar, '+Math.max(0,a.cornerCount-1)+' köşe',
-    (a.sideCount+2)+' düz kenar, '+(a.cornerCount+1)+' köşe'
-  ].filter(v=>v!==answer);
+  const answer=nelShapeAttributeCountAnswer(x);
+  const candidates=[[0,0],[2,2],[3,3],[4,4],[4,3],[5,5]]
+    .map(([sides,corners])=>sides+' düz kenar, '+corners+' köşe');
+  const wrong=[...new Set(candidates.filter(value=>value!==answer))].slice(0,3);
   return semanticChoices(answer,wrong,rng);
 }
 function nelShapeAttributeStatement(x){ return x.attributes.statement; }
