@@ -4168,6 +4168,7 @@ function renderQuestion(){
   $('#practiceContent').classList.toggle('quantity-comparison-practice',quantityCompare);
   $('#practiceContent').classList.toggle('part-whole-practice',partWhole);
   $('#practiceContent').classList.toggle('basic-shapes-practice',basicShapes);
+  $('#practiceContent').classList.toggle('shape-attributes-practice',shapeAttributes);
   $('#practiceContent').innerHTML=`
     <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''} ${partWhole?'part-whole-question-stage':''} ${basicShapes?'basic-shapes-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
