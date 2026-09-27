@@ -143,6 +143,7 @@ export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
   countingPageUpdated:'2025-12-31',
   verifiedAt:'2026-09-25',
   shapesVerifiedAt:'2026-09-26',
+  shapeAttributesVerifiedAt:'2026-09-27',
   sources:{
     framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
     numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
