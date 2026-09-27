@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -629,6 +629,52 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelShapeAttributes:{
+    version:1,
+    status:'foundation',
+    unitId:'nel-shapes-space',
+    pathId:'shapes-space',
+    officialKsd:['4.2'],
+    officialShapes:['circle','square','rectangle','triangle'],
+    attributeBoundary:{
+      sidesAndCorners:true,
+      squareFourEqualSides:true,
+      colourIsDefiningAttribute:false,
+      absoluteSizeIsDefiningAttribute:false,
+      orientationIsDefiningAttribute:false,
+      formalProofRequired:false,
+      hierarchicalQuadrilateralClassificationRequired:false
+    },
+    sourceGrounding:{
+      triangleThreeSidesExample:true,
+      squareFourEqualSidesExample:true,
+      differentSizesAndOrientationsExample:true
+    },
+    productClarifications:{
+      circleStraightSideCount:0,
+      circleCornerCount:0,
+      rectangleSideCount:4,
+      rectangleCornerCount:4,
+      squareRectangleHierarchyNotMasteryTarget:true
+    },
+    separationFromLaterKsd:{
+      shapeCompositionKsd:'4.3',
+      shapeCompositionRequired:false,
+      spatialRelationsKsd:'4.4',
+      spatialVocabularyRequired:false
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'count-sides-corners',label:'Kenar ve köşeleri fark et',phase:'model',representation:'build'},
+        {id:'recognise-shape-attribute',label:'Şekli özellikleriyle açıkla',phase:'representation',representation:'see'},
+        {id:'notice-equal-sides',label:'Karenin eşit kenarlarını fark et',phase:'symbol',representation:'symbol'},
+        {id:'explain-attribute-invariance',label:'Yön veya boyut değişse de özelliğin neden korunduğunu anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-environment-attributes',label:'Şekil özelliklerini günlük çevrede kullan',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -679,6 +725,7 @@ export const SKILLS = [
   skill('nelCompareQuantities10','preschool','İki kümenin miktarını karşılaştır','Sayma & Sayı Hissi','violet',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelPartWhole10','preschool','10’a kadar bütünü parçalara ayır ve parçaları adlandır','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelBasicShapes','preschool','Daire, kare, dikdörtgen ve üçgeni tanı','Şekil & Uzam','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
+  skill('nelShapeAttributes','preschool','Temel şekillerin kenar ve köşe özelliklerini fark et','Şekil & Uzam','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -1101,6 +1148,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         basicShapesContract.separationFromLaterKsd?.requireSideCountingForMastery===false &&
         PRESCHOOL_NEL_KSD_MAP['4.1']?.includes('nelBasicShapes'),
       basicShapesContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const shapeAttributesContract=lessonContractFor('nelShapeAttributes');
+    add(
+      'nel-shape-attributes-foundation-contract',
+      'NEL KSD 4.2 temel şekillerin kenar/köşe özelliklerini renk, boyut ve yönden ayıran motor sözleşmesini koruyor',
+      shapeAttributesContract.status==='foundation' &&
+        shapeAttributesContract.officialKsd?.join(',')==='4.2' &&
+        shapeAttributesContract.attributeBoundary?.sidesAndCorners===true &&
+        shapeAttributesContract.attributeBoundary?.squareFourEqualSides===true &&
+        shapeAttributesContract.attributeBoundary?.colourIsDefiningAttribute===false &&
+        shapeAttributesContract.attributeBoundary?.orientationIsDefiningAttribute===false &&
+        shapeAttributesContract.sourceGrounding?.triangleThreeSidesExample===true &&
+        shapeAttributesContract.sourceGrounding?.squareFourEqualSidesExample===true &&
+        PRESCHOOL_NEL_KSD_MAP['4.2']?.includes('nelShapeAttributes'),
+      shapeAttributesContract.practice.sections.map(section=>section.id).join(' → ')
     );
     const quantityCompareContract=lessonContractFor('nelCompareQuantities10');
     add(
@@ -2566,6 +2628,61 @@ function nelBasicShapeIdentityChoices(rng){
   ],rng);
 }
 
+const NEL_SHAPE_ATTRIBUTE_META={
+  circle:{sideCount:0,cornerCount:0,statement:'Düz kenarı ve köşesi yoktur.'},
+  square:{sideCount:4,cornerCount:4,statement:'Dört kenarı ve dört köşesi vardır; dört kenarı da eşit uzunluktadır.',allSidesEqual:true},
+  rectangle:{sideCount:4,cornerCount:4,statement:'Dört kenarı ve dört köşesi vardır.',allSidesEqual:null},
+  triangle:{sideCount:3,cornerCount:3,statement:'Üç kenarı ve üç köşesi vardır.',allSidesEqual:null}
+};
+function nelShapeAttributeCase(item){
+  const profile=NEL_SHAPE_ATTRIBUTE_META[item.shape];
+  return {...item,attributes:{...profile}};
+}
+function nelShapeAttributeCases(){ return nelBasicShapeCases().map(nelShapeAttributeCase); }
+export function shapeAttributeCaseFor(shape='triangle',variantIndex=0){
+  const items=nelBasicShapeVariants(shape);
+  const item=items[((Number(variantIndex)||0)%items.length+items.length)%items.length]||nelBasicShapeCases()[0];
+  return nelShapeAttributeCase(item);
+}
+function nelShapeAttributeCountAnswer(x){
+  return x.attributes.sideCount+' düz kenar, '+x.attributes.cornerCount+' köşe';
+}
+function nelShapeAttributeCountChoices(x,rng){
+  const a=x.attributes,answer=nelShapeAttributeCountAnswer(x);
+  const wrong=[
+    Math.max(0,a.sideCount-1)+' düz kenar, '+a.cornerCount+' köşe',
+    (a.sideCount+1)+' düz kenar, '+Math.max(0,a.cornerCount-1)+' köşe',
+    (a.sideCount+2)+' düz kenar, '+(a.cornerCount+1)+' köşe'
+  ].filter(v=>v!==answer);
+  return semanticChoices(answer,wrong,rng);
+}
+function nelShapeAttributeStatement(x){ return x.attributes.statement; }
+function nelShapeAttributeStatementChoices(x,rng){
+  const answer=nelShapeAttributeStatement(x);
+  const wrong=[
+    'Rengi bu şeklin temel özelliğini belirler.',
+    'Yönü değişince kenar ve köşe sayısı değişir.',
+    x.shape==='circle'?'Üç kenarı ve üç köşesi vardır.':'Düz kenarı ve köşesi yoktur.'
+  ];
+  return semanticChoices(answer,wrong,rng);
+}
+function nelShapeAttributeEqualSideAnswer(){ return 'Dört kenarın hepsi eşit uzunluktadır.'; }
+function nelShapeAttributeEqualSideChoices(rng){
+  return semanticChoices(nelShapeAttributeEqualSideAnswer(),[
+    'Yalnız iki kenarı vardır.',
+    'Kenar uzunlukları şeklin rengine göre değişir.',
+    'Döndürülünce eşit kenarlar kaybolur.'
+  ],rng);
+}
+function nelShapeAttributeInvariantAnswer(){ return 'Döndürmek veya boyutunu değiştirmek kenar ve köşe yapısını değiştirmez.'; }
+function nelShapeAttributeInvariantChoices(rng){
+  return semanticChoices(nelShapeAttributeInvariantAnswer(),[
+    'Döndürmek şekle yeni bir kenar ekler.',
+    'Büyütmek köşe sayısını artırır.',
+    'Renk değişince kenar sayısı değişir.'
+  ],rng);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2788,6 +2905,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelCompareQuantities10') return make('nel-quantity-comparison-two-sets-to-10',nelQuantityCompareCases());
   if(skillId==='nelPartWhole10') return make('nel-part-whole-to-10',nelPartWholeCases());
   if(skillId==='nelBasicShapes') return make('nel-basic-shapes-four',nelBasicShapeCases());
+  if(skillId==='nelShapeAttributes') return make('nel-shape-attributes-four',nelShapeAttributeCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -3465,6 +3583,49 @@ function genNelBasicShapes(rep,d,rng,concept){
     taskKind:'nel-basic-shape-transfer-environment',taskLabel:'Temel şekli çevrede bul',
     visual:{type:'nel-basic-shape-card',item:y},
     hint:'Nesnenin ne işe yaradığına değil, gördüğün düz yüzün şekline bak.',explain:'Bu çevre örneğinde görülen düz şekil '+y.nameTr+'.'
+  });
+}
+
+function genNelShapeAttributes(rep,d,rng,concept){
+  const c=concept?.skillId==='nelShapeAttributes'?concept:createConceptInstance('nelShapeAttributes',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    const answer=nelShapeAttributeCountAnswer(x);
+    return qBase('nelShapeAttributes','build','Şeklin düz kenarlarını ve köşelerini incele. Hangi kart doğru?',answer,nelShapeAttributeCountChoices(x,rng),{
+      taskKind:'nel-shape-attribute-count',taskLabel:'Kenar ve köşeleri fark et',
+      visual:{type:'nel-basic-shape-card',item:x},
+      hint:'Şeklin çevresini takip et; düz kenarları ve köşeleri ayrı ayrı say.',explain:x.nameTr+' için '+answer+'.'
+    });
+  }
+  if(rep==='see'){
+    const answer=nelShapeAttributeStatement(x);
+    return qBase('nelShapeAttributes','see','Bu şekli kenar ve köşe özellikleriyle en doğru anlatan ifade hangisi?',answer,nelShapeAttributeStatementChoices(x,rng),{
+      taskKind:'nel-shape-attribute-recognise',taskLabel:'Şekli özellikleriyle açıkla',
+      visual:{type:'nel-basic-shape-card',item:x},
+      hint:'Renge veya yönüne değil, şeklin kenar ve köşe yapısına bak.',explain:answer
+    });
+  }
+  if(rep==='symbol'){
+    const square=shapeAttributeCaseFor('square',Math.floor(rng()*4)),answer=nelShapeAttributeEqualSideAnswer();
+    return qBase('nelShapeAttributes','symbol','Karenin kenarlarıyla ilgili doğru özellik hangisi?',answer,nelShapeAttributeEqualSideChoices(rng),{
+      taskKind:'nel-shape-attribute-equal-sides',taskLabel:'Karenin eşit kenarlarını fark et',
+      visual:{type:'nel-basic-shape-card',item:square},
+      hint:'Dört kenarın uzunluklarını karşılaştır.',explain:answer
+    });
+  }
+  if(rep==='explain'){
+    const y=nelShapeAttributeCase(nelBasicShapeDifferentVariant(x,2)),answer=nelShapeAttributeInvariantAnswer();
+    return qBase('nelShapeAttributes','explain','Bu iki görünüşte şeklin özellikleri neden aynı kaldı?',answer,nelShapeAttributeInvariantChoices(rng),{
+      taskKind:'nel-shape-attribute-invariance',taskLabel:'Kenar-köşe yapısının değişmezliğini açıkla',
+      visual:{type:'nel-basic-shape-pair',left:x,right:y},
+      hint:'Şeklin yönü veya boyutu değişmiş olabilir; kenar ve köşelerini karşılaştır.',explain:answer
+    });
+  }
+  const y=c.transfer,answer=nelShapeAttributeStatement(y);
+  return qBase('nelShapeAttributes','transfer','Çevredeki düz şeklin kenar ve köşe özelliklerini en doğru anlatan ifade hangisi?',answer,nelShapeAttributeStatementChoices(y,rng),{
+    taskKind:'nel-shape-attribute-transfer',taskLabel:'Şekil özelliklerini çevreye taşı',
+    visual:{type:'nel-basic-shape-context',item:y},
+    hint:'Nesnenin adına değil, gördüğün düz şeklin yapısına bak.',explain:answer
   });
 }
 
@@ -5221,6 +5382,7 @@ const GENERATORS={
   nelCompareQuantities10:genNelCompareQuantities10,
   nelPartWhole10:genNelPartWhole10,
   nelBasicShapes:genNelBasicShapes,
+  nelShapeAttributes:genNelShapeAttributes,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -6307,6 +6469,51 @@ function nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   throw new Error('Unknown nelBasicShapes practice section: '+sectionId);
 }
 
+function nelShapeAttributesPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelShapeAttributeCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='count-sides-corners'){
+    const answer=nelShapeAttributeCountAnswer(x);
+    return qBase('nelShapeAttributes','build','Şeklin düz kenar ve köşe sayılarını seç.',answer,nelShapeAttributeCountChoices(x,rng),{
+      taskKind:'nel-practice-shape-attribute-count-'+taskIndex,taskLabel:'Kenar ve köşeleri say',
+      visual:{type:'nel-basic-shape-card',item:x},
+      hint:'Çevresini bir kez takip et; düz kenarları ve köşeleri ayrı say.',explain:x.nameTr+' için '+answer+'.'
+    });
+  }
+  if(sectionId==='recognise-shape-attribute'){
+    const answer=nelShapeAttributeStatement(x);
+    return qBase('nelShapeAttributes','see','Gösterilen şekli doğru anlatan özellik hangisi?',answer,nelShapeAttributeStatementChoices(x,rng),{
+      taskKind:'nel-practice-shape-attribute-recognise-'+taskIndex,taskLabel:'Şekli özelliğiyle tanı',
+      visual:{type:'nel-basic-shape-card',item:x},
+      hint:'Rengi veya duruşu yerine kenar ve köşe yapısına odaklan.',explain:answer
+    });
+  }
+  if(sectionId==='notice-equal-sides'){
+    const square=shapeAttributeCaseFor('square',taskIndex),answer=nelShapeAttributeEqualSideAnswer();
+    return qBase('nelShapeAttributes','symbol','Bu karenin kenarları için doğru ifade hangisi?',answer,nelShapeAttributeEqualSideChoices(rng),{
+      taskKind:'nel-practice-shape-attribute-equal-'+taskIndex,taskLabel:'Karenin dört eşit kenarını fark et',
+      visual:{type:'nel-basic-shape-card',item:square},
+      hint:'Dört kenarı birbiriyle karşılaştır.',explain:answer
+    });
+  }
+  if(sectionId==='explain-attribute-invariance'){
+    const y=nelShapeAttributeCase(nelBasicShapeDifferentVariant(x,(taskIndex%3)+1)),answer=nelShapeAttributeInvariantAnswer();
+    return qBase('nelShapeAttributes','explain','Şekil dönmüş veya boyutu değişmiş olsa da özellikleri neden korunuyor?',answer,nelShapeAttributeInvariantChoices(rng),{
+      taskKind:'nel-practice-shape-attribute-explain-'+taskIndex,taskLabel:'Özellik değişmezliğini açıkla',
+      visual:{type:'nel-basic-shape-pair',left:x,right:y},
+      hint:'İki görünüşün kenar ve köşe yapısını karşılaştır.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-environment-attributes'){
+    const answer=nelShapeAttributeStatement(x);
+    return qBase('nelShapeAttributes','transfer','Çevredeki düz şeklin özelliklerini seç.',answer,nelShapeAttributeStatementChoices(x,rng),{
+      taskKind:'nel-practice-shape-attribute-transfer-'+taskIndex,taskLabel:'Şekil özelliklerini günlük çevrede kullan',
+      visual:{type:'nel-basic-shape-context',item:x},
+      hint:'Nesnenin işlevi yerine düz yüzün kenar ve köşe yapısına bak.',explain:answer
+    });
+  }
+  throw new Error('Unknown nelShapeAttributes practice section: '+sectionId);
+}
+
 function nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelNumeralFormationCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='form-numeral-material'){
@@ -6725,7 +6932,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelBasicShapes') q=nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelShapeAttributes') q=nelShapeAttributesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelBasicShapes') q=nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPartWhole10') q=nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelCompareQuantities10') q=nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelNumeralFormation10') q=nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -6806,6 +7014,7 @@ const CONCEPT_KEYS={
   nelCompareQuantities10:'nel-quantity-comparison-two-sets-to-10',
   nelPartWhole10:'nel-part-whole-to-10',
   nelBasicShapes:'nel-basic-shapes-four',
+  nelShapeAttributes:'nel-shape-attributes-four',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
