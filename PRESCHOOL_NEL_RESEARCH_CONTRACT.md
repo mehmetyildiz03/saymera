@@ -363,6 +363,33 @@ Recommended product progression:
    - Chromium and WebKit QA cover phone and tablet viewports, rotated-shape invariance, environment transfer, Review, horizontal overflow and Inspector sandbox isolation.
 
 2. `nelShapeAttributes` — describe relevant attributes, not colour or orientation
+
+   **Official role:** implements **NEL KSD 4.2 — develop awareness of the attributes of the four basic shapes.**
+
+   **Source-derived boundary (NEL Framework / Numeracy guidance, re-verified 2026-09-27):**
+   - the target set remains **circle / square / rectangle / triangle**;
+   - NEL gives explicit attribute examples including that a **triangle has three sides** and a **square has four equal sides**;
+   - children should encounter shapes in different sizes and orientations, so an attribute must survive superficial appearance changes;
+   - the KSD is awareness of shape attributes, not formal geometric proof or Primary-level classification.
+
+   **SAYMERA KSD 4.2 operational boundary:**
+   - child-facing evidence may use **straight-side count and corner count** to make attributes observable;
+   - the square's **four equal sides** is preserved as an explicit official example;
+   - triangle evidence preserves its **three-side** structure;
+   - for the product model, a circle is represented as having **0 straight sides and 0 corners**, and a non-square rectangle as having **4 sides and 4 corners**; these are implementation details used to make the four-shape set inspectable, not additional official KSDs;
+   - **colour, absolute size and orientation are not defining attributes**;
+   - rotating or resizing a shape must not alter the recorded side/corner structure;
+   - formal proof, angle measurement, and the square/rectangle **quadrilateral hierarchy is not a Preschool KSD 4.2 mastery requirement**;
+   - composing new figures remains KSD 4.3; position/direction/distance language remains KSD 4.4.
+
+   **Current engine foundation:**
+   - **Kur:** inspect/count straight sides and corners on a shown basic shape;
+   - **Gör:** choose the attribute statement that fits the shown shape;
+   - **Göster:** notice the square's four equal sides;
+   - **Anlat:** explain why rotation/size changes do not change side/corner structure;
+   - **Taşı:** use the same attribute reasoning on a flat shape seen in an everyday-environment context;
+   - all five Practice sections currently reuse existing accessible choice + basic-shape visuals; a dedicated KSD 4.2 Learn interaction and browser QA are intentionally deferred to the next small implementation slice.
+
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
@@ -386,7 +413,7 @@ Product skill | NEL role | Status
 `nelCompareQuantities10` | 3.7 | ✅ implemented + browser QA
 `nelPartWhole10` | 3.8 | ✅ implemented + browser QA
 `nelBasicShapes` | 4.1 | ✅ implemented + browser QA
-`nelShapeAttributes` | 4.2 | **NEXT**
+`nelShapeAttributes` | 4.2 | 🟡 engine + Practice foundation; Learn/browser QA next
 `nelShapeCompose` | 4.3 | planned
 `nelSpatialRelations` | 4.4 | planned
 
