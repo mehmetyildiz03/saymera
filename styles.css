@@ -1643,3 +1643,40 @@ button.nel-part-whole-token{cursor:pointer}
   .nel-basic-shape-card{min-width:0;min-height:130px}
   .nel-basic-shape-glyph{width:96px;height:96px}.nel-basic-shape-glyph.small{width:68px;height:68px}.nel-basic-shape-glyph.large{width:116px;height:116px}
 }
+
+/* hidden NEL preschool shape-attributes reference lesson */
+.practice-content.shape-attributes-practice{overflow-y:auto;display:block}
+.nel-shape-attribute-lesson-stage{width:min(900px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.nel-shape-attribute-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.nel-shape-attribute-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+.nel-shape-attribute-section-track span.active{background:#e6f2fa;border-color:#a9c8df;color:#285f8f}
+.nel-shape-attribute-lesson-visual{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:4px 0}
+.nel-shape-attribute-lesson-core{width:min(720px,100%);display:grid;justify-items:center;gap:12px}
+.nel-shape-attribute-board{width:min(420px,100%);display:grid;justify-items:center;gap:10px}
+.nel-shape-attribute-figure{position:relative;width:220px;height:220px;display:grid;place-items:center}
+.nel-shape-attribute-figure>.nel-basic-shape-glyph{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--shape-rotation))}
+.nel-shape-attribute-marker{position:absolute;width:34px;height:34px;border-radius:50%;border:2px solid #8ca5b5;background:var(--paper);box-shadow:0 2px 7px rgba(25,54,75,.12);cursor:pointer;transform:translate(-50%,-50%);z-index:2}
+.nel-shape-attribute-marker::after{content:'';display:block;width:10px;height:10px;border-radius:50%;margin:auto;background:#8ca5b5}
+.nel-shape-attribute-marker.seen{border-color:#2f9987;background:var(--teal-soft);box-shadow:0 0 0 4px rgba(47,153,135,.13)}
+.nel-shape-attribute-marker.seen::after{background:#2f9987}
+.nel-shape-attribute-marker.side-top{left:50%;top:18%}.nel-shape-attribute-marker.side-right{left:82%;top:50%}.nel-shape-attribute-marker.side-bottom{left:50%;top:82%}.nel-shape-attribute-marker.side-left{left:18%;top:50%}
+.nel-shape-attribute-marker.side-top-right{left:68%;top:38%}.nel-shape-attribute-marker.side-top-left{left:32%;top:38%}
+.nel-shape-attribute-marker.corner-top{left:50%;top:14%}.nel-shape-attribute-marker.corner-bottom-right{left:78%;top:80%}.nel-shape-attribute-marker.corner-bottom-left{left:22%;top:80%}
+.nel-shape-attribute-marker.corner-top-left{left:20%;top:20%}.nel-shape-attribute-marker.corner-top-right{left:80%;top:20%}.nel-shape-attribute-marker.corner-bottom-right{left:80%;top:80%}.nel-shape-attribute-marker.corner-bottom-left{left:20%;top:80%}
+.nel-shape-attribute-count{display:flex;align-items:baseline;gap:4px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--paper-2);font-size:10px;font-weight:850;color:var(--muted)}
+.nel-shape-attribute-count strong{font-size:18px;color:var(--navy)}
+.nel-shape-attribute-choice-grid{width:min(620px,100%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.nel-shape-attribute-choice-grid button{min-height:62px;padding:9px 10px;border:1px solid var(--line);border-radius:16px;background:var(--paper);font-size:10px;font-weight:900;color:var(--navy);display:flex;align-items:center;justify-content:center;gap:6px}
+.nel-shape-attribute-choice-grid button.selected{background:var(--teal-soft);border-color:#8bc8ba}
+.nel-shape-attribute-help{min-height:18px;margin:0;font-size:10px;font-weight:850;color:var(--muted);text-align:center}
+.nel-shape-attribute-result{opacity:0;transform:translateY(4px);transition:.18s;min-height:42px;width:min(640px,100%);padding:10px 14px;border-radius:14px;background:var(--teal-soft);color:#17695d;font-size:11px;font-weight:900;text-align:center}
+.nel-shape-attribute-result.revealed{opacity:1;transform:none}
+@media(max-width:699px){
+  .practice-content.shape-attributes-practice{padding-bottom:28px}
+  .nel-shape-attribute-lesson-stage{min-height:calc(100dvh - 102px)}
+  .nel-shape-attribute-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}.nel-shape-attribute-section-track span{flex:0 0 auto}
+  .nel-shape-attribute-figure{width:188px;height:188px}
+  .nel-shape-attribute-marker{width:31px;height:31px}
+  .nel-shape-attribute-choice-grid{grid-template-columns:1fr}
+  .nel-shape-attribute-choice-grid button{min-height:54px}
+}
