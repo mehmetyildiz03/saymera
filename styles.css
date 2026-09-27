@@ -1661,8 +1661,17 @@ button.nel-part-whole-token{cursor:pointer}
 .nel-shape-attribute-marker.seen::after{background:#2f9987}
 .nel-shape-attribute-marker.side-top{left:50%;top:18%}.nel-shape-attribute-marker.side-right{left:82%;top:50%}.nel-shape-attribute-marker.side-bottom{left:50%;top:82%}.nel-shape-attribute-marker.side-left{left:18%;top:50%}
 .nel-shape-attribute-marker.side-top-right{left:68%;top:38%}.nel-shape-attribute-marker.side-top-left{left:32%;top:38%}
-.nel-shape-attribute-marker.corner-top{left:50%;top:14%}.nel-shape-attribute-marker.corner-bottom-right{left:78%;top:80%}.nel-shape-attribute-marker.corner-bottom-left{left:22%;top:80%}
-.nel-shape-attribute-marker.corner-top-left{left:20%;top:20%}.nel-shape-attribute-marker.corner-top-right{left:80%;top:20%}.nel-shape-attribute-marker.corner-bottom-right{left:80%;top:80%}.nel-shape-attribute-marker.corner-bottom-left{left:20%;top:80%}
+.nel-shape-attribute-board[data-attribute-shape="triangle"] .nel-shape-attribute-marker.corner-top{left:50%;top:14%}
+.nel-shape-attribute-board[data-attribute-shape="triangle"] .nel-shape-attribute-marker.corner-bottom-right{left:78%;top:80%}
+.nel-shape-attribute-board[data-attribute-shape="triangle"] .nel-shape-attribute-marker.corner-bottom-left{left:22%;top:80%}
+.nel-shape-attribute-board[data-attribute-shape="square"] .nel-shape-attribute-marker.corner-top-left,
+.nel-shape-attribute-board[data-attribute-shape="rectangle"] .nel-shape-attribute-marker.corner-top-left{left:20%;top:20%}
+.nel-shape-attribute-board[data-attribute-shape="square"] .nel-shape-attribute-marker.corner-top-right,
+.nel-shape-attribute-board[data-attribute-shape="rectangle"] .nel-shape-attribute-marker.corner-top-right{left:80%;top:20%}
+.nel-shape-attribute-board[data-attribute-shape="square"] .nel-shape-attribute-marker.corner-bottom-right,
+.nel-shape-attribute-board[data-attribute-shape="rectangle"] .nel-shape-attribute-marker.corner-bottom-right{left:80%;top:80%}
+.nel-shape-attribute-board[data-attribute-shape="square"] .nel-shape-attribute-marker.corner-bottom-left,
+.nel-shape-attribute-board[data-attribute-shape="rectangle"] .nel-shape-attribute-marker.corner-bottom-left{left:20%;top:80%}
 .nel-shape-attribute-count{display:flex;align-items:baseline;gap:4px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--paper-2);font-size:10px;font-weight:850;color:var(--muted)}
 .nel-shape-attribute-count strong{font-size:18px;color:var(--navy)}
 .nel-shape-attribute-choice-grid{width:min(620px,100%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
