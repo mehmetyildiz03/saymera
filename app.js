@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -2836,6 +2836,112 @@ function renderNelBasicShapesLessonStep(skill,index=null){
   const next=$('#nelBasicShapeLessonNext');wireNelBasicShapesLessonStep(step,next);next?.addEventListener('click',()=>completeNelBasicShapesLessonStep(skill,at));
 }
 
+
+const NEL_SHAPE_ATTRIBUTES_LESSON_VERSION=1;
+const NEL_SHAPE_ATTRIBUTES_SECTIONS=['KENAR','KÖŞE','EŞİT KENAR','DEĞİŞMEZ','ÇEVREDE KULLAN'];
+const NEL_SHAPE_ATTRIBUTE_COUNTS={
+  circle:{sides:0,corners:0},
+  square:{sides:4,corners:4},
+  rectangle:{sides:4,corners:4},
+  triangle:{sides:3,corners:3}
+};
+function nelShapeAttributeLessonItem(shape,size='medium',rotation=0,tone='blue',context=null){
+  return nelBasicShapeLessonItem(shape,size,rotation,tone,context,'attribute-'+shape+'-'+size+'-'+rotation+'-'+(context||'plain'));
+}
+const NEL_SHAPE_ATTRIBUTES_LESSON_STEPS=[
+  {id:'triangle-three-sides',section:'KENAR',kind:'markers',marker:'side',target:nelShapeAttributeLessonItem('triangle','large',0,'rose'),expected:3,title:'Üçgenin düz kenarlarını bul.',body:'Şeklin çevresini takip et ve üç düz kenarın her birine dokun.',result:'Üçgenin 3 düz kenarı vardır.'},
+  {id:'triangle-three-corners',section:'KÖŞE',kind:'markers',marker:'corner',target:nelShapeAttributeLessonItem('triangle','large',60,'amber'),expected:3,title:'Üçgenin köşelerini bul.',body:'Kenarların birleştiği üç köşenin her birine dokun.',result:'Üçgenin 3 köşesi vardır.'},
+  {id:'square-four-sides',section:'KENAR',kind:'markers',marker:'side',target:nelShapeAttributeLessonItem('square','large',0,'blue'),expected:4,title:'Karenin dört kenarını izle.',body:'Karenin çevresindeki dört düz kenarın hepsine dokun.',result:'Karenin 4 düz kenarı vardır.'},
+  {id:'square-four-equal-sides',section:'EŞİT KENAR',kind:'markers',marker:'equal',target:nelShapeAttributeLessonItem('square','large',45,'green'),expected:4,title:'Karenin dört kenarı da eşittir.',body:'Eşit uzunluktaki dört kenarın her birini işaretle.',result:'Karenin 4 kenarının hepsi eşit uzunluktadır.'},
+  {id:'rectangle-four-corners',section:'KÖŞE',kind:'markers',marker:'corner',target:nelShapeAttributeLessonItem('rectangle','large',0,'amber'),expected:4,title:'Dikdörtgenin köşelerini bul.',body:'Dört köşeyi tek tek işaretle.',result:'Dikdörtgenin 4 köşesi vardır.'},
+  {id:'circle-no-straight-sides',section:'KENAR',kind:'absence',target:nelShapeAttributeLessonItem('circle','large',0,'blue'),answer:'side-none',title:'Dairenin düz kenarı var mı?',body:'Dairenin çevresini izle ve düz kenar olup olmadığına karar ver.',result:'Dairenin düz kenarı yoktur.'},
+  {id:'circle-no-corners',section:'KÖŞE',kind:'absence',target:nelShapeAttributeLessonItem('circle','large',0,'green'),answer:'corner-none',title:'Dairenin köşesi var mı?',body:'Çevresinde keskin bir köşe olup olmadığına karar ver.',result:'Dairenin köşesi yoktur.'},
+  {id:'rotate-square-attributes',section:'DEĞİŞMEZ',kind:'invariance',target:nelShapeAttributeLessonItem('square','medium',0,'amber'),other:nelShapeAttributeLessonItem('square','large',45,'rose'),answer:'same',title:'Kare dönünce özellikleri değişir mi?',body:'İki görünüşün kenar ve köşe yapısını karşılaştır.',result:'Döndürmek kenar ve köşe yapısını değiştirmez.'},
+  {id:'resize-triangle-attributes',section:'DEĞİŞMEZ',kind:'invariance',target:nelShapeAttributeLessonItem('triangle','small',180,'blue'),other:nelShapeAttributeLessonItem('triangle','large',60,'green'),answer:'same',title:'Üçgen büyüyünce özellikleri değişir mi?',body:'Küçük ve büyük üçgenin kenar ve köşelerini karşılaştır.',result:'Boyutu değişse de üçgenin 3 kenarı ve 3 köşesi vardır.'},
+  {id:'environment-rectangle-attributes',section:'ÇEVREDE KULLAN',kind:'environment',target:nelShapeAttributeLessonItem('rectangle','large',90,'blue','kapı yüzü'),answer:'rectangle-attributes',title:'Çevredeki düz şeklin özelliklerini kullan.',body:'Kapı yüzündeki düz şekle bak ve doğru özellik açıklamasını seç.',result:'Bu dikdörtgen yüzün 4 düz kenarı ve 4 köşesi vardır.'}
+];
+function nelShapeAttributeSectionTrack(step){
+  return '<div class="nel-shape-attribute-section-track">'+NEL_SHAPE_ATTRIBUTES_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelShapeAttributeMarkerPositions(shape,kind){
+  const positions={
+    triangle:{side:['side-top-right','side-bottom','side-top-left'],corner:['corner-top','corner-bottom-right','corner-bottom-left']},
+    square:{side:['side-top','side-right','side-bottom','side-left'],corner:['corner-top-left','corner-top-right','corner-bottom-right','corner-bottom-left']},
+    rectangle:{side:['side-top','side-right','side-bottom','side-left'],corner:['corner-top-left','corner-top-right','corner-bottom-right','corner-bottom-left']},
+    circle:{side:[],corner:[]}
+  };
+  return positions[shape]?.[kind]||[];
+}
+function nelShapeAttributeBoardVisual(item,markerMode){
+  const kind=markerMode==='equal'?'side':markerMode;
+  const positions=nelShapeAttributeMarkerPositions(item.shape,kind);
+  return '<div class="nel-shape-attribute-board" data-attribute-shape="'+esc(item.shape)+'" data-attribute-mode="'+esc(markerMode)+'">'+
+    '<div class="nel-shape-attribute-figure">'+nelBasicShapeGlyph(item)+positions.map((pos,index)=>'<button type="button" class="nel-shape-attribute-marker '+esc(pos)+'" data-attribute-marker="'+esc(markerMode)+'" data-marker-index="'+index+'" aria-label="'+(markerMode==='corner'?'Köşe ':'Kenar ')+(index+1)+'"></button>').join('')+'</div>'+
+    '<div class="nel-shape-attribute-count" aria-live="polite"><strong data-attribute-seen>0</strong><span> / '+positions.length+' '+(markerMode==='corner'?'köşe':'kenar')+'</span></div>'+
+  '</div>';
+}
+function nelShapeAttributeAudioChoice(value,label,speech){
+  return '<button type="button" data-shape-attribute-choice="'+esc(value)+'" data-rote-speech="'+esc(speech||label)+'">🔊 <span>'+esc(label)+'</span></button>';
+}
+function nelShapeAttributeLessonCore(step){
+  if(step.kind==='markers'){
+    return '<div class="nel-shape-attribute-lesson-core">'+nelShapeAttributeBoardVisual(step.target,step.marker)+'<p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">'+(step.marker==='corner'?'Bütün köşelere dokun.':'Bütün kenarlara dokun.')+'</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+  }
+  if(step.kind==='absence'){
+    const options=step.answer==='side-none'
+      ?[['side-none','0 düz kenar','Sıfır düz kenar'],['side-three','3 düz kenar','Üç düz kenar'],['side-four','4 düz kenar','Dört düz kenar']]
+      :[['corner-none','0 köşe','Sıfır köşe'],['corner-three','3 köşe','Üç köşe'],['corner-four','4 köşe','Dört köşe']];
+    return '<div class="nel-shape-attribute-lesson-core">'+nelBasicShapeCardVisual({item:step.target})+'<div class="nel-shape-attribute-choice-grid">'+options.map(x=>nelShapeAttributeAudioChoice(x[0],x[1],x[2])).join('')+'</div><p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">Seçenekleri dinleyip karar ver.</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+  }
+  if(step.kind==='invariance'){
+    return '<div class="nel-shape-attribute-lesson-core">'+nelBasicShapePairVisual({left:step.target,right:step.other})+'<div class="nel-shape-attribute-choice-grid">'+
+      nelShapeAttributeAudioChoice('same','Aynı kalır','Kenar ve köşe yapısı aynı kalır')+
+      nelShapeAttributeAudioChoice('more','Artar','Döndürünce ya da büyütünce kenar ve köşe sayısı artar')+
+      nelShapeAttributeAudioChoice('less','Azalır','Döndürünce ya da büyütünce kenar ve köşe sayısı azalır')+
+      '</div><p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">İki görünüşün yapısını karşılaştır.</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+  }
+  return '<div class="nel-shape-attribute-lesson-core">'+nelBasicShapeContextVisual({item:step.target})+'<div class="nel-shape-attribute-choice-grid">'+
+    nelShapeAttributeAudioChoice('rectangle-attributes','4 düz kenar · 4 köşe','Dört düz kenar ve dört köşe')+
+    nelShapeAttributeAudioChoice('triangle-attributes','3 düz kenar · 3 köşe','Üç düz kenar ve üç köşe')+
+    nelShapeAttributeAudioChoice('circle-attributes','0 düz kenar · 0 köşe','Sıfır düz kenar ve sıfır köşe')+
+    '</div><p class="nel-shape-attribute-help" id="nelShapeAttributeHelp">Nesnenin adına değil düz yüzün yapısına bak.</p><div class="nel-shape-attribute-result" id="nelShapeAttributeResult">'+esc(step.result)+'</div></div>';
+}
+function bindNelShapeAttributeChoices(root,onChange){
+  if(!root)return;bindNelRoteSpeech(root);
+  root.querySelectorAll('[data-shape-attribute-choice]').forEach(button=>button.addEventListener('click',()=>{
+    root.querySelectorAll('[data-shape-attribute-choice]').forEach(x=>x.classList.remove('selected'));
+    button.classList.add('selected');root.dataset.attributeSelected=button.dataset.shapeAttributeChoice;onChange?.(button.dataset.shapeAttributeChoice);
+  }));
+}
+function wireNelShapeAttributesLessonStep(step,next){
+  const root=$('.nel-shape-attribute-lesson-core'),help=$('#nelShapeAttributeHelp'),result=$('#nelShapeAttributeResult');
+  const finish=()=>{result?.classList.add('revealed');if(help)help.textContent='';if(next)next.disabled=false;};
+  if(step.kind==='markers'){
+    const board=root?.querySelector('.nel-shape-attribute-board'),seen=new Set();
+    board?.querySelectorAll('[data-attribute-marker]').forEach(button=>button.addEventListener('click',()=>{
+      seen.add(button.dataset.markerIndex);button.classList.add('seen');
+      const count=seen.size,node=board.querySelector('[data-attribute-seen]');if(node)node.textContent=String(count);
+      if(count>=step.expected)finish();
+    }));
+    return;
+  }
+  bindNelShapeAttributeChoices(root,value=>{
+    if(value===step.answer)finish();
+    else if(help)help.textContent=step.kind==='absence'?'Şeklin çevresini yeniden takip et.':'Kenar ve köşe yapısını yeniden karşılaştır.';
+  });
+}
+function completeNelShapeAttributesLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_SHAPE_ATTRIBUTES_LESSON_VERSION;
+  if(next>=NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}saveState();session.lessonStepIndex=next;renderNelShapeAttributesLessonStep(skill,next);
+}
+function renderNelShapeAttributesLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_SHAPE_ATTRIBUTES_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);$('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-shape-attribute-lesson-stage" data-nel-shape-attribute-step="'+esc(step.id)+'">'+nelShapeAttributeSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-shape-attribute-lesson-visual">'+nelShapeAttributeLessonCore(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelShapeAttributeLessonNext" disabled>'+(at===NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.length-1?'Şekil özelliklerini tamamla':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelShapeAttributeLessonNext');wireNelShapeAttributesLessonStep(step,next);next?.addEventListener('click',()=>completeNelShapeAttributesLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -3419,6 +3525,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelCompareQuantities10') return NEL_QUANTITY_COMPARE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelPartWhole10') return NEL_PART_WHOLE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelBasicShapes') return NEL_BASIC_SHAPES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelShapeAttributes') return NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -4010,6 +4117,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelCompareQuantities10'){ renderNelCompareQuantitiesLessonStep(skill); return; }
   if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }
   if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }
+  if(skill.id==='nelShapeAttributes'){ renderNelShapeAttributesLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -4051,7 +4159,7 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
-  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',basicShapes=q.skillId==='nelBasicShapes';
+  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',shapeAttributes=q.skillId==='nelShapeAttributes',basicShapes=q.skillId==='nelBasicShapes'||shapeAttributes;
   $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').classList.toggle('subitise-practice',subitise);
   $('#practiceContent').classList.toggle('conservation-practice',conservation);
