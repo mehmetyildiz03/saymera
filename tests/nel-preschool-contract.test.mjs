@@ -5,7 +5,7 @@ import {
   PRESCHOOL_NEL_OFFICIAL_KSD_CODES,PRESCHOOL_NEL_CURRICULUM,PRESCHOOL_NEL_SUPPORTING_CONCEPTS,
   PRESCHOOL_NEL_PEDAGOGY,PRESCHOOL_NEL_SOURCE_AUTHORITY,PRESCHOOL_TO_P1_BRIDGES,
   PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,partWholeCaseFor,shapeAttributeCaseFor,shapeComposeCaseFor,spatialRelationCaseFor,
-  defaultState,runPedagogyStateAudit
+  defaultState,ensureSkillState,runPedagogyStateAudit
 } from '../engine.mjs';
 
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
@@ -32,6 +32,7 @@ assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.verifiedAt,'2026-09-25');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapesVerifiedAt,'2026-09-26');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapeAttributesVerifiedAt,'2026-09-27');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapeComposeVerifiedAt,'2026-09-29');
+assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.spatialRelationsVerifiedAt,'2026-09-30');
 assert.equal(PRESCHOOL_NEL_CURRICULUM.length,4,'Numeracy must preserve the four official learning goals');
 assert.deepEqual(PRESCHOOL_NEL_CURRICULUM.map(goal=>goal.goalId),['1','2','3','4']);
 assert.equal(PRESCHOOL_NEL_CURRICULUM[0].mode,'cross-cutting','Learning Goal 1 is not a separate mastery path');
@@ -79,6 +80,17 @@ assert.equal(preschoolIds.has('nelShapeCompose'),true,'shape composition enters 
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelSpatialRelations'),'Path C metadata must reserve spatial relations');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelSpatialRelations'),'spatial relations should bridge to later P1 geometry without becoming a hard prerequisite');
 assert.equal(preschoolIds.has('nelSpatialRelations'),true,'spatial relations enters the hidden runnable registry once its Practice foundation exists');
+const legacySpatialState=defaultState();
+legacySpatialState.profile='preschool';
+const legacyPosition=ensureSkillState(legacySpatialState,'positionWords');
+legacyPosition.totalAttempts=12;legacyPosition.totalCorrect=12;legacyPosition.stable=true;
+for(const rep of ['build','see','symbol','explain','transfer']) legacyPosition.evidence[rep]={score:1,attempts:3,correct:3,lastSeen:123};
+legacyPosition.learningCycle.firstCycleCompletedAt=123;
+const newSpatial=ensureSkillState(legacySpatialState,'nelSpatialRelations');
+assert.equal(newSpatial.totalAttempts,0,'legacy positionWords attempts must not migrate into redesigned KSD 4.4');
+assert.equal(newSpatial.stable,false,'legacy positionWords mastery must not mark redesigned KSD 4.4 stable');
+assert.equal(newSpatial.learningCycle.firstCycleCompletedAt,0,'legacy positionWords completion must not complete redesigned KSD 4.4');
+assert.equal(Object.values(newSpatial.evidence).every(ev=>(ev.attempts||0)===0),true,'redesigned KSD 4.4 must start with native evidence empty');
 assert.equal(app.includes("if(skill.id==='nelShapeCompose'){ renderNelShapeComposeLessonStep(skill); return; }"),true,'shape composition must teach before checking once Learn UI exists');
 const shapeComposeLessonIds=['two-squares-rectangle','square-triangle-house','official-boat','two-triangles-kite','four-squares-window','rectangle-circles-car','circle-rectangle-tree'];
 for(const id of shapeComposeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL shape-composition Learn step '+id);
