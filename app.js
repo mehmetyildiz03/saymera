@@ -2942,6 +2942,117 @@ function renderNelShapeAttributesLessonStep(skill,index=null){
   const next=$('#nelShapeAttributeLessonNext');wireNelShapeAttributesLessonStep(step,next);next?.addEventListener('click',()=>completeNelShapeAttributesLessonStep(skill,at));
 }
 
+
+const NEL_SHAPE_COMPOSE_LESSON_VERSION=1;
+const NEL_SHAPE_COMPOSE_SECTIONS=['İKİ PARÇA','FİGÜR KUR','RESMÎ ÖRNEK','DAHA ÇOK PARÇA','FARKLI ŞEKİLLER','OYUNDA TAŞI'];
+const NEL_SHAPE_COMPOSE_LAYOUTS={
+  nelRectangle:[
+    {shape:'square',x:32,y:50,w:30,h:30},{shape:'square',x:68,y:50,w:30,h:30}
+  ],
+  nelHouse:[
+    {shape:'triangle',x:50,y:28,w:34,h:30},{shape:'square',x:50,y:68,w:34,h:34}
+  ],
+  nelBoat:[
+    {shape:'square',x:31,y:68,w:28,h:28},{shape:'square',x:61,y:68,w:28,h:28},{shape:'triangle',x:68,y:31,w:30,h:30}
+  ],
+  kite:[
+    {shape:'triangle',x:50,y:34,w:42,h:34},{shape:'triangle',x:50,y:68,w:42,h:34,rotate:180}
+  ],
+  window:[
+    {shape:'square',x:32,y:32,w:27,h:27},{shape:'square',x:68,y:32,w:27,h:27},{shape:'square',x:32,y:68,w:27,h:27},{shape:'square',x:68,y:68,w:27,h:27}
+  ],
+  nelCar:[
+    {shape:'rect',x:50,y:45,w:54,h:28},{shape:'circle',x:32,y:72,w:20,h:20},{shape:'circle',x:68,y:72,w:20,h:20}
+  ],
+  nelTree:[
+    {shape:'circle',x:50,y:35,w:42,h:42},{shape:'rect',x:50,y:72,w:20,h:36}
+  ]
+};
+const NEL_SHAPE_COMPOSE_LESSON_STEPS=[
+  {id:'two-squares-rectangle',section:'İKİ PARÇA',figure:'nelRectangle',name:'dikdörtgen',pieces:['square','square'],title:'İki kareyi birleştir.',body:'İki kareyi hedefteki yerlere taşı ve yeni bir dikdörtgen oluştur.',result:'İki kare yan yana gelerek yeni bir dikdörtgen oluşturabilir.'},
+  {id:'square-triangle-house',section:'FİGÜR KUR',figure:'nelHouse',name:'ev',pieces:['square','triangle'],title:'Kare ve üçgenle bir ev kur.',body:'Kareyi gövdeye, üçgeni çatıya yerleştir. Parçalar birlikte yeni bir figür oluştursun.',result:'Bir kare ve bir üçgen birlikte ev figürü oluşturabilir.'},
+  {id:'official-boat',section:'RESMÎ ÖRNEK',figure:'nelBoat',name:'tekne',pieces:['square','square','triangle'],official:true,title:'İki kare ve bir üçgenle tekne yap.',body:'NEL örneğindeki üç temel şekli hedefteki yerlere yerleştir.',result:'İki kare ve bir üçgen birlikte tekne figürü oluşturdu.'},
+  {id:'two-triangles-kite',section:'FİGÜR KUR',figure:'kite',name:'uçurtma',pieces:['triangle','triangle'],title:'İki üçgenle yeni bir figür kur.',body:'İki üçgeni hedefe yerleştir ve uçurtma figürünü tamamla.',result:'Aynı türden iki temel şekil de yeni bir figür oluşturabilir.'},
+  {id:'four-squares-window',section:'DAHA ÇOK PARÇA',figure:'window',name:'pencere',pieces:['square','square','square','square'],title:'Dört kareyi tek bir bütünde birleştir.',body:'Dört kareyi boş yerlere yerleştir ve pencere figürünü oluştur.',result:'Dört ayrı kare birlikte daha büyük bir figür oluşturdu.'},
+  {id:'rectangle-circles-car',section:'FARKLI ŞEKİLLER',figure:'nelCar',name:'araba',pieces:['rect','circle','circle'],title:'Dikdörtgen ve daireleri birlikte kullan.',body:'Dikdörtgen gövdeyi ve iki daireyi hedefe yerleştir.',result:'Dikdörtgen ve daireler birlikte araba figürü oluşturabilir.'},
+  {id:'circle-rectangle-tree',section:'OYUNDA TAŞI',figure:'nelTree',name:'ağaç',pieces:['circle','rect'],title:'Şekil oyununda kendi bütününü kur.',body:'Daireyi ve dikdörtgeni hedefe yerleştirerek ağaç figürünü tamamla.',result:'Farklı temel şekilleri oyun içinde birleştirerek yeni bir figür oluşturdun.'}
+];
+function nelShapeComposeSectionTrack(step){
+  return '<div class="nel-shape-compose-section-track">'+NEL_SHAPE_COMPOSE_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelShapeComposeSlot(slot,index){
+  const style='left:'+slot.x+'%;top:'+slot.y+'%;width:'+slot.w+'%;height:'+slot.h+'%;--compose-rot:'+(slot.rotate||0)+'deg';
+  return '<button type="button" class="nel-shape-compose-slot" style="'+style+'" data-compose-value="'+esc(slot.shape)+'" data-compose-slot="'+index+'" aria-label="'+esc(slot.shape)+' için hedef yer">'+shapePieceSvg(slot.shape)+'</button>';
+}
+function nelShapeComposeAssembly(step){
+  const slots=NEL_SHAPE_COMPOSE_LAYOUTS[step.figure]||[];
+  const bank=step.pieces.map((shape,index)=>'<button type="button" class="nel-shape-compose-chip" data-compose-value="'+esc(shape)+'" data-compose-piece="'+index+'" aria-label="'+esc(shape)+' parçası '+(index+1)+'">'+shapePieceSvg(shape)+'</button>').join('');
+  return '<div class="nel-shape-compose-core">'+
+    '<div class="nel-shape-compose-workspace">'+
+      '<div class="nel-shape-compose-target"><small>HEDEF BÜTÜN · '+esc(step.name.toUpperCase())+'</small><div class="nel-shape-compose-board" data-compose-figure="'+esc(step.figure)+'"><div class="nel-shape-compose-silhouette">'+compositeFigureSvg(step.figure)+'</div>'+slots.map(nelShapeComposeSlot).join('')+'</div></div>'+
+      '<div class="nel-shape-compose-bank"><small>PARÇALAR</small><div>'+bank+'</div><span>Sürükle veya parçaya dokunup hedef yere dokun.</span></div>'+
+    '</div>'+
+    '<p class="nel-shape-compose-help" id="nelShapeComposeHelp">Bütün parçaları doğru yerlere yerleştir.</p>'+
+    '<div class="nel-shape-compose-result" id="nelShapeComposeResult">'+esc(step.result)+'</div>'+
+  '</div>';
+}
+function wireNelShapeComposeAssembly(step,next){
+  const root=$('.nel-shape-compose-core'),chips=[...(root?.querySelectorAll('.nel-shape-compose-chip')||[])],slots=[...(root?.querySelectorAll('.nel-shape-compose-slot')||[])];
+  const help=$('#nelShapeComposeHelp'),result=$('#nelShapeComposeResult');
+  let selected=null,drag=null,sx=0,sy=0;
+  const finishIfReady=()=>{
+    const filled=slots.filter(slot=>slot.classList.contains('filled')).length;
+    if(filled===slots.length&&slots.length){
+      root.dataset.composeComplete='true';if(help)help.textContent='';result?.classList.add('revealed');if(next)next.disabled=false;
+    }else if(help) help.textContent=filled+' / '+slots.length+' parça yerleşti.';
+  };
+  const place=(chip,slot)=>{
+    if(!chip||!slot||chip.disabled||slot.classList.contains('filled')) return false;
+    if(chip.dataset.composeValue!==slot.dataset.composeValue){
+      slot.classList.add('wrong');setTimeout(()=>slot.classList.remove('wrong'),320);
+      if(help)help.textContent='Bu parça bu boşluğa uymuyor. Şekli ve hedefi yeniden karşılaştır.';
+      return false;
+    }
+    slot.classList.add('filled');slot.innerHTML=shapePieceSvg(chip.dataset.composeValue);
+    chip.disabled=true;chip.classList.add('placed');chips.forEach(x=>x.classList.remove('selected'));selected=null;
+    finishIfReady();return true;
+  };
+  chips.forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      if(chip.disabled||consumeDraggedClick(chip))return;
+      selected=selected===chip?null:chip;chips.forEach(x=>x.classList.toggle('selected',x===selected));
+      if(help)help.textContent=selected?'Şimdi bu parçanın doğru yerine dokun.':'Parça seçimi kaldırıldı.';
+    });
+    chip.addEventListener('pointerdown',ev=>{
+      if(chip.disabled)return;drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');
+    });
+    chip.addEventListener('pointermove',ev=>{
+      if(drag!==chip)return;markDragMovement(chip,sx,sy,ev.clientX,ev.clientY);
+      chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.05)';
+    });
+    chip.addEventListener('pointerup',ev=>{
+      if(drag!==chip)return;
+      const target=dropTargetAtPoint('.nel-shape-compose-slot:not(.filled)',ev.clientX,ev.clientY);
+      chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip,target);drag=null;
+    });
+    chip.addEventListener('pointercancel',()=>{if(drag===chip){chip.style.transform='';chip.classList.remove('dragging');drag=null;}});
+  });
+  slots.forEach(slot=>slot.addEventListener('click',()=>{if(selected)place(selected,slot);}));
+}
+function completeNelShapeComposeLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);lc.lessonVersion=NEL_SHAPE_COMPOSE_LESSON_VERSION;
+  if(next>=NEL_SHAPE_COMPOSE_LESSON_STEPS.length){lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();saveState();session.planIndex++;loadPlanItem();return;}
+  saveState();session.lessonStepIndex=next;renderNelShapeComposeLessonStep(skill,next);
+}
+function renderNelShapeComposeLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_SHAPE_COMPOSE_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_SHAPE_COMPOSE_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_SHAPE_COMPOSE_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_SHAPE_COMPOSE_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_SHAPE_COMPOSE_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-shape-compose-lesson-stage" data-nel-shape-compose-step="'+esc(step.id)+'">'+nelShapeComposeSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_SHAPE_COMPOSE_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-shape-compose-lesson-visual">'+nelShapeComposeAssembly(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelShapeComposeLessonNext" disabled>'+(at===NEL_SHAPE_COMPOSE_LESSON_STEPS.length-1?'Şekil oluşturmayı tamamla':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelShapeComposeLessonNext');wireNelShapeComposeAssembly(step,next);next?.addEventListener('click',()=>completeNelShapeComposeLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -3526,6 +3637,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelPartWhole10') return NEL_PART_WHOLE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelBasicShapes') return NEL_BASIC_SHAPES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelShapeAttributes') return NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelShapeCompose') return NEL_SHAPE_COMPOSE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -4118,6 +4230,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelPartWhole10'){ renderNelPartWholeLessonStep(skill); return; }
   if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }
   if(skill.id==='nelShapeAttributes'){ renderNelShapeAttributesLessonStep(skill); return; }
+  if(skill.id==='nelShapeCompose'){ renderNelShapeComposeLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -4159,7 +4272,7 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
-  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',shapeAttributes=q.skillId==='nelShapeAttributes',basicShapes=q.skillId==='nelBasicShapes'||shapeAttributes;
+  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',shapeAttributes=q.skillId==='nelShapeAttributes',shapeCompose=q.skillId==='nelShapeCompose',basicShapes=q.skillId==='nelBasicShapes'||shapeAttributes;
   $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').classList.toggle('subitise-practice',subitise);
   $('#practiceContent').classList.toggle('conservation-practice',conservation);
@@ -4169,6 +4282,7 @@ function renderQuestion(){
   $('#practiceContent').classList.toggle('part-whole-practice',partWhole);
   $('#practiceContent').classList.toggle('basic-shapes-practice',basicShapes);
   $('#practiceContent').classList.toggle('shape-attributes-practice',shapeAttributes);
+  $('#practiceContent').classList.toggle('shape-compose-practice',shapeCompose);
   $('#practiceContent').innerHTML=`
     <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''} ${partWhole?'part-whole-question-stage':''} ${basicShapes?'basic-shapes-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
@@ -5553,7 +5667,9 @@ function compositeFigureSvg(figure){
     window:'<rect x="12" y="12" width="34" height="34"/><rect x="54" y="12" width="34" height="34"/><rect x="12" y="54" width="34" height="34"/><rect x="54" y="54" width="34" height="34"/>',
     nelBoat:'<rect x="14" y="56" width="34" height="34" rx="2"/><rect x="48" y="56" width="34" height="34" rx="2"/><polygon points="48,14 48,56 82,56"/>',
     nelHouse:'<polygon points="50,10 78,42 22,42"/><rect x="26" y="42" width="48" height="48" rx="2"/>',
-    nelRectangle:'<rect x="14" y="34" width="34" height="34" rx="2"/><rect x="48" y="34" width="34" height="34" rx="2"/>'
+    nelRectangle:'<rect x="14" y="34" width="34" height="34" rx="2"/><rect x="48" y="34" width="34" height="34" rx="2"/>',
+    nelCar:'<rect x="18" y="34" width="64" height="34" rx="4"/><circle cx="32" cy="76" r="10"/><circle cx="68" cy="76" r="10"/>',
+    nelTree:'<circle cx="50" cy="34" r="25"/><rect x="42" y="57" width="16" height="34" rx="2"/>'
   };
   return `<svg class="sg-composite-svg" viewBox="0 0 100 100" role="img" aria-label="birleşik şekil">${body[figure]||body.house}</svg>`;
 }
