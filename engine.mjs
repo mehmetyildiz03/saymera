@@ -728,8 +728,8 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
     review:{enabled:true}
   },
   nelSpatialRelations:{
-    version:1,
-    status:'foundation',
+    version:2,
+    status:'implemented',
     unitId:'nel-shapes-space',
     pathId:'shapes-space',
     officialKsd:['4.4'],
@@ -779,9 +779,12 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
     },
     implementationBoundary:{
       practiceFoundationImplemented:true,
-      dedicatedLearnMovementFlowImplemented:false,
-      browserQaImplemented:false,
-      masteryComplete:false
+      activePracticePlacementImplemented:true,
+      dedicatedLearnMovementFlowImplemented:true,
+      allTenOfficialRelationsLearnImplemented:true,
+      rightLeftMovementLearnImplemented:true,
+      browserQaImplemented:true,
+      masteryComplete:true
     },
     review:{enabled:true}
   }
