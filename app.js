@@ -5552,7 +5552,7 @@ function compositeFigureSvg(figure){
     boat:'<path d="M12 62 A38 30 0 0 0 88 62 L12 62 Z"/><rect x="48" y="18" width="5" height="44"/><polygon points="53,20 82,45 53,45"/>',
     window:'<rect x="12" y="12" width="34" height="34"/><rect x="54" y="12" width="34" height="34"/><rect x="12" y="54" width="34" height="34"/><rect x="54" y="54" width="34" height="34"/>',
     nelBoat:'<rect x="14" y="56" width="34" height="34" rx="2"/><rect x="48" y="56" width="34" height="34" rx="2"/><polygon points="48,14 48,56 82,56"/>',
-    nelHouse:'<polygon points="50,10 82,42 18,42"/><rect x="18" y="42" width="64" height="48" rx="2"/>',
+    nelHouse:'<polygon points="50,10 78,42 22,42"/><rect x="26" y="42" width="48" height="48" rx="2"/>',
     nelRectangle:'<rect x="14" y="34" width="34" height="34" rx="2"/><rect x="48" y="34" width="34" height="34" rx="2"/>'
   };
   return `<svg class="sg-composite-svg" viewBox="0 0 100 100" role="img" aria-label="birleşik şekil">${body[figure]||body.house}</svg>`;
