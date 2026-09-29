@@ -6027,7 +6027,8 @@ function nelSpatialSceneVisual(v={}){
   const labels={top:'üstünde',bottom:'altında','in-front-of':'önünde',behind:'arkasında',up:'yukarı',down:'aşağı',left:'sola',right:'sağa',far:'uzakta',near:'yakında'};
   if(kind==='direction'){
     const arrows={up:'↑',down:'↓',left:'←',right:'→'};
-    return '<div class="nel-spatial-scene direction" data-spatial-relation="'+esc(relation)+'"><div class="nel-spatial-direction-track"><span class="nel-spatial-start">●</span><b>'+esc(arrows[relation]||'→')+'</b><span class="nel-spatial-end"></span></div><small>HAREKET YÖNÜ</small></div>';
+    const ends={up:'left:50%;top:12%',down:'left:50%;top:88%',left:'left:12%;top:50%',right:'left:88%;top:50%'};
+    return '<div class="nel-spatial-scene direction '+esc(relation)+'" data-spatial-relation="'+esc(relation)+'"><div class="nel-spatial-direction-track"><span class="nel-spatial-start">●</span><b>'+esc(arrows[relation]||'→')+'</b><span class="nel-spatial-end" style="'+esc(ends[relation]||ends.right)+'"></span></div><small>HAREKET YÖNÜ</small></div>';
   }
   const positions={
     top:'--spatial-x:50%;--spatial-y:15%;',
