@@ -2750,7 +2750,7 @@ const NEL_SHAPE_COMPOSE_ALLOWED_PIECES=['circle','square','rect','triangle'];
 function nelShapeComposeCases(){
   return [
     {id:'boat',figure:'nelBoat',nameTr:'tekne',kind:'figure',pieces:['square','square','triangle'],sourceRole:'official-example'},
-    {id:'house',figure:'house',nameTr:'ev',kind:'figure',pieces:['square','triangle'],sourceRole:'product-example'},
+    {id:'house',figure:'nelHouse',nameTr:'ev',kind:'figure',pieces:['square','triangle'],sourceRole:'product-example'},
     {id:'kite',figure:'kite',nameTr:'uçurtma',kind:'figure',pieces:['triangle','triangle'],sourceRole:'product-example'},
     {id:'window',figure:'window',nameTr:'pencere',kind:'figure',pieces:['square','square','square','square'],sourceRole:'product-example'},
     {id:'rectangle',figure:'nelRectangle',nameTr:'dikdörtgen',kind:'other-shape',pieces:['square','square'],sourceRole:'product-example'}
