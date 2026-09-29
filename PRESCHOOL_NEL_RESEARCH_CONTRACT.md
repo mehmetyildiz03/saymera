@@ -437,12 +437,13 @@ Recommended product progression:
    - the interface uses target silhouettes and piece slots as scaffolding, but completing the KSD still depends on placing the actual pieces rather than selecting their names;
    - Practice keeps five evidence sections aligned to Kur · Gör · Göster · Anlat · Taşı; selection-style Practice remains supporting evidence, while spatial Learn supplies the required assembly evidence;
    - Chromium and WebKit QA cover phone and tablet viewports, all Learn steps, pointer/tap placement, the official boat composition, Practice, Review, horizontal overflow and Inspector sandbox isolation.
+   - v1.26.1 hardens Practice on WebKit/mobile so the reference figure reserves its own normal-flow region and can no longer overlap/intercept visual answer hit areas; browser QA now checks the reference/answer bounding boxes directly.
 
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.26.0:
+Status after SAYMERA v1.26.1:
 
 Product skill | NEL role | Status
 ---|---|---
