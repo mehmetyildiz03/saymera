@@ -3117,7 +3117,7 @@ function wireNelSpatialRelationsLessonStep(step,next){
   const finish=target=>{
     core.dataset.spatialComplete='true';
     core.dataset.spatialSelected=target.dataset.spatialLessonTarget;
-    targets.forEach(x=>{x.disabled=true;x.classList.toggle('correct',x===target);});
+    targets.forEach(x=>{x.disabled=true;x.classList.remove('wrong');x.classList.toggle('correct',x===target);});
     mover?.classList.add('moved');
     if(mover){mover.style.setProperty('--mover-x',target.style.getPropertyValue('--target-x'));mover.style.setProperty('--mover-y',target.style.getPropertyValue('--target-y'));mover.dataset.spatialRelation=step.relation;}
     if(step.kind==='depth'){core.classList.toggle('mover-behind',step.relation==='behind');core.classList.toggle('mover-front',step.relation==='in-front-of');}
