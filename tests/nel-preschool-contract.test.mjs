@@ -76,7 +76,7 @@ assert.equal(preschoolIds.has('nelShapeAttributes'),true,'shape attributes enter
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelShapeCompose'),'Path C metadata must reserve shape composition');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelShapeCompose'),'shape composition should bridge to later P1 geometry without becoming a hard prerequisite');
 assert.equal(preschoolIds.has('nelShapeCompose'),true,'shape composition enters the hidden runnable registry once its engine foundation exists');
-assert.ok(app.includes("nelBoat:'")&&app.includes("nelRectangle:'"),'Preschool composition visuals must include an official-example boat and a composed other-shape case');
+assert.ok(app.includes("nelBoat:'")&&app.includes("nelHouse:'")&&app.includes("nelRectangle:'"),'Preschool composition visuals must preserve their declared basic-shape piece sets');
 assert.ok(app.includes("shapeComposeBuilder(v.figure,v.pieces,v.allowedPieces)"),'composition renderer must accept a Preschool-specific allowed-piece boundary');
 assert.ok(app.includes("Array.isArray(allowedPieces)&&allowedPieces.length?allowedPieces"),'Preschool shape composition must be able to exclude P1-only part shapes');
 assert.equal(app.includes("if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }"),true,'basic shapes must teach before checking once Learn UI exists');
