@@ -5380,6 +5380,8 @@ function renderVisual(v,q){
     case 'shape-scene': return shapeScene(v.shape);
     case 'sort': return renderSort(v.mode);
     case 'position': return renderPosition(v.relation);
+    case 'nel-spatial-scene': return nelSpatialSceneVisual(v);
+    case 'nel-spatial-word-card': return nelSpatialWordCard(v);
     case 'sequence': return `<div class="sequence-row">${v.items.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
     case 'length-bars': return renderLengthBars(v);
     case 'pictograph': return `<div class="pictograph">${v.cats.map((cat,i)=>`<div class="pic-row"><b>${esc(cat)}</b><div>${Array.from({length:v.vals[i]},()=>'<i></i>').join('')}</div></div>`).join('')}</div>`;
@@ -5878,6 +5880,34 @@ function renderSort(mode){
   if(mode==='size') return `<div class="sort-visual"><div class="sort-bin"><i class="sort-item big"></i><i class="sort-item square big"></i></div><div class="sort-bin"><i class="sort-item"></i><i class="sort-item square"></i></div></div>`;
   return `<div class="sort-visual"><div class="sort-bin"><i class="sort-item"></i><i class="sort-item big"></i></div><div class="sort-bin"><i class="sort-item square"></i><i class="sort-item square big"></i></div></div>`;
 }
+function nelSpatialWordCard(v={}){
+  const kindLabel={position:'KONUM',direction:'YÖN',distance:'UZAKLIK'}[v.kind]||'UZAMSAL İLİŞKİ';
+  return '<div class="nel-spatial-word-card"><small>'+esc(kindLabel)+'</small><strong>'+esc(v.label||'')+'</strong></div>';
+}
+function nelSpatialSceneVisual(v={}){
+  const relation=String(v.relation||'top');
+  const kind=String(v.kind||'position');
+  const labels={top:'üstünde',bottom:'altında','in-front-of':'önünde',behind:'arkasında',up:'yukarı',down:'aşağı',left:'sola',right:'sağa',far:'uzakta',near:'yakında'};
+  if(kind==='direction'){
+    const arrows={up:'↑',down:'↓',left:'←',right:'→'};
+    return '<div class="nel-spatial-scene direction" data-spatial-relation="'+esc(relation)+'"><div class="nel-spatial-direction-track"><span class="nel-spatial-start">●</span><b>'+esc(arrows[relation]||'→')+'</b><span class="nel-spatial-end"></span></div><small>HAREKET YÖNÜ</small></div>';
+  }
+  const positions={
+    top:'--spatial-x:50%;--spatial-y:15%;',
+    bottom:'--spatial-x:50%;--spatial-y:84%;',
+    left:'--spatial-x:16%;--spatial-y:50%;',
+    right:'--spatial-x:84%;--spatial-y:50%;',
+    near:'--spatial-x:67%;--spatial-y:58%;',
+    far:'--spatial-x:92%;--spatial-y:18%;'
+  };
+  const depth=relation==='in-front-of'||relation==='behind';
+  const context=v.context==='block-play'?'<span class="nel-spatial-block-extra one"></span><span class="nel-spatial-block-extra two"></span>':'';
+  if(depth){
+    return '<div class="nel-spatial-scene depth '+esc(relation)+'" data-spatial-relation="'+esc(relation)+'"><div class="nel-spatial-depth-stage">'+context+'<span class="nel-spatial-ref-block"></span><span class="nel-spatial-target"></span></div><small>'+esc(labels[relation]||relation)+'</small></div>';
+  }
+  return '<div class="nel-spatial-scene '+esc(kind)+'" data-spatial-relation="'+esc(relation)+'"><div class="nel-spatial-plane">'+context+'<span class="nel-spatial-ref-block"></span><span class="nel-spatial-target" style="'+esc(positions[relation]||positions.top)+'"></span></div><small>'+esc(kind==='distance'?'UZAKLIK':'KONUM')+'</small></div>';
+}
+
 function renderPosition(relation){
   const styles={üstünde:'left:128px;top:5px',altında:'left:128px;top:160px',solunda:'left:28px;top:82px',sağında:'left:228px;top:82px'};
   return `<div class="position-visual"><div class="position-ref"></div><div class="position-dot" style="${styles[relation]||styles.üstünde}"></div></div>`;
