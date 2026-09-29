@@ -48,7 +48,7 @@ const P2_LESSON_BLUEPRINTS={
   solids2:{headline:'3B cisimleri özelliklerine göre ayır.',lead:'Küp, dikdörtgen prizma, koni, silindir ve küreyi yüzeyleri ve biçimleriyle tanıyacağız.',takeaway:'Adından önce cismin hangi özelliklere sahip olduğuna bak.'},
   pictureGraphScale2:{headline:'Bir resim her zaman bir tane demek değildir.',lead:'Ölçekli resimli grafikte önce anahtarı oku; bir simgenin kaç nesneyi temsil ettiğini bul.',takeaway:'Grafiği okumadan önce ölçeği oku.'}
 };
-const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
+const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose','nelSpatialRelations','number1000','compareOrder1000','numberPattern1000','oddEven1000']);
 const NUMBER1000_LESSON_VERSION=6;
 const NUMBER1000_SECTIONS=['GRUPLA','SAY','KUR','BASAMAK','OKU / YAZ'];
 const NUMBER1000_LESSON_STEPS=[
@@ -3062,6 +3062,98 @@ function renderNelShapeComposeLessonStep(skill,index=null){
   const next=$('#nelShapeComposeLessonNext');wireNelShapeComposeAssembly(step,next);next?.addEventListener('click',()=>completeNelShapeComposeLessonStep(skill,at));
 }
 
+
+const NEL_SPATIAL_RELATIONS_LESSON_VERSION=1;
+const NEL_SPATIAL_RELATIONS_SECTIONS=['KONUM','YÖN','UZAKLIK'];
+const NEL_SPATIAL_RELATIONS_LESSON_STEPS=[
+  {id:'position-top',section:'KONUM',kind:'position',relation:'top',title:'Mavi topu bloğun üstüne yerleştir.',body:'Turuncu bloğu referans al. Mavi topun üstünde olması için doğru hedef bölgeye dokun.',result:'Mavi top turuncu bloğun üstünde.'},
+  {id:'position-bottom',section:'KONUM',kind:'position',relation:'bottom',title:'Mavi topu bloğun altına yerleştir.',body:'Aynı referansı koru; bu kez mavi top bloğun altında olsun.',result:'Mavi top turuncu bloğun altında.'},
+  {id:'position-front',section:'KONUM',kind:'depth',relation:'in-front-of',title:'Mavi topu bloğun önüne getir.',body:'Öndeki nesne referans bloğun önünde görünür. Doğru derinlik bölgesine dokun.',result:'Mavi top turuncu bloğun önünde.'},
+  {id:'position-behind',section:'KONUM',kind:'depth',relation:'behind',title:'Mavi topu bloğun arkasına götür.',body:'Arkada olan nesne referans bloğun gerisinde kalır. Doğru derinlik bölgesine dokun.',result:'Mavi top turuncu bloğun arkasında.'},
+  {id:'direction-up',section:'YÖN',kind:'direction',relation:'up',title:'Karakteri yukarı hareket ettir.',body:'Karakter merkezden başlıyor. Yukarı yöndeki hedefe dokun.',result:'Karakter yukarı hareket etti.'},
+  {id:'direction-down',section:'YÖN',kind:'direction',relation:'down',title:'Karakteri aşağı hareket ettir.',body:'Başlangıç noktasından aşağı yöndeki hedefe dokun.',result:'Karakter aşağı hareket etti.'},
+  {id:'direction-left',section:'YÖN',kind:'direction',relation:'left',title:'Karakteri sola hareket ettir.',body:'Merkezden sol taraftaki hedefe dokun ve karakteri sola taşı.',result:'Karakter sola hareket etti.'},
+  {id:'direction-right',section:'YÖN',kind:'direction',relation:'right',title:'Karakteri sağa hareket ettir.',body:'Merkezden sağ taraftaki hedefe dokun ve karakteri sağa taşı.',result:'Karakter sağa hareket etti.'},
+  {id:'distance-near',section:'UZAKLIK',kind:'distance',relation:'near',title:'Mavi topu bloğa yakın yerleştir.',body:'Turuncu bloğu referans al. Mavi top için yakın olan hedefe dokun.',result:'Mavi top turuncu bloğa yakın.'},
+  {id:'distance-far',section:'UZAKLIK',kind:'distance',relation:'far',title:'Mavi topu bloktan uzağa yerleştir.',body:'Aynı referansa göre bu kez uzak olan hedefe dokun.',result:'Mavi top turuncu bloktan uzak.'}
+];
+const NEL_SPATIAL_TARGETS={
+  position:[
+    {id:'top',x:50,y:16,mark:'↑'},{id:'bottom',x:50,y:84,mark:'↓'}
+  ],
+  depth:[
+    {id:'behind',x:39,y:39,mark:'◌'},{id:'in-front-of',x:62,y:63,mark:'●'}
+  ],
+  direction:[
+    {id:'up',x:50,y:14,mark:'↑'},{id:'down',x:50,y:86,mark:'↓'},{id:'left',x:14,y:50,mark:'←'},{id:'right',x:86,y:50,mark:'→'}
+  ],
+  distance:[
+    {id:'near',x:68,y:59,mark:'•'},{id:'far',x:90,y:18,mark:'•'}
+  ]
+};
+function nelSpatialSectionTrack(step){
+  return '<div class="nel-spatial-section-track">'+NEL_SPATIAL_RELATIONS_SECTIONS.map(name=>'<span class="'+(name===step.section?'active':'')+'">'+esc(name)+'</span>').join('')+'</div>';
+}
+function nelSpatialLessonTarget(target){
+  return '<button type="button" class="nel-spatial-lesson-target '+esc(target.id)+'" data-spatial-lesson-target="'+esc(target.id)+'" style="--target-x:'+target.x+'%;--target-y:'+target.y+'%" aria-label="'+esc(target.id)+' hedefi"><span>'+esc(target.mark)+'</span></button>';
+}
+function nelSpatialLessonBoard(step){
+  const targets=NEL_SPATIAL_TARGETS[step.kind]||[];
+  const ref=step.kind==='direction'
+    ?'<span class="nel-spatial-avatar" id="nelSpatialMover" aria-hidden="true">●</span>'
+    :'<span class="nel-spatial-lesson-ref" aria-hidden="true"></span><span class="nel-spatial-avatar object" id="nelSpatialMover" aria-hidden="true">●</span>';
+  return '<div class="nel-spatial-lesson-core" data-spatial-kind="'+esc(step.kind)+'" data-spatial-expected="'+esc(step.relation)+'">'+
+    '<div class="nel-spatial-action-board '+esc(step.kind)+'">'+
+      '<div class="nel-spatial-board-guides" aria-hidden="true"></div>'+ref+
+      targets.map(nelSpatialLessonTarget).join('')+
+    '</div>'+
+    '<p class="nel-spatial-lesson-help" id="nelSpatialLessonHelp">Doğru hedef bölgeye dokun.</p>'+
+    '<div class="nel-spatial-lesson-result" id="nelSpatialLessonResult">'+esc(step.result)+'</div>'+
+  '</div>';
+}
+function wireNelSpatialRelationsLessonStep(step,next){
+  const core=$('.nel-spatial-lesson-core'),mover=$('#nelSpatialMover'),help=$('#nelSpatialLessonHelp'),result=$('#nelSpatialLessonResult');
+  const targets=[...(core?.querySelectorAll('[data-spatial-lesson-target]')||[])];
+  const finish=target=>{
+    core.dataset.spatialComplete='true';
+    core.dataset.spatialSelected=target.dataset.spatialLessonTarget;
+    targets.forEach(x=>{x.disabled=true;x.classList.toggle('correct',x===target);});
+    mover?.classList.add('moved');
+    if(mover){mover.style.setProperty('--mover-x',target.style.getPropertyValue('--target-x'));mover.style.setProperty('--mover-y',target.style.getPropertyValue('--target-y'));mover.dataset.spatialRelation=step.relation;}
+    if(step.kind==='depth'){core.classList.toggle('mover-behind',step.relation==='behind');core.classList.toggle('mover-front',step.relation==='in-front-of');}
+    if(help)help.textContent='';
+    result?.classList.add('revealed');
+    if(next)next.disabled=false;
+  };
+  targets.forEach(target=>target.addEventListener('click',()=>{
+    if(core?.dataset.spatialComplete==='true')return;
+    if(target.dataset.spatialLessonTarget!==step.relation){
+      target.classList.remove('wrong');void target.offsetWidth;target.classList.add('wrong');
+      if(help)help.textContent='Bu hedef istenen ilişkiyi göstermiyor. Referansa ve yöne yeniden bak.';
+      return;
+    }
+    finish(target);
+  }));
+}
+function completeNelSpatialRelationsLessonStep(skill,index){
+  const ss=ensureSkillState(state,skill.id),lc=ss.learningCycle,next=index+1;
+  lc.lessonStepIndex=Math.max(lc.lessonStepIndex||0,next);
+  lc.lessonVersion=NEL_SPATIAL_RELATIONS_LESSON_VERSION;
+  if(next>=NEL_SPATIAL_RELATIONS_LESSON_STEPS.length){
+    lc.lessonTaughtAt=lc.lessonTaughtAt||Date.now();
+    saveState();session.planIndex++;loadPlanItem();return;
+  }
+  saveState();session.lessonStepIndex=next;renderNelSpatialRelationsLessonStep(skill,next);
+}
+function renderNelSpatialRelationsLessonStep(skill,index=null){
+  const ss=ensureSkillState(state,skill.id),saved=Math.min(NEL_SPATIAL_RELATIONS_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_SPATIAL_RELATIONS_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const step=NEL_SPATIAL_RELATIONS_LESSON_STEPS[at];session.lessonStepIndex=at;currentQuestion=null;renderPracticeHeader(skill);
+  $('#practiceMode').textContent='KEŞFET';$('#practiceMode').dataset.mode='teach';$('#practiceCounter').textContent=step.section+' • '+(at+1)+' / '+NEL_SPATIAL_RELATIONS_LESSON_STEPS.length;$('#practiceProgress').style.width=Math.round((at+1)/NEL_SPATIAL_RELATIONS_LESSON_STEPS.length*100)+'%';
+  $('#practiceContent').innerHTML='<div class="nel-spatial-lesson-stage" data-nel-spatial-step="'+esc(step.id)+'" data-spatial-relation="'+esc(step.relation)+'">'+nelSpatialSectionTrack(step)+'<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_SPATIAL_RELATIONS_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div><div class="nel-spatial-lesson-visual">'+nelSpatialLessonBoard(step)+'</div><div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelSpatialLessonNext" disabled>'+(at===NEL_SPATIAL_RELATIONS_LESSON_STEPS.length-1?'Uzamsal keşfi tamamla':'Sonraki keşif')+' <b>→</b></button></div></div>';
+  const next=$('#nelSpatialLessonNext');wireNelSpatialRelationsLessonStep(step,next);next?.addEventListener('click',()=>completeNelSpatialRelationsLessonStep(skill,at));
+}
+
 function lessonBlueprintFor(skill){
   return P2_LESSON_BLUEPRINTS[skill.id]||{
     headline:`${skill.label} konusunu birlikte keşfedelim.`,
@@ -3647,6 +3739,7 @@ function inspectorLessonSteps(skillId){
   if(skillId==='nelBasicShapes') return NEL_BASIC_SHAPES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelShapeAttributes') return NEL_SHAPE_ATTRIBUTES_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   if(skillId==='nelShapeCompose') return NEL_SHAPE_COMPOSE_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
+  if(skillId==='nelSpatialRelations') return NEL_SPATIAL_RELATIONS_LESSON_STEPS.map((step,index)=>({index,id:step.id,label:(index+1)+'. '+step.title}));
   return [];
 }
 function inspectorCompletePriorPath(skillId){
@@ -4240,6 +4333,7 @@ function renderLessonIntro(skill){
   if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }
   if(skill.id==='nelShapeAttributes'){ renderNelShapeAttributesLessonStep(skill); return; }
   if(skill.id==='nelShapeCompose'){ renderNelShapeComposeLessonStep(skill); return; }
+  if(skill.id==='nelSpatialRelations'){ renderNelSpatialRelationsLessonStep(skill); return; }
   if(skill.id==='number1000'){ renderNumber1000LessonStep(skill); return; }
   if(skill.id==='compareOrder1000'){ renderCompareOrderLessonStep(skill); return; }
   if(skill.id==='numberPattern1000'){ renderPattern1000LessonStep(skill); return; }
@@ -4281,7 +4375,7 @@ function renderQuestion(){
   renderPracticeHeader(s);
   const patternRule=patternContinuationRule(q);
   const initialVisual=patternRule&&q.visual.type==='pattern-step-interactive'?{type:'sequence',items:q.visual.seq}:q.visual;
-  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',shapeAttributes=q.skillId==='nelShapeAttributes',shapeCompose=q.skillId==='nelShapeCompose',basicShapes=q.skillId==='nelBasicShapes'||shapeAttributes;
+  const reliableCount=q.skillId==='nelReliableCount10',subitise=q.skillId==='nelSubitise5',conservation=q.skillId==='nelConservation10',numberRep=q.skillId==='nelNumberRepresentations10',numeralFormation=q.skillId==='nelNumeralFormation10',quantityCompare=q.skillId==='nelCompareQuantities10',partWhole=q.skillId==='nelPartWhole10',shapeAttributes=q.skillId==='nelShapeAttributes',shapeCompose=q.skillId==='nelShapeCompose',spatialRelations=q.skillId==='nelSpatialRelations',basicShapes=q.skillId==='nelBasicShapes'||shapeAttributes;
   $('#practiceContent').classList.toggle('reliable-count-practice',reliableCount);
   $('#practiceContent').classList.toggle('subitise-practice',subitise);
   $('#practiceContent').classList.toggle('conservation-practice',conservation);
@@ -4292,11 +4386,12 @@ function renderQuestion(){
   $('#practiceContent').classList.toggle('basic-shapes-practice',basicShapes);
   $('#practiceContent').classList.toggle('shape-attributes-practice',shapeAttributes);
   $('#practiceContent').classList.toggle('shape-compose-practice',shapeCompose);
+  $('#practiceContent').classList.toggle('spatial-relations-practice',spatialRelations);
   $('#practiceContent').innerHTML=`
-    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''} ${partWhole?'part-whole-question-stage':''} ${basicShapes?'basic-shapes-question-stage':''} ${shapeCompose?'shape-compose-question-stage':''}">
+    <div class="question-stage ${reliableCount?'reliable-count-question-stage':''} ${subitise?'subitise-question-stage':''} ${conservation?'conservation-question-stage':''} ${numberRep?'number-representation-question-stage':''} ${numeralFormation?'numeral-formation-question-stage':''} ${quantityCompare?'quantity-comparison-question-stage':''} ${partWhole?'part-whole-question-stage':''} ${basicShapes?'basic-shapes-question-stage':''} ${shapeCompose?'shape-compose-question-stage':''} ${spatialRelations?'spatial-relations-question-stage':''}">
       <h2>${esc(q.prompt)}</h2>
       ${q.teachingNote?`<div class="teaching-note">${esc(q.teachingNote)}</div>`:''}
-      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''} ${quantityCompare?'quantity-comparison-stage':''} ${partWhole?'part-whole-stage':''} ${basicShapes?'basic-shapes-stage':''} ${shapeCompose?'shape-compose-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
+      <div class="visual-stage ${q.response?.kind==='visual-choice'?'reference-stage':''} ${reliableCount?'reliable-count-stage':''} ${subitise?'subitise-stage':''} ${conservation?'conservation-stage':''} ${numberRep?'number-representation-stage':''} ${numeralFormation?'numeral-formation-stage':''} ${quantityCompare?'quantity-comparison-stage':''} ${partWhole?'part-whole-stage':''} ${basicShapes?'basic-shapes-stage':''} ${shapeCompose?'shape-compose-stage':''} ${spatialRelations?'spatial-relations-stage':''}" id="visualStage">${renderVisual(initialVisual,q)}</div>
       <div id="patternResponseGate">${patternRule?'':renderResponse(q)}</div>
       <div class="question-tools"><button class="tool-button" id="hintButton">İpucu göster</button>${state.settings.voice?'<button class="tool-button" id="inlineSpeak">Sesli oku</button>':''}</div>
     </div>`;
