@@ -441,6 +441,40 @@ Recommended product progression:
 
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
+   **Official role:** implements **NEL KSD 4.4 — develop an awareness of spatial concepts such as position, direction and distance.**
+
+   **Source-derived boundary (NEL Framework 2022 / current NEL Numeracy portal and Educators' Guide, re-verified 2026-09-30):**
+   - official **position** examples are **top / bottom** and **in front of / behind**;
+   - official **direction** examples are **up / down** and **left / right**;
+   - official **distance** examples are **far / near**;
+   - observable evidence includes using position words to describe where an object is, using left/right and far/near to describe direction and distance, and responding appropriately when asked to move to a right and/or left position;
+   - the current NEL portal describes shapes/spatial learning as awareness of **position, direction and distance in relation to themselves**;
+   - the Educators' Guide frames spatial/orientation awareness as knowing where one is in relation to surrounding things and using spatial language;
+   - block/construction play and manipulation of materials are recommended contexts for developing spatial awareness;
+   - NEL states that its observation examples are **not age-specific or exhaustive**;
+   - current Numeracy guidance recommends CPA, manipulatives/games, daily experiences and assessment through games/daily activities rather than worksheet-first checking.
+
+   **SAYMERA KSD 4.4 operational boundary:**
+   - all ten named NEL relations must remain represented: **top, bottom, in front of, behind, up, down, left, right, far, near**;
+   - Turkish child-facing language may use natural equivalents such as **üstünde / altında, önünde / arkasında, yukarı / aşağı, sol / sağ, uzak / yakın**;
+   - relation-word recognition alone is **not sufficient mastery evidence**: the child must also act on spatial information;
+   - the product must include an active **right/left movement response**, because this is an explicit NEL observation example;
+   - SAYMERA can verify an on-screen avatar/object movement response, but without camera/sensor evidence it must **not claim to have observed the child's physical body movement**;
+   - physical right/left movement may therefore be prompted as a real-world transfer activity, while the digital interaction remains a transparent proxy;
+   - a reference object/person must remain visually meaningful for relative position language; tasks must not reduce spatial relations to decontextualised vocabulary cards;
+   - **inside/outside, between, beside, over/under** or other useful spatial words may appear later as enrichment, but they are not invented as required KSD 4.4 mastery targets;
+   - map coordinates, grid notation, turns in degrees and formal geometric transformations are later-learning content, not Preschool KSD 4.4 requirements.
+
+   **Current engine + Practice foundation:**
+   - **Kur:** prepare to place/locate one object relative to another;
+   - **Gör:** recognise position, direction and distance relations in scenes;
+   - **Göster:** use the appropriate spatial word for a shown movement/relation;
+   - **Anlat:** explain that spatial position is described relative to a reference;
+   - **Taşı:** use the same language in block/construction and movement-play contexts;
+   - all ten official relation concepts are represented in the canonical case set;
+   - a dedicated NEL spatial scene renderer distinguishes static position/distance from movement direction;
+   - this foundation is deliberately **not marked implemented** until a dedicated Learn flow requires active spatial placement/movement, including right/left response, and Chromium/WebKit phone-tablet browser QA passes.
+
 ### Current Preschool v2 implementation status
 
 Status after SAYMERA v1.26.1:
@@ -463,7 +497,7 @@ Product skill | NEL role | Status
 `nelBasicShapes` | 4.1 | ✅ implemented + browser QA
 `nelShapeAttributes` | 4.2 | ✅ implemented + browser QA
 `nelShapeCompose` | 4.3 | ✅ implemented + browser QA
-`nelSpatialRelations` | 4.4 | **NEXT**
+`nelSpatialRelations` | 4.4 | 🟡 research + engine/Practice foundation; active Learn movement/browser QA next
 
 This table is a product implementation snapshot, not a claim that NEL itself prescribes this software order.
 
