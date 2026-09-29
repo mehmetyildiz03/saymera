@@ -145,6 +145,7 @@ export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
   shapesVerifiedAt:'2026-09-26',
   shapeAttributesVerifiedAt:'2026-09-27',
   shapeComposeVerifiedAt:'2026-09-29',
+  spatialRelationsVerifiedAt:'2026-09-30',
   sources:{
     framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
     numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
@@ -725,6 +726,64 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelSpatialRelations:{
+    version:1,
+    status:'foundation',
+    unitId:'nel-shapes-space',
+    pathId:'shapes-space',
+    officialKsd:['4.4'],
+    officialRelations:{
+      position:['top','bottom','in-front-of','behind'],
+      direction:['up','down','left','right'],
+      distance:['far','near']
+    },
+    childLanguageTr:{
+      top:'üstünde',
+      bottom:'altında',
+      'in-front-of':'önünde',
+      behind:'arkasında',
+      up:'yukarı',
+      down:'aşağı',
+      left:'sol / sola',
+      right:'sağ / sağa',
+      far:'uzak',
+      near:'yakın'
+    },
+    sourceGrounding:{
+      describeObjectPositionWithTopBottomFrontBehind:true,
+      describeDirectionAndDistanceWithLeftRightFarNear:true,
+      respondToMoveRightLeftExample:true,
+      spatialAwarenessStartsFromSelfInRelationToSurroundings:true,
+      constructionBlockPlaySupportsSpatialAwareness:true,
+      examplesAreNotAgeSpecificOrExhaustive:true
+    },
+    productBoundary:{
+      allTenOfficialRelationsRepresented:true,
+      digitalRightLeftMovementResponseRequiredForCompletion:true,
+      physicalBodyMovementObservedByDevice:false,
+      physicalMovementMayBePromptedAsRealWorldTransfer:true,
+      relationWordRecognitionAloneSufficient:false,
+      worksheetFirst:false,
+      inventedRelationsRequiredForMastery:false
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'place-relative-position',label:'Bir nesnenin başka bir nesneye göre konumunu kur',phase:'model',representation:'build'},
+        {id:'recognise-position-direction-distance',label:'Konum, yön ve uzaklık ilişkisini gör',phase:'representation',representation:'see'},
+        {id:'show-spatial-language',label:'İlişkiyi uygun uzamsal dille göster',phase:'symbol',representation:'symbol'},
+        {id:'explain-reference-relation',label:'Konumun neden bir referansa göre anlatıldığını açıkla',phase:'reasoning',representation:'explain'},
+        {id:'transfer-block-movement',label:'Uzamsal dili yapı oyunu ve hareket bağlamına taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    implementationBoundary:{
+      practiceFoundationImplemented:true,
+      dedicatedLearnMovementFlowImplemented:false,
+      browserQaImplemented:false,
+      masteryComplete:false
+    },
+    review:{enabled:true}
   }
 };
 
@@ -777,6 +836,7 @@ export const SKILLS = [
   skill('nelBasicShapes','preschool','Daire, kare, dikdörtgen ve üçgeni tanı','Şekil & Uzam','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
   skill('nelShapeAttributes','preschool','Temel şekillerin kenar ve köşe özelliklerini fark et','Şekil & Uzam','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
   skill('nelShapeCompose','preschool','Temel şekilleri birleştirerek yeni şekil ve figürler oluştur','Şekil & Uzam','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
+  skill('nelSpatialRelations','preschool','Konum, yön ve uzaklık ilişkilerini kullan','Şekil & Uzam','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -2798,6 +2858,36 @@ function nelShapeComposeExplainChoices(rng){
   ],rng);
 }
 
+const NEL_SPATIAL_RELATION_CASES=[
+  {id:'top',kind:'position',label:'üstünde',prompt:'üstünde',opposite:'bottom'},
+  {id:'bottom',kind:'position',label:'altında',prompt:'altında',opposite:'top'},
+  {id:'in-front-of',kind:'position',label:'önünde',prompt:'önünde',opposite:'behind'},
+  {id:'behind',kind:'position',label:'arkasında',prompt:'arkasında',opposite:'in-front-of'},
+  {id:'up',kind:'direction',label:'yukarı',prompt:'yukarı',opposite:'down'},
+  {id:'down',kind:'direction',label:'aşağı',prompt:'aşağı',opposite:'up'},
+  {id:'left',kind:'direction',label:'sola',prompt:'sola',opposite:'right'},
+  {id:'right',kind:'direction',label:'sağa',prompt:'sağa',opposite:'left'},
+  {id:'far',kind:'distance',label:'uzakta',prompt:'uzakta',opposite:'near'},
+  {id:'near',kind:'distance',label:'yakında',prompt:'yakında',opposite:'far'}
+];
+export function spatialRelationCaseFor(id='top'){
+  return NEL_SPATIAL_RELATION_CASES.find(item=>item.id===id)||NEL_SPATIAL_RELATION_CASES[0];
+}
+function nelSpatialRelationChoices(target,rng){
+  const sameKind=NEL_SPATIAL_RELATION_CASES.filter(item=>item.kind===target.kind&&item.id!==target.id);
+  const others=NEL_SPATIAL_RELATION_CASES.filter(item=>item.kind!==target.kind);
+  return semanticChoices(target.label,[...sameKind,...shuffled(others,rng)].map(item=>item.label),rng);
+}
+function nelSpatialVisualOptions(target,rng){
+  const pool=[target,...pickDifferent(NEL_SPATIAL_RELATION_CASES.filter(item=>item.id!==target.id),3,rng)];
+  return shuffled(pool.map(item=>({
+    value:item.id===target.id?'correct':'wrong-'+item.id,
+    visual:{type:'nel-spatial-scene',relation:item.id,kind:item.kind},
+    ariaLabel:item.label+' ilişkisini gösteren sahne'
+  })),rng);
+}
+function nelSpatialExplainAnswer(){return 'Konumu anlatırken bir nesnenin başka bir nesneye ya da bulunduğum yere göre nerede olduğunu söylerim.';}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -3783,6 +3873,59 @@ function genNelShapeCompose(rep,d,rng,concept){
     taskKind:'nel-shape-compose-transfer',taskLabel:'Şekil oluşturmayı yapı oyununa taşı',
     visual:{type:'shape-compose-interactive',figure:y.figure,pieces:y.pieces,allowedPieces:NEL_SHAPE_COMPOSE_ALLOWED_PIECES},
     hint:'Yalnız hedef bütünde kullanılan temel şekilleri seç.',explain:y.nameTr+' '+nelShapeComposePieceDescription(y)+' kullanılarak kurulabilir.'
+  });
+}
+
+function genNelSpatialRelations(rep,d,rng){
+  const target=choice(NEL_SPATIAL_RELATION_CASES,rng);
+  if(rep==='build'){
+    return qBase('nelSpatialRelations','build','Mavi nesnenin turuncu bloğa göre konumunu en doğru anlatan sözü seç.',target.label,nelSpatialRelationChoices(target,rng),{
+      taskKind:'nel-spatial-place-foundation',taskLabel:'Bir nesnenin başka bir nesneye göre konumunu kurmaya hazırlan',
+      visual:{type:'nel-spatial-scene',relation:target.id,kind:target.kind},
+      hint:'Turuncu bloğu referans al ve mavi nesnenin ona göre nerede olduğunu düşün.',
+      explain:'Mavi nesne turuncu bloğa göre '+target.label+'.'
+    });
+  }
+  if(rep==='see'){
+    return qTask('nelSpatialRelations','see','Hangi sahne “'+target.label+'” ilişkisini gösteriyor?','correct',{kind:'visual-choice',options:nelSpatialVisualOptions(target,rng)},{
+      taskKind:'nel-spatial-recognise',taskLabel:'Konum, yön veya uzaklık ilişkisini görselden ayırt et',
+      visual:{type:'nel-spatial-word-card',label:target.label,kind:target.kind},
+      hint:'Sözcüğün bir konumu mu, hareket yönünü mü, yoksa uzaklığı mı anlattığını düşün.',
+      explain:'Doğru sahne “'+target.label+'” ilişkisini gösteriyor.'
+    });
+  }
+  if(rep==='symbol'){
+    const movement=choice(NEL_SPATIAL_RELATION_CASES.filter(item=>item.kind==='direction'),rng);
+    return qBase('nelSpatialRelations','symbol','Okun gösterdiği hareket yönünü söyle.',movement.label,nelSpatialRelationChoices(movement,rng),{
+      taskKind:'nel-spatial-show-language',taskLabel:'Hareket yönünü uygun uzamsal dille göster',
+      visual:{type:'nel-spatial-scene',relation:movement.id,kind:'direction'},
+      hint:'Başlangıç noktasından okun gittiği yöne bak.',
+      explain:'Hareket yönü '+movement.label+'.'
+    });
+  }
+  if(rep==='explain'){
+    const answer=nelSpatialExplainAnswer();
+    return qBase('nelSpatialRelations','explain','Bir nesnenin konumunu doğru anlatmak için neden bir referans gerekir?',answer,semanticChoices(answer,[
+      'Konum yalnız nesnenin rengine göre belirlenir.',
+      'Bir nesnenin konumu her yerden bakıldığında aynı sözcükle anlatılır.',
+      'Konum anlatmak için yalnız nesnenin adını bilmek yeterlidir.'
+    ],rng),{
+      taskKind:'nel-spatial-reference-explain',taskLabel:'Uzamsal ilişkinin referansa bağlı olduğunu açıkla',
+      visual:{type:'nel-spatial-scene',relation:target.id,kind:target.kind},
+      hint:'“Neye göre?” sorusunu düşün.',
+      explain:answer
+    });
+  }
+  const transfer=choice([
+    spatialRelationCaseFor('top'),spatialRelationCaseFor('behind'),spatialRelationCaseFor('left'),
+    spatialRelationCaseFor('right'),spatialRelationCaseFor('far'),spatialRelationCaseFor('near')
+  ],rng);
+  return qBase('nelSpatialRelations','transfer','Yapı ve hareket oyununda verilen ilişkiyi kullan: “'+transfer.label+'”. Bu sahneyi en doğru anlatan seçenek hangisi?',transfer.label,nelSpatialRelationChoices(transfer,rng),{
+    taskKind:'nel-spatial-transfer-foundation',taskLabel:'Uzamsal dili yapı oyunu ve hareket bağlamına taşı',
+    visual:{type:'nel-spatial-scene',relation:transfer.id,kind:transfer.kind,context:'block-play'},
+    hint:'Blokların ve hareket yönünün birbirine göre yerini düşün.',
+    explain:'Bu oyun bağlamında doğru ilişki '+transfer.label+'.',
+    realWorldPrompt:transfer.kind==='direction'?'Ekran dışı etkinlikte yetişkin, çocuktan aynı yönde bir adım atmasını isteyebilir.':'Aynı ilişkiyi gerçek bloklarla da kurmayı deneyin.'
   });
 }
 
@@ -5541,6 +5684,7 @@ const GENERATORS={
   nelBasicShapes:genNelBasicShapes,
   nelShapeAttributes:genNelShapeAttributes,
   nelShapeCompose:genNelShapeCompose,
+  nelSpatialRelations:genNelSpatialRelations,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -7129,9 +7273,22 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   throw new Error('Unknown nelMatchAttributes practice section: '+sectionId);
 }
 
+function nelSpatialRelationsPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const representation={
+    'place-relative-position':'build',
+    'recognise-position-direction-distance':'see',
+    'show-spatial-language':'symbol',
+    'explain-reference-relation':'explain',
+    'transfer-block-movement':'transfer'
+  }[sectionId];
+  if(!representation) throw new Error('Unknown nelSpatialRelations practice section: '+sectionId);
+  return genNelSpatialRelations(representation,difficulty,rng);
+}
+
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelShapeCompose') q=nelShapeComposePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelSpatialRelations') q=nelSpatialRelationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelShapeCompose') q=nelShapeComposePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelShapeAttributes') q=nelShapeAttributesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelBasicShapes') q=nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPartWhole10') q=nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng);

@@ -1690,6 +1690,32 @@ button.nel-part-whole-token{cursor:pointer}
   .nel-shape-attribute-choice-grid button{min-height:54px}
 }
 
+/* hidden NEL preschool spatial-relations foundation */
+.nel-spatial-word-card{min-width:210px;min-height:132px;padding:18px;border:1px solid var(--line);border-radius:24px;background:var(--paper-2);display:grid;place-items:center;align-content:center;gap:8px;text-align:center}
+.nel-spatial-word-card small{font-size:8px;font-weight:950;letter-spacing:.14em;color:var(--muted)}
+.nel-spatial-word-card strong{font-size:28px;line-height:1;color:var(--navy)}
+.nel-spatial-scene{width:min(360px,100%);display:grid;justify-items:center;gap:7px}
+.nel-spatial-scene>small{font-size:8px;font-weight:950;letter-spacing:.12em;color:var(--muted)}
+.nel-spatial-plane,.nel-spatial-depth-stage,.nel-spatial-direction-track{position:relative;width:min(330px,82vw);height:210px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,#f8fbfc,#f2efe7);overflow:hidden}
+.nel-spatial-ref-block{position:absolute;left:50%;top:50%;width:78px;height:78px;transform:translate(-50%,-50%);border-radius:18px;background:var(--sun);border:2px solid #c89737;box-shadow:0 8px 20px rgba(25,54,75,.10)}
+.nel-spatial-target{position:absolute;left:var(--spatial-x,50%);top:var(--spatial-y,15%);width:46px;height:46px;transform:translate(-50%,-50%);border-radius:50%;background:var(--blue);border:2px solid #315f82;box-shadow:0 7px 16px rgba(49,95,130,.18)}
+.nel-spatial-depth-stage .nel-spatial-ref-block{left:50%;top:52%;z-index:2}
+.nel-spatial-depth-stage .nel-spatial-target{left:58%;top:60%;z-index:3}
+.nel-spatial-scene.behind .nel-spatial-target{left:43%;top:43%;z-index:1;opacity:.72}
+.nel-spatial-scene.behind .nel-spatial-ref-block{z-index:3}
+.nel-spatial-block-extra{position:absolute;width:50px;height:50px;border-radius:12px;background:var(--green-soft);border:1px solid #8bc8ba}
+.nel-spatial-block-extra.one{left:18px;bottom:18px}.nel-spatial-block-extra.two{right:18px;top:18px}
+.nel-spatial-direction-track{display:grid;place-items:center;background:linear-gradient(180deg,#f7fafc,#eef3f5)}
+.nel-spatial-direction-track:after{content:"";position:absolute;left:15%;right:15%;top:50%;height:2px;background:rgba(25,54,75,.12)}
+.nel-spatial-start{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;width:54px;height:54px;border-radius:50%;background:var(--blue);color:white;display:grid;place-items:center;font-size:17px;border:2px solid #315f82}
+.nel-spatial-direction-track b{position:relative;z-index:3;font-size:78px;line-height:1;color:var(--coral);filter:drop-shadow(0 5px 8px rgba(223,117,100,.16))}
+.nel-spatial-end{position:absolute;right:12%;top:50%;width:18px;height:18px;border-radius:50%;background:rgba(47,153,135,.18)}
+@media(max-width:699px){
+  .nel-spatial-plane,.nel-spatial-depth-stage,.nel-spatial-direction-track{height:184px;width:min(310px,86vw)}
+  .nel-spatial-ref-block{width:68px;height:68px}.nel-spatial-target{width:42px;height:42px}
+  .nel-spatial-word-card{min-height:112px}
+}
+
 /* hidden NEL preschool shape-composition reference lesson */
 .practice-content.shape-compose-practice{overflow-y:auto;display:block}
 .shape-compose-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
