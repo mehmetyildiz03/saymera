@@ -465,19 +465,30 @@ Recommended product progression:
    - **inside/outside, between, beside, over/under** or other useful spatial words may appear later as enrichment, but they are not invented as required KSD 4.4 mastery targets;
    - map coordinates, grid notation, turns in degrees and formal geometric transformations are later-learning content, not Preschool KSD 4.4 requirements.
 
-   **Current engine + Practice foundation:**
-   - **Kur:** prepare to place/locate one object relative to another;
+   **Implemented evidence:**
+   - **Kur:** actively place one object relative to another using target regions, not vocabulary recognition alone;
    - **Gör:** recognise position, direction and distance relations in scenes;
    - **Göster:** use the appropriate spatial word for a shown movement/relation;
    - **Anlat:** explain that spatial position is described relative to a reference;
-   - **Taşı:** use the same language in block/construction and movement-play contexts;
-   - all ten official relation concepts are represented in the canonical case set;
-   - a dedicated NEL spatial scene renderer distinguishes static position/distance from movement direction;
-   - this foundation is deliberately **not marked implemented** until a dedicated Learn flow requires active spatial placement/movement, including right/left response, and Chromium/WebKit phone-tablet browser QA passes.
+   - **Taşı:** actively carry the same relation into block/construction and movement-play contexts.
+
+   v1.27.0 reference implementation:
+   - **10 active Learn steps** explicitly teach **all ten official relation concepts**: top, bottom, in front of, behind, up, down, left, right, near and far;
+   - every Learn step begins with an unmoved object/avatar and remains locked until the child acts on the correct spatial target;
+   - an incorrect target does not advance the lesson and instead returns a neutral retry cue;
+   - top/bottom and near/far are checked as positions relative to a visible reference block;
+   - in-front-of/behind use a depth/layer cue so the two relations are not collapsed into flat left/right placement;
+   - up/down/left/right use an actual on-screen movement response from a central start position;
+   - the explicit **right/left movement** steps preserve the NEL observation example as digital active evidence rather than a word-selection task;
+   - **Kur** and **Taşı** Practice now also collect active placement/movement evidence through a dedicated spatial manipulator;
+   - **Gör**, **Göster** and **Anlat** preserve visual recognition, spatial language and reference-relation reasoning as separate evidence channels;
+   - relation-word recognition alone remains insufficient: completion combines active placement/movement evidence with the other channels;
+   - the product still does **not** claim to observe the child's physical body movement; a real-world right/left step can be suggested only as transfer beyond the measured digital evidence;
+   - Chromium and WebKit QA cover phone and tablet viewports, all 10 Learn steps, wrong-target gating, movement geometry, front/behind layering, near/far distance, five Practice sections, Review, horizontal overflow and Inspector sandbox isolation.
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.26.1:
+Status after SAYMERA v1.27.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -497,7 +508,7 @@ Product skill | NEL role | Status
 `nelBasicShapes` | 4.1 | ✅ implemented + browser QA
 `nelShapeAttributes` | 4.2 | ✅ implemented + browser QA
 `nelShapeCompose` | 4.3 | ✅ implemented + browser QA
-`nelSpatialRelations` | 4.4 | 🟡 research + engine/Practice foundation; active Learn movement/browser QA next
+`nelSpatialRelations` | 4.4 | ✅ implemented + browser QA
 
 This table is a product implementation snapshot, not a claim that NEL itself prescribes this software order.
 
