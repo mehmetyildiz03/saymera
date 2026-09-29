@@ -7272,9 +7272,22 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   throw new Error('Unknown nelMatchAttributes practice section: '+sectionId);
 }
 
+function nelSpatialRelationsPracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const representation={
+    'place-relative-position':'build',
+    'recognise-position-direction-distance':'see',
+    'show-spatial-language':'symbol',
+    'explain-reference-relation':'explain',
+    'transfer-block-movement':'transfer'
+  }[sectionId];
+  if(!representation) throw new Error('Unknown nelSpatialRelations practice section: '+sectionId);
+  return genNelSpatialRelations(representation,difficulty,rng);
+}
+
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelShapeCompose') q=nelShapeComposePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelSpatialRelations') q=nelSpatialRelationsPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelShapeCompose') q=nelShapeComposePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelShapeAttributes') q=nelShapeAttributesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelBasicShapes') q=nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPartWhole10') q=nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng);
