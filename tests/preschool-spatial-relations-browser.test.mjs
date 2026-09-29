@@ -86,6 +86,7 @@ async function completeLearn(page,relation){
   assert.equal(await core.getAttribute('data-spatial-selected'),relation);
   assert.equal(await stage.locator('#nelSpatialMover').getAttribute('data-spatial-relation'),relation);
   assert.equal(await next.isEnabled(),true,relation+' correct target must unlock Learn');
+  assert.equal(await stage.locator('.nel-spatial-lesson-target.wrong').count(),0,relation+' success must clear stale wrong-target feedback');
   assert.equal(await stage.locator('#nelSpatialLessonResult').evaluate(el=>el.classList.contains('revealed')),true);
   await verifyMovedGeometry(stage,relation);
 }
