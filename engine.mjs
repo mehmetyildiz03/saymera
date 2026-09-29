@@ -23,7 +23,7 @@ const LEARNING_CYCLE_READY_SKILLS = new Set([
   'number20','numberBonds10','make10','add20','addMany1','sub20','equality','word1',
   'number100','compareOrder100','ordinal10','numberPattern1','addSub100','multiply40',
   'divide20g1','money1','lengthCompare1','lengthMeasure1','time1','shapes1','shapePattern1','data1',
-  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes',
+  'nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose',
   'number1000','compareOrder1000','numberPattern1000','oddEven1000','addSub1000','wordAddSub2',
   'times23510','divisionTables2','multDivFamilies2',
   'fractionMeaning2','fractionNotation2','fractionCompare2','fractionAddSub2',
@@ -144,6 +144,7 @@ export const PRESCHOOL_NEL_SOURCE_AUTHORITY = {
   verifiedAt:'2026-09-25',
   shapesVerifiedAt:'2026-09-26',
   shapeAttributesVerifiedAt:'2026-09-27',
+  shapeComposeVerifiedAt:'2026-09-29',
   sources:{
     framework:'https://www.nel.moe.edu.sg/qql/slot/u143/2022/NEL%20Framework%202022_new.pdf',
     numeracy:'https://nel.moe.edu.sg/la/numeracy/overview/',
@@ -676,6 +677,52 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
       ]
     },
     review:{enabled:true}
+  },
+  nelShapeCompose:{
+    version:1,
+    status:'foundation',
+    unitId:'nel-shapes-space',
+    pathId:'shapes-space',
+    officialKsd:['4.3'],
+    officialShapes:['circle','square','rectangle','triangle'],
+    internalPieceIds:{circle:'circle',square:'square',rectangle:'rect',triangle:'triangle'},
+    compositionBoundary:{
+      useBasicShapesToFormOtherShapesOrFigures:true,
+      actualSpatialAssemblyRequiredForCompletion:true,
+      pieceSelectionAloneSufficient:false,
+      exactSingleArrangementStatedAsOfficialRequirement:false,
+      formalGeometryRequired:false,
+      spatialVocabularyMasteryRequired:false
+    },
+    sourceGrounding:{
+      officialBoatExample:{squares:2,triangles:1},
+      promptCanYouMakeThatShape:true,
+      promptWhatShapeCanYouMakeWithThese:true,
+      supportingManipulativePatternBlocks:true
+    },
+    productClarifications:{
+      additionalCompositionFiguresAreProductExamples:true,
+      pieceRotationAndPlacementAreInteractionSupportsNotOfficialSubskills:true,
+      p1DecompositionAndGridCopyingNotPreschoolMasteryTargets:true
+    },
+    separationFromLaterLearning:{
+      spatialRelationsKsd:'4.4',
+      requireTopBottomLeftRightForMastery:false,
+      primaryShapeCompositionSkill:'shapePattern1',
+      requireP1GridCopying:false,
+      requireHalfOrQuarterCircleParts:false
+    },
+    evidenceLabels:{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'},
+    practice:{
+      sections:[
+        {id:'select-pieces-for-figure',label:'Figür için gereken temel şekilleri seç',phase:'model',representation:'build'},
+        {id:'match-pieces-to-figure',label:'Parçaların oluşturabileceği figürü bul',phase:'representation',representation:'see'},
+        {id:'show-composition-parts',label:'Figürü oluşturan temel şekilleri göster',phase:'symbol',representation:'symbol'},
+        {id:'explain-shapes-form-figure',label:'Temel şekillerin nasıl yeni bir bütün oluşturduğunu anlat',phase:'reasoning',representation:'explain'},
+        {id:'transfer-block-play-compose',label:'Şekil oluşturmayı oyun bağlamına taşı',phase:'context',representation:'transfer'}
+      ]
+    },
+    review:{enabled:true}
   }
 };
 
@@ -727,6 +774,7 @@ export const SKILLS = [
   skill('nelPartWhole10','preschool','10’a kadar bütünü parçalara ayır ve parçaları adlandır','Sayma & Sayı Hissi','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'counting-number-sense'}),
   skill('nelBasicShapes','preschool','Daire, kare, dikdörtgen ve üçgeni tanı','Şekil & Uzam','teal',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
   skill('nelShapeAttributes','preschool','Temel şekillerin kenar ve köşe özelliklerini fark et','Şekil & Uzam','blue',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
+  skill('nelShapeCompose','preschool','Temel şekilleri birleştirerek yeni şekil ve figürler oluştur','Şekil & Uzam','green',[],{hidden:true,curriculum:'NEL2022-v2',pathId:'shapes-space'}),
   skill('subitize5','preschool','Bir bakışta miktar','Sayı hissi','amber'),
   skill('count10','preschool','10’a kadar sayma','Sayı hissi','blue',['subitize5']),
   skill('compare10','preschool','Miktar karşılaştırma','İlişkiler','violet',['count10']),
@@ -1165,6 +1213,21 @@ export function runPedagogyStateAudit(state,now=Date.now()){
         shapeAttributesContract.sourceGrounding?.squareFourEqualSidesExample===true &&
         PRESCHOOL_NEL_KSD_MAP['4.2']?.includes('nelShapeAttributes'),
       shapeAttributesContract.practice.sections.map(section=>section.id).join(' → ')
+    );
+    const shapeComposeContract=lessonContractFor('nelShapeCompose');
+    add(
+      'nel-shape-compose-foundation-contract',
+      'NEL KSD 4.3 temel şekillerden yeni şekil/figür oluşturmayı parça seçimiyle sınırlamadan gerçek uzamsal birleştirme hedefi olarak koruyor',
+      shapeComposeContract.status==='foundation' &&
+        shapeComposeContract.officialKsd?.join(',')==='4.3' &&
+        shapeComposeContract.compositionBoundary?.useBasicShapesToFormOtherShapesOrFigures===true &&
+        shapeComposeContract.compositionBoundary?.actualSpatialAssemblyRequiredForCompletion===true &&
+        shapeComposeContract.compositionBoundary?.pieceSelectionAloneSufficient===false &&
+        shapeComposeContract.sourceGrounding?.officialBoatExample?.squares===2 &&
+        shapeComposeContract.sourceGrounding?.officialBoatExample?.triangles===1 &&
+        shapeComposeContract.separationFromLaterLearning?.requireTopBottomLeftRightForMastery===false &&
+        PRESCHOOL_NEL_KSD_MAP['4.3']?.includes('nelShapeCompose'),
+      shapeComposeContract.practice.sections.map(section=>section.id).join(' → ')
     );
     const quantityCompareContract=lessonContractFor('nelCompareQuantities10');
     add(
@@ -2683,6 +2746,51 @@ function nelShapeAttributeInvariantChoices(rng){
   ],rng);
 }
 
+const NEL_SHAPE_COMPOSE_ALLOWED_PIECES=['circle','square','rect','triangle'];
+function nelShapeComposeCases(){
+  return [
+    {id:'boat',figure:'nelBoat',nameTr:'tekne',kind:'figure',pieces:['square','square','triangle'],sourceRole:'official-example'},
+    {id:'house',figure:'house',nameTr:'ev',kind:'figure',pieces:['square','triangle'],sourceRole:'product-example'},
+    {id:'kite',figure:'kite',nameTr:'uçurtma',kind:'figure',pieces:['triangle','triangle'],sourceRole:'product-example'},
+    {id:'window',figure:'window',nameTr:'pencere',kind:'figure',pieces:['square','square','square','square'],sourceRole:'product-example'},
+    {id:'rectangle',figure:'nelRectangle',nameTr:'dikdörtgen',kind:'other-shape',pieces:['square','square'],sourceRole:'product-example'}
+  ].map(item=>({...item,pieceKey:[...item.pieces].sort().join('+')}));
+}
+export function shapeComposeCaseFor(id='boat'){
+  return nelShapeComposeCases().find(item=>item.id===id)||nelShapeComposeCases()[0];
+}
+function nelShapeComposePieceLabel(id){ return ({circle:'daire',square:'kare',rect:'dikdörtgen',triangle:'üçgen'}[id]||id); }
+function nelShapeComposePieceDescription(item){
+  const counts={};
+  for(const id of item.pieces) counts[id]=(counts[id]||0)+1;
+  const order=['circle','square','rect','triangle'];
+  return order.filter(id=>counts[id]).map(id=>counts[id]+' '+nelShapeComposePieceLabel(id)).join(' + ');
+}
+function nelShapeComposeVisualOptions(target,rng,kind='figures'){
+  const cases=nelShapeComposeCases();
+  const distractors=shuffled(cases.filter(item=>item.id!==target.id),rng).slice(0,3);
+  if(kind==='pieces'){
+    return shuffled([target,...distractors].map(item=>({
+      value:item.id===target.id?'correct':'wrong-'+item.id,
+      visual:{type:'shape-piece-list',pieces:item.pieces},
+      ariaLabel:'temel şekil parçaları'
+    })),rng);
+  }
+  return shuffled([target,...distractors].map(item=>({
+    value:item.id===target.id?'correct':'wrong-'+item.id,
+    visual:{type:'composite-figure',figure:item.figure},
+    ariaLabel:item.nameTr+' figürü'
+  })),rng);
+}
+function nelShapeComposeExplainAnswer(){ return 'Temel şekil parçaları bir araya getirilerek yeni bir şekil ya da figür oluşturulabilir.'; }
+function nelShapeComposeExplainChoices(rng){
+  return semanticChoices(nelShapeComposeExplainAnswer(),[
+    'Yeni figür oluşturmak için parçaların hepsinin aynı renkte olması gerekir.',
+    'Bir figür yalnız tek bir temel şekilden oluşabilir.',
+    'Temel şekiller bir araya getirildiğinde artık hangi parçaların kullanıldığı önemli değildir.'
+  ],rng);
+}
+
 function number1000Cases(){
   const nums=[103,118,140,205,267,304,359,402,478,506,571,620,684,703,748,815,862,907,945,999,1000];
   return nums.map(n=>({n,hundreds:Math.floor(n/100),tens:Math.floor((n%100)/10),ones:n%10}));
@@ -2906,6 +3014,7 @@ export function createConceptInstance(skillId,difficulty=1,rng=Math.random){
   if(skillId==='nelPartWhole10') return make('nel-part-whole-to-10',nelPartWholeCases());
   if(skillId==='nelBasicShapes') return make('nel-basic-shapes-four',nelBasicShapeCases());
   if(skillId==='nelShapeAttributes') return make('nel-shape-attributes-four',nelShapeAttributeCases());
+  if(skillId==='nelShapeCompose') return make('nel-basic-shape-composition',nelShapeComposeCases());
   if(skillId==='number20') return make('number-to-20',number20Cases());
   if(skillId==='numberBonds10') return make('number-bonds-to-10',numberBondCases());
   if(skillId==='make10') return make('make-ten',make10Cases());
@@ -3626,6 +3735,47 @@ function genNelShapeAttributes(rep,d,rng,concept){
     taskKind:'nel-shape-attribute-transfer',taskLabel:'Şekil özelliklerini çevreye taşı',
     visual:{type:'nel-basic-shape-context',item:y},
     hint:'Nesnenin adına değil, gördüğün düz şeklin yapısına bak.',explain:answer
+  });
+}
+
+function genNelShapeCompose(rep,d,rng,concept){
+  const c=concept?.skillId==='nelShapeCompose'?concept:createConceptInstance('nelShapeCompose',d,rng);
+  const x=c.anchor;
+  if(rep==='build'){
+    return qTask('nelShapeCompose','build',x.nameTr+' oluşturmak için gereken temel şekil parçalarını seç.',x.pieceKey,{kind:'manipulative',interaction:'shape-compose',expectedValue:x.pieceKey,checkLabel:'Parçalarımı kontrol et'},{
+      taskKind:'nel-shape-compose-piece-select',taskLabel:'Figür için gereken temel şekilleri seç',
+      visual:{type:'shape-compose-interactive',figure:x.figure,pieces:x.pieces,allowedPieces:NEL_SHAPE_COMPOSE_ALLOWED_PIECES},
+      hint:'Hedefte kullanılan temel şekilleri seç; fazlalıkları dışarıda bırak.',explain:x.nameTr+' için '+nelShapeComposePieceDescription(x)+' kullanılabilir.'
+    });
+  }
+  if(rep==='see'){
+    return qTask('nelShapeCompose','see','Gösterilen temel şekil parçalarıyla hangi bütün oluşturulabilir?','correct',{kind:'visual-choice',options:nelShapeComposeVisualOptions(x,rng,'figures')},{
+      taskKind:'nel-shape-compose-match-figure',taskLabel:'Parçaları oluşabilecek bütünle eşleştir',
+      visual:{type:'shape-piece-list',pieces:x.pieces},
+      hint:'Parçaların türünü ve kaç tane olduğunu karşılaştır.',explain:'Bu parçalar '+x.nameTr+' oluşturmak için kullanılabilir.'
+    });
+  }
+  if(rep==='symbol'){
+    const y=c.symbol;
+    return qTask('nelShapeCompose','symbol',y.nameTr+' için gereken temel şekil parçalarını göster.','correct',{kind:'visual-choice',options:nelShapeComposeVisualOptions(y,rng,'pieces')},{
+      taskKind:'nel-shape-compose-show-parts',taskLabel:'Bütünü oluşturan temel şekilleri göster',
+      visual:{type:'composite-figure',figure:y.figure},
+      hint:'Bütünü oluşturan daire, kare, dikdörtgen ve üçgen parçalarını düşün.',explain:y.nameTr+' için '+nelShapeComposePieceDescription(y)+' kullanılabilir.'
+    });
+  }
+  if(rep==='explain'){
+    const answer=nelShapeComposeExplainAnswer();
+    return qBase('nelShapeCompose','explain','Temel şekil parçalarıyla yeni bir bütün oluştururken ne yapıyoruz?',answer,nelShapeComposeExplainChoices(rng),{
+      taskKind:'nel-shape-compose-explain',taskLabel:'Şekil parçalarının yeni bütün oluşturmasını açıkla',
+      visual:{type:'shape-piece-list',pieces:x.pieces},
+      hint:'Parçalar ayrı kalabilir ama birlikte yeni bir bütün gösterebilir.',explain:answer
+    });
+  }
+  const y=c.transfer;
+  return qTask('nelShapeCompose','transfer','Yapı oyununda '+y.nameTr+' yapmak için gereken temel şekilleri seç.',y.pieceKey,{kind:'manipulative',interaction:'shape-compose',expectedValue:y.pieceKey,checkLabel:'Oyun parçalarımı kontrol et'},{
+    taskKind:'nel-shape-compose-transfer',taskLabel:'Şekil oluşturmayı yapı oyununa taşı',
+    visual:{type:'shape-compose-interactive',figure:y.figure,pieces:y.pieces,allowedPieces:NEL_SHAPE_COMPOSE_ALLOWED_PIECES},
+    hint:'Yalnız hedef bütünde kullanılan temel şekilleri seç.',explain:y.nameTr+' '+nelShapeComposePieceDescription(y)+' kullanılarak kurulabilir.'
   });
 }
 
@@ -5383,6 +5533,7 @@ const GENERATORS={
   nelPartWhole10:genNelPartWhole10,
   nelBasicShapes:genNelBasicShapes,
   nelShapeAttributes:genNelShapeAttributes,
+  nelShapeCompose:genNelShapeCompose,
   subitize5:genSubitize,count10:genCount10,compare10:genCompare10,partwhole5:genPartWhole5,patternAB:genPattern,shapesBasic:genShapesBasic,sortAttribute:genSortAttribute,positionWords:genPositionWords,
   number20:genNumber20,numberBonds10:genNumberBonds10,make10:genMake10,add20:genAdd20,addMany1:genAddMany1,sub20:genSub20,equality:genEquality,word1:genWord1,
   number100:genNumber100,compareOrder100:genCompareOrder100,ordinal10:genOrdinal10,numberPattern1:genNumberPattern1,addSub100:genAddSub100,multiply40:genMultiply40,divide20g1:genDivide20G1,money1:genMoney1,
@@ -6514,6 +6665,47 @@ function nelShapeAttributesPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   throw new Error('Unknown nelShapeAttributes practice section: '+sectionId);
 }
 
+function nelShapeComposePracticeQuestion(sectionId,taskIndex,difficulty,rng){
+  const cases=nelShapeComposeCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
+  if(sectionId==='select-pieces-for-figure'){
+    return qTask('nelShapeCompose','build',x.nameTr+' oluşturmak için gereken temel şekilleri seç.',x.pieceKey,{kind:'manipulative',interaction:'shape-compose',expectedValue:x.pieceKey,checkLabel:'Parçalarımı kontrol et'},{
+      taskKind:'nel-practice-shape-compose-select-'+taskIndex,taskLabel:'Figür için gereken temel şekilleri seç',
+      visual:{type:'shape-compose-interactive',figure:x.figure,pieces:x.pieces,allowedPieces:NEL_SHAPE_COMPOSE_ALLOWED_PIECES},
+      hint:'Hedef bütünde kullanılan parçaları seç; fazlalıkları dışarıda bırak.',explain:x.nameTr+' için '+nelShapeComposePieceDescription(x)+' kullanılabilir.'
+    });
+  }
+  if(sectionId==='match-pieces-to-figure'){
+    return qTask('nelShapeCompose','see','Bu temel şekil parçaları hangi bütünü oluşturabilir?','correct',{kind:'visual-choice',options:nelShapeComposeVisualOptions(x,rng,'figures')},{
+      taskKind:'nel-practice-shape-compose-match-'+taskIndex,taskLabel:'Parçaları figürle eşleştir',
+      visual:{type:'shape-piece-list',pieces:x.pieces},
+      hint:'Parça türlerini ve sayılarını karşılaştır.',explain:'Bu parçalar '+x.nameTr+' oluşturabilir.'
+    });
+  }
+  if(sectionId==='show-composition-parts'){
+    return qTask('nelShapeCompose','symbol',x.nameTr+' için kullanılan temel şekil parçalarını göster.','correct',{kind:'visual-choice',options:nelShapeComposeVisualOptions(x,rng,'pieces')},{
+      taskKind:'nel-practice-shape-compose-parts-'+taskIndex,taskLabel:'Figürün temel şekil parçalarını göster',
+      visual:{type:'composite-figure',figure:x.figure},
+      hint:'Bütünü hangi temel şekillerin oluşturduğuna bak.',explain:x.nameTr+' için '+nelShapeComposePieceDescription(x)+' kullanılabilir.'
+    });
+  }
+  if(sectionId==='explain-shapes-form-figure'){
+    const answer=nelShapeComposeExplainAnswer();
+    return qBase('nelShapeCompose','explain','Temel şekillerden yeni bir şekil ya da figür nasıl oluşabilir?',answer,nelShapeComposeExplainChoices(rng),{
+      taskKind:'nel-practice-shape-compose-explain-'+taskIndex,taskLabel:'Parçaların yeni bütün oluşturmasını açıkla',
+      visual:{type:'shape-piece-list',pieces:x.pieces},
+      hint:'Ayrı parçaların birlikte nasıl bir bütün gösterebildiğini düşün.',explain:answer
+    });
+  }
+  if(sectionId==='transfer-block-play-compose'){
+    return qTask('nelShapeCompose','transfer','Blok oyununda '+x.nameTr+' yapmak için gereken temel şekilleri seç.',x.pieceKey,{kind:'manipulative',interaction:'shape-compose',expectedValue:x.pieceKey,checkLabel:'Oyun parçalarımı kontrol et'},{
+      taskKind:'nel-practice-shape-compose-transfer-'+taskIndex,taskLabel:'Şekil oluşturmayı oyun bağlamına taşı',
+      visual:{type:'shape-compose-interactive',figure:x.figure,pieces:x.pieces,allowedPieces:NEL_SHAPE_COMPOSE_ALLOWED_PIECES},
+      hint:'Hedef bütünde kullanılmayan parçaları seçme.',explain:x.nameTr+' '+nelShapeComposePieceDescription(x)+' ile kurulabilir.'
+    });
+  }
+  throw new Error('Unknown nelShapeCompose practice section: '+sectionId);
+}
+
 function nelNumeralFormationPracticeQuestion(sectionId,taskIndex,difficulty,rng){
   const cases=nelNumeralFormationCases(),x=cases[(taskIndex+sectionId.length)%cases.length];
   if(sectionId==='form-numeral-material'){
@@ -6932,7 +7124,8 @@ function nelMatchPracticeQuestion(sectionId,taskIndex,difficulty,rng){
 
 export function generateLessonPracticeQuestion(skillId,sectionId,taskIndex,difficulty=1,rng=Math.random){
   let q;
-  if(skillId==='nelShapeAttributes') q=nelShapeAttributesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  if(skillId==='nelShapeCompose') q=nelShapeComposePracticeQuestion(sectionId,taskIndex,difficulty,rng);
+  else if(skillId==='nelShapeAttributes') q=nelShapeAttributesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelBasicShapes') q=nelBasicShapesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelPartWhole10') q=nelPartWholePracticeQuestion(sectionId,taskIndex,difficulty,rng);
   else if(skillId==='nelCompareQuantities10') q=nelCompareQuantitiesPracticeQuestion(sectionId,taskIndex,difficulty,rng);
@@ -7015,6 +7208,7 @@ const CONCEPT_KEYS={
   nelPartWhole10:'nel-part-whole-to-10',
   nelBasicShapes:'nel-basic-shapes-four',
   nelShapeAttributes:'nel-shape-attributes-four',
+  nelShapeCompose:'nel-basic-shape-composition',
   number20:'number-to-20',numberBonds10:'number-bonds-to-10',make10:'make-ten',add20:'addition-strategy-within-20',addMany1:'multi-addend-within-20',sub20:'subtraction-strategy-within-20',
   equality:'equality-and-fact-family',word1:'one-step-problem-structures',number100:'numbers-to-100-place-value',compareOrder100:'compare-order-to-100',ordinal10:'ordinal-position-to-10',
   numberPattern1:'one-ten-more-less-patterns',addSub100:'addition-subtraction-within-100',multiply40:'equal-groups-multiplication',divide20g1:'sharing-grouping-division',money1:'money-value-and-exchange',
