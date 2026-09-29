@@ -1739,13 +1739,17 @@ button.nel-part-whole-token{cursor:pointer}
 .nel-spatial-lesson-target{position:absolute;left:var(--target-x);top:var(--target-y);width:68px;height:68px;transform:translate(-50%,-50%);border:2px dashed #9fb4c1;border-radius:22px;background:rgba(255,255,255,.72);display:grid;place-items:center;color:#6e8592;font-size:27px;font-weight:950;z-index:5;transition:.15s border-color,.15s background,.15s transform}
 .nel-spatial-lesson-target:hover{background:#fff}
 .nel-spatial-lesson-target.correct{border-style:solid;border-color:#6ab4a1;background:var(--teal-soft)}
+.nel-spatial-lesson-target.selected{border-style:solid;border-color:#4e8cc8;background:var(--blue-soft);outline:3px solid rgba(78,140,200,.14)}
 .nel-spatial-lesson-target.wrong{border-color:#d96b63;background:#fff0ee;animation:spatial-shake .24s linear 1}
 @keyframes spatial-shake{0%,100%{margin-left:0}35%{margin-left:-5px}70%{margin-left:5px}}
 .nel-spatial-action-board.depth .nel-spatial-lesson-ref{left:50%;top:52%;z-index:5}
 .nel-spatial-action-board.depth .nel-spatial-lesson-target.behind{z-index:2;opacity:.68}
 .nel-spatial-action-board.depth .nel-spatial-lesson-target.in-front-of{z-index:7}
-.nel-spatial-lesson-core.mover-behind .nel-spatial-avatar{z-index:3;opacity:.78}
-.nel-spatial-lesson-core.mover-front .nel-spatial-avatar{z-index:8}
+.nel-spatial-lesson-core.mover-behind .nel-spatial-avatar,.nel-spatial-practice-builder.mover-behind .nel-spatial-avatar{z-index:3;opacity:.78}
+.nel-spatial-lesson-core.mover-front .nel-spatial-avatar,.nel-spatial-practice-builder.mover-front .nel-spatial-avatar{z-index:8}
+.nel-spatial-practice-builder{width:min(720px,100%);display:grid;justify-items:center}
+.nel-spatial-action-board.practice{width:min(430px,86vw);height:300px;min-height:300px}
+.nel-spatial-avatar.practice{transition:left .24s ease,top .24s ease,transform .24s ease}
 .nel-spatial-action-board.distance .nel-spatial-lesson-target.near{width:62px;height:62px}
 .nel-spatial-action-board.distance .nel-spatial-lesson-target.far{width:52px;height:52px;opacity:.8}
 .nel-spatial-action-board.direction .nel-spatial-lesson-target{border-radius:50%;width:62px;height:62px}
