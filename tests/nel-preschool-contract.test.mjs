@@ -595,6 +595,7 @@ assert.ok(app.includes("case 'nel-spatial-place-builder': return nelSpatialPract
 assert.equal(spatialQuestions[0].answer,spatialQuestions[0].response.expectedValue,'active Kur answer must be the placed relation id');
 assert.equal(spatialQuestions[4].answer,spatialQuestions[4].response.expectedValue,'active Taşı answer must be the placed relation id');
 assert.ok(styles.includes('.nel-spatial-plane')&&styles.includes('.nel-spatial-direction-track'),'KSD 4.4 visuals must distinguish static relations from movement directions');
+assert.ok(app.includes("const ends={up:'left:50%;top:12%',down:'left:50%;top:88%',left:'left:12%;top:50%',right:'left:88%;top:50%'}"),'Practice direction endpoints must align with their arrows');
 
 let partWholeSeed=3808;
 const partWholeRng=()=>((partWholeSeed=(partWholeSeed*1664525+1013904223)>>>0)/2**32);
