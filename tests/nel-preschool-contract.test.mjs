@@ -1056,7 +1056,7 @@ assert.ok(contract.includes('two squares and one triangle')&&contract.includes('
 assert.ok(contract.includes('“Can you make that shape?”')&&contract.includes('“What shape can you make with these?”'),'current NEL composition prompts must remain explicit');
 assert.ok(contract.includes('pattern blocks'),'current NEL manipulative support must be documented without turning it into a compulsory KSD');
 assert.ok(contract.includes('not sufficient completion evidence'),'piece selection must not be misrepresented as completed composition');
-assert.ok(contract.includes('half-circles, quarter-circles')&&contract.includes('not mark'), 'Preschool/P1 composition boundaries must remain explicit');
+assert.ok(contract.includes('does not require half-circles, quarter-circles')&&contract.includes('other P1-style shape parts'),'Preschool/P1 composition boundaries must remain explicit');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.2'),'Path C research contract must anchor shape attributes to official KSD 4.2');
 assert.ok(contract.includes('triangle has three sides')&&contract.includes('square has four equal sides'),'KSD 4.2 research boundary must preserve the official shape-attribute examples');
 assert.ok(contract.includes('colour, absolute size and orientation are not defining attributes'),'attribute mastery must not drift into superficial visual cues');
