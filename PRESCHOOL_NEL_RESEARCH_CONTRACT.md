@@ -400,6 +400,35 @@ Recommended product progression:
    - Chromium and WebKit QA cover phone and tablet viewports, all 10 Learn steps, side/corner/equal-side touch evidence, rotation/size invariance, environment transfer, Practice, Review, horizontal overflow and Inspector sandbox isolation.
 
 3. `nelShapeCompose` — form new shapes/figures from basic shapes
+
+   **Official role:** implements **NEL KSD 4.3 — use the basic shapes to form other shapes or figures.**
+
+   **Source-derived boundary (NEL Framework / current Numeracy guidance, re-verified 2026-09-29):**
+   - “basic shapes” refers to the same four-shape set used in Learning Goal 4: **circle / square / rectangle / triangle**;
+   - NEL's explicit KSD 4.3 example is to **use two squares and one triangle to form a boat**;
+   - the Educators' Guide states that its examples are not exhaustive, so the boat is an example rather than the only valid figure;
+   - current NEL prompting guidance includes questions such as **“Can you make that shape?”** and **“What shape can you make with these?”**;
+   - current NEL manipulative guidance identifies **pattern blocks** as a resource for teaching shapes and spatial reasoning.
+
+   **SAYMERA KSD 4.3 operational boundary:**
+   - the child must ultimately **combine/place basic-shape pieces to make a new whole**; merely naming or selecting the needed pieces is useful preparation but is **not sufficient completion evidence**;
+   - the official **2 squares + 1 triangle → boat** example is preserved as a canonical reference case;
+   - additional house, kite, window or composed-shape cases are **SAYMERA product examples**, not additional official KSDs;
+   - KSD 4.3 does not require half-circles, quarter-circles or other P1-style shape parts as Preschool mastery content;
+   - exact template copying, grid copying, formal decomposition notation and geometric proof are not stated as KSD 4.3 requirements;
+   - piece movement/rotation may be used as interaction mechanics, but they are not invented as separate official subskills;
+   - **top/bottom, left/right, front/behind, far/near** remain KSD 4.4 and must not become a hidden mastery gate for KSD 4.3.
+
+   **Current engine + Practice foundation:**
+   - **Kur:** choose the basic-shape pieces needed for a target figure;
+   - **Gör:** match a set of basic-shape pieces to a figure they can form;
+   - **Göster:** identify the basic-shape set used in a composed whole;
+   - **Anlat:** explain that basic-shape pieces can be combined to form a new shape or figure;
+   - **Taşı:** apply the same piece selection in a construction/block-play context;
+   - the runtime reuses the existing composition renderer but restricts Preschool piece banks to circle, square, rectangle and triangle only;
+   - the official boat has a separate Preschool visual built from exactly two squares and one triangle;
+   - this foundation is deliberately **not marked implemented** because the current builder selects pieces but does not yet require the child to spatially assemble/place them.
+
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
 ### Current Preschool v2 implementation status
@@ -423,7 +452,7 @@ Product skill | NEL role | Status
 `nelPartWhole10` | 3.8 | ✅ implemented + browser QA
 `nelBasicShapes` | 4.1 | ✅ implemented + browser QA
 `nelShapeAttributes` | 4.2 | ✅ implemented + browser QA
-`nelShapeCompose` | 4.3 | **NEXT**
+`nelShapeCompose` | 4.3 | 🟡 engine + Practice foundation; spatial assembly Learn/browser QA next
 `nelSpatialRelations` | 4.4 | planned
 
 This table is a product implementation snapshot, not a claim that NEL itself prescribes this software order.

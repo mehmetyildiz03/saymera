@@ -5304,7 +5304,7 @@ function renderVisual(v,q){
     case 'clock-set-interactive': return clockSetBuilder();
     case 'time-label': return `<div class="sg-symbol-card time">${esc(v.label)}</div>`;
     case 'schedule-event': return `<div class="sg-schedule"><small>GÜNLÜK PROGRAM</small><b>${esc(v.label)}</b><span>${esc(v.event||'etkinlik')}</span></div>`;
-    case 'shape-compose-interactive': return shapeComposeBuilder(v.figure,v.pieces);
+    case 'shape-compose-interactive': return shapeComposeBuilder(v.figure,v.pieces,v.allowedPieces);
     case 'square-grid-copy-interactive': return squareGridCopyBuilder(v.size||5,v.cells||[],v.figure);
     case 'composite-figure': return compositeFigure(v.figure);
     case 'shape-piece-list': return shapePieceList(v.pieces);
@@ -5550,15 +5550,18 @@ function compositeFigureSvg(figure){
     kite:'<polygon points="50,8 86,50 14,50"/><polygon points="14,50 86,50 50,92"/>',
     arch:'<rect x="28" y="42" width="44" height="48" rx="2"/><path d="M12 42 L12 12 A30 30 0 0 1 42 42 Z"/><path d="M88 42 L88 12 A30 30 0 0 0 58 42 Z"/>',
     boat:'<path d="M12 62 A38 30 0 0 0 88 62 L12 62 Z"/><rect x="48" y="18" width="5" height="44"/><polygon points="53,20 82,45 53,45"/>',
-    window:'<rect x="12" y="12" width="34" height="34"/><rect x="54" y="12" width="34" height="34"/><rect x="12" y="54" width="34" height="34"/><rect x="54" y="54" width="34" height="34"/>'
+    window:'<rect x="12" y="12" width="34" height="34"/><rect x="54" y="12" width="34" height="34"/><rect x="12" y="54" width="34" height="34"/><rect x="54" y="54" width="34" height="34"/>',
+    nelBoat:'<rect x="14" y="56" width="34" height="34" rx="2"/><rect x="48" y="56" width="34" height="34" rx="2"/><polygon points="48,14 48,56 82,56"/>',
+    nelHouse:'<polygon points="50,10 78,42 22,42"/><rect x="26" y="42" width="48" height="48" rx="2"/>',
+    nelRectangle:'<rect x="14" y="34" width="34" height="34" rx="2"/><rect x="48" y="34" width="34" height="34" rx="2"/>'
   };
   return `<svg class="sg-composite-svg" viewBox="0 0 100 100" role="img" aria-label="birleşik şekil">${body[figure]||body.house}</svg>`;
 }
 function compositeFigure(figure){ return `<div class="sg-composite-figure">${compositeFigureSvg(figure)}</div>`; }
 function dotGridFigure(figure){ return `<div class="sg-composite-figure sg-dot-grid">${compositeFigureSvg(figure)}</div>`; }
 function shapePieceList(pieces){ return `<div class="sg-shape-piece-list">${pieces.map((id,i)=>`<div class="sg-piece-chip">${shapePieceSvg(id)}<b>${i+1}</b></div>`).join('')}</div>`; }
-function shapeComposeBuilder(figure,pieces){
-  const all=['square','triangle','rect','halfCircle','quarterCircle','circle'];
+function shapeComposeBuilder(figure,pieces,allowedPieces=null){
+  const all=Array.isArray(allowedPieces)&&allowedPieces.length?allowedPieces:['square','triangle','rect','halfCircle','quarterCircle','circle'];
   const bank=[...pieces];
   for(const id of all){ if(bank.length>=pieces.length+2) break; if(!pieces.includes(id)) bank.push(id); }
   return `<div class="sg-shape-compose-builder"><div class="sg-compose-target"><small>HEDEF FİGÜR</small>${compositeFigureSvg(figure)}</div><div class="sg-compose-bank">${bank.map((id,i)=>`<button type="button" class="sg-compose-piece" data-value="${esc(id)}" aria-label="${esc(id)} parçası ${i+1}">${shapePieceSvg(id)}</button>`).join('')}</div><small>Hedef figürü oluşturan parçaların hepsini seç; fazlalıkları dışarıda bırak.</small></div>`;

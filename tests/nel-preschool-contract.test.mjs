@@ -4,7 +4,7 @@ import {
   skillsFor,PRESCHOOL_NEL_PATHS,PRESCHOOL_NEL_KSD_MAP,PRESCHOOL_NEL_CROSS_CUTTING_KSDS,
   PRESCHOOL_NEL_OFFICIAL_KSD_CODES,PRESCHOOL_NEL_CURRICULUM,PRESCHOOL_NEL_SUPPORTING_CONCEPTS,
   PRESCHOOL_NEL_PEDAGOGY,PRESCHOOL_NEL_SOURCE_AUTHORITY,PRESCHOOL_TO_P1_BRIDGES,
-  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,partWholeCaseFor,shapeAttributeCaseFor,
+  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,partWholeCaseFor,shapeAttributeCaseFor,shapeComposeCaseFor,
   defaultState,runPedagogyStateAudit
 } from '../engine.mjs';
 
@@ -31,6 +31,7 @@ assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.countingPageUpdated,'2025-12-31');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.verifiedAt,'2026-09-25');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapesVerifiedAt,'2026-09-26');
 assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapeAttributesVerifiedAt,'2026-09-27');
+assert.equal(PRESCHOOL_NEL_SOURCE_AUTHORITY.shapeComposeVerifiedAt,'2026-09-29');
 assert.equal(PRESCHOOL_NEL_CURRICULUM.length,4,'Numeracy must preserve the four official learning goals');
 assert.deepEqual(PRESCHOOL_NEL_CURRICULUM.map(goal=>goal.goalId),['1','2','3','4']);
 assert.equal(PRESCHOOL_NEL_CURRICULUM[0].mode,'cross-cutting','Learning Goal 1 is not a separate mastery path');
@@ -50,8 +51,8 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),true,'part-whole enters the hidden runnable registry only after its generator exists');
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
@@ -72,6 +73,12 @@ assert.equal(preschoolIds.has('nelBasicShapes'),true,'basic shapes enters the hi
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelShapeAttributes'),'Path C metadata must reserve shape attributes');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelShapeAttributes'),'shape attributes should bridge to P1 geometry without becoming a hard prerequisite');
 assert.equal(preschoolIds.has('nelShapeAttributes'),true,'shape attributes enters the hidden runnable registry once its engine foundation exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelShapeCompose'),'Path C metadata must reserve shape composition');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelShapeCompose'),'shape composition should bridge to later P1 geometry without becoming a hard prerequisite');
+assert.equal(preschoolIds.has('nelShapeCompose'),true,'shape composition enters the hidden runnable registry once its engine foundation exists');
+assert.ok(app.includes("nelBoat:'")&&app.includes("nelHouse:'")&&app.includes("nelRectangle:'"),'Preschool composition visuals must preserve their declared basic-shape piece sets');
+assert.ok(app.includes("shapeComposeBuilder(v.figure,v.pieces,v.allowedPieces)"),'composition renderer must accept a Preschool-specific allowed-piece boundary');
+assert.ok(app.includes("Array.isArray(allowedPieces)&&allowedPieces.length?allowedPieces"),'Preschool shape composition must be able to exclude P1-only part shapes');
 assert.equal(app.includes("if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }"),true,'basic shapes must teach before checking once Learn UI exists');
 const basicShapeLessonIds=['circle-match','square-rotate','triangle-turn','rectangle-turn','size-change','mixed-invariance','name-circle-square','name-triangle-rectangle','explain-invariance','environment-hunt'];
 for(const id of basicShapeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL basic-shape Learn step '+id);
@@ -292,6 +299,30 @@ assert.deepEqual(shapeAttributesContract.practice.sections.map(s=>s.id),['count-
 assert.deepEqual(shapeAttributesContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(shapeAttributesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
+const shapeComposeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelShapeCompose;
+assert.equal(shapeComposeContract.status,'foundation');
+assert.deepEqual(shapeComposeContract.officialKsd,['4.3']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.3'],['nelShapeCompose']);
+assert.deepEqual(shapeComposeContract.officialShapes,['circle','square','rectangle','triangle']);
+assert.equal(shapeComposeContract.compositionBoundary.useBasicShapesToFormOtherShapesOrFigures,true);
+assert.equal(shapeComposeContract.compositionBoundary.actualSpatialAssemblyRequiredForCompletion,true);
+assert.equal(shapeComposeContract.compositionBoundary.pieceSelectionAloneSufficient,false,'piece selection must remain preparation, not full KSD 4.3 mastery');
+assert.equal(shapeComposeContract.compositionBoundary.exactSingleArrangementStatedAsOfficialRequirement,false);
+assert.equal(shapeComposeContract.compositionBoundary.formalGeometryRequired,false);
+assert.equal(shapeComposeContract.compositionBoundary.spatialVocabularyMasteryRequired,false);
+assert.deepEqual(shapeComposeContract.sourceGrounding.officialBoatExample,{squares:2,triangles:1});
+assert.equal(shapeComposeContract.sourceGrounding.promptCanYouMakeThatShape,true);
+assert.equal(shapeComposeContract.sourceGrounding.promptWhatShapeCanYouMakeWithThese,true);
+assert.equal(shapeComposeContract.sourceGrounding.supportingManipulativePatternBlocks,true);
+assert.equal(shapeComposeContract.productClarifications.additionalCompositionFiguresAreProductExamples,true);
+assert.equal(shapeComposeContract.productClarifications.pieceRotationAndPlacementAreInteractionSupportsNotOfficialSubskills,true);
+assert.equal(shapeComposeContract.separationFromLaterLearning.requireTopBottomLeftRightForMastery,false);
+assert.equal(shapeComposeContract.separationFromLaterLearning.requireP1GridCopying,false);
+assert.equal(shapeComposeContract.separationFromLaterLearning.requireHalfOrQuarterCircleParts,false);
+assert.deepEqual(shapeComposeContract.practice.sections.map(s=>s.id),['select-pieces-for-figure','match-pieces-to-figure','show-composition-parts','explain-shapes-form-figure','transfer-block-play-compose']);
+assert.deepEqual(shapeComposeContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(shapeComposeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
 const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
 assert.equal(partWholeContract.status,'implemented');
 assert.deepEqual(partWholeContract.officialKsd,['3.8']);
@@ -412,6 +443,51 @@ for(const section of shapeAttributesContract.practice.sections){
 const squarePractice=generateLessonPracticeQuestion('nelShapeAttributes','notice-equal-sides',0,1,shapeAttributeRng);
 assert.ok((squarePractice.explain||'').includes('Dört kenarın hepsi eşit'));
 assert.equal(/renk.*temel özelliğini belirler/i.test(squarePractice.explain||''),false);
+
+let shapeComposeSeed=4303;
+const shapeComposeRng=()=>((shapeComposeSeed=(shapeComposeSeed*1664525+1013904223)>>>0)/2**32);
+const shapeComposeConcept=createConceptInstance('nelShapeCompose',1,shapeComposeRng);
+assert.equal(shapeComposeConcept.skillId,'nelShapeCompose');
+const preschoolPieceIds=new Set(['circle','square','rect','triangle']);
+for(const sample of [shapeComposeConcept.anchor,shapeComposeConcept.symbol,shapeComposeConcept.transfer]){
+  assert.ok(sample.pieces.length>=2,'KSD 4.3 cases must actually combine multiple basic-shape pieces');
+  assert.ok(sample.pieces.every(id=>preschoolPieceIds.has(id)),'Preschool composition must use only the four basic-shape piece ids');
+  assert.equal(sample.pieceKey,[...sample.pieces].sort().join('+'));
+}
+const officialBoat=shapeComposeCaseFor('boat');
+assert.equal(officialBoat.sourceRole,'official-example');
+assert.deepEqual(officialBoat.pieces,['square','square','triangle'],'official boat example must be exactly two squares and one triangle');
+assert.equal(officialBoat.figure,'nelBoat');
+const composedRectangle=shapeComposeCaseFor('rectangle');
+assert.equal(composedRectangle.kind,'other-shape','KSD 4.3 must cover forming another shape as well as figures');
+assert.deepEqual(composedRectangle.pieces,['square','square']);
+
+const composeBuild=generateQuestion('nelShapeCompose','build',1,shapeComposeRng,shapeComposeConcept);
+const composeSee=generateQuestion('nelShapeCompose','see',1,shapeComposeRng,shapeComposeConcept);
+const composeShow=generateQuestion('nelShapeCompose','symbol',1,shapeComposeRng,shapeComposeConcept);
+const composeExplain=generateQuestion('nelShapeCompose','explain',1,shapeComposeRng,shapeComposeConcept);
+const composeTransfer=generateQuestion('nelShapeCompose','transfer',1,shapeComposeRng,shapeComposeConcept);
+assert.equal(composeBuild.response.kind,'manipulative');
+assert.equal(composeBuild.response.interaction,'shape-compose');
+assert.deepEqual(composeBuild.visual.allowedPieces,['circle','square','rect','triangle']);
+assert.equal(composeSee.response.kind,'visual-choice');
+assert.equal(composeSee.response.options.length,4);
+assert.equal(composeShow.response.kind,'visual-choice');
+assert.equal(composeShow.response.options.length,4);
+assert.equal(composeExplain.response.kind,'choice');
+assert.equal(composeTransfer.response.kind,'manipulative');
+assert.deepEqual(composeTransfer.visual.allowedPieces,['circle','square','rect','triangle']);
+for(const q of [composeBuild,composeSee,composeShow,composeExplain,composeTransfer]){
+  const raw=JSON.stringify(q);
+  assert.equal(/halfCircle|quarterCircle/.test(raw),false,'P1-only half/quarter-circle pieces must not leak into Preschool KSD 4.3 tasks');
+  assert.equal(/\b(?:sol|sağ|üst|alt|önünde|arkasında|yakın|uzak)\b/i.test([q.prompt,q.hint,q.explain].join(' ')),false,'KSD 4.4 spatial vocabulary must not become a KSD 4.3 requirement');
+}
+for(const section of shapeComposeContract.practice.sections){
+  const qs=Array.from({length:10},(_,i)=>generateLessonPracticeQuestion('nelShapeCompose',section.id,i,1,shapeComposeRng));
+  assert.ok(qs.every(q=>q.skillId==='nelShapeCompose'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+  for(const q of qs) assert.equal(/halfCircle|quarterCircle/.test(JSON.stringify(q)),false,section.id+' must remain inside the four basic-shape set');
+}
 
 let partWholeSeed=3808;
 const partWholeRng=()=>((partWholeSeed=(partWholeSeed*1664525+1013904223)>>>0)/2**32);
@@ -944,7 +1020,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract','nel-shape-attributes-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract','nel-shape-attributes-contract','nel-shape-compose-foundation-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -957,6 +1033,13 @@ assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ im
 assert.ok(contract.includes('nelPartWhole10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark part-whole complete');
 assert.ok(contract.includes('nelBasicShapes')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark basic shapes complete');
 assert.ok(contract.includes('nelShapeAttributes')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark shape attributes complete');
+assert.ok(contract.includes('nelShapeCompose')&&contract.includes('engine + Practice foundation'),'implementation snapshot must preserve KSD 4.3 as a foundation rather than falsely complete');
+assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.3'),'Path C research contract must anchor composition to official KSD 4.3');
+assert.ok(contract.includes('two squares and one triangle')&&contract.includes('form a boat'),'research contract must preserve the official boat composition example');
+assert.ok(contract.includes('“Can you make that shape?”')&&contract.includes('“What shape can you make with these?”'),'current NEL composition prompts must remain explicit');
+assert.ok(contract.includes('pattern blocks'),'current NEL manipulative support must be documented without turning it into a compulsory KSD');
+assert.ok(contract.includes('not sufficient completion evidence'),'piece selection must not be misrepresented as completed composition');
+assert.ok(contract.includes('half-circles, quarter-circles')&&contract.includes('not mark'), 'Preschool/P1 composition boundaries must remain explicit');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.2'),'Path C research contract must anchor shape attributes to official KSD 4.2');
 assert.ok(contract.includes('triangle has three sides')&&contract.includes('square has four equal sides'),'KSD 4.2 research boundary must preserve the official shape-attribute examples');
 assert.ok(contract.includes('colour, absolute size and orientation are not defining attributes'),'attribute mastery must not drift into superficial visual cues');
