@@ -3877,16 +3877,18 @@ function genNelShapeCompose(rep,d,rng,concept){
 }
 
 function genNelSpatialRelations(rep,d,rng){
-  const target=choice(NEL_SPATIAL_RELATION_CASES,rng);
+  const all=NEL_SPATIAL_RELATION_CASES;
   if(rep==='build'){
-    return qBase('nelSpatialRelations','build','Mavi nesnenin turuncu bloğa göre konumunu en doğru anlatan sözü seç.',target.label,nelSpatialRelationChoices(target,rng),{
-      taskKind:'nel-spatial-place-foundation',taskLabel:'Bir nesnenin başka bir nesneye göre konumunu kurmaya hazırlan',
-      visual:{type:'nel-spatial-scene',relation:target.id,kind:target.kind},
-      hint:'Turuncu bloğu referans al ve mavi nesnenin ona göre nerede olduğunu düşün.',
+    const target=choice(all.filter(item=>item.kind==='position'),rng);
+    return qTask('nelSpatialRelations','build','Mavi nesneyi turuncu bloğun '+target.prompt+' olacak şekilde yerleştir.',target.id,{kind:'manipulative',interaction:'nel-spatial-place',expectedValue:target.id,checkLabel:'Yerimi kontrol et'},{
+      taskKind:'nel-spatial-place-active',taskLabel:'Bir nesneyi başka bir nesneye göre etkin olarak yerleştir',
+      visual:{type:'nel-spatial-place-builder',relation:target.id,kind:target.kind},
+      hint:'Turuncu bloğu referans al; mavi nesneyi istenen ilişkiyi gösterecek hedefe taşı.',
       explain:'Mavi nesne turuncu bloğa göre '+target.label+'.'
     });
   }
   if(rep==='see'){
+    const target=choice(all,rng);
     return qTask('nelSpatialRelations','see','Hangi sahne “'+target.label+'” ilişkisini gösteriyor?','correct',{kind:'visual-choice',options:nelSpatialVisualOptions(target,rng)},{
       taskKind:'nel-spatial-recognise',taskLabel:'Konum, yön veya uzaklık ilişkisini görselden ayırt et',
       visual:{type:'nel-spatial-word-card',label:target.label,kind:target.kind},
@@ -3895,7 +3897,7 @@ function genNelSpatialRelations(rep,d,rng){
     });
   }
   if(rep==='symbol'){
-    const movement=choice(NEL_SPATIAL_RELATION_CASES.filter(item=>item.kind==='direction'),rng);
+    const movement=choice(all.filter(item=>item.kind==='direction'),rng);
     return qBase('nelSpatialRelations','symbol','Okun gösterdiği hareket yönünü söyle.',movement.label,nelSpatialRelationChoices(movement,rng),{
       taskKind:'nel-spatial-show-language',taskLabel:'Hareket yönünü uygun uzamsal dille göster',
       visual:{type:'nel-spatial-scene',relation:movement.id,kind:'direction'},
@@ -3904,6 +3906,7 @@ function genNelSpatialRelations(rep,d,rng){
     });
   }
   if(rep==='explain'){
+    const target=choice(all.filter(item=>item.kind==='position'),rng);
     const answer=nelSpatialExplainAnswer();
     return qBase('nelSpatialRelations','explain','Bir nesnenin konumunu doğru anlatmak için neden bir referans gerekir?',answer,semanticChoices(answer,[
       'Konum yalnız nesnenin rengine göre belirlenir.',
@@ -3920,10 +3923,10 @@ function genNelSpatialRelations(rep,d,rng){
     spatialRelationCaseFor('top'),spatialRelationCaseFor('behind'),spatialRelationCaseFor('left'),
     spatialRelationCaseFor('right'),spatialRelationCaseFor('far'),spatialRelationCaseFor('near')
   ],rng);
-  return qBase('nelSpatialRelations','transfer','Yapı ve hareket oyununda verilen ilişkiyi kullan: “'+transfer.label+'”. Bu sahneyi en doğru anlatan seçenek hangisi?',transfer.label,nelSpatialRelationChoices(transfer,rng),{
-    taskKind:'nel-spatial-transfer-foundation',taskLabel:'Uzamsal dili yapı oyunu ve hareket bağlamına taşı',
-    visual:{type:'nel-spatial-scene',relation:transfer.id,kind:transfer.kind,context:'block-play'},
-    hint:'Blokların ve hareket yönünün birbirine göre yerini düşün.',
+  return qTask('nelSpatialRelations','transfer','Yapı ve hareket oyununda mavi nesneyi “'+transfer.label+'” ilişkisini gösterecek şekilde taşı.',transfer.id,{kind:'manipulative',interaction:'nel-spatial-place',expectedValue:transfer.id,checkLabel:'Oyun hareketimi kontrol et'},{
+    taskKind:'nel-spatial-transfer-active',taskLabel:'Uzamsal dili yapı oyunu ve hareket bağlamına etkin olarak taşı',
+    visual:{type:'nel-spatial-place-builder',relation:transfer.id,kind:transfer.kind,context:'block-play'},
+    hint:'Blokları referans al ve mavi nesneyi doğru hedef bölgeye taşı.',
     explain:'Bu oyun bağlamında doğru ilişki '+transfer.label+'.',
     realWorldPrompt:transfer.kind==='direction'?'Ekran dışı etkinlikte yetişkin, çocuktan aynı yönde bir adım atmasını isteyebilir.':'Aynı ilişkiyi gerçek bloklarla da kurmayı deneyin.'
   });
