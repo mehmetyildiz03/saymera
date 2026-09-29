@@ -4453,6 +4453,7 @@ function wireManipulator(q){
   if(interaction==='nel-number-link-builder') bindNelNumberLink($('.nel-number-link-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-number-form-match') bindNelNumberFormMatch($('.nel-number-form-match'),()=>updateManipulatorStatus(q),()=>answered);
   if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) bindNelNumeralBoard($('.nel-numeral-board'),()=>updateManipulatorStatus(q),()=>answered);
+  if(interaction==='nel-spatial-place') bindNelSpatialPractice($('.nel-spatial-practice-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-quantity-pair-sets') bindNelQuantityPairBuilder($('.nel-quantity-pair-builder'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-quantity-relation-choice') bindNelQuantityRelation($('.nel-quantity-relation-choice, .nel-quantity-object-graph'),()=>updateManipulatorStatus(q),()=>answered);
   if(interaction==='nel-part-whole-split'||interaction==='nel-part-whole-context-split') bindNelPartWholeSplit($('.nel-part-whole-split-builder'),()=>updateManipulatorStatus(q),()=>answered);
@@ -4818,6 +4819,7 @@ function readManipulatorValue(q){
   if(interaction==='nel-number-link-builder') return $('.nel-number-link-builder')?.dataset.numberSelected ?? null;
   if(interaction==='nel-number-form-match') return nelNumberReadFormMatch($('.nel-number-form-match'));
   if(['nel-numeral-material-form','nel-numeral-guided-trace','nel-numeral-free-write','nel-numeral-context-record'].includes(interaction)) return nelNumeralReadBoard($('.nel-numeral-board'));
+  if(interaction==='nel-spatial-place') return nelSpatialPracticeRead($('.nel-spatial-practice-builder'));
   if(interaction==='nel-quantity-pair-sets') return nelQuantityPairRead($('.nel-quantity-pair-builder'));
   if(interaction==='nel-quantity-relation-choice') return nelQuantityRelationRead($('.nel-quantity-relation-choice, .nel-quantity-object-graph'));
   if(interaction==='nel-part-whole-split'||interaction==='nel-part-whole-context-split') return nelPartWholeReadSplit($('.nel-part-whole-split-builder'));
@@ -4928,6 +4930,7 @@ function updateManipulatorStatus(q){
     const root=$('.nel-numeral-board'),ready=root?.dataset.numeralReady==='true',coverage=Number(root?.dataset.numeralCoverage||0);
     node.textContent=ready?'Rakam biçimi hazır. Şimdi kontrol et.':coverage?'Rakamın bazı bölümleri hazır; eksik kalan bölümleri tamamla.':'Rakamı çizim alanında oluştur.';
   }
+  else if(q.response?.interaction==='nel-spatial-place') node.textContent=value?'Bir hedef bölge seçtin. Şimdi kontrol et.':'Mavi nesneyi istenen ilişkiyi gösterecek hedefe taşı.';
   else if(q.response?.interaction==='nel-quantity-pair-sets'){
     const root=$('.nel-quantity-pair-builder'),paired=Number(root?.dataset.pairedCount||0),target=Math.min(Number(root?.dataset.leftN||0),Number(root?.dataset.rightN||0));
     node.textContent=root?.dataset.pairComplete==='true'?'Bire bir eşleştirme tamamlandı. Şimdi kontrol et.':paired+' / '+target+' çift eşleşti.';
@@ -5477,6 +5480,7 @@ function renderVisual(v,q){
     case 'position': return renderPosition(v.relation);
     case 'nel-spatial-scene': return nelSpatialSceneVisual(v);
     case 'nel-spatial-word-card': return nelSpatialWordCard(v);
+    case 'nel-spatial-place-builder': return nelSpatialPracticeBuilder(v);
     case 'sequence': return `<div class="sequence-row">${v.items.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
     case 'length-bars': return renderLengthBars(v);
     case 'pictograph': return `<div class="pictograph">${v.cats.map((cat,i)=>`<div class="pic-row"><b>${esc(cat)}</b><div>${Array.from({length:v.vals[i]},()=>'<i></i>').join('')}</div></div>`).join('')}</div>`;
@@ -5975,6 +5979,44 @@ function renderSort(mode){
   if(mode==='size') return `<div class="sort-visual"><div class="sort-bin"><i class="sort-item big"></i><i class="sort-item square big"></i></div><div class="sort-bin"><i class="sort-item"></i><i class="sort-item square"></i></div></div>`;
   return `<div class="sort-visual"><div class="sort-bin"><i class="sort-item"></i><i class="sort-item big"></i></div><div class="sort-bin"><i class="sort-item square"></i><i class="sort-item square big"></i></div></div>`;
 }
+
+function nelSpatialPracticeBuilder(v={}){
+  const relation=String(v.relation||'top'),kind=String(v.kind||'position');
+  const layout=kind==='position'&&['in-front-of','behind'].includes(relation)?'depth':kind;
+  const targets=NEL_SPATIAL_TARGETS[layout]||[];
+  const context=v.context==='block-play'?'<span class="nel-spatial-block-extra one"></span><span class="nel-spatial-block-extra two"></span>':'';
+  const ref=layout==='direction'
+    ?'<span class="nel-spatial-avatar practice" data-spatial-practice-mover aria-hidden="true">●</span>'
+    :context+'<span class="nel-spatial-lesson-ref" aria-hidden="true"></span><span class="nel-spatial-avatar object practice" data-spatial-practice-mover aria-hidden="true">●</span>';
+  return '<div class="nel-spatial-practice-builder" data-spatial-practice-expected="'+esc(relation)+'" data-spatial-kind="'+esc(layout)+'">'+
+    '<div class="nel-spatial-action-board practice '+esc(layout)+'"><div class="nel-spatial-board-guides" aria-hidden="true"></div>'+ref+
+    targets.map(target=>'<button type="button" class="nel-spatial-lesson-target '+esc(target.id)+'" data-spatial-practice-target="'+esc(target.id)+'" style="--target-x:'+target.x+'%;--target-y:'+target.y+'%" aria-label="'+esc(target.id)+' hedefi"><span>'+esc(target.mark)+'</span></button>').join('')+
+    '</div></div>';
+}
+function bindNelSpatialPractice(root,onChange,blocked=()=>false){
+  if(!root)return;
+  const mover=root.querySelector('[data-spatial-practice-mover]');
+  const targets=[...root.querySelectorAll('[data-spatial-practice-target]')];
+  targets.forEach(target=>target.addEventListener('click',()=>{
+    if(blocked())return;
+    targets.forEach(x=>x.classList.toggle('selected',x===target));
+    root.dataset.spatialPracticeSelected=target.dataset.spatialPracticeTarget;
+    if(mover){
+      mover.classList.add('moved');
+      mover.style.setProperty('--mover-x',target.style.getPropertyValue('--target-x'));
+      mover.style.setProperty('--mover-y',target.style.getPropertyValue('--target-y'));
+      mover.dataset.spatialRelation=target.dataset.spatialPracticeTarget;
+    }
+    const kind=root.dataset.spatialKind;
+    if(kind==='depth'){
+      root.classList.toggle('mover-behind',target.dataset.spatialPracticeTarget==='behind');
+      root.classList.toggle('mover-front',target.dataset.spatialPracticeTarget==='in-front-of');
+    }
+    onChange?.();
+  }));
+}
+function nelSpatialPracticeRead(root){return root?.dataset.spatialPracticeSelected||null;}
+
 function nelSpatialWordCard(v={}){
   const kindLabel={position:'KONUM',direction:'YÖN',distance:'UZAKLIK'}[v.kind]||'UZAMSAL İLİŞKİ';
   return '<div class="nel-spatial-word-card"><small>'+esc(kindLabel)+'</small><strong>'+esc(v.label||'')+'</strong></div>';
