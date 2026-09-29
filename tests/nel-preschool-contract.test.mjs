@@ -4,7 +4,7 @@ import {
   skillsFor,PRESCHOOL_NEL_PATHS,PRESCHOOL_NEL_KSD_MAP,PRESCHOOL_NEL_CROSS_CUTTING_KSDS,
   PRESCHOOL_NEL_OFFICIAL_KSD_CODES,PRESCHOOL_NEL_CURRICULUM,PRESCHOOL_NEL_SUPPORTING_CONCEPTS,
   PRESCHOOL_NEL_PEDAGOGY,PRESCHOOL_NEL_SOURCE_AUTHORITY,PRESCHOOL_TO_P1_BRIDGES,
-  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,partWholeCaseFor,shapeAttributeCaseFor,shapeComposeCaseFor,
+  PRESCHOOL_NEL_LESSON_CONTRACTS,generateLessonPracticeQuestion,generateQuestion,createConceptInstance,partWholeCaseFor,shapeAttributeCaseFor,shapeComposeCaseFor,spatialRelationCaseFor,
   defaultState,runPedagogyStateAudit
 } from '../engine.mjs';
 
@@ -51,8 +51,8 @@ assert.deepEqual(PRESCHOOL_NEL_PEDAGOGY.approaches,[
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.assessment.worksheetFirst,false,'preschool assessment must not become worksheet-first');
 assert.equal(PRESCHOOL_NEL_PEDAGOGY.digitalRole,'complement-physical-play-and-real-objects');
 
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose','nelSpatialRelations']) assert.equal(skillsFor('preschool').some(s=>s.id===id),false,'unfinished NEL v2 skill must stay hidden from the live preschool map: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose','nelSpatialRelations']) assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id===id),true,'Inspector must reach hidden NEL reference skill: '+id);
 assert.equal(skillsFor('preschool',{includeHidden:true}).some(s=>s.id==='nelPartWhole10'),true,'part-whole enters the hidden runnable registry only after its generator exists');
 
 const preschoolIds=new Set(skillsFor('preschool',{includeHidden:true}).map(s=>s.id));
@@ -76,6 +76,9 @@ assert.equal(preschoolIds.has('nelShapeAttributes'),true,'shape attributes enter
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelShapeCompose'),'Path C metadata must reserve shape composition');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelShapeCompose'),'shape composition should bridge to later P1 geometry without becoming a hard prerequisite');
 assert.equal(preschoolIds.has('nelShapeCompose'),true,'shape composition enters the hidden runnable registry once its engine foundation exists');
+assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelSpatialRelations'),'Path C metadata must reserve spatial relations');
+assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelSpatialRelations'),'spatial relations should bridge to later P1 geometry without becoming a hard prerequisite');
+assert.equal(preschoolIds.has('nelSpatialRelations'),true,'spatial relations enters the hidden runnable registry once its Practice foundation exists');
 assert.equal(app.includes("if(skill.id==='nelShapeCompose'){ renderNelShapeComposeLessonStep(skill); return; }"),true,'shape composition must teach before checking once Learn UI exists');
 const shapeComposeLessonIds=['two-squares-rectangle','square-triangle-house','official-boat','two-triangles-kite','four-squares-window','rectangle-circles-car','circle-rectangle-tree'];
 for(const id of shapeComposeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL shape-composition Learn step '+id);
@@ -338,6 +341,32 @@ assert.deepEqual(shapeComposeContract.practice.sections.map(s=>s.id),['select-pi
 assert.deepEqual(shapeComposeContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(shapeComposeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
+const spatialContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelSpatialRelations;
+assert.equal(spatialContract.status,'foundation');
+assert.deepEqual(spatialContract.officialKsd,['4.4']);
+assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.4'],['nelSpatialRelations']);
+assert.deepEqual(spatialContract.officialRelations.position,['top','bottom','in-front-of','behind']);
+assert.deepEqual(spatialContract.officialRelations.direction,['up','down','left','right']);
+assert.deepEqual(spatialContract.officialRelations.distance,['far','near']);
+assert.equal(spatialContract.sourceGrounding.describeObjectPositionWithTopBottomFrontBehind,true);
+assert.equal(spatialContract.sourceGrounding.describeDirectionAndDistanceWithLeftRightFarNear,true);
+assert.equal(spatialContract.sourceGrounding.respondToMoveRightLeftExample,true);
+assert.equal(spatialContract.sourceGrounding.spatialAwarenessStartsFromSelfInRelationToSurroundings,true);
+assert.equal(spatialContract.sourceGrounding.constructionBlockPlaySupportsSpatialAwareness,true);
+assert.equal(spatialContract.sourceGrounding.examplesAreNotAgeSpecificOrExhaustive,true);
+assert.equal(spatialContract.productBoundary.allTenOfficialRelationsRepresented,true);
+assert.equal(spatialContract.productBoundary.digitalRightLeftMovementResponseRequiredForCompletion,true);
+assert.equal(spatialContract.productBoundary.physicalBodyMovementObservedByDevice,false);
+assert.equal(spatialContract.productBoundary.relationWordRecognitionAloneSufficient,false);
+assert.equal(spatialContract.productBoundary.inventedRelationsRequiredForMastery,false);
+assert.equal(spatialContract.implementationBoundary.practiceFoundationImplemented,true);
+assert.equal(spatialContract.implementationBoundary.dedicatedLearnMovementFlowImplemented,false);
+assert.equal(spatialContract.implementationBoundary.browserQaImplemented,false);
+assert.equal(spatialContract.implementationBoundary.masteryComplete,false);
+assert.deepEqual(spatialContract.practice.sections.map(s=>s.id),['place-relative-position','recognise-position-direction-distance','show-spatial-language','explain-reference-relation','transfer-block-movement']);
+assert.deepEqual(spatialContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
+assert.deepEqual(spatialContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
+
 const partWholeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelPartWhole10;
 assert.equal(partWholeContract.status,'implemented');
 assert.deepEqual(partWholeContract.officialKsd,['3.8']);
@@ -505,6 +534,35 @@ for(const section of shapeComposeContract.practice.sections){
   assert.ok(qs.every(q=>q.learningPhase==='practice'));
   for(const q of qs) assert.equal(/halfCircle|quarterCircle/.test(JSON.stringify(q)),false,section.id+' must remain inside the four basic-shape set');
 }
+
+const officialSpatialIds=['top','bottom','in-front-of','behind','up','down','left','right','far','near'];
+assert.deepEqual(officialSpatialIds.map(id=>spatialRelationCaseFor(id).id),officialSpatialIds,'all ten official KSD 4.4 relations must have canonical cases');
+assert.deepEqual(officialSpatialIds.map(id=>spatialRelationCaseFor(id).kind),['position','position','position','position','direction','direction','direction','direction','distance','distance']);
+assert.equal(spatialRelationCaseFor('left').label,'sola');
+assert.equal(spatialRelationCaseFor('right').label,'sağa');
+
+let spatialSeed=4404;
+const spatialRng=()=>((spatialSeed=(spatialSeed*1664525+1013904223)>>>0)/2**32);
+const spatialQuestions=['build','see','symbol','explain','transfer'].map(rep=>generateQuestion('nelSpatialRelations',rep,1,spatialRng));
+assert.deepEqual(spatialQuestions.map(q=>q.skillId),Array(5).fill('nelSpatialRelations'));
+assert.equal(spatialQuestions[0].response.kind,'choice');
+assert.equal(spatialQuestions[1].response.kind,'visual-choice');
+assert.equal(spatialQuestions[1].response.options.length,4);
+assert.equal(spatialQuestions[2].response.kind,'choice');
+assert.equal(spatialQuestions[3].response.kind,'choice');
+assert.equal(spatialQuestions[4].response.kind,'choice');
+for(const q of spatialQuestions){
+  assert.ok(['nel-spatial-scene','nel-spatial-word-card'].includes(q.visual?.type),'KSD 4.4 Practice must use dedicated spatial visuals');
+  assert.equal(/inside|outside|between|beside|over|under/i.test(JSON.stringify(q)),false,'non-official enrichment words must not become required foundation content');
+}
+for(const section of spatialContract.practice.sections){
+  const qs=Array.from({length:12},(_,i)=>generateLessonPracticeQuestion('nelSpatialRelations',section.id,i,1,spatialRng));
+  assert.ok(qs.every(q=>q.skillId==='nelSpatialRelations'));
+  assert.ok(qs.every(q=>q.learningPhase==='practice'));
+}
+assert.ok(app.includes("case 'nel-spatial-scene': return nelSpatialSceneVisual(v);"),'KSD 4.4 Practice renderer must expose dedicated spatial scenes');
+assert.ok(app.includes("case 'nel-spatial-word-card': return nelSpatialWordCard(v);"),'KSD 4.4 Practice renderer must expose spatial language cards');
+assert.ok(styles.includes('.nel-spatial-plane')&&styles.includes('.nel-spatial-direction-track'),'KSD 4.4 visuals must distinguish static relations from movement directions');
 
 let partWholeSeed=3808;
 const partWholeRng=()=>((partWholeSeed=(partWholeSeed*1664525+1013904223)>>>0)/2**32);
@@ -1066,6 +1124,10 @@ assert.ok(contract.includes('colour, absolute size and orientation are not defin
 assert.ok(contract.includes('quadrilateral hierarchy is not a Preschool KSD 4.2 mastery requirement'),'preschool must not back-port later formal classification');
 assert.ok(contract.includes('Status after SAYMERA v1.26.1'),'research contract status must match the implemented release boundary');
 assert.ok(contract.includes('v1.26.1 hardens Practice on WebKit/mobile')&&contract.includes('reference/answer bounding boxes directly'),'research contract must record the Practice hit-area hotfix and its browser guard');
+assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.4'),'Path C research contract must anchor spatial relations to official KSD 4.4');
+assert.ok(contract.includes('top / bottom')&&contract.includes('in front of / behind')&&contract.includes('up / down')&&contract.includes('left / right')&&contract.includes('far / near'),'research contract must preserve all named official relation pairs');
+assert.ok(contract.includes('physical body movement')&&contract.includes('must **not claim to have observed'),'digital product boundary must not pretend to observe unmeasured physical movement');
+assert.ok(contract.includes('engine/Practice foundation')&&contract.includes('active Learn movement/browser QA next'),'implementation snapshot must keep KSD 4.4 explicitly incomplete');
 assert.ok(contract.includes('v1.25.0 reference implementation'),'research contract must document the shape-attributes implementation slice');
 assert.ok(contract.includes('10 Learn steps')&&contract.includes('side/corner touch targets'),'shape-attributes implementation notes must preserve active child evidence');
 assert.ok(contract.includes('v1.24.0 reference implementation'),'research contract must document the basic-shapes implementation slice');
