@@ -3019,7 +3019,7 @@ function wireNelShapeComposeAssembly(step,next){
   };
   chips.forEach(chip=>{
     chip.addEventListener('click',()=>{
-      if(chip.disabled||consumeDraggedClick(chip))return;
+      if(chip.disabled)return;
       selected=selected===chip?null:chip;chips.forEach(x=>x.classList.toggle('selected',x===selected));
       if(help)help.textContent=selected?'Şimdi bu parçanın doğru yerine dokun.':'Parça seçimi kaldırıldı.';
     });
@@ -3027,7 +3027,7 @@ function wireNelShapeComposeAssembly(step,next){
       if(chip.disabled)return;drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');
     });
     chip.addEventListener('pointermove',ev=>{
-      if(drag!==chip)return;markDragMovement(chip,sx,sy,ev.clientX,ev.clientY);
+      if(drag!==chip)return;
       chip.style.transform='translate('+(ev.clientX-sx)+'px,'+(ev.clientY-sy)+'px) scale(1.05)';
     });
     chip.addEventListener('pointerup',ev=>{
