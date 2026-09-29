@@ -126,6 +126,14 @@ async function completePracticeQuestion(page){
   const scene=page.locator('#visualStage [data-spatial-relation]').first();
   if(await scene.count()){
     const relation=await scene.getAttribute('data-spatial-relation');
+    if(['up','down','left','right'].includes(relation)){
+      const track=scene.locator('.nel-spatial-direction-track'),end=scene.locator('.nel-spatial-end');
+      const tc=await center(track),ec=await center(end);
+      if(relation==='up') assert.ok(ec.y<tc.y,'up Practice endpoint must be above centre');
+      if(relation==='down') assert.ok(ec.y>tc.y,'down Practice endpoint must be below centre');
+      if(relation==='left') assert.ok(ec.x<tc.x,'left Practice endpoint must be left of centre');
+      if(relation==='right') assert.ok(ec.x>tc.x,'right Practice endpoint must be right of centre');
+    }
     await tapChoiceText(page,relationLabel[relation]);return;
   }
   throw new Error('Unhandled KSD 4.4 Practice/Review interaction');
