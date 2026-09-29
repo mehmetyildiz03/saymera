@@ -91,6 +91,16 @@ assert.equal(newSpatial.totalAttempts,0,'legacy positionWords attempts must not 
 assert.equal(newSpatial.stable,false,'legacy positionWords mastery must not mark redesigned KSD 4.4 stable');
 assert.equal(newSpatial.learningCycle.firstCycleCompletedAt,0,'legacy positionWords completion must not complete redesigned KSD 4.4');
 assert.equal(Object.values(newSpatial.evidence).every(ev=>(ev.attempts||0)===0),true,'redesigned KSD 4.4 must start with native evidence empty');
+assert.equal(app.includes("if(skill.id==='nelSpatialRelations'){ renderNelSpatialRelationsLessonStep(skill); return; }"),true,'KSD 4.4 must teach before checking');
+const spatialLessonIds=['position-top','position-bottom','position-front','position-behind','direction-up','direction-down','direction-left','direction-right','distance-near','distance-far'];
+for(const id of spatialLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing KSD 4.4 active Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelSpatialRelations') return NEL_SPATIAL_RELATIONS_LESSON_STEPS.map"),'Inspector must expose all KSD 4.4 Learn steps');
+assert.ok(app.includes("data-spatial-lesson-target")&&app.includes("core.dataset.spatialComplete='true'"),'KSD 4.4 Learn must require active destination selection before completion');
+assert.ok(app.includes("id:'direction-left'")&&app.includes("relation:'left'")&&app.includes("id:'direction-right'")&&app.includes("relation:'right'"),'official right/left movement response must be explicit in Learn');
+assert.ok(app.includes("case 'nel-spatial-place-builder': return nelSpatialPracticeBuilder(v);"),'KSD 4.4 active Practice renderer must be registered');
+assert.ok(app.includes("interaction==='nel-spatial-place'")&&app.includes("nelSpatialPracticeRead($('.nel-spatial-practice-builder'))"),'KSD 4.4 active Practice must be wired for bind/read/status');
+assert.ok(styles.includes('.nel-spatial-action-board')&&styles.includes('.nel-spatial-lesson-target.selected'),'KSD 4.4 active targets must have visible spatial action states');
+assert.ok(styles.includes('.spatial-relations-question-stage .spatial-relations-stage{height:auto;max-height:none;min-height:220px;overflow:hidden'),'KSD 4.4 Practice must reserve a non-overlapping reference/action region');
 assert.equal(app.includes("if(skill.id==='nelShapeCompose'){ renderNelShapeComposeLessonStep(skill); return; }"),true,'shape composition must teach before checking once Learn UI exists');
 const shapeComposeLessonIds=['two-squares-rectangle','square-triangle-house','official-boat','two-triangles-kite','four-squares-window','rectangle-circles-car','circle-rectangle-tree'];
 for(const id of shapeComposeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL shape-composition Learn step '+id);
@@ -174,7 +184,7 @@ const lessonFirstStart=app.indexOf('const LESSON_FIRST_SKILLS=new Set([');
 const lessonFirstEnd=app.indexOf(']);',lessonFirstStart);
 assert.ok(lessonFirstStart>=0&&lessonFirstEnd>lessonFirstStart,'LESSON_FIRST_SKILLS registry must exist');
 const lessonFirstBlock=app.slice(lessonFirstStart,lessonFirstEnd);
-for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes']) assert.ok(lessonFirstBlock.includes("'"+id+"'"),'NEL reference skill must teach before checking: '+id);
+for(const id of ['nelMatchAttributes','nelSortAttributes','nelCompareAttributes','nelOrderAttributes','nelPatterns','nelRoteCount20','nelReliableCount10','nelSubitise5','nelConservation10','nelNumberRepresentations10','nelNumeralFormation10','nelCompareQuantities10','nelPartWhole10','nelBasicShapes','nelShapeAttributes','nelShapeCompose','nelSpatialRelations']) assert.ok(lessonFirstBlock.includes("'"+id+"'"),'NEL reference skill must teach before checking: '+id);
 assert.equal(app.includes("if(skill.id==='nelNumberRepresentations10'){ renderNelNumberRepresentationsLessonStep(skill); return; }"),true,'number representations must teach before checking');
 const numberRepLessonIds=['quantity-name-four','quantity-numeral-four','same-five-models','numeral-name-six','words-one-five','words-six-ten','word-quantity-eight','four-way-nine','mixed-seven','real-world-ten'];
 for(const id of numberRepLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL number-representation Learn step '+id);
@@ -354,7 +364,7 @@ assert.deepEqual(shapeComposeContract.practice.sections.map(s=>s.phase),['model'
 assert.deepEqual(shapeComposeContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
 const spatialContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelSpatialRelations;
-assert.equal(spatialContract.status,'foundation');
+assert.equal(spatialContract.status,'implemented');
 assert.deepEqual(spatialContract.officialKsd,['4.4']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.4'],['nelSpatialRelations']);
 assert.deepEqual(spatialContract.officialRelations.position,['top','bottom','in-front-of','behind']);
@@ -372,9 +382,12 @@ assert.equal(spatialContract.productBoundary.physicalBodyMovementObservedByDevic
 assert.equal(spatialContract.productBoundary.relationWordRecognitionAloneSufficient,false);
 assert.equal(spatialContract.productBoundary.inventedRelationsRequiredForMastery,false);
 assert.equal(spatialContract.implementationBoundary.practiceFoundationImplemented,true);
-assert.equal(spatialContract.implementationBoundary.dedicatedLearnMovementFlowImplemented,false);
-assert.equal(spatialContract.implementationBoundary.browserQaImplemented,false);
-assert.equal(spatialContract.implementationBoundary.masteryComplete,false);
+assert.equal(spatialContract.implementationBoundary.activePracticePlacementImplemented,true);
+assert.equal(spatialContract.implementationBoundary.dedicatedLearnMovementFlowImplemented,true);
+assert.equal(spatialContract.implementationBoundary.allTenOfficialRelationsLearnImplemented,true);
+assert.equal(spatialContract.implementationBoundary.rightLeftMovementLearnImplemented,true);
+assert.equal(spatialContract.implementationBoundary.browserQaImplemented,true);
+assert.equal(spatialContract.implementationBoundary.masteryComplete,true);
 assert.deepEqual(spatialContract.practice.sections.map(s=>s.id),['place-relative-position','recognise-position-direction-distance','show-spatial-language','explain-reference-relation','transfer-block-movement']);
 assert.deepEqual(spatialContract.practice.sections.map(s=>s.phase),['model','representation','symbol','reasoning','context']);
 assert.deepEqual(spatialContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
@@ -557,14 +570,18 @@ let spatialSeed=4404;
 const spatialRng=()=>((spatialSeed=(spatialSeed*1664525+1013904223)>>>0)/2**32);
 const spatialQuestions=['build','see','symbol','explain','transfer'].map(rep=>generateQuestion('nelSpatialRelations',rep,1,spatialRng));
 assert.deepEqual(spatialQuestions.map(q=>q.skillId),Array(5).fill('nelSpatialRelations'));
-assert.equal(spatialQuestions[0].response.kind,'choice');
+assert.equal(spatialQuestions[0].response.kind,'manipulative');
+assert.equal(spatialQuestions[0].response.interaction,'nel-spatial-place');
+assert.equal(spatialQuestions[0].visual.type,'nel-spatial-place-builder');
 assert.equal(spatialQuestions[1].response.kind,'visual-choice');
 assert.equal(spatialQuestions[1].response.options.length,4);
 assert.equal(spatialQuestions[2].response.kind,'choice');
 assert.equal(spatialQuestions[3].response.kind,'choice');
-assert.equal(spatialQuestions[4].response.kind,'choice');
+assert.equal(spatialQuestions[4].response.kind,'manipulative');
+assert.equal(spatialQuestions[4].response.interaction,'nel-spatial-place');
+assert.equal(spatialQuestions[4].visual.type,'nel-spatial-place-builder');
 for(const q of spatialQuestions){
-  assert.ok(['nel-spatial-scene','nel-spatial-word-card'].includes(q.visual?.type),'KSD 4.4 Practice must use dedicated spatial visuals');
+  assert.ok(['nel-spatial-scene','nel-spatial-word-card','nel-spatial-place-builder'].includes(q.visual?.type),'KSD 4.4 Practice must use dedicated spatial visuals');
   assert.equal(/inside|outside|between|beside|over|under/i.test(JSON.stringify(q)),false,'non-official enrichment words must not become required foundation content');
 }
 for(const section of spatialContract.practice.sections){
@@ -574,6 +591,9 @@ for(const section of spatialContract.practice.sections){
 }
 assert.ok(app.includes("case 'nel-spatial-scene': return nelSpatialSceneVisual(v);"),'KSD 4.4 Practice renderer must expose dedicated spatial scenes');
 assert.ok(app.includes("case 'nel-spatial-word-card': return nelSpatialWordCard(v);"),'KSD 4.4 Practice renderer must expose spatial language cards');
+assert.ok(app.includes("case 'nel-spatial-place-builder': return nelSpatialPracticeBuilder(v);"),'KSD 4.4 Practice must expose active spatial placement');
+assert.equal(spatialQuestions[0].answer,spatialQuestions[0].response.expectedValue,'active Kur answer must be the placed relation id');
+assert.equal(spatialQuestions[4].answer,spatialQuestions[4].response.expectedValue,'active Taşı answer must be the placed relation id');
 assert.ok(styles.includes('.nel-spatial-plane')&&styles.includes('.nel-spatial-direction-track'),'KSD 4.4 visuals must distinguish static relations from movement directions');
 
 let partWholeSeed=3808;
@@ -1134,12 +1154,15 @@ assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.2'),'Path
 assert.ok(contract.includes('triangle has three sides')&&contract.includes('square has four equal sides'),'KSD 4.2 research boundary must preserve the official shape-attribute examples');
 assert.ok(contract.includes('colour, absolute size and orientation are not defining attributes'),'attribute mastery must not drift into superficial visual cues');
 assert.ok(contract.includes('quadrilateral hierarchy is not a Preschool KSD 4.2 mastery requirement'),'preschool must not back-port later formal classification');
-assert.ok(contract.includes('Status after SAYMERA v1.26.1'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('Status after SAYMERA v1.27.0'),'research contract status must match the implemented release boundary');
 assert.ok(contract.includes('v1.26.1 hardens Practice on WebKit/mobile')&&contract.includes('reference/answer bounding boxes directly'),'research contract must record the Practice hit-area hotfix and its browser guard');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.4'),'Path C research contract must anchor spatial relations to official KSD 4.4');
 assert.ok(contract.includes('top / bottom')&&contract.includes('in front of / behind')&&contract.includes('up / down')&&contract.includes('left / right')&&contract.includes('far / near'),'research contract must preserve all named official relation pairs');
 assert.ok(contract.includes('physical body movement')&&contract.includes('must **not claim to have observed'),'digital product boundary must not pretend to observe unmeasured physical movement');
-assert.ok(contract.includes('engine/Practice foundation')&&contract.includes('active Learn movement/browser QA next'),'implementation snapshot must keep KSD 4.4 explicitly incomplete');
+assert.ok(contract.includes('v1.27.0 reference implementation'),'research contract must document completed KSD 4.4');
+assert.ok(contract.includes('10 active Learn steps')&&contract.includes('all ten official relation concepts'),'implementation notes must preserve explicit all-ten active teaching');
+assert.ok(contract.includes('active placement/movement evidence')&&contract.includes('right/left movement'),'KSD 4.4 completion must preserve active movement evidence');
+assert.ok(contract.includes('Chromium and WebKit')&&contract.includes('phone and tablet'),'KSD 4.4 implementation notes must preserve cross-browser QA');
 assert.ok(contract.includes('v1.25.0 reference implementation'),'research contract must document the shape-attributes implementation slice');
 assert.ok(contract.includes('10 Learn steps')&&contract.includes('side/corner touch targets'),'shape-attributes implementation notes must preserve active child evidence');
 assert.ok(contract.includes('v1.24.0 reference implementation'),'research contract must document the basic-shapes implementation slice');
