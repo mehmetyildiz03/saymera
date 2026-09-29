@@ -76,7 +76,17 @@ assert.equal(preschoolIds.has('nelShapeAttributes'),true,'shape attributes enter
 assert.ok(PRESCHOOL_NEL_PATHS.find(p=>p.id==='shapes-space')?.skillIds.includes('nelShapeCompose'),'Path C metadata must reserve shape composition');
 assert.ok(PRESCHOOL_TO_P1_BRIDGES.shapes1.includes('nelShapeCompose'),'shape composition should bridge to later P1 geometry without becoming a hard prerequisite');
 assert.equal(preschoolIds.has('nelShapeCompose'),true,'shape composition enters the hidden runnable registry once its engine foundation exists');
-assert.ok(app.includes("nelBoat:'")&&app.includes("nelHouse:'")&&app.includes("nelRectangle:'"),'Preschool composition visuals must preserve their declared basic-shape piece sets');
+assert.equal(app.includes("if(skill.id==='nelShapeCompose'){ renderNelShapeComposeLessonStep(skill); return; }"),true,'shape composition must teach before checking once Learn UI exists');
+const shapeComposeLessonIds=['two-squares-rectangle','square-triangle-house','official-boat','two-triangles-kite','four-squares-window','rectangle-circles-car','circle-rectangle-tree'];
+for(const id of shapeComposeLessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL shape-composition Learn step '+id);
+assert.ok(app.includes("if(skillId==='nelShapeCompose') return NEL_SHAPE_COMPOSE_LESSON_STEPS.map"),'Inspector must expose composition Learn steps');
+assert.ok(app.includes('data-compose-value')&&app.includes('data-compose-slot')&&app.includes('data-compose-piece'),'composition Learn must use active spatial piece placement');
+assert.ok(app.includes("chip.addEventListener('pointerdown'")&&app.includes("dropTargetAtPoint('.nel-shape-compose-slot:not(.filled)'"),'composition Learn must support pointer drag placement');
+assert.ok(app.includes("slots.forEach(slot=>slot.addEventListener('click'"),'composition Learn must preserve tap-select/tap-target fallback');
+assert.ok(app.includes("root.dataset.composeComplete='true'"),'composition Learn must only complete after all spatial slots are filled');
+assert.ok(app.includes("nelBoat:'")&&app.includes("nelHouse:'")&&app.includes("nelRectangle:'")&&app.includes("nelCar:'")&&app.includes("nelTree:'"),'Preschool composition visuals must preserve their declared basic-shape piece sets');
+assert.ok(styles.includes('.nel-shape-compose-chip{')&&styles.includes('touch-action:none'),'composition pieces must support direct touch dragging without page-scroll capture');
+assert.ok(styles.includes('.nel-shape-compose-slot.filled')&&styles.includes('.nel-shape-compose-workspace{'),'composition UI must visibly distinguish placed pieces and spatial workspace');
 assert.ok(app.includes("shapeComposeBuilder(v.figure,v.pieces,v.allowedPieces)"),'composition renderer must accept a Preschool-specific allowed-piece boundary');
 assert.ok(app.includes("Array.isArray(allowedPieces)&&allowedPieces.length?allowedPieces"),'Preschool shape composition must be able to exclude P1-only part shapes');
 assert.equal(app.includes("if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }"),true,'basic shapes must teach before checking once Learn UI exists');
@@ -300,12 +310,14 @@ assert.deepEqual(shapeAttributesContract.practice.sections.map(s=>s.phase),['mod
 assert.deepEqual(shapeAttributesContract.evidenceLabels,{build:'Kur',see:'Gör',symbol:'Göster',explain:'Anlat',transfer:'Taşı'});
 
 const shapeComposeContract=PRESCHOOL_NEL_LESSON_CONTRACTS.nelShapeCompose;
-assert.equal(shapeComposeContract.status,'foundation');
+assert.equal(shapeComposeContract.status,'implemented');
 assert.deepEqual(shapeComposeContract.officialKsd,['4.3']);
 assert.deepEqual(PRESCHOOL_NEL_KSD_MAP['4.3'],['nelShapeCompose']);
 assert.deepEqual(shapeComposeContract.officialShapes,['circle','square','rectangle','triangle']);
 assert.equal(shapeComposeContract.compositionBoundary.useBasicShapesToFormOtherShapesOrFigures,true);
 assert.equal(shapeComposeContract.compositionBoundary.actualSpatialAssemblyRequiredForCompletion,true);
+assert.equal(shapeComposeContract.compositionBoundary.spatialAssemblyLearnImplemented,true);
+assert.equal(shapeComposeContract.compositionBoundary.dragAndTapPlacementSupported,true);
 assert.equal(shapeComposeContract.compositionBoundary.pieceSelectionAloneSufficient,false,'piece selection must remain preparation, not full KSD 4.3 mastery');
 assert.equal(shapeComposeContract.compositionBoundary.exactSingleArrangementStatedAsOfficialRequirement,false);
 assert.equal(shapeComposeContract.compositionBoundary.formalGeometryRequired,false);
@@ -461,6 +473,8 @@ assert.equal(officialBoat.figure,'nelBoat');
 const composedRectangle=shapeComposeCaseFor('rectangle');
 assert.equal(composedRectangle.kind,'other-shape','KSD 4.3 must cover forming another shape as well as figures');
 assert.deepEqual(composedRectangle.pieces,['square','square']);
+assert.deepEqual(shapeComposeCaseFor('car').pieces,['rect','circle','circle'],'product cases must actively use rectangle and circle');
+assert.deepEqual(shapeComposeCaseFor('tree').pieces,['rect','circle'],'product transfer must include another rectangle/circle composition');
 
 const composeBuild=generateQuestion('nelShapeCompose','build',1,shapeComposeRng,shapeComposeConcept);
 const composeSee=generateQuestion('nelShapeCompose','see',1,shapeComposeRng,shapeComposeConcept);
@@ -1020,7 +1034,7 @@ assert.equal(see.response.kind,'visual-choice');
 const auditState=defaultState();
 auditState.profile='preschool';
 const audit=runPedagogyStateAudit(auditState);
-for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract','nel-shape-attributes-contract','nel-shape-compose-foundation-contract']){
+for(const id of ['nel-ksd-coverage','nel-daily-life-cross-cutting','nel-supporting-concepts','p1-no-preschool-hard-gate','nel-match-reference-contract','nel-sort-reference-contract','nel-compare-reference-contract','nel-order-reference-contract','nel-pattern-reference-contract','nel-rote-count-reference-contract','nel-reliable-count-reference-contract','nel-subitise-reference-contract','nel-conservation-reference-contract','nel-number-representations-contract','nel-numeral-formation-contract','nel-compare-quantities-contract','nel-part-whole-contract','nel-basic-shapes-contract','nel-shape-attributes-contract','nel-shape-compose-contract']){
   assert.equal(audit.checks.find(c=>c.id===id)?.pass,true,'preschool audit failed: '+id);
 }
 
@@ -1033,18 +1047,21 @@ assert.ok(contract.includes('nelCompareQuantities10')&&contract.includes('✅ im
 assert.ok(contract.includes('nelPartWhole10')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark part-whole complete');
 assert.ok(contract.includes('nelBasicShapes')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark basic shapes complete');
 assert.ok(contract.includes('nelShapeAttributes')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark shape attributes complete');
-assert.ok(contract.includes('nelShapeCompose')&&contract.includes('engine + Practice foundation'),'implementation snapshot must preserve KSD 4.3 as a foundation rather than falsely complete');
+assert.ok(contract.includes('nelShapeCompose')&&contract.includes('✅ implemented + browser QA'),'implementation snapshot must mark KSD 4.3 complete only after spatial assembly QA');
+assert.ok(contract.includes('v1.26.0 reference implementation'),'research contract must document the completed shape-composition slice');
+assert.ok(contract.includes('drag-and-drop')&&contract.includes('tap-select / tap-target'),'implementation notes must preserve both placement input modes');
+assert.ok(contract.includes('all spatial target slots'),'completion evidence must remain spatial rather than piece-selection only');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.3'),'Path C research contract must anchor composition to official KSD 4.3');
 assert.ok(contract.includes('two squares and one triangle')&&contract.includes('form a boat'),'research contract must preserve the official boat composition example');
 assert.ok(contract.includes('“Can you make that shape?”')&&contract.includes('“What shape can you make with these?”'),'current NEL composition prompts must remain explicit');
 assert.ok(contract.includes('pattern blocks'),'current NEL manipulative support must be documented without turning it into a compulsory KSD');
 assert.ok(contract.includes('not sufficient completion evidence'),'piece selection must not be misrepresented as completed composition');
-assert.ok(contract.includes('half-circles, quarter-circles')&&contract.includes('not mark'), 'Preschool/P1 composition boundaries must remain explicit');
+assert.ok(contract.includes('does not require half-circles, quarter-circles')&&contract.includes('other P1-style shape parts'),'Preschool/P1 composition boundaries must remain explicit');
 assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.2'),'Path C research contract must anchor shape attributes to official KSD 4.2');
 assert.ok(contract.includes('triangle has three sides')&&contract.includes('square has four equal sides'),'KSD 4.2 research boundary must preserve the official shape-attribute examples');
 assert.ok(contract.includes('colour, absolute size and orientation are not defining attributes'),'attribute mastery must not drift into superficial visual cues');
 assert.ok(contract.includes('quadrilateral hierarchy is not a Preschool KSD 4.2 mastery requirement'),'preschool must not back-port later formal classification');
-assert.ok(contract.includes('Status after SAYMERA v1.25.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('Status after SAYMERA v1.26.0'),'research contract status must match the implemented release boundary');
 assert.ok(contract.includes('v1.25.0 reference implementation'),'research contract must document the shape-attributes implementation slice');
 assert.ok(contract.includes('10 Learn steps')&&contract.includes('side/corner touch targets'),'shape-attributes implementation notes must preserve active child evidence');
 assert.ok(contract.includes('v1.24.0 reference implementation'),'research contract must document the basic-shapes implementation slice');

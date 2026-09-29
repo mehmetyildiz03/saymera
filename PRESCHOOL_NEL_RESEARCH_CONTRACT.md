@@ -419,21 +419,30 @@ Recommended product progression:
    - piece movement/rotation may be used as interaction mechanics, but they are not invented as separate official subskills;
    - **top/bottom, left/right, front/behind, far/near** remain KSD 4.4 and must not become a hidden mastery gate for KSD 4.3.
 
-   **Current engine + Practice foundation:**
-   - **Kur:** choose the basic-shape pieces needed for a target figure;
+   **Implemented evidence:**
+   - **Kur:** choose and spatially place basic-shape pieces to build a target whole;
    - **Gör:** match a set of basic-shape pieces to a figure they can form;
    - **Göster:** identify the basic-shape set used in a composed whole;
    - **Anlat:** explain that basic-shape pieces can be combined to form a new shape or figure;
-   - **Taşı:** apply the same piece selection in a construction/block-play context;
-   - the runtime reuses the existing composition renderer but restricts Preschool piece banks to circle, square, rectangle and triangle only;
-   - the official boat has a separate Preschool visual built from exactly two squares and one triangle;
-   - this foundation is deliberately **not marked implemented** because the current builder selects pieces but does not yet require the child to spatially assemble/place them.
+   - **Taşı:** apply the same composition idea in a construction/block-play context.
+
+   v1.26.0 reference implementation:
+   - 7 dedicated Learn steps require the child to fill **all spatial target slots** before the step can complete;
+   - placement supports both **drag-and-drop** and **tap-select / tap-target** so phone use does not depend on fine pointer control;
+   - the first Learn case forms another shape by combining two squares into a rectangle;
+   - the official NEL boat case is preserved exactly as **two squares + one triangle**;
+   - house, kite and four-square window cases expand figure construction without being presented as additional official KSD requirements;
+   - car and tree cases actively use **rectangle and circle** so the product does not narrow composition practice to square/triangle only;
+   - Preschool banks remain restricted to circle, square, rectangle and triangle; half-circle and quarter-circle P1 parts remain excluded;
+   - the interface uses target silhouettes and piece slots as scaffolding, but completing the KSD still depends on placing the actual pieces rather than selecting their names;
+   - Practice keeps five evidence sections aligned to Kur · Gör · Göster · Anlat · Taşı; selection-style Practice remains supporting evidence, while spatial Learn supplies the required assembly evidence;
+   - Chromium and WebKit QA cover phone and tablet viewports, all Learn steps, pointer/tap placement, the official boat composition, Practice, Review, horizontal overflow and Inspector sandbox isolation.
 
 4. `nelSpatialRelations` — position, direction and distance vocabulary in action
 
 ### Current Preschool v2 implementation status
 
-Status after SAYMERA v1.25.0:
+Status after SAYMERA v1.26.0:
 
 Product skill | NEL role | Status
 ---|---|---
@@ -452,8 +461,8 @@ Product skill | NEL role | Status
 `nelPartWhole10` | 3.8 | ✅ implemented + browser QA
 `nelBasicShapes` | 4.1 | ✅ implemented + browser QA
 `nelShapeAttributes` | 4.2 | ✅ implemented + browser QA
-`nelShapeCompose` | 4.3 | 🟡 engine + Practice foundation; spatial assembly Learn/browser QA next
-`nelSpatialRelations` | 4.4 | planned
+`nelShapeCompose` | 4.3 | ✅ implemented + browser QA
+`nelSpatialRelations` | 4.4 | **NEXT**
 
 This table is a product implementation snapshot, not a claim that NEL itself prescribes this software order.
 

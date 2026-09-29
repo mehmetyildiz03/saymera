@@ -680,7 +680,7 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
   },
   nelShapeCompose:{
     version:1,
-    status:'foundation',
+    status:'implemented',
     unitId:'nel-shapes-space',
     pathId:'shapes-space',
     officialKsd:['4.3'],
@@ -689,6 +689,8 @@ export const PRESCHOOL_NEL_LESSON_CONTRACTS = {
     compositionBoundary:{
       useBasicShapesToFormOtherShapesOrFigures:true,
       actualSpatialAssemblyRequiredForCompletion:true,
+      spatialAssemblyLearnImplemented:true,
+      dragAndTapPlacementSupported:true,
       pieceSelectionAloneSufficient:false,
       exactSingleArrangementStatedAsOfficialRequirement:false,
       formalGeometryRequired:false,
@@ -1216,12 +1218,15 @@ export function runPedagogyStateAudit(state,now=Date.now()){
     );
     const shapeComposeContract=lessonContractFor('nelShapeCompose');
     add(
-      'nel-shape-compose-foundation-contract',
-      'NEL KSD 4.3 temel şekillerden yeni şekil/figür oluşturmayı parça seçimiyle sınırlamadan gerçek uzamsal birleştirme hedefi olarak koruyor',
-      shapeComposeContract.status==='foundation' &&
+      'nel-shape-compose-contract',
+      'NEL KSD 4.3 temel şekillerden yeni şekil/figür oluşturmayı gerçek uzamsal birleştirme kanıtıyla tamamlıyor',
+      !shapeComposeContract.provisional &&
+        shapeComposeContract.status==='implemented' &&
         shapeComposeContract.officialKsd?.join(',')==='4.3' &&
         shapeComposeContract.compositionBoundary?.useBasicShapesToFormOtherShapesOrFigures===true &&
         shapeComposeContract.compositionBoundary?.actualSpatialAssemblyRequiredForCompletion===true &&
+        shapeComposeContract.compositionBoundary?.spatialAssemblyLearnImplemented===true &&
+        shapeComposeContract.compositionBoundary?.dragAndTapPlacementSupported===true &&
         shapeComposeContract.compositionBoundary?.pieceSelectionAloneSufficient===false &&
         shapeComposeContract.sourceGrounding?.officialBoatExample?.squares===2 &&
         shapeComposeContract.sourceGrounding?.officialBoatExample?.triangles===1 &&
@@ -2753,7 +2758,9 @@ function nelShapeComposeCases(){
     {id:'house',figure:'nelHouse',nameTr:'ev',kind:'figure',pieces:['square','triangle'],sourceRole:'product-example'},
     {id:'kite',figure:'kite',nameTr:'uçurtma',kind:'figure',pieces:['triangle','triangle'],sourceRole:'product-example'},
     {id:'window',figure:'window',nameTr:'pencere',kind:'figure',pieces:['square','square','square','square'],sourceRole:'product-example'},
-    {id:'rectangle',figure:'nelRectangle',nameTr:'dikdörtgen',kind:'other-shape',pieces:['square','square'],sourceRole:'product-example'}
+    {id:'rectangle',figure:'nelRectangle',nameTr:'dikdörtgen',kind:'other-shape',pieces:['square','square'],sourceRole:'product-example'},
+    {id:'car',figure:'nelCar',nameTr:'araba',kind:'figure',pieces:['rect','circle','circle'],sourceRole:'product-example'},
+    {id:'tree',figure:'nelTree',nameTr:'ağaç',kind:'figure',pieces:['rect','circle'],sourceRole:'product-example'}
   ].map(item=>({...item,pieceKey:[...item.pieces].sort().join('+')}));
 }
 export function shapeComposeCaseFor(id='boat'){
