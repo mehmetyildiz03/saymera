@@ -84,6 +84,14 @@ async function solveSelectionBuilder(page){
   }
   await page.locator('#checkManipulator').tap();
 }
+async function assertPracticeLayersDoNotOverlap(page,section){
+  if(!(await page.locator('.visual-choice-grid').count())) return;
+  const reference=await page.locator('#visualStage').boundingBox();
+  const answers=await page.locator('.visual-choice-grid').boundingBox();
+  assert.ok(reference&&answers,section+' must expose measurable reference and answer regions');
+  assert.ok(answers.y>=reference.y+reference.height-1,section+' answer grid must begin after the reference visual, not overlap it');
+}
+
 async function completePracticeQuestion(page){
   if(await page.locator('.sg-shape-compose-builder').count()){await solveSelectionBuilder(page);return;}
   if(await page.locator('[data-answer="correct"]').count()){await page.locator('[data-answer="correct"]').first().tap();return;}
@@ -143,6 +151,7 @@ try{
         await page.locator('.question-stage').waitFor();
         assert.equal(await page.locator('input[inputmode="numeric"]').count(),0,section+' must not become a numeric worksheet');
         await noOverflow(page);
+        await assertPracticeLayersDoNotOverlap(page,section);
         await completePracticeQuestion(page);
       }
 

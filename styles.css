@@ -1692,6 +1692,10 @@ button.nel-part-whole-token{cursor:pointer}
 
 /* hidden NEL preschool shape-composition reference lesson */
 .practice-content.shape-compose-practice{overflow-y:auto;display:block}
+.shape-compose-question-stage{height:auto;max-height:none;grid-template-rows:auto auto auto auto;align-content:start}
+.shape-compose-question-stage .shape-compose-stage{height:auto;max-height:none;min-height:214px;overflow:hidden;place-items:center;padding:12px}
+.shape-compose-question-stage #patternResponseGate{position:relative;z-index:4}
+.shape-compose-question-stage .visual-choice-grid{position:relative;z-index:4}
 .nel-shape-compose-lesson-stage{width:min(920px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-shape-compose-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
 .nel-shape-compose-section-track span{padding:6px 9px;border-radius:999px;background:var(--paper-2);border:1px solid var(--line);font-size:8px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
@@ -1722,6 +1726,8 @@ button.nel-part-whole-token{cursor:pointer}
 .nel-shape-compose-result.revealed{opacity:1;transform:none}
 @media(max-width:699px){
   .practice-content.shape-compose-practice{padding-bottom:28px}
+  .shape-compose-question-stage{gap:10px}
+  .shape-compose-question-stage .shape-compose-stage{min-height:214px;padding:10px;overflow:hidden}
   .nel-shape-compose-lesson-stage{min-height:calc(100dvh - 102px)}
   .nel-shape-compose-section-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}.nel-shape-compose-section-track span{flex:0 0 auto}
   .nel-shape-compose-workspace{grid-template-columns:1fr;gap:9px}

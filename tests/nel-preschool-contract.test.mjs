@@ -87,6 +87,9 @@ assert.ok(app.includes("root.dataset.composeComplete='true'"),'composition Learn
 assert.ok(app.includes("nelBoat:'")&&app.includes("nelHouse:'")&&app.includes("nelRectangle:'")&&app.includes("nelCar:'")&&app.includes("nelTree:'"),'Preschool composition visuals must preserve their declared basic-shape piece sets');
 assert.ok(styles.includes('.nel-shape-compose-chip{')&&styles.includes('touch-action:none'),'composition pieces must support direct touch dragging without page-scroll capture');
 assert.ok(styles.includes('.nel-shape-compose-slot.filled')&&styles.includes('.nel-shape-compose-workspace{'),'composition UI must visibly distinguish placed pieces and spatial workspace');
+assert.ok(app.includes("shapeCompose?'shape-compose-question-stage':''")&&app.includes("shapeCompose?'shape-compose-stage':''"),'KSD 4.3 Practice must receive its own normal-flow layout hooks');
+assert.ok(styles.includes('.shape-compose-question-stage .shape-compose-stage{height:auto;max-height:none;min-height:214px;overflow:hidden'),'KSD 4.3 reference visual must reserve its own vertical hit area');
+assert.ok(styles.includes('.shape-compose-question-stage #patternResponseGate{position:relative;z-index:4}'),'KSD 4.3 response controls must remain above their own layer');
 assert.ok(app.includes("shapeComposeBuilder(v.figure,v.pieces,v.allowedPieces)"),'composition renderer must accept a Preschool-specific allowed-piece boundary');
 assert.ok(app.includes("Array.isArray(allowedPieces)&&allowedPieces.length?allowedPieces"),'Preschool shape composition must be able to exclude P1-only part shapes');
 assert.equal(app.includes("if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }"),true,'basic shapes must teach before checking once Learn UI exists');
@@ -1061,7 +1064,8 @@ assert.ok(contract.includes('**Official role:** implements **NEL KSD 4.2'),'Path
 assert.ok(contract.includes('triangle has three sides')&&contract.includes('square has four equal sides'),'KSD 4.2 research boundary must preserve the official shape-attribute examples');
 assert.ok(contract.includes('colour, absolute size and orientation are not defining attributes'),'attribute mastery must not drift into superficial visual cues');
 assert.ok(contract.includes('quadrilateral hierarchy is not a Preschool KSD 4.2 mastery requirement'),'preschool must not back-port later formal classification');
-assert.ok(contract.includes('Status after SAYMERA v1.26.0'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('Status after SAYMERA v1.26.1'),'research contract status must match the implemented release boundary');
+assert.ok(contract.includes('v1.26.1 hardens Practice on WebKit/mobile')&&contract.includes('reference/answer bounding boxes directly'),'research contract must record the Practice hit-area hotfix and its browser guard');
 assert.ok(contract.includes('v1.25.0 reference implementation'),'research contract must document the shape-attributes implementation slice');
 assert.ok(contract.includes('10 Learn steps')&&contract.includes('side/corner touch targets'),'shape-attributes implementation notes must preserve active child evidence');
 assert.ok(contract.includes('v1.24.0 reference implementation'),'research contract must document the basic-shapes implementation slice');
