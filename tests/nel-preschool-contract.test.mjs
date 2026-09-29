@@ -87,6 +87,9 @@ assert.ok(app.includes("root.dataset.composeComplete='true'"),'composition Learn
 assert.ok(app.includes("nelBoat:'")&&app.includes("nelHouse:'")&&app.includes("nelRectangle:'")&&app.includes("nelCar:'")&&app.includes("nelTree:'"),'Preschool composition visuals must preserve their declared basic-shape piece sets');
 assert.ok(styles.includes('.nel-shape-compose-chip{')&&styles.includes('touch-action:none'),'composition pieces must support direct touch dragging without page-scroll capture');
 assert.ok(styles.includes('.nel-shape-compose-slot.filled')&&styles.includes('.nel-shape-compose-workspace{'),'composition UI must visibly distinguish placed pieces and spatial workspace');
+assert.ok(app.includes("shapeCompose?'shape-compose-question-stage':''")&&app.includes("shapeCompose?'shape-compose-stage':''"),'KSD 4.3 Practice must receive its own normal-flow layout hooks');
+assert.ok(styles.includes('.shape-compose-question-stage .shape-compose-stage{height:auto;max-height:none;min-height:214px;overflow:hidden'),'KSD 4.3 reference visual must reserve its own vertical hit area');
+assert.ok(styles.includes('.shape-compose-question-stage #patternResponseGate{position:relative;z-index:4}'),'KSD 4.3 response controls must remain above their own layer');
 assert.ok(app.includes("shapeComposeBuilder(v.figure,v.pieces,v.allowedPieces)"),'composition renderer must accept a Preschool-specific allowed-piece boundary');
 assert.ok(app.includes("Array.isArray(allowedPieces)&&allowedPieces.length?allowedPieces"),'Preschool shape composition must be able to exclude P1-only part shapes');
 assert.equal(app.includes("if(skill.id==='nelBasicShapes'){ renderNelBasicShapesLessonStep(skill); return; }"),true,'basic shapes must teach before checking once Learn UI exists');
