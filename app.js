@@ -3017,11 +3017,16 @@ function wireNelShapeComposeAssembly(step,next){
     chip.disabled=true;chip.classList.add('placed');chips.forEach(x=>x.classList.remove('selected'));selected=null;
     finishIfReady();return true;
   };
+  const selectChip=chip=>{
+    if(!chip||chip.disabled)return;
+    selected=selected===chip?null:chip;chips.forEach(x=>x.classList.toggle('selected',x===selected));
+    if(help)help.textContent=selected?'Şimdi bu parçanın doğru yerine dokun.':'Parça seçimi kaldırıldı.';
+  };
   chips.forEach(chip=>{
     chip.addEventListener('click',()=>{
       if(chip.disabled)return;
-      selected=selected===chip?null:chip;chips.forEach(x=>x.classList.toggle('selected',x===selected));
-      if(help)help.textContent=selected?'Şimdi bu parçanın doğru yerine dokun.':'Parça seçimi kaldırıldı.';
+      if(chip.dataset.composePointerTap==='1'){chip.dataset.composePointerTap='';return;}
+      selectChip(chip);
     });
     chip.addEventListener('pointerdown',ev=>{
       if(chip.disabled)return;drag=chip;sx=ev.clientX;sy=ev.clientY;chip.setPointerCapture?.(ev.pointerId);chip.classList.add('dragging');
@@ -3032,8 +3037,12 @@ function wireNelShapeComposeAssembly(step,next){
     });
     chip.addEventListener('pointerup',ev=>{
       if(drag!==chip)return;
+      const distance=Math.hypot(ev.clientX-sx,ev.clientY-sy);
       const target=dropTargetAtPoint('.nel-shape-compose-slot:not(.filled)',ev.clientX,ev.clientY);
-      chip.style.transform='';chip.classList.remove('dragging');if(target)place(chip,target);drag=null;
+      chip.style.transform='';chip.classList.remove('dragging');
+      if(target) place(chip,target);
+      else if(distance<=14){chip.dataset.composePointerTap='1';selectChip(chip);}
+      drag=null;
     });
     chip.addEventListener('pointercancel',()=>{if(drag===chip){chip.style.transform='';chip.classList.remove('dragging');drag=null;}});
   });
