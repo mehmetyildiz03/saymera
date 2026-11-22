@@ -75,6 +75,24 @@
 - **Fiziksel cihaz deneme yöntemi:** [gerçek cihaz ve çocuk kabul protokolü](https://github.com/mehmetyildiz03/saymera/blob/audit/preschool-v2-acceptance-2026-11-22/PRESCHOOL_MATCH_CHILD_DEVICE_ACCEPTANCE_PROTOCOL_2026-11-22.md) güvenilir yerel ağ üzerinden bilgisayar + iPhone/iPad adımlarını içerir. GitHub Pages'in eski `main` sürümü bu prototipi temsil etmez.
 - **Teknik doğrulama:** PR #26 candidate `d668855ae2c6a231058aa3a07971ae60a03db958` için [GitHub Actions 45053463590](https://github.com/mehmetyildiz03/saymera/actions/runs/45053463590) çalışmasında uçtan uca **Eşleştirme tarayıcı testi PASS** (Chromium ve WebKit telefonda yarıda bırak → devam et → tamamla → baştan tekrar aç; sandbox gerçek verisi değişmez). Genel CI çalışması **20/20 PASS** olarak doğrulandı; başarısız veya atlanan iş yok. Bu yalnızca otomatik tarayıcı/uygulama teknik kabulüdür. Gerçek çocuk kullanımı yapılmadı; G2/G5/G6 kapalı değil.
 
+## 22 Kasım — Kullanıcı kararıyla gizli `main` entegrasyonu
+
+Kullanıcı gerçek cihaz/çocuk denemesini **`main` birleşmesinden sonra** yapmak istedi. Bu nedenle yalnız kaynak adayları ve otomatik CI sonuçları onaylanarak, **normal Preschool akışı gizli kalmak şartıyla** birbirine bağımlı PR'lar sırayla birleştirildi:
+
+| PR | İçerik | Merge commit | Pre-merge 20-job CI |
+|---|---|---|---|
+| [#24](https://github.com/mehmetyildiz03/saymera/pull/24) | 17. gizli NEL v2 beceri, uzamsal ilişkiler | `c42c5d6bddd041151e571500b30720bfe26c21d9` | 20/20 PASS |
+| [#25](https://github.com/mehmetyildiz03/saymera/pull/25) | Eşleştirme etkinliği, sesli yönerge ve erişim | `e5a53294de578f047cf40e0150541ff99b0294ce` | 20/20 PASS |
+| [#26](https://github.com/mehmetyildiz03/saymera/pull/26) | İki hedefli eşleştirme, Learn resume/replay, PWA önbellek yenileme | `9a4afd1cbe345e9df876eb31b4103fdb44705ad6` | 20/20 PASS ([run 45054559053](https://github.com/mehmetyildiz03/saymera/actions/runs/45054559053)) |
+
+**`main` son commit:** `9a4afd1cbe345e9df876eb31b4103fdb44705ad6`. **Main CI:** [push run 45054967465](https://github.com/mehmetyildiz03/saymera/actions/runs/45054967465), **doğrulama başlatıldı**; sonuç, bu kayıt hazırlandığında henüz kesinleşmemişti. Önceki main push run'ları ayrı sonuçlardır.
+
+**Gizlilik/görünürlük:** `engine.mjs` içindeki 17 NEL v2 becerinin her biri `hidden:true`; normal `skillsFor('preschool')` rotasında görünmez. `?inspect=1` özel bir test arayüzü sunar ve kayıtları gerçek kullanıcı localStorage alanına yazmaz. **Bu bir erişim güvenliği kontrolü değildir** — URL'yi bilen herkes kendi cihazından test arayüzünü açabilir. Canlı ana menü değişmedi.
+
+**PWA:** `sw.js` önbellek kimliği `saymera-v1-27-0-preschool-hidden-pilot-20261122` olarak yenilendi; `tests/ui-static.test.mjs` yeni önbellek kimliğinin `package.json` sürümüyle uyumlu olmasını sınar. GitHub Pages dağıtımının başarıyla yenilendiği bu kayıtta **doğrulanamadı**.
+
+**Açık kabul kapıları:** fiziksel iPhone/iPad, okunamayan yönerge olmaksızın deneyim, çocukla kullanılabilirlik/öğrenme gözlemi, gerçek ilerleme ve v2 normal menüye geçiş. **Ana dala birleştirilme, pedagojik kabul veya genel yayın izni değildir.**
+
 ## 1. Sonuç ve kanıt seviyesi
 
 **Üç ayrı kabul düzeyi vardır:**
