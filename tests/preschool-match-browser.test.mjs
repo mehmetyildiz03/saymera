@@ -63,6 +63,26 @@ try{
         const id=await stage.getAttribute('data-nel-match-step');
         const next=page.locator('#nelMatchLessonNext');
         assert.equal(await next.isDisabled(),true,id+' must require child action');
+        const title=await stage.locator('.lesson-step-copy h2').innerText();
+        const audioReady=await page.evaluate(()=>{
+          window.__matchSpoken=[];
+          if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return false;
+          window.speechSynthesis.cancel=()=>{};
+          window.speechSynthesis.speak=utterance=>window.__matchSpoken.push(utterance.text);
+          return true;
+        });
+        assert.equal(audioReady,true,'manual Turkish speech should be available on supported browser');
+        await page.locator('#nelMatchListen').tap();
+        await page.locator('#speakButton').tap();
+        const spoken=await page.evaluate(()=>window.__matchSpoken);
+        assert.equal(spoken.length,2,id+' must speak through both lesson and header controls');
+        assert.ok(spoken.every(phrase=>phrase.includes(title)),id+' must speak the current lesson, not a stale question');
+        assert.equal(await next.isDisabled(),true,id+' listening does not count as matching');
+        const instructionSize=await stage.locator('.lesson-step-copy p').evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+        assert.ok(instructionSize>=15,id+' mobile instructions need child-readable text');
+        if(config.name==='chromium-phone'||config.name==='webkit-phone'){
+          await page.screenshot({path:'preschool-test-results/'+config.name+'-'+id+'-initial.png',fullPage:false,animations:'disabled'});
+        }
 
         if(await page.locator('#nelMatchDone').count()){
           await page.locator('#nelMatchDone').tap();
@@ -80,6 +100,9 @@ try{
           if(id==='switch-match-rule'){
             assert.equal(await next.isDisabled(),true,'first rule does not complete two-rule activity');
             assert.equal(await page.locator('.nel-match-place-core').getAttribute('data-nel-match-phase'),'1');
+            await page.locator('#nelMatchListen').tap();
+            const spokenForSecondRule=await page.evaluate(()=>window.__matchSpoken.at(-1));
+            assert.ok(spokenForSecondRule.includes('Şimdi aynı şekli bul.'),'changed rule must be voiced after the colour match');
             await options.nth(0).tap();
             await slot.tap();
             assert.equal(await next.isDisabled(),true,'first colour match does not satisfy shape rule');
@@ -139,7 +162,7 @@ try{
 
       assert.equal(await page.evaluate(()=>localStorage.getItem('saymera.math.v2')),saved,'Inspector must not write real preschool progress');
       assert.deepEqual(errors,[]);
-      console.log(config.name+': PASS (10 Learn steps; active placement; rule switch; new context; 5 Practice sections; Review; width; sandbox)');
+      console.log(config.name+': PASS (10 Learn steps; audible instructions; active placement; rule switch; new context; 5 Practice sections; Review; width; sandbox)');
     }catch(error){
       await page.screenshot({path:'preschool-test-results/'+config.name+'-failure.png',fullPage:false,animations:'disabled'});
       throw error;
