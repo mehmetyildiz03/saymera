@@ -698,8 +698,14 @@ assert.equal(conservationContract.practice.sections.some(s=>s.id==='order-irrele
 
 const lessonIds=['same-object','same-colour','same-shape','switch-match-rule','same-size','same-length','same-height','explain-match','toy-shelf-match','real-world-match'];
 for(const id of lessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL matching Learn step '+id);
-assert.ok(app.includes('const NEL_MATCH_LESSON_VERSION=2;'),'matching lesson revision must invalidate incomplete old teaching');
+assert.ok(app.includes('const NEL_MATCH_LESSON_VERSION=3;'),'two-target lesson revision must maintain an explicit version');
 assert.ok(app.includes("id:'same-object',section:'EŞLEŞTİR',kind:'place'"),'first matching lesson must require actual placement');
+assert.ok(app.includes("id:'same-colour',section:'ÖZELLİĞE BAK',kind:'pair-board'"),'colour Learn should match at least two independent targets');
+assert.ok(app.includes("id:'same-shape',section:'ÖZELLİĞE BAK',kind:'pair-board'"),'shape Learn should match at least two independent targets');
+assert.ok(app.includes('function wireNelMatchPairBoard(step,next)')&&app.includes("placed.size===step.targets.length"),'matching both pairs must gate Learn progression');
+assert.ok(app.includes("used.add(selected);placed.add(slotIndex)"),'both correct placements must be independently recorded in a reference lesson');
+assert.ok(styles.includes('.nel-match-pair-targets')&&styles.includes('.nel-match-pair-bank'),'two-target board should have responsive touch surfaces');
+
 assert.ok(app.includes("id:'switch-match-rule'")&&app.includes("kind:'rule-switch'"),'same objects must be re-matched under a different attribute');
 assert.ok(app.includes("id:'toy-shelf-match'")&&app.includes("context:'OYUNCAK RAFI'"),'matching must transfer to a visually new context');
 assert.ok(app.includes("function wireNelMatchPlaceStep(step,next)")&&app.includes("core.dataset.nelMatchComplete='true'"),'active placement must gate completion');
