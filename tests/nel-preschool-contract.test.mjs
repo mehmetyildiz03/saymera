@@ -696,8 +696,16 @@ assert.deepEqual(conservationContract.evidenceLabels,{build:'Kur',see:'Gör',sym
 assert.equal(conservationContract.pathId,'counting-number-sense');
 assert.equal(conservationContract.practice.sections.some(s=>s.id==='order-irrelevance'),false,'conservation must remain distinct from reliable-counting order irrelevance');
 
-const lessonIds=['same-object','same-colour','same-shape','same-size','same-length','same-height','explain-match','real-world-match'];
+const lessonIds=['same-object','same-colour','same-shape','switch-match-rule','same-size','same-length','same-height','explain-match','toy-shelf-match','real-world-match'];
 for(const id of lessonIds) assert.ok(app.includes("id:'"+id+"'"),'missing NEL matching Learn step '+id);
+assert.ok(app.includes('const NEL_MATCH_LESSON_VERSION=2;'),'matching lesson revision must invalidate incomplete old teaching');
+assert.ok(app.includes("id:'same-object',section:'EŞLEŞTİR',kind:'place'"),'first matching lesson must require actual placement');
+assert.ok(app.includes("id:'switch-match-rule'")&&app.includes("kind:'rule-switch'"),'same objects must be re-matched under a different attribute');
+assert.ok(app.includes("id:'toy-shelf-match'")&&app.includes("context:'OYUNCAK RAFI'"),'matching must transfer to a visually new context');
+assert.ok(app.includes("function wireNelMatchPlaceStep(step,next)")&&app.includes("core.dataset.nelMatchComplete='true'"),'active placement must gate completion');
+assert.ok(app.includes("if(phaseIndex+1<phases.length)"),'rule change must not unlock the next step after only one match');
+assert.ok(styles.includes('.nel-match-place-target-row')&&styles.includes('.nel-match-place-option'),'active matching must have responsive touch target styles');
+
 assert.ok(app.includes("if(skill.id==='nelMatchAttributes'){ renderNelMatchLessonStep(skill); return; }"));
 assert.ok(app.includes("const LESSON_FIRST_SKILLS=new Set(['nelMatchAttributes'"),'NEL matching must teach before checking');
 

@@ -831,6 +831,67 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 }
 
 
+/* Preschool matching v2: child places the selected object in a target slot. */
+.nel-match-place-core{width:min(700px,100%);min-width:0}
+.nel-match-place-context{padding:6px 12px;background:var(--sun-soft);color:#80631d;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.07em}
+.nel-match-place-target-row{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
+.nel-match-place-target-row .nel-match-target-card{min-width:0;width:100%}
+.nel-match-place-slot{width:100%;min-width:0;min-height:154px;border:2px dashed #a8b9c9;border-radius:22px;background:var(--paper);display:grid;align-content:center;justify-items:center;gap:10px;padding:10px;color:var(--navy);font-weight:900;cursor:pointer}
+.nel-match-place-slot small{font-size:9px;letter-spacing:.07em;color:var(--muted)}
+.nel-match-place-slot>span{display:grid;place-items:center;min-height:70px;font-size:12px}
+.nel-match-place-slot.filled{border-style:solid;border-color:#91cbbd;background:var(--teal-soft)}
+.nel-match-place-phase{margin:0;padding:8px 12px;width:100%;border-radius:14px;background:var(--blue-soft);text-align:center;color:var(--navy);font-size:12px;font-weight:900}
+.nel-match-place-bank{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.nel-match-place-option{min-width:0;min-height:112px;display:grid;place-items:center;padding:5px;background:var(--paper);border:1px solid var(--line);border-radius:19px;cursor:pointer}
+.nel-match-place-option.selected{background:var(--blue-soft);border:2px solid var(--blue)}
+.nel-match-place-option.wrong{animation:lessonNudge .28s}
+.nel-match-place-option:disabled{opacity:.78;cursor:default}
+@media(max-width:699px){
+  .nel-match-place-target-row{gap:7px}
+  .nel-match-place-slot{min-height:126px;padding:5px}
+  .nel-match-place-slot small{font-size:8px}
+  .nel-match-place-slot>span{font-size:10px;min-height:62px}
+  .nel-match-place-bank{gap:6px}
+  .nel-match-place-option{min-height:96px;padding:3px}
+}
+
+/* Preschool matching review: one audible, readable instruction at a time. */
+.nel-match-lesson-stage .nel-match-section-track{display:none}
+.nel-match-lesson-stage .lesson-step-copy{gap:9px}
+.nel-match-lesson-stage .lesson-step-copy h2{font-size:clamp(27px,3.4vw,35px);line-height:1.1;letter-spacing:-.025em}
+.nel-match-lesson-stage .lesson-step-copy p{font-size:clamp(15px,1.9vw,17px);line-height:1.4;color:var(--navy);max-width:630px}
+.nel-match-listen{min-height:48px;min-width:134px;border-radius:16px;border:2px solid #afc9df;background:var(--blue-soft);color:var(--navy);padding:8px 16px;font-size:16px;font-weight:900;cursor:pointer}
+.nel-match-listen:focus-visible,.nel-match-place-slot:focus-visible,.nel-match-place-option:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.nel-match-lesson-stage .nel-match-place-phase{min-height:46px;display:grid;place-items:center;font-size:clamp(15px,1.9vw,17px);line-height:1.3}
+.nel-match-lesson-stage .nel-match-help{font-size:14px;line-height:1.4;min-height:22px}
+.nel-match-lesson-stage .nel-match-result{font-size:clamp(13px,1.6vw,16px);line-height:1.4}
+.nel-match-lesson-stage .nel-match-target-card small,.nel-match-lesson-stage .nel-match-place-slot small{font-size:10px}
+@media(max-width:699px){
+  .nel-match-lesson-stage .lesson-step-copy h2{font-size:clamp(25px,6.8vw,29px)}
+  .nel-match-lesson-stage .lesson-step-copy p{font-size:15px}
+  .nel-match-lesson-stage .nel-match-lesson-visual{padding-top:2px}
+  .nel-match-lesson-stage .nel-match-place-phase{font-size:15px}
+}
+
+.nel-match-reason-option{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:6px;align-items:stretch}
+.nel-match-lesson-stage .nel-match-reason{min-width:0;min-height:58px;padding:10px;font-size:15px;line-height:1.3}
+.nel-match-reason-audio{min-width:50px;min-height:50px;border:2px solid #afc9df;border-radius:15px;background:var(--blue-soft);color:var(--navy);font-size:20px;cursor:pointer}
+.nel-match-reason-audio:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+/* New context must contain recognisable toy silhouettes, not renamed geometry. */
+.nel-match-object.toy-car{width:82px;height:84px}
+.nel-match-object.toy-car i{width:66px;height:30px;border-radius:9px 11px 5px 5px;position:relative;transform:translateY(12px)}
+.nel-match-object.toy-car i::before{content:'';position:absolute;left:14px;top:-18px;width:38px;height:21px;border-radius:16px 16px 0 0;background:inherit;box-shadow:inset 0 3px 0 rgba(255,255,255,.22)}
+.nel-match-object.toy-car i::after{content:'';position:absolute;left:8px;bottom:-8px;width:15px;height:15px;border:2px solid #f7f5ef;background:#33475b;border-radius:50%;box-shadow:40px 0 0 -2px #33475b,40px 0 0 0 #f7f5ef}
+.nel-match-object.toy-car.small i{transform:translateY(12px) scale(.81)}
+.nel-match-object.toy-car.large i{transform:translateY(12px) scale(1.1)}
+.nel-match-object.toy-ball i{width:58px;height:58px;border-radius:50%;position:relative}
+.nel-match-object.toy-ball i::after{content:'';position:absolute;inset:9px 18px;border-left:3px solid rgba(255,255,255,.65);border-right:3px solid rgba(255,255,255,.65);border-radius:50%}
+.nel-match-object.toy-kite{height:84px}
+.nel-match-object.toy-kite i{width:47px;height:47px;border-radius:4px;position:relative;transform:rotate(45deg)}
+.nel-match-object.toy-kite i::after{content:'';position:absolute;left:40px;top:44px;height:25px;width:4px;background:#7f9cad;border-radius:4px}
+.nel-match-object.toy-kite.large i{transform:rotate(45deg) scale(1.04)}
+
 /* v1.12.0 — hidden NEL preschool sorting reference lesson */
 .nel-sort-lesson-stage{width:min(840px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-sort-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
