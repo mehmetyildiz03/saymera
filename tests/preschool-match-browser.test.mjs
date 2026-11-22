@@ -111,6 +111,13 @@ try{
           }
           assert.equal(await page.locator('.nel-match-place-core').getAttribute('data-nel-match-complete'),'true',id+' must finish active placement');
         }else if(await page.locator('.nel-match-reason').count()){
+          const audioChoices=page.locator('.nel-match-reason-audio');
+          assert.equal(await audioChoices.count(),3,'every matching explanation needs independent audio');
+          const firstExplanation=await page.locator('.nel-match-reason').first().innerText();
+          await audioChoices.first().tap();
+          const explained=await page.evaluate(()=>window.__matchSpoken.at(-1));
+          assert.ok(explained.includes(firstExplanation),'the audible choice must match its visible explanation');
+          assert.equal(await next.isDisabled(),true,'listening to an explanation is not evidence of choosing it');
           const wrong=page.locator('.nel-match-reason[data-correct="false"]').first();
           if(await wrong.count()){
             await wrong.tap();
