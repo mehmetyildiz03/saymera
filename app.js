@@ -720,7 +720,7 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'circle',tone:'blue',size:'large'},
       {shape:'square',tone:'red',size:'small'}
     ],
-    title:'Aynısını bul.',body:'Hedefin rengine, şekline ve büyüklüğüne birlikte bak.',
+    title:'Aynısını bul.',body:'Rengi, şekli ve büyüklüğü aynı olanı seç. Boş alana yerleştir.',
     result:'İki nesnenin rengi, şekli ve büyüklüğü aynı.'
   },
   {
@@ -731,7 +731,7 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'circle',tone:'red',size:'small'},
       {shape:'triangle',tone:'yellow',size:'small'}
     ],
-    title:'Bu kez yalnız renge bak.',body:'Şekli ve büyüklüğü farklı olabilir. Hedefle aynı renkte olanı seç.',
+    title:'Aynı rengi bul!',body:'Şekli başka olabilir. Rengine bak ve eşini seç.',
     result:'Şekilleri farklı olsa da ikisinin rengi aynı.'
   },
   {
@@ -742,7 +742,7 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'square',tone:'red',size:'large'},
       {shape:'triangle',tone:'green',size:'large'}
     ],
-    title:'Renk değişse de şekil aynı kalabilir.',body:'Hedefle aynı şekle sahip olanı bul.',
+    title:'Şekilleri aynı mı?',body:'Rengi farklı olabilir. Aynı şekli bul.',
     result:'Renkleri ve büyüklükleri farklı; ama ikisi de daire.'
   },
   {
@@ -754,7 +754,7 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'triangle',tone:'green',size:'small'}
     ],
     phases:[{attribute:'tone',label:'Önce aynı rengi bul.'},{attribute:'shape',label:'Şimdi aynı şekli bul.'}],
-    title:'Aynı oyuncaklar, iki farklı eşleştirme kuralı.',body:'Önce rengi eşleştir. Sonra aynı oyuncaklara yeniden bak ve şekli eşleştir.',
+    title:'Şimdi kuralı değiştir!',body:'Önce aynı rengi, sonra aynı şekli bul.',
     result:'Mavi kare renk bakımından; kırmızı daire şekil bakımından hedefle eşleşir.'
   },
   {
@@ -765,7 +765,7 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'square',tone:'red',size:'small'},
       {shape:'circle',tone:'yellow',size:'small'}
     ],
-    title:'Şimdi büyüklüğü karşılaştır.',body:'Şekli ve rengi görmezden gel. Hedefle aynı büyüklükte olanı seç.',
+    title:'Aynı büyüklüğü bul.',body:'Bu kez yalnız büyüklüğüne bak.',
     result:'Şekilleri farklı olsa da iki nesne aynı büyüklükte.'
   },
   {
@@ -776,7 +776,7 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'bar',tone:'blue',size:'medium',length:'short',height:'medium'},
       {shape:'tower',tone:'yellow',size:'medium',length:'medium',height:'tall'}
     ],
-    title:'Uzunluk da bir eşleştirme özelliğidir.',body:'Renkler farklı. Yatay uzunlukları karşılaştır.',
+    title:'Aynı uzunluğu bul.',body:'Çubukların uzunluğuna bak. Eşit uzunlukta olanı seç.',
     result:'İki çubuğun rengi farklı; uzunlukları aynı.'
   },
   {
@@ -787,14 +787,14 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'tower',tone:'green',size:'medium',length:'medium',height:'short'},
       {shape:'bar',tone:'blue',size:'medium',length:'long',height:'medium'}
     ],
-    title:'Yüksekliği karşılaştır.',body:'Hedefle aynı yüksekliğe sahip olanı seç.',
+    title:'Aynı yükseklikte mi?',body:'Hedef kadar yüksek olanı seç.',
     result:'İki nesnenin yüksekliği aynı.'
   },
   {
     id:'explain-match',section:'ANLAT',kind:'reason',
     left:{shape:'circle',tone:'red',size:'large'},right:{shape:'circle',tone:'blue',size:'small'},
     correct:'Şekilleri aynı.',options:['Renkleri aynı.','Şekilleri aynı.','Büyüklükleri aynı.'],
-    title:'Ortak özelliği göster ve anlat.',body:'Uygun açıklamayı seç. Sonra kendi sözlerinle ikisinin neden eş olduğunu söylemeyi dene.',
+    title:'Neleri aynı?',body:'Doğru açıklamayı seç. Sonra kendi sözlerinle anlatmayı dene.',
     result:'İkisinin de şekli daire. Ortak özellikleri şekilleri.'
   },
   {
@@ -806,12 +806,12 @@ const NEL_MATCH_LESSON_STEPS=[
       {shape:'circle',tone:'yellow',size:'large'}
     ],
     context:'OYUNCAK RAFI',
-    title:'Başka oyuncaklarla tekrar eşleştir.',body:'Buradaki oyuncaklar farklı. Yalnız rengi aynı olanı alıp eşleştirme alanına yerleştir.',
+    title:'Yeni oyuncaklarla eşleştir.',body:'Oyuncak rafındayız. Aynı renkteki oyuncağı bul ve yerleştir.',
     result:'Oyuncaklar farklı şekillerde olsa da yeşil renkleri aynı olabilir.'
   },
   {
     id:'real-world-match',section:'TAŞI',kind:'real-world',
-    title:'Şimdi gerçek nesnelerle dene.',body:'Yakınında iki nesne bul. Renk, şekil, büyüklük, uzunluk veya yükseklikten ortak bir özellik seç. Bir yetişkine neden eş olduklarını anlatmayı dene.',
+    title:'Evde de bir eş bul!',body:'Yakınındaki iki eşyanın aynı özelliğini bul. Bir yetişkine neden eş olduklarını anlat.',
     result:'Eşleştirme, nesnelerin ortak bir özelliğini fark etmektir.'
   }
 ];
@@ -876,7 +876,7 @@ function wireNelMatchPlaceStep(step,next){
   buttons.forEach(button=>button.addEventListener('click',()=>{
     if(complete)return;
     selected=Number(button.dataset.nelPlaceIndex);
-    buttons.forEach(x=>x.classList.toggle('selected',x===button));
+    buttons.forEach(x=>{x.classList.toggle('selected',x===button);x.classList.remove('wrong');});
     help.textContent='Şimdi seçtiğin nesneyi eşleştirme alanına yerleştir.';
   }));
   slot?.addEventListener('click',()=>{
@@ -987,11 +987,11 @@ function renderNelMatchLessonStep(skill,index=null){
   $('#practiceProgress').style.width=Math.round((at+1)/NEL_MATCH_LESSON_STEPS.length*100)+'%';
   $('#practiceContent').innerHTML='<div class="nel-match-lesson-stage" data-nel-match-step="'+esc(step.id)+'">'+
     nelMatchSectionTrack(step)+
-    '<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_MATCH_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p></div>'+
+    '<div class="lesson-step-copy"><span class="lesson-kicker">'+esc(step.section)+' · '+(at+1)+' / '+NEL_MATCH_LESSON_STEPS.length+'</span><h2>'+esc(step.title)+'</h2><p>'+esc(step.body)+'</p><button type="button" class="nel-match-listen" id="nelMatchListen" aria-label="Yönergeyi sesli dinle">🔊 Dinle</button></div>'+
     '<div class="nel-match-lesson-visual">'+nelMatchLessonVisual(step)+'</div>'+
     '<div class="lesson-step-actions"><button type="button" class="response-submit lesson-next-button" id="nelMatchLessonNext" disabled>'+(at===NEL_MATCH_LESSON_STEPS.length-1?'Eşleştirme oyunlarına geç':'Sonraki keşif')+' <b>→</b></button></div>'+
   '</div>';
-  const next=$('#nelMatchLessonNext'); wireNelMatchLessonStep(step,next);
+  const next=$('#nelMatchLessonNext'); $('#nelMatchListen')?.addEventListener('click',speakCurrent); wireNelMatchLessonStep(step,next);
   next?.addEventListener('click',()=>completeNelMatchLessonStep(skill,at));
 }
 
@@ -5337,7 +5337,20 @@ function updateCooldown(){
 function hideCooldown(){ clearInterval(cooldownTimer); $('#cooldownOverlay').classList.remove('open'); $('#cooldownOverlay').setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
 
 function speakCurrent(){
-  if(!currentQuestion) return;
+  if(!currentQuestion){
+    // Hidden NEL matching Learn uses structured steps rather than currentQuestion.
+    const stage=$('.nel-match-lesson-stage');
+    if(stage){
+      const step=NEL_MATCH_LESSON_STEPS.find(item=>item.id===stage.dataset.nelMatchStep);
+      if(step){
+        const phase=$('#nelMatchPlacePhase')?.textContent?.trim();
+        const help=$('#nelMatchHelp')?.textContent?.trim();
+        const options=step.kind==='reason'?' Seçenekler: '+step.options.join(', ')+'.':'';
+        speak([step.title,step.body,phase,help,options].filter(Boolean).join(' '));
+      }
+    }
+    return;
+  }
   const q=currentQuestion, kind=q.response?.kind||'choice';
   let tail='';
   if(kind==='choice') tail=` Seçenekler: ${(q.response?.options||[]).map(x=>x.label??x.value).join(', ')}.`;
