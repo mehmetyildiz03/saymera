@@ -7,6 +7,14 @@
 **PR:** https://github.com/mehmetyildiz03/saymera/pull/24  
 **Kapsam sınırı:** Yalnız Preschool v2 ürün kabulü. P1, P2 ve SayıYolu değiştirilmez.
 
+## 22 Kasım devam kaydı — referans eşleştirme dilimi
+
+- **Aday PR:** https://github.com/mehmetyildiz03/saymera/pull/25 — `codex/preschool-match-active-lesson-v2`, PR #24 üzerine kurulmuş ve **taslak**.
+- `nelMatchAttributes` Learn 8→10 adım: seç+yerleştir; aynı nesnelerde renk→şekil kural değişimi; yeni oyuncak rafı örneği.
+- `Anlat` hazır gerekçeyi tanıma olarak etiketlendi; gerçek nesneyle `Denedim` butonu doğrulanmış fiziksel transfer kanıtı sayılmıyor.
+- GitHub Actions **ana test paketi** sözdizimi düzeltmesinden sonra **PASS**. Chromium/WebKit telefon-tablet tarayıcı testleri ve gerçek çocuk kabulü ayrıca sonuçlandırılacak.
+- **G2/G3/G4/G5/G6 kapanmadı.** `main` değiştirilmedi; yalnız gizli referans beceri adayı geliştirildi.
+
 ## 1. Sonuç ve kanıt seviyesi
 
 **Üç ayrı kabul düzeyi vardır:**
