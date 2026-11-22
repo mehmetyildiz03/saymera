@@ -892,6 +892,32 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .nel-match-object.toy-kite i::after{content:'';position:absolute;left:40px;top:44px;height:25px;width:4px;background:#7f9cad;border-radius:4px}
 .nel-match-object.toy-kite.large i{transform:rotate(45deg) scale(1.04)}
 
+/* Two-target matching: children must place two independent matches, not guess one option. */
+.nel-match-pair-board{width:min(690px,100%);gap:10px;min-width:0}
+.nel-match-pair-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.nel-match-pair-goal{min-width:0;display:grid;justify-items:center;align-content:center;gap:5px;padding:8px;border-radius:19px;background:var(--paper-2);border:1px solid var(--line)}
+.nel-match-pair-goal small{color:var(--muted);font-size:10px;letter-spacing:.08em;font-weight:900}
+.nel-match-pair-slot{width:100%;min-height:63px;min-width:0;display:grid;place-items:center;padding:6px;border:2px dashed #afc9df;border-radius:15px;background:var(--paper);font-size:12px;font-weight:900;color:var(--navy);cursor:pointer}
+.nel-match-pair-slot span{display:grid;place-items:center;font-size:11px}
+.nel-match-pair-slot.filled{background:var(--teal-soft);border-style:solid;border-color:#91cbbd}
+.nel-match-pair-slot.filled .nel-match-object{transform:scale(.6);width:66px;height:65px;margin:-10px}
+.nel-match-pair-bank{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%}
+.nel-match-pair-option{min-width:0;min-height:100px;border:1px solid var(--line);border-radius:17px;background:var(--paper);display:grid;place-items:center;padding:5px;cursor:pointer}
+.nel-match-pair-option.selected{background:var(--blue-soft);border:2px solid var(--blue)}
+.nel-match-pair-option.used{opacity:.5;background:var(--paper-2)}
+.nel-match-pair-option.wrong{animation:lessonNudge .28s;background:var(--coral-soft)}
+.nel-match-pair-slot:focus-visible,.nel-match-pair-option:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+@media(max-width:699px){
+  .nel-match-pair-targets{gap:7px}
+  .nel-match-pair-goal{padding:5px}
+  .nel-match-pair-goal .nel-match-object{transform:scale(.75);margin:-8px}
+  .nel-match-pair-slot{min-height:58px;font-size:10px}
+  .nel-match-pair-bank{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .nel-match-pair-option{min-height:86px;padding:2px}
+  .nel-match-pair-option .nel-match-object{transform:scale(.7);width:65px;height:70px}
+  .nel-match-pair-slot.filled .nel-match-object{transform:scale(.52);margin:-11px}
+}
+
 /* v1.12.0 — hidden NEL preschool sorting reference lesson */
 .nel-sort-lesson-stage{width:min(840px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-sort-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
