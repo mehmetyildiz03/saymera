@@ -15,6 +15,23 @@
 - GitHub Actions son run **45041099142**, commit **9db1e598**, **20/20 PASS**; ana test paketi ve Chromium/WebKit telefon-tablet tarayıcı işlerinin tamamı başarılı. Bu otomatik PASS, fiziksel cihaz/gerçek çocuk denetimi veya pedagojik ürün kabulü değildir.
 - **G2/G3/G4/G5/G6 kapanmadı.** `main` değiştirilmedi; yalnız gizli referans beceri adayı geliştirildi.
 
+## Eşleştirme görsel inceleme kaydı — 22 Kasım
+
+**Gerçek görüntü kaynağı:** PR #25'in [CI 45041099142 ekran görüntüsü paketi](https://github.com/mehmetyildiz03/saymera/actions/runs/45041099142) (`preschool-match-browser-screenshots`); Chromium/WebKit telefon (390×844), Chromium tablet (1024×768), WebKit tablet (820×1180). Pakette dört etkinliğin **doğru işlem sonrası** hâli var: `same-object`, `switch-match-rule`, `toy-shelf-match`, `real-world-match`. Diğer altı adımın ekran ekran incelemesi bu pakette bulunmuyor. PR #25'in yeni test sürümü tüm 10 adımın ilk ekranını da kaydedecek.
+
+| Görsel bulgu | Kanıt | Değişiklik | Kabul durumu |
+|---|---|---|---|
+| Öğretim ekranında üstteki ♪ düğmesi çalışmıyordu | `speakCurrent()` `currentQuestion===null` durumunda hemen çıkıyordu, NEL Learn bunu `null` yapıyor | Gizli Match Learn için adım/evre odaklı seslendirme; ayrıca görünür `🔊 Dinle` | Kod değişti; yeni browser QA sonucu bekleniyor |
+| Telefonda yönergeler küçük, başlıklar yetişkin odaklı | 390×844 görüntüler + `styles.css` eski `p{font-size:12px}` | 15px kısa yönergeler, kısa başlıklar, belirgin ses tuşu | Görsel yeniden inceleme bekleniyor |
+| Dört adet küçük sekme tekrarlı bilgi gösteriyordu | Telefon ekranında EŞLEŞTİR/ÖZELLİĞE BAK/ANLAT/TAŞI şeridi ve üstte ilerleme zaten var | Yalnız Match Learn'de sekme şeridi gizlendi; üstteki ilerleme korundu | Görsel yeniden inceleme bekleniyor |
+| Nesne yerleştirme alanı ekrana sığıyor | Telefon ve tablet ekran görüntüleri; mevcut Playwright genişlik kontrolleri | Mevcut dokunma alanları korunuyor | Otomatik yerleşim PASS; fiziksel cihaz açık |
+| Yeni kuralın sesli anlaşılması gerekiyordu | `switch-match-rule` önce renk sonra şekil yönlendiriyor; eski ses yoktu | Dinle düğmesi o anki renk/şekil evresini de okur | Yeni evre-seslendirme testi sonucu bekleniyor |
+| "TAŞI" gerçek yaşam öğrenmesini kanıtlamıyor | `real-world-match` yalnız `Gerçek nesnelerle denedim` düğmesine dayanıyor | Etiket özbildirim olarak tutulur | Fiziksel transfer **doğrulanmadı** |
+
+**Önemli sınır:** Bu incelemede ekranlar gerçek çocuk tarafından kullanılmadı; Playwright görselleri okul öncesi kullanılabilirlik veya öğrenme etkililiği kanıtı değildir. `same-object` ve `toy-shelf-match` **dokun-seç + hedefe dokun** etkileşimidir; serbest sürükleme olarak sunulmamalıdır. Bu adayda yalnız gizli `nelMatchAttributes` referansı değişmektedir.
+
+**Teknik kod:** [PR #25](https://github.com/mehmetyildiz03/saymera/pull/25). Seslendirme, okunabilirlik ve başlangıç ekranı testleri için PR'ın **en son** SHA'sının CI sonucu esastır; eski 20/20 PASS yeni değişikliklerin PASS olduğu anlamına gelmez.
+
 ## 1. Sonuç ve kanıt seviyesi
 
 **Üç ayrı kabul düzeyi vardır:**
