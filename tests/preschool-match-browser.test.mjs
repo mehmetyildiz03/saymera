@@ -102,7 +102,7 @@ try{
             assert.equal(await page.locator('.nel-match-place-core').getAttribute('data-nel-match-phase'),'1');
             await page.locator('#nelMatchListen').tap();
             const spokenForSecondRule=await page.evaluate(()=>window.__matchSpoken.at(-1));
-            assert.ok(spokenForSecondRule.includes('Şimdi aynı şekli bul.'),'changed rule must be voiced after the colour match');
+            assert.ok(spokenForSecondRule.includes('Şimdi aynı şekli bul.'),'changed rule must be voiced after the colour match; actual: '+JSON.stringify(spokenForSecondRule));
             await options.nth(0).tap();
             await slot.tap();
             assert.equal(await next.isDisabled(),true,'first colour match does not satisfy shape rule');
