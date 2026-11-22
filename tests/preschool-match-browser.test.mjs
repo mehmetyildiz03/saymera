@@ -87,6 +87,12 @@ try{
         if(await page.locator('#nelMatchDone').count()){
           await page.locator('#nelMatchDone').tap();
         }else if(await page.locator('#nelMatchPlaceSlot').count()){
+          if(id==='toy-shelf-match'){
+            const toys=await stage.locator('.nel-match-object').evaluateAll(xs=>xs.map(el=>[...el.classList].find(name=>name.startsWith('toy-'))));
+            assert.deepEqual(toys,['toy-car','toy-ball','toy-car','toy-kite'],'a real toy context needs recognisable silhouettes, not renamed geometric tokens');
+            const labels=await stage.locator('.nel-match-place-option').evaluateAll(xs=>xs.map(el=>el.getAttribute('aria-label')));
+            assert.ok(labels.some(label=>label.includes('top'))&&labels.some(label=>label.includes('araba'))&&labels.some(label=>label.includes('uçurtma')),'toy names must also be available to assistive technology');
+          }
           const slot=page.locator('#nelMatchPlaceSlot');
           const options=page.locator('[data-nel-place-index]');
           await slot.tap();
