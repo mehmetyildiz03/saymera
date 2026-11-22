@@ -62,6 +62,8 @@
 - Bu, rehberli ve kısıtlı bir **ekran içi eşleştirme** eylemidir. Serbest sürükle-bırak/serbest üretim, çocuğun özgün sözel açıklaması veya fiziksel dünyaya doğrulanmış transferi olarak raporlanmaz.
 - Diğer üç `choice` Learn adımı (büyüklük, uzunluk, yükseklik) şimdilik tanıma etkinliği olarak kalır. Bu iki hedefli tasarımın çocuk kullanım değeri doğrulanmadan körü körüne bu üçüne çoğaltılmayacaktır.
 - **PR bağımlılığı:** #24 → #25 → #26. Hiçbiri doğrudan teknik PASS gerekçesiyle canlı Preschool'a yayımlanmaz.
+- **PR #26 latest CI:** GitHub Actions [run 45049977659](https://github.com/mehmetyildiz03/saymera/actions/runs/45049977659), candidate `df8ab4decd081ebcdd4248fa11387cfb4a8c1e67`, **20/20 PASS**. Ana testler ve yeni renk/şekil iki hedefli eşleştirmeler dâhil Chromium/WebKit telefon/tablet tarayıcı testleri geçti.
+- **Görsel kanıt:** aynı run içindeki `preschool-match-browser-screenshots` artifaktından renk/şekil görevleri işlem öncesi ve işlem sonrası görüntülerde karşılaştırıldı; 390×844 telefon ekranında iki hedefin, dört seçeneğin, ses kontrolünün ve tamamlanma mesajının taşmadığı görüldü. Bu otomatik ekran görüntüsü **gerçek cihaz/gerçek çocuk kabulü değildir**.
 - PR #26 teknik testleri tamamlansa bile **G2 gerçek çocuk/kullanılabilirlik**, **G4 canlı yol**, **G5 fiziksel cihaz** ve **G6 pilot** açık kalır.
 
 ## 1. Sonuç ve kanıt seviyesi
