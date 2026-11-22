@@ -66,6 +66,15 @@
 - **Görsel kanıt:** aynı run içindeki `preschool-match-browser-screenshots` artifaktından renk/şekil görevleri işlem öncesi ve işlem sonrası görüntülerde karşılaştırıldı; 390×844 telefon ekranında iki hedefin, dört seçeneğin, ses kontrolünün ve tamamlanma mesajının taşmadığı görüldü. Bu otomatik ekran görüntüsü **gerçek cihaz/gerçek çocuk kabulü değildir**.
 - PR #26 teknik testleri tamamlansa bile **G2 gerçek çocuk/kullanılabilirlik**, **G4 canlı yol**, **G5 fiziksel cihaz** ve **G6 pilot** açık kalır.
 
+## Yarıda bırakma ve tekrar açma kontrolü — 22 Kasım
+
+- **Bulgu:** `nelMatchAttributes` tamamlanmadan Ders Merkezi üzerinden yeniden başlatılan `learn` oturumları, `session.lessonReplay` sebebiyle `lessonStepIndex` kaydedilmiş olsa da 1. adıma dönüyordu.
+- **Dar kapsamlı düzeltme:** PR #26 adayı `d668855ae2c6a231058aa3a07971ae60a03db958` — tamamlanmamış Eşleştirme Learn dersinde mevcut sekme açıkken Ders Merkezi'nden geri dönüşte kaydedilmiş adımdan devam; tamamlanan derste yeniden açış 1. adımdan başlar.
+- **Uçtan uca test:** inspector'dan 1. ve 2. adımları yap → 3. adımda kapat → Ders Merkezi'nden aç → 3. adımı tamamlamadan aktif göster → kalan 8 adımı sıra ile tamamla → yeniden açıp 1. adıma döndüğünü doğrula → `localStorage['saymera.math.v2']` değişmemiş olmalı. Chromium + WebKit telefonda koşulur. GitHub Actions [run 45053463590](https://github.com/mehmetyildiz03/saymera/actions/runs/45053463590).
+- **Kritik sınır:** inspector SANDBOX yalnızca aynı açık tarayıcı sekmesi içinde devam senaryosunu sınar. Yenileme/sekme kapatma sonrasında gelişmeler kasıtlı olarak gerçek kullanıcı verisine yazılmaz; gerçek kalıcı ilerlemenin canlı Preschool karşılığı **bu testle kanıtlanmış değildir**.
+- **Fiziksel cihaz deneme yöntemi:** [gerçek cihaz ve çocuk kabul protokolü](https://github.com/mehmetyildiz03/saymera/blob/audit/preschool-v2-acceptance-2026-11-22/PRESCHOOL_MATCH_CHILD_DEVICE_ACCEPTANCE_PROTOCOL_2026-11-22.md) güvenilir yerel ağ üzerinden bilgisayar + iPhone/iPad adımlarını içerir. GitHub Pages'in eski `main` sürümü bu prototipi temsil etmez.
+- **Durum:** Yeni CI sonucu alınmadan bu düzeltme teknik olarak kabul edilmiş sayılmaz. Gerçek çocuk kullanımı yapılmadı; G2/G5/G6 kapalı değil.
+
 ## 1. Sonuç ve kanıt seviyesi
 
 **Üç ayrı kabul düzeyi vardır:**
