@@ -73,7 +73,7 @@
 - **Uçtan uca test:** inspector'dan 1. ve 2. adımları yap → 3. adımda kapat → Ders Merkezi'nden aç → 3. adımı tamamlamadan aktif göster → kalan 8 adımı sıra ile tamamla → yeniden açıp 1. adıma döndüğünü doğrula → `localStorage['saymera.math.v2']` değişmemiş olmalı. Chromium + WebKit telefonda koşulur. GitHub Actions [run 45053463590](https://github.com/mehmetyildiz03/saymera/actions/runs/45053463590).
 - **Kritik sınır:** inspector SANDBOX yalnızca aynı açık tarayıcı sekmesi içinde devam senaryosunu sınar. Yenileme/sekme kapatma sonrasında gelişmeler kasıtlı olarak gerçek kullanıcı verisine yazılmaz; gerçek kalıcı ilerlemenin canlı Preschool karşılığı **bu testle kanıtlanmış değildir**.
 - **Fiziksel cihaz deneme yöntemi:** [gerçek cihaz ve çocuk kabul protokolü](https://github.com/mehmetyildiz03/saymera/blob/audit/preschool-v2-acceptance-2026-11-22/PRESCHOOL_MATCH_CHILD_DEVICE_ACCEPTANCE_PROTOCOL_2026-11-22.md) güvenilir yerel ağ üzerinden bilgisayar + iPhone/iPad adımlarını içerir. GitHub Pages'in eski `main` sürümü bu prototipi temsil etmez.
-- **Durum:** Yeni CI sonucu alınmadan bu düzeltme teknik olarak kabul edilmiş sayılmaz. Gerçek çocuk kullanımı yapılmadı; G2/G5/G6 kapalı değil.
+- **Teknik doğrulama:** PR #26 candidate `d668855ae2c6a231058aa3a07971ae60a03db958` için [GitHub Actions 45053463590](https://github.com/mehmetyildiz03/saymera/actions/runs/45053463590) çalışmasında uçtan uca **Eşleştirme tarayıcı testi PASS** (Chromium ve WebKit telefonda yarıda bırak → devam et → tamamla → baştan tekrar aç; sandbox gerçek verisi değişmez). Genel CI'nin son bağımsız işi kontrol anında sürüyordu; tam 20/20 sonucu ayrıca doğrulanmalı. Gerçek çocuk kullanımı yapılmadı; G2/G5/G6 kapalı değil.
 
 ## 1. Sonuç ve kanıt seviyesi
 
