@@ -51,7 +51,7 @@ try{
     try{
       await openInspector(page);
       const steps=await page.locator('#inspectorLessonStep option').evaluateAll(xs=>xs.map(x=>({index:x.value,label:x.textContent})));
-      assert.equal(steps.length,8);
+      assert.equal(steps.length,10);
 
       for(const step of steps){
         await openInspector(page);
@@ -66,6 +66,27 @@ try{
 
         if(await page.locator('#nelMatchDone').count()){
           await page.locator('#nelMatchDone').tap();
+        }else if(await page.locator('#nelMatchPlaceSlot').count()){
+          const slot=page.locator('#nelMatchPlaceSlot');
+          const options=page.locator('[data-nel-place-index]');
+          await slot.tap();
+          assert.equal(await next.isDisabled(),true,id+' cannot place before selecting an object');
+          await options.nth(1).tap();
+          await slot.tap();
+          assert.equal(await next.isDisabled(),true,id+' wrong placement cannot unlock');
+          await options.nth(0).tap();
+          assert.equal(await next.isDisabled(),true,id+' selecting alone does not count as placement');
+          await slot.tap();
+          if(id==='switch-match-rule'){
+            assert.equal(await next.isDisabled(),true,'first rule does not complete two-rule activity');
+            assert.equal(await page.locator('.nel-match-place-core').getAttribute('data-nel-match-phase'),'1');
+            await options.nth(0).tap();
+            await slot.tap();
+            assert.equal(await next.isDisabled(),true,'first colour match does not satisfy shape rule');
+            await options.nth(1).tap();
+            await slot.tap();
+          }
+          assert.equal(await page.locator('.nel-match-place-core').getAttribute('data-nel-match-complete'),'true',id+' must finish active placement');
         }else if(await page.locator('.nel-match-reason').count()){
           const wrong=page.locator('.nel-match-reason[data-correct="false"]').first();
           if(await wrong.count()){
@@ -84,7 +105,7 @@ try{
 
         assert.equal(await next.isEnabled(),true,id+' completion');
         await noOverflow(page);
-        if(['same-object','same-shape','real-world-match'].includes(id)){
+        if(['same-object','switch-match-rule','toy-shelf-match','real-world-match'].includes(id)){
           await page.screenshot({path:'preschool-test-results/'+config.name+'-'+id+'.png',fullPage:false,animations:'disabled'});
         }
       }
@@ -118,7 +139,7 @@ try{
 
       assert.equal(await page.evaluate(()=>localStorage.getItem('saymera.math.v2')),saved,'Inspector must not write real preschool progress');
       assert.deepEqual(errors,[]);
-      console.log(config.name+': PASS (8 Learn steps; 5 Practice sections; Review; width; sandbox)');
+      console.log(config.name+': PASS (10 Learn steps; active placement; rule switch; new context; 5 Practice sections; Review; width; sandbox)');
     }catch(error){
       await page.screenshot({path:'preschool-test-results/'+config.name+'-failure.png',fullPage:false,animations:'disabled'});
       throw error;
