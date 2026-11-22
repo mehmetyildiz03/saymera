@@ -799,15 +799,15 @@ const NEL_MATCH_LESSON_STEPS=[
   },
   {
     id:'toy-shelf-match',section:'TAŞI',kind:'place',attribute:'tone',
-    target:{shape:'square',tone:'green',size:'small'},
+    target:{shape:'toy-car',tone:'green',size:'small'},
     options:[
-      {shape:'triangle',tone:'green',size:'large'},
-      {shape:'square',tone:'red',size:'small'},
-      {shape:'circle',tone:'yellow',size:'large'}
+      {shape:'toy-ball',tone:'green',size:'large'},
+      {shape:'toy-car',tone:'red',size:'small'},
+      {shape:'toy-kite',tone:'yellow',size:'large'}
     ],
     context:'OYUNCAK RAFI',
     title:'Yeni oyuncaklarla eşleştir.',body:'Oyuncak rafındayız. Aynı renkteki oyuncağı bul ve yerleştir.',
-    result:'Oyuncaklar farklı şekillerde olsa da yeşil renkleri aynı olabilir.'
+    result:'Yeşil araba ve yeşil top farklı oyuncaklar. Ama renkleri aynı.'
   },
   {
     id:'real-world-match',section:'TAŞI',kind:'real-world',
@@ -843,7 +843,7 @@ function nelMatchReasonVisual(step){
 }
 function nelMatchItemSpeech(item={}){
   const colours={blue:'mavi',red:'kırmızı',yellow:'sarı',green:'yeşil'};
-  const shapes={circle:'daire',square:'kare',triangle:'üçgen',bar:'çubuk',tower:'kule'};
+  const shapes={circle:'daire',square:'kare',triangle:'üçgen',bar:'çubuk',tower:'kule','toy-car':'araba','toy-ball':'top','toy-kite':'uçurtma'};
   const sizes={small:'küçük',medium:'orta',large:'büyük'};
   const lengths={short:'kısa',medium:'orta uzunlukta',long:'uzun'};
   const heights={short:'alçak',medium:'orta yükseklikte',tall:'yüksek'};
