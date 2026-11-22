@@ -709,11 +709,11 @@ function renderOddEven1000LessonStep(skill,index=null){
 }
 
 
-const NEL_MATCH_LESSON_VERSION=1;
+const NEL_MATCH_LESSON_VERSION=2;
 const NEL_MATCH_SECTIONS=['EŞLEŞTİR','ÖZELLİĞE BAK','ANLAT','TAŞI'];
 const NEL_MATCH_LESSON_STEPS=[
   {
-    id:'same-object',section:'EŞLEŞTİR',kind:'choice',attribute:'exact',
+    id:'same-object',section:'EŞLEŞTİR',kind:'place',attribute:'exact',
     target:{shape:'circle',tone:'blue',size:'small'},
     options:[
       {shape:'circle',tone:'blue',size:'small',correct:true},
@@ -744,6 +744,19 @@ const NEL_MATCH_LESSON_STEPS=[
     ],
     title:'Renk değişse de şekil aynı kalabilir.',body:'Hedefle aynı şekle sahip olanı bul.',
     result:'Renkleri ve büyüklükleri farklı; ama ikisi de daire.'
+  },
+  {
+  {
+    id:'switch-match-rule',section:'ÖZELLİĞE BAK',kind:'rule-switch',
+    target:{shape:'circle',tone:'blue',size:'small'},
+    options:[
+      {shape:'square',tone:'blue',size:'large'},
+      {shape:'circle',tone:'red',size:'large'},
+      {shape:'triangle',tone:'green',size:'small'}
+    ],
+    phases:[{attribute:'tone',label:'Önce aynı rengi bul.'},{attribute:'shape',label:'Şimdi aynı şekli bul.'}],
+    title:'Aynı oyuncaklar, iki farklı eşleştirme kuralı.',body:'Önce rengi eşleştir. Sonra aynı oyuncaklara yeniden bak ve şekli eşleştir.',
+    result:'Mavi kare renk bakımından; kırmızı daire şekil bakımından hedefle eşleşir.'
   },
   {
     id:'same-size',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'size',
@@ -782,12 +795,24 @@ const NEL_MATCH_LESSON_STEPS=[
     id:'explain-match',section:'ANLAT',kind:'reason',
     left:{shape:'circle',tone:'red',size:'large'},right:{shape:'circle',tone:'blue',size:'small'},
     correct:'Şekilleri aynı.',options:['Renkleri aynı.','Şekilleri aynı.','Büyüklükleri aynı.'],
-    title:'Neden eş olduklarını söyle.',body:'İki nesnenin ortak özelliğini bul.',
+    title:'Ortak özelliği göster ve anlat.',body:'Uygun açıklamayı seç. Sonra kendi sözlerinle ikisinin neden eş olduğunu söylemeyi dene.',
     result:'İkisinin de şekli daire. Ortak özellikleri şekilleri.'
   },
   {
+    id:'toy-shelf-match',section:'TAŞI',kind:'place',attribute:'tone',
+    target:{shape:'square',tone:'green',size:'small'},
+    options:[
+      {shape:'triangle',tone:'green',size:'large'},
+      {shape:'square',tone:'red',size:'small'},
+      {shape:'circle',tone:'yellow',size:'large'}
+    ],
+    context:'OYUNCAK RAFI',
+    title:'Başka oyuncaklarla tekrar eşleştir.',body:'Buradaki oyuncaklar farklı. Yalnız rengi aynı olanı alıp eşleştirme alanına yerleştir.',
+    result:'Oyuncaklar farklı şekillerde olsa da yeşil renkleri aynı olabilir.'
+  },
+  {
     id:'real-world-match',section:'TAŞI',kind:'real-world',
-    title:'Şimdi eşleştirmeyi ekrandan çıkar.',body:'Yakınında iki nesne bul. Renk, şekil, büyüklük, uzunluk veya yükseklikten bir ortak özellik seç ve neden eş olduklarını söyle.',
+    title:'Şimdi gerçek nesnelerle dene.',body:'Yakınında iki nesne bul. Renk, şekil, büyüklük, uzunluk veya yükseklikten ortak bir özellik seç. Bir yetişkine neden eş olduklarını anlatmayı dene.',
     result:'Eşleştirme, nesnelerin ortak bir özelliğini fark etmektir.'
   }
 ];
@@ -817,6 +842,66 @@ function nelMatchReasonVisual(step){
     '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div>'+
   '</div>';
 }
+function nelMatchItemSpeech(item={}){
+  const colours={blue:'mavi',red:'kırmızı',yellow:'sarı',green:'yeşil'};
+  const shapes={circle:'daire',square:'kare',triangle:'üçgen',bar:'çubuk',tower:'kule'};
+  return [colours[item.tone]||'',shapes[item.shape]||''].filter(Boolean).join(' ');
+}
+function nelMatchPlaceVisual(step){
+  const phase=step.phases?.[0]||{attribute:step.attribute,label:step.attribute==='exact'?'Aynı nesneyi eşleştir.':'Ortak özelliği eşleştir.'};
+  return '<div class="nel-match-core nel-match-place-core" data-nel-match-phase="0">'+
+    (step.context?'<span class="nel-match-place-context">'+esc(step.context)+'</span>':'')+
+    '<div class="nel-match-place-target-row"><div class="nel-match-target-card"><small>HEDEF NESNE</small>'+nelMatchObjectMarkup(step.target,'eşleştirilecek hedef')+'</div>'+
+    '<button type="button" class="nel-match-place-slot" id="nelMatchPlaceSlot" aria-label="Seçtiğin nesneyi buraya yerleştir"><small>EŞLEŞTİRME ALANI</small><span id="nelMatchPlaceSlotContent">Buraya yerleştir</span></button></div>'+
+    '<p class="nel-match-place-phase" id="nelMatchPlacePhase" aria-live="polite">'+esc(phase.label)+'</p>'+
+    '<div class="nel-match-place-bank" aria-label="Eşleştirme nesneleri">'+step.options.map((item,index)=>'<button type="button" class="nel-match-place-option" data-nel-place-index="'+index+'" aria-label="'+esc(nelMatchItemSpeech(item))+'">'+nelMatchObjectMarkup(item,nelMatchItemSpeech(item))+'</button>').join('')+'</div>'+
+    '<p class="nel-match-help" id="nelMatchHelp" aria-live="polite">Bir nesneye, ardından eşleştirme alanına dokun.</p>'+
+    '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div></div>';
+}
+function wireNelMatchPlaceStep(step,next){
+  const core=$('.nel-match-place-core'),slot=$('#nelMatchPlaceSlot'),content=$('#nelMatchPlaceSlotContent');
+  const help=$('#nelMatchHelp'),phaseLabel=$('#nelMatchPlacePhase');
+  const buttons=[...core.querySelectorAll('[data-nel-place-index]')];
+  const phases=step.phases||[{attribute:step.attribute,label:step.attribute==='exact'?'Aynı nesneyi eşleştir.':'Ortak özelliği eşleştir.'}];
+  let phaseIndex=0,selected=-1,complete=false;
+  const same=(item,attribute)=>attribute==='exact'
+    ? ['shape','tone','size','length','height'].every(key=>(item[key]||'')===(step.target[key]||''))
+    : item[attribute]===step.target[attribute];
+  const resetSelection=()=>{selected=-1;buttons.forEach(button=>button.classList.remove('selected'));};
+  buttons.forEach(button=>button.addEventListener('click',()=>{
+    if(complete)return;
+    selected=Number(button.dataset.nelPlaceIndex);
+    buttons.forEach(x=>x.classList.toggle('selected',x===button));
+    help.textContent='Şimdi seçtiğin nesneyi eşleştirme alanına yerleştir.';
+  }));
+  slot?.addEventListener('click',()=>{
+    if(complete)return;
+    if(selected<0){help.textContent='Önce aşağıdan bir nesne seç.';return;}
+    const chosen=step.options[selected],selectedButton=buttons[selected];
+    if(!same(chosen,phases[phaseIndex].attribute)){
+      selectedButton.classList.add('wrong');
+      help.textContent='Bu kez istenen ortak özelliğe bak. Başka bir nesne dene.';
+      resetSelection();return;
+    }
+    content.innerHTML=nelMatchObjectMarkup(chosen,nelMatchItemSpeech(chosen));
+    slot.classList.add('filled');
+    if(phaseIndex+1<phases.length){
+      phaseIndex++;
+      core.dataset.nelMatchPhase=String(phaseIndex);
+      phaseLabel.textContent='İlk eşleşmeyi buldun. '+phases[phaseIndex].label;
+      help.textContent='Nesneler aynı kalıyor, yalnız eşleştirme kuralı değişiyor.';
+      slot.classList.remove('filled');content.textContent='Yeni eşini buraya yerleştir';
+      resetSelection();
+      return;
+    }
+    complete=true; core.dataset.nelMatchComplete='true';
+    buttons.forEach(x=>x.disabled=true);
+    slot.disabled=true;
+    phaseLabel.textContent='Eşleştirme tamamlandı.';
+    help.textContent='';
+    revealNelMatchResult();next.disabled=false;
+  });
+}
 function nelMatchRealWorldVisual(step){
   return '<div class="nel-match-core">'+
     '<div class="nel-match-real-world">'+
@@ -824,17 +909,19 @@ function nelMatchRealWorldVisual(step){
       '<span>2</span><p>Ortak bir özellik bul.</p>'+
       '<span>3</span><p>“Bunlar eş çünkü…” diye anlat.</p>'+
     '</div>'+
-    '<button type="button" class="nel-match-done" id="nelMatchDone">Eşimi buldum</button>'+
+    '<button type="button" class="nel-match-done" id="nelMatchDone">Gerçek nesnelerle denedim</button>'+
     '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div>'+
   '</div>';
 }
 function nelMatchLessonVisual(step){
+  if(step.kind==='place'||step.kind==='rule-switch')return nelMatchPlaceVisual(step);
   if(step.kind==='reason') return nelMatchReasonVisual(step);
   if(step.kind==='real-world') return nelMatchRealWorldVisual(step);
   return nelMatchChoiceVisual(step);
 }
 function revealNelMatchResult(){ $('#nelMatchResult')?.classList.add('revealed'); }
 function wireNelMatchLessonStep(step,next){
+  if(step.kind==='place'||step.kind==='rule-switch'){wireNelMatchPlaceStep(step,next);return;}
   if(step.kind==='choice'){
     $$('.nel-match-choice').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
