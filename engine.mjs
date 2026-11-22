@@ -3194,7 +3194,7 @@ function genNelMatchAttributes(rep,d,rng,concept){
   if(rep==='explain'){
     const answer=nelMatchReason(x.attribute);
     return qBase('nelMatchAttributes','explain','Bu iki nesne neden eş olabilir?',answer,semanticChoices(answer,distractors,rng),{
-      taskKind:'nel-match-explain',taskLabel:'Eşleştirme nedenini açıkla',visual:{type:'nel-match-pair-card',left:x.target,right:x.answer},
+      taskKind:'nel-match-explain',taskLabel:'Eşleştirme gerekçesini hazır seçeneklerden tanı',visual:{type:'nel-match-pair-card',left:x.target,right:x.answer},
       hint:'İkisinde ortak olan özelliği söyle.',explain:answer
     });
   }
