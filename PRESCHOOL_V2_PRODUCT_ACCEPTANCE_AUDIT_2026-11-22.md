@@ -85,7 +85,7 @@ Kullanıcı gerçek cihaz/çocuk denemesini **`main` birleşmesinden sonra** yap
 | [#25](https://github.com/mehmetyildiz03/saymera/pull/25) | Eşleştirme etkinliği, sesli yönerge ve erişim | `e5a53294de578f047cf40e0150541ff99b0294ce` | 20/20 PASS |
 | [#26](https://github.com/mehmetyildiz03/saymera/pull/26) | İki hedefli eşleştirme, Learn resume/replay, PWA önbellek yenileme | `9a4afd1cbe345e9df876eb31b4103fdb44705ad6` | 20/20 PASS ([run 45054559053](https://github.com/mehmetyildiz03/saymera/actions/runs/45054559053)) |
 
-**`main` son commit:** `9a4afd1cbe345e9df876eb31b4103fdb44705ad6`. **Main CI:** [push run 45054967465](https://github.com/mehmetyildiz03/saymera/actions/runs/45054967465), **doğrulama başlatıldı**; sonuç, bu kayıt hazırlandığında henüz kesinleşmemişti. Önceki main push run'ları ayrı sonuçlardır.
+**`main` son commit:** `9a4afd1cbe345e9df876eb31b4103fdb44705ad6`. **Main CI:** [push run 45054967465](https://github.com/mehmetyildiz03/saymera/actions/runs/45054967465), **20/20 PASS**, `main` commit `9a4afd1cbe345e9df876eb31b4103fdb44705ad6`. Eşleştirme ve diğer 19 iş dâhil başarısız/atlanmış iş yok. Merge commit'in Git tree'si, son PR #26 test edilen HEAD'in Git tree'siyle `e712a40d661225dea2035682e9cedfc535426676` olarak birebir eşleşti. Önceki main push run'ları ayrı sonuçlardır.
 
 **Gizlilik/görünürlük:** `engine.mjs` içindeki 17 NEL v2 becerinin her biri `hidden:true`; normal `skillsFor('preschool')` rotasında görünmez. `?inspect=1` özel bir test arayüzü sunar ve kayıtları gerçek kullanıcı localStorage alanına yazmaz. **Bu bir erişim güvenliği kontrolü değildir** — URL'yi bilen herkes kendi cihazından test arayüzünü açabilir. Canlı ana menü değişmedi.
 
