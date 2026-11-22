@@ -179,6 +179,67 @@ try{
         }
       }
 
+      // A real Learn journey must survive closing mid-lesson in the same sandbox.
+      // Direct inspector launches from a chosen step are not a substitute for resume.
+      if(config.name==='chromium-phone'||config.name==='webkit-phone'){
+        await openInspector(page);
+        await page.locator('#inspectorLessonStep').selectOption('0');
+        await page.locator('#inspectorLaunchLearn').tap();
+        assert.equal(await page.locator('.nel-match-lesson-stage').getAttribute('data-nel-match-step'),'same-object');
+        await page.locator('[data-nel-place-index="0"]').tap();
+        await page.locator('#nelMatchPlaceSlot').tap();
+        await page.locator('#nelMatchLessonNext').tap();
+        assert.equal(await page.locator('.nel-match-lesson-stage').getAttribute('data-nel-match-step'),'same-colour');
+        await page.locator('[data-nel-pair-index="0"]').tap();
+        await page.locator('[data-nel-pair-slot="0"]').tap();
+        await page.locator('[data-nel-pair-index="1"]').tap();
+        await page.locator('[data-nel-pair-slot="1"]').tap();
+        await page.locator('#nelMatchLessonNext').tap();
+        assert.equal(await page.locator('.nel-match-lesson-stage').getAttribute('data-nel-match-step'),'same-shape');
+        await page.locator('#closePractice').tap();
+        await page.locator('#inspectorOpenCenter').tap();
+        await page.locator('#lessonLearnAction').tap();
+        assert.equal(await page.locator('.nel-match-lesson-stage').getAttribute('data-nel-match-step'),'same-shape',
+          'unfinished Learn must resume from the saved next step, not restart from the first');
+        assert.equal(await page.locator('#nelMatchLessonNext').isDisabled(),true,'a resumed task must not be pre-solved');
+
+        const remaining=['same-shape','switch-match-rule','same-size','same-length','same-height','explain-match','toy-shelf-match','real-world-match'];
+        for(const id of remaining){
+          const live=page.locator('.nel-match-lesson-stage');
+          assert.equal(await live.getAttribute('data-nel-match-step'),id,'sequential Learn order');
+          if(id==='same-shape'){
+            for(const index of [0,1]){
+              await page.locator('[data-nel-pair-index="'+index+'"]').tap();
+              await page.locator('[data-nel-pair-slot="'+index+'"]').tap();
+            }
+          }else if(id==='switch-match-rule'){
+            await page.locator('[data-nel-place-index="0"]').tap();
+            await page.locator('#nelMatchPlaceSlot').tap();
+            await page.locator('[data-nel-place-index="1"]').tap();
+            await page.locator('#nelMatchPlaceSlot').tap();
+          }else if(id==='toy-shelf-match'){
+            await page.locator('[data-nel-place-index="0"]').tap();
+            await page.locator('#nelMatchPlaceSlot').tap();
+          }else if(id==='real-world-match'){
+            await page.locator('#nelMatchDone').tap();
+          }else if(id==='explain-match'){
+            await page.locator('.nel-match-reason[data-correct="true"]').tap();
+          }else{
+            await page.locator('.nel-match-choice[data-nel-correct="true"]').tap();
+          }
+          assert.equal(await page.locator('#nelMatchLessonNext').isEnabled(),true,id+' must be complete before proceeding');
+          await page.locator('#nelMatchLessonNext').tap();
+        }
+        await page.locator('#finishToLessonCenter').waitFor();
+        await page.locator('#finishToLessonCenter').tap();
+        await page.locator('#lessonLearnAction').tap();
+        assert.equal(await page.locator('.nel-match-lesson-stage').getAttribute('data-nel-match-step'),'same-object',
+          'a finished lesson should remain replayable from the beginning');
+        await page.locator('#closePractice').tap();
+        assert.equal(await page.evaluate(()=>localStorage.getItem('saymera.math.v2')),saved,
+          'full Learn journey and exit must not leak inspector-sandbox progress into real state');
+      }
+
       const sections=['match-exact','match-colour-shape','match-size-measure','explain-match','transfer-match'];
       for(const section of sections){
         await openInspector(page);
@@ -208,7 +269,7 @@ try{
 
       assert.equal(await page.evaluate(()=>localStorage.getItem('saymera.math.v2')),saved,'Inspector must not write real preschool progress');
       assert.deepEqual(errors,[]);
-      console.log(config.name+': PASS (10 Learn steps; two-target colour/shape matching; audible guidance; rule switch; context transfer; 5 Practice sections; Review; width; sandbox)');
+      console.log(config.name+': PASS (10 Learn steps; two-target colour/shape matching; audible guidance; rule switch; context transfer; 5 Practice sections; Review; resume/replay; width; sandbox)');
     }catch(error){
       await page.screenshot({path:'preschool-test-results/'+config.name+'-failure.png',fullPage:false,animations:'disabled'});
       throw error;
