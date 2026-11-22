@@ -855,6 +855,24 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
   .nel-match-place-option{min-height:96px;padding:3px}
 }
 
+/* Preschool matching review: one audible, readable instruction at a time. */
+.nel-match-lesson-stage .nel-match-section-track{display:none}
+.nel-match-lesson-stage .lesson-step-copy{gap:9px}
+.nel-match-lesson-stage .lesson-step-copy h2{font-size:clamp(27px,3.4vw,35px);line-height:1.1;letter-spacing:-.025em}
+.nel-match-lesson-stage .lesson-step-copy p{font-size:clamp(15px,1.9vw,17px);line-height:1.4;color:var(--navy);max-width:630px}
+.nel-match-listen{min-height:48px;min-width:134px;border-radius:16px;border:2px solid #afc9df;background:var(--blue-soft);color:var(--navy);padding:8px 16px;font-size:16px;font-weight:900;cursor:pointer}
+.nel-match-listen:focus-visible,.nel-match-place-slot:focus-visible,.nel-match-place-option:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.nel-match-lesson-stage .nel-match-place-phase{min-height:46px;display:grid;place-items:center;font-size:clamp(15px,1.9vw,17px);line-height:1.3}
+.nel-match-lesson-stage .nel-match-help{font-size:14px;line-height:1.4;min-height:22px}
+.nel-match-lesson-stage .nel-match-result{font-size:clamp(13px,1.6vw,16px);line-height:1.4}
+.nel-match-lesson-stage .nel-match-target-card small,.nel-match-lesson-stage .nel-match-place-slot small{font-size:10px}
+@media(max-width:699px){
+  .nel-match-lesson-stage .lesson-step-copy h2{font-size:clamp(25px,6.8vw,29px)}
+  .nel-match-lesson-stage .lesson-step-copy p{font-size:15px}
+  .nel-match-lesson-stage .nel-match-lesson-visual{padding-top:2px}
+  .nel-match-lesson-stage .nel-match-place-phase{font-size:15px}
+}
+
 /* v1.12.0 — hidden NEL preschool sorting reference lesson */
 .nel-sort-lesson-stage{width:min(840px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-sort-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
