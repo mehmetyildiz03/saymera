@@ -709,7 +709,7 @@ function renderOddEven1000LessonStep(skill,index=null){
 }
 
 
-const NEL_MATCH_LESSON_VERSION=2;
+const NEL_MATCH_LESSON_VERSION=3;
 const NEL_MATCH_SECTIONS=['EŞLEŞTİR','ÖZELLİĞE BAK','ANLAT','TAŞI'];
 const NEL_MATCH_LESSON_STEPS=[
   {
@@ -724,26 +724,34 @@ const NEL_MATCH_LESSON_STEPS=[
     result:'İki nesnenin rengi, şekli ve büyüklüğü aynı.'
   },
   {
-    id:'same-colour',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'tone',
-    target:{shape:'circle',tone:'blue',size:'small'},
-    options:[
-      {shape:'square',tone:'blue',size:'large',correct:true},
-      {shape:'circle',tone:'red',size:'small'},
-      {shape:'triangle',tone:'yellow',size:'small'}
+    id:'same-colour',section:'ÖZELLİĞE BAK',kind:'pair-board',attribute:'tone',
+    targets:[
+      {shape:'circle',tone:'blue',size:'small'},
+      {shape:'triangle',tone:'yellow',size:'large'}
     ],
-    title:'Aynı rengi bul!',body:'Şekli başka olabilir. Rengine bak ve eşini seç.',
-    result:'Şekilleri farklı olsa da ikisinin rengi aynı.'
+    options:[
+      {shape:'square',tone:'blue',size:'large'},
+      {shape:'circle',tone:'yellow',size:'small'},
+      {shape:'triangle',tone:'red',size:'large'},
+      {shape:'square',tone:'green',size:'small'}
+    ],
+    title:'İki rengi eşleştir!',body:'İki hedef var. Her biriyle aynı renkte olanı bulup yerleştir.',
+    result:'Mavi ve sarı eşleşmelerde şekiller değişti, renkler aynı kaldı.'
   },
   {
-    id:'same-shape',section:'ÖZELLİĞE BAK',kind:'choice',attribute:'shape',
-    target:{shape:'circle',tone:'red',size:'large'},
-    options:[
-      {shape:'circle',tone:'blue',size:'small',correct:true},
-      {shape:'square',tone:'red',size:'large'},
-      {shape:'triangle',tone:'green',size:'large'}
+    id:'same-shape',section:'ÖZELLİĞE BAK',kind:'pair-board',attribute:'shape',
+    targets:[
+      {shape:'circle',tone:'red',size:'large'},
+      {shape:'triangle',tone:'green',size:'small'}
     ],
-    title:'Şekilleri aynı mı?',body:'Rengi farklı olabilir. Aynı şekli bul.',
-    result:'Renkleri ve büyüklükleri farklı; ama ikisi de daire.'
+    options:[
+      {shape:'circle',tone:'blue',size:'small'},
+      {shape:'triangle',tone:'yellow',size:'large'},
+      {shape:'square',tone:'red',size:'large'},
+      {shape:'square',tone:'green',size:'small'}
+    ],
+    title:'İki şekli eşleştir!',body:'Bu kez iki hedefin şekline bak. Renkleri değişebilir.',
+    result:'Dairelerle üçgenleri şekillerine göre eşleştirdin; renkler farklıydı.'
   },
   {
     id:'switch-match-rule',section:'ÖZELLİĞE BAK',kind:'rule-switch',
@@ -907,6 +915,64 @@ function wireNelMatchPlaceStep(step,next){
     revealNelMatchResult();next.disabled=false;
   });
 }
+function nelMatchPairBoardVisual(step){
+  return '<div class="nel-match-core nel-match-pair-board" data-nel-match-placed="0">'+
+    '<div class="nel-match-pair-targets">'+step.targets.map((target,index)=>
+      '<div class="nel-match-pair-goal"><small>HEDEF '+(index+1)+'</small>'+
+      nelMatchObjectMarkup(target,'hedef '+nelMatchItemSpeech(target))+
+      '<button type="button" class="nel-match-pair-slot" data-nel-pair-slot="'+index+'" aria-label="'+(index+1)+'. hedefin eşleştirme alanı"><span>Buraya eşleştir</span></button></div>'
+    ).join('')+'</div>'+
+    '<div class="nel-match-pair-bank" aria-label="Eşleştirilecek nesneler">'+step.options.map((item,index)=>
+      '<button type="button" class="nel-match-pair-option" data-nel-pair-index="'+index+'" aria-label="'+esc(nelMatchItemSpeech(item))+'">'+
+      nelMatchObjectMarkup(item,nelMatchItemSpeech(item))+'</button>'
+    ).join('')+'</div>'+
+    '<p class="nel-match-help" id="nelMatchHelp" aria-live="polite">Önce bir nesne seç, sonra eşleştirmek istediğin hedefin altına dokun.</p>'+
+    '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div></div>';
+}
+function wireNelMatchPairBoard(step,next){
+  const board=$('.nel-match-pair-board'),help=$('#nelMatchHelp');
+  const bank=[...board.querySelectorAll('[data-nel-pair-index]')];
+  const slots=[...board.querySelectorAll('[data-nel-pair-slot]')];
+  const used=new Set(),placed=new Set();
+  let selected=-1;
+  const clearSelection=()=>{
+    selected=-1;
+    bank.forEach(button=>button.classList.remove('selected'));
+  };
+  bank.forEach(button=>button.addEventListener('click',()=>{
+    const index=Number(button.dataset.nelPairIndex);
+    if(used.has(index))return;
+    selected=index;
+    bank.forEach(b=>{b.classList.toggle('selected',b===button);b.classList.remove('wrong');});
+    help.textContent='Hangi hedefle eşleşiyor? O hedefin boş alanına dokun.';
+  }));
+  slots.forEach(slot=>slot.addEventListener('click',()=>{
+    const slotIndex=Number(slot.dataset.nelPairSlot);
+    if(placed.has(slotIndex))return;
+    if(selected<0){help.textContent='Önce aşağıdan bir nesne seç.';return;}
+    const chosen=step.options[selected],target=step.targets[slotIndex],button=bank[selected];
+    if(chosen[step.attribute]!==target[step.attribute]){
+      button.classList.add('wrong');
+      help.textContent=step.attribute==='tone'
+        ? 'Bu hedefin rengiyle seçtiğin nesnenin rengini karşılaştır.'
+        : 'Bu hedefin şekliyle seçtiğin nesnenin şeklini karşılaştır.';
+      clearSelection();
+      return;
+    }
+    used.add(selected);placed.add(slotIndex);
+    button.disabled=true;button.classList.add('used');
+    slot.innerHTML=nelMatchObjectMarkup(chosen,nelMatchItemSpeech(chosen));
+    slot.classList.add('filled');slot.disabled=true;
+    board.dataset.nelMatchPlaced=String(placed.size);
+    clearSelection();
+    if(placed.size===step.targets.length){
+      board.dataset.nelMatchComplete='true';
+      help.textContent='İki hedefi de eşleştirdin!';
+      bank.forEach(b=>b.disabled=true);
+      revealNelMatchResult();next.disabled=false;
+    }else help.textContent='İlk eşleşme tamam. Şimdi diğer hedefin eşini bul.';
+  }));
+}
 function nelMatchRealWorldVisual(step){
   return '<div class="nel-match-core">'+
     '<div class="nel-match-real-world">'+
@@ -919,6 +985,7 @@ function nelMatchRealWorldVisual(step){
   '</div>';
 }
 function nelMatchLessonVisual(step){
+  if(step.kind==='pair-board')return nelMatchPairBoardVisual(step);
   if(step.kind==='place'||step.kind==='rule-switch')return nelMatchPlaceVisual(step);
   if(step.kind==='reason') return nelMatchReasonVisual(step);
   if(step.kind==='real-world') return nelMatchRealWorldVisual(step);
@@ -926,6 +993,7 @@ function nelMatchLessonVisual(step){
 }
 function revealNelMatchResult(){ $('#nelMatchResult')?.classList.add('revealed'); }
 function wireNelMatchLessonStep(step,next){
+  if(step.kind==='pair-board'){wireNelMatchPairBoard(step,next);return;}
   if(step.kind==='place'||step.kind==='rule-switch'){wireNelMatchPlaceStep(step,next);return;}
   if(step.kind==='choice'){
     $$('.nel-match-choice').forEach(button=>button.addEventListener('click',()=>{
