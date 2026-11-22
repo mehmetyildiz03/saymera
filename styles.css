@@ -831,6 +831,30 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 }
 
 
+/* Preschool matching v2: child places the selected object in a target slot. */
+.nel-match-place-core{width:min(700px,100%);min-width:0}
+.nel-match-place-context{padding:6px 12px;background:var(--sun-soft);color:#80631d;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.07em}
+.nel-match-place-target-row{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
+.nel-match-place-target-row .nel-match-target-card{min-width:0;width:100%}
+.nel-match-place-slot{width:100%;min-width:0;min-height:154px;border:2px dashed #a8b9c9;border-radius:22px;background:var(--paper);display:grid;align-content:center;justify-items:center;gap:10px;padding:10px;color:var(--navy);font-weight:900;cursor:pointer}
+.nel-match-place-slot small{font-size:9px;letter-spacing:.07em;color:var(--muted)}
+.nel-match-place-slot>span{display:grid;place-items:center;min-height:70px;font-size:12px}
+.nel-match-place-slot.filled{border-style:solid;border-color:#91cbbd;background:var(--teal-soft)}
+.nel-match-place-phase{margin:0;padding:8px 12px;width:100%;border-radius:14px;background:var(--blue-soft);text-align:center;color:var(--navy);font-size:12px;font-weight:900}
+.nel-match-place-bank{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.nel-match-place-option{min-width:0;min-height:112px;display:grid;place-items:center;padding:5px;background:var(--paper);border:1px solid var(--line);border-radius:19px;cursor:pointer}
+.nel-match-place-option.selected{background:var(--blue-soft);border:2px solid var(--blue)}
+.nel-match-place-option.wrong{animation:lessonNudge .28s}
+.nel-match-place-option:disabled{opacity:.78;cursor:default}
+@media(max-width:699px){
+  .nel-match-place-target-row{gap:7px}
+  .nel-match-place-slot{min-height:126px;padding:5px}
+  .nel-match-place-slot small{font-size:8px}
+  .nel-match-place-slot>span{font-size:10px;min-height:62px}
+  .nel-match-place-bank{gap:6px}
+  .nel-match-place-option{min-height:96px;padding:3px}
+}
+
 /* v1.12.0 — hidden NEL preschool sorting reference lesson */
 .nel-sort-lesson-stage{width:min(840px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-sort-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
