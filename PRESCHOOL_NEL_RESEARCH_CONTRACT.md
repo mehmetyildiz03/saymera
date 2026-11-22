@@ -120,6 +120,12 @@ Implementation status in v1.15.0: all five Path A reference skills are implement
 - The existing `Anlat` selection task is supporting **recognition of an explanation**, not verified production of the child's own words. The real-object `Denedim` acknowledgement is self-report, **not** device-observed transfer or mastery.
 - `nelMatchAttributes` remains hidden from live Preschool routes; reference UI and browser regression acceptance do not constitute a real-child learning-outcome claim.
 
+**2026-11-22 follow-up — two-target matching candidate (v3, separate draft):**
+- `same-colour` and `same-shape` no longer treat a single correct card click as sufficient Learn evidence. Each uses **two targets**, four diverse candidate objects (including distractors), and active pick-then-place matching to the corresponding target.
+- A correct attribute match placed under the *wrong* target does not count. Completing one pair does not unlock the next Learn step; both pairs must be correctly placed. A matched object cannot be reused.
+- The task still uses guided, constrained on-screen manipulation, not free object creation or a verified explanation in the child's own words; child's physical use is unobserved.
+- All 17 NEL v2 skills, including this matching pilot, remain hidden until separate live navigation, device, and child-use acceptance. Existing P1/P2 paths and legacy Preschool progress are not migrated by this change.
+
 ### Path B — Counting & Number Sense
 
 Recommended product progression:
