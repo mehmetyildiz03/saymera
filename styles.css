@@ -878,6 +878,20 @@ button,select,input{font:inherit}button{border:0;background:none;color:inherit;c
 .nel-match-reason-audio{min-width:50px;min-height:50px;border:2px solid #afc9df;border-radius:15px;background:var(--blue-soft);color:var(--navy);font-size:20px;cursor:pointer}
 .nel-match-reason-audio:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 
+/* New context must contain recognisable toy silhouettes, not renamed geometry. */
+.nel-match-object.toy-car{width:82px;height:84px}
+.nel-match-object.toy-car i{width:66px;height:30px;border-radius:9px 11px 5px 5px;position:relative;transform:translateY(12px)}
+.nel-match-object.toy-car i::before{content:'';position:absolute;left:14px;top:-18px;width:38px;height:21px;border-radius:16px 16px 0 0;background:inherit;box-shadow:inset 0 3px 0 rgba(255,255,255,.22)}
+.nel-match-object.toy-car i::after{content:'';position:absolute;left:8px;bottom:-8px;width:15px;height:15px;border:2px solid #f7f5ef;background:#33475b;border-radius:50%;box-shadow:40px 0 0 -2px #33475b,40px 0 0 0 #f7f5ef}
+.nel-match-object.toy-car.small i{transform:translateY(12px) scale(.81)}
+.nel-match-object.toy-car.large i{transform:translateY(12px) scale(1.1)}
+.nel-match-object.toy-ball i{width:58px;height:58px;border-radius:50%;position:relative}
+.nel-match-object.toy-ball i::after{content:'';position:absolute;inset:9px 18px;border-left:3px solid rgba(255,255,255,.65);border-right:3px solid rgba(255,255,255,.65);border-radius:50%}
+.nel-match-object.toy-kite{height:84px}
+.nel-match-object.toy-kite i{width:47px;height:47px;border-radius:4px;position:relative;transform:rotate(45deg)}
+.nel-match-object.toy-kite i::after{content:'';position:absolute;left:40px;top:44px;height:25px;width:4px;background:#7f9cad;border-radius:4px}
+.nel-match-object.toy-kite.large i{transform:rotate(45deg) scale(1.04)}
+
 /* v1.12.0 — hidden NEL preschool sorting reference lesson */
 .nel-sort-lesson-stage{width:min(840px,100%);min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .nel-sort-section-track{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
