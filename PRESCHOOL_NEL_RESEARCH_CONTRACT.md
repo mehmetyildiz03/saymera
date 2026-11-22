@@ -114,6 +114,12 @@ Recommended product progression:
 
 Implementation status in v1.15.0: all five Path A reference skills are implemented as hidden NEL v2 skills with dedicated Learn/Practice evidence and browser QA. They remain hidden until the Preschool v2 foundation is ready for a controlled live-navigation migration.
 
+**2026-11-22 Preschool acceptance pilot — matching reference slice (candidate, not released):**
+- `nelMatchAttributes` Learn revision 2 adds **active select-and-place** matching for the first same-object example, two different attribute passes over **the same three pieces** (colour first, shape next), and a different toy-shelf example requiring fresh placement. This is constrained target placement, **not** free-form manipulation or independent verbal explanation.
+- An incorrect selection or an object merely selected without placement must **not** unlock Learn. The two-rule activity only completes after both correctly placed examples.
+- The existing `Anlat` selection task is supporting **recognition of an explanation**, not verified production of the child's own words. The real-object `Denedim` acknowledgement is self-report, **not** device-observed transfer or mastery.
+- `nelMatchAttributes` remains hidden from live Preschool routes; reference UI and browser regression acceptance do not constitute a real-child learning-outcome claim.
+
 ### Path B — Counting & Number Sense
 
 Recommended product progression:
