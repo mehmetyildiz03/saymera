@@ -53,6 +53,17 @@
 
 **Görsel rapor kararı:** Düzen/okuma/ses erişimi **iyileştirildi**; ancak WebKit ses, son oyuncak çizimleri, gerçek cihaz ve 4–6 yaş kullanılabilirlik testi geçmeden Preschool G2 kabulü verilmez.
 
+## 22 Kasım — Renk/şekil iki hedefli eşleştirme dilimi
+
+- PR #25'in son kodu `92e7df2883b08eebfbe81f399b22ec4ef000c115`, GitHub Actions **45045218587 — 20/20 PASS**. 36 Chromium/WebKit telefon/tablet ekran görüntüsü de gözden geçirildi; oyuncak arabası, top, uçurtma, yönerge ve açıklamaları dinleme kontrolleri görünür. Bu hâlâ `main` ile birleştirilmemiş, gizli NEL v2 prototipidir.
+- **Yeni taslak PR #26:** https://github.com/mehmetyildiz03/saymera/pull/26 (`codex/preschool-match-multiple-targets-v3`, PR #25'in üzerine eklenir).
+- `same-colour` ve `same-shape` tek dokunuşla yanıt verilen alıştırmadan, **iki hedef + dört seçenek + iki ayrı doğru yerleştirme** gerektiren öğrenme görevlerine çevrildi.
+- Yanlış hedefe eşleştirme ilerletmez, seçmek tek başına kanıt sayılmaz, bir nesne ikinci kez yerleştirilemez. İki bağımsız eşleştirme olmadan sonraki adım açılamaz.
+- Bu, rehberli ve kısıtlı bir **ekran içi eşleştirme** eylemidir. Serbest sürükle-bırak/serbest üretim, çocuğun özgün sözel açıklaması veya fiziksel dünyaya doğrulanmış transferi olarak raporlanmaz.
+- Diğer üç `choice` Learn adımı (büyüklük, uzunluk, yükseklik) şimdilik tanıma etkinliği olarak kalır. Bu iki hedefli tasarımın çocuk kullanım değeri doğrulanmadan körü körüne bu üçüne çoğaltılmayacaktır.
+- **PR bağımlılığı:** #24 → #25 → #26. Hiçbiri doğrudan teknik PASS gerekçesiyle canlı Preschool'a yayımlanmaz.
+- PR #26 teknik testleri tamamlansa bile **G2 gerçek çocuk/kullanılabilirlik**, **G4 canlı yol**, **G5 fiziksel cihaz** ve **G6 pilot** açık kalır.
+
 ## 1. Sonuç ve kanıt seviyesi
 
 **Üç ayrı kabul düzeyi vardır:**
