@@ -12,7 +12,7 @@
 - **Aday PR:** https://github.com/mehmetyildiz03/saymera/pull/25 — `codex/preschool-match-active-lesson-v2`, PR #24 üzerine kurulmuş ve **taslak**.
 - `nelMatchAttributes` Learn 8→10 adım: seç+yerleştir; aynı nesnelerde renk→şekil kural değişimi; yeni oyuncak rafı örneği.
 - `Anlat` hazır gerekçeyi tanıma olarak etiketlendi; gerçek nesneyle `Denedim` butonu doğrulanmış fiziksel transfer kanıtı sayılmıyor.
-- GitHub Actions **ana test paketi** sözdizimi düzeltmesinden sonra **PASS**. Chromium/WebKit telefon-tablet tarayıcı testleri ve gerçek çocuk kabulü ayrıca sonuçlandırılacak.
+- GitHub Actions son run **45041099142**, commit **9db1e598**, **20/20 PASS**; ana test paketi ve Chromium/WebKit telefon-tablet tarayıcı işlerinin tamamı başarılı. Bu otomatik PASS, fiziksel cihaz/gerçek çocuk denetimi veya pedagojik ürün kabulü değildir.
 - **G2/G3/G4/G5/G6 kapanmadı.** `main` değiştirilmedi; yalnız gizli referans beceri adayı geliştirildi.
 
 ## 1. Sonuç ve kanıt seviyesi
