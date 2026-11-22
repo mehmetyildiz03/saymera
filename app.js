@@ -951,8 +951,8 @@ function wireNelMatchLessonStep(step,next){
     return;
   }
   if(step.kind==='reason'){
-    $('.nel-match-reason-audio').forEach(button=>button.addEventListener('click',()=>speak(button.dataset.nelReasonAudio||'')));
-    $('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
+    $$('.nel-match-reason-audio').forEach(button=>button.addEventListener('click',()=>speak(button.dataset.nelReasonAudio||'')));
+    $$('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
