@@ -880,7 +880,7 @@ function wireNelMatchPlaceStep(step,next){
     const chosen=step.options[selected],selectedButton=buttons[selected];
     if(!same(chosen,phases[phaseIndex].attribute)){
       selectedButton.classList.add('wrong');
-      help.textContent='Bu kez istenen ortak özelliğe bak. Başka bir nesne dene.';
+      help.textContent=phases[phaseIndex].attribute==='exact'?'Renk, şekil ve büyüklüğü birlikte kontrol et.':phases[phaseIndex].attribute==='tone'?'Yalnız renkleri karşılaştır.':'Yalnız şekilleri karşılaştır.';
       resetSelection();return;
     }
     content.innerHTML=nelMatchObjectMarkup(chosen,nelMatchItemSpeech(chosen));
