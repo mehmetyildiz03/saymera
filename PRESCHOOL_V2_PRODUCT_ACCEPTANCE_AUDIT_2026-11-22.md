@@ -32,6 +32,27 @@
 
 **Teknik kod:** [PR #25](https://github.com/mehmetyildiz03/saymera/pull/25). Seslendirme, okunabilirlik ve başlangıç ekranı testleri için PR'ın **en son** SHA'sının CI sonucu esastır; eski 20/20 PASS yeni değişikliklerin PASS olduğu anlamına gelmez.
 
+## On adımın ekran ekran ilk görünüm denetimi — 22 Kasım
+
+**Yeni kaynak:** [Run 45044289277'in matching screenshot artifaktı](https://github.com/mehmetyildiz03/saymera/actions/runs/45044289277/artifacts/14763311294). Chromium telefon için 10 adımın **işlem öncesi** ekran görüntüsü elde edilip görsel olarak incelendi. Bu run **FAIL** (WebKit ikinci kuralın seslendirilmesini doğrulayan test); görüntüler kullanışlı olsa da teknik kabul kanıtı değildir. Son aday kod ve testler [PR #25](https://github.com/mehmetyildiz03/saymera/pull/25)'te ilerliyor.
+
+| Adım | Görsel ilk görünümde gözlenen davranış | Öğretim değerlendirmesi |
+|---|---|---|
+| 1 `same-object` | Aynı renk/şekil/boyutu hedef + boş yer + 3 nesne | Aktif seç/yerleştir iyi; fiziksel manipülasyon değil |
+| 2 `same-colour` | Hedef ve 3 seçenek | Rengi ayırma anlaşılır; tek tıklamalı tanıma |
+| 3 `same-shape` | Hedef ve 3 seçenek | Şekil sabitliğini gösterir; tek tıklamalı tanıma |
+| 4 `switch-match-rule` | Hedef, yerleştirme alanı, aynı üç nesne | Kural değiştirme güçlü; sesli ikinci evre WebKit test engeli |
+| 5 `same-size` | Hedef/3 farklı büyüklük | Sözel yük az; yine tek tık |
+| 6 `same-length` | Yatay çubuk ve iki farklı uzunluk + dikey nesne | Uzunluk/görünüş ayrımı; yön/ölçek karışıklığı çocukla gözlenecek |
+| 7 `same-height` | Dikey hedef ve çeşitli biçimler | Yükseklik/uzunluk ayrımı çocukla gözlenecek |
+| 8 `explain-match` | İki nesne + üç hazır cümle | Önce sadece yazılı açıklama, okuma yükü yüksek. Adaya her cevap için ayrı ses tuşu eklendi; hâlâ bağımsız sözlü açıklama kanıtı değil |
+| 9 `toy-shelf-match` | İlk sürümde etiket `OYUNCAK RAFI`, görseller ise yine kare/daire/üçgendi | Sahte bağlam zenginliği riski; aday şimdi araba/top/uçurtma siluetleri kullanıyor, görsel yeniden test şart |
+| 10 `real-world-match` | Üç yetişkin destekli yönerge ve `Denedim` | Ekran dışı görev değerli; uygulama fiziksel icrayı **doğrudan doğrulamıyor** |
+
+**Açık pedagojik risk:** 10 adımın beşi (renk, şekil, büyüklük, uzunluk, yükseklik) hâlâ tek seçimle tamamlanıyor. Bunlar kısa rehberli tanıma alıştırması olarak kullanılabilir; her biri bağımsız nesne kurma veya kuralın transferi gibi etiketlenmemeli. Gelecek dilimde aktif kanıtın kapsamı artırılacak.
+
+**Görsel rapor kararı:** Düzen/okuma/ses erişimi **iyileştirildi**; ancak WebKit ses, son oyuncak çizimleri, gerçek cihaz ve 4–6 yaş kullanılabilirlik testi geçmeden Preschool G2 kabulü verilmez.
+
 ## 1. Sonuç ve kanıt seviyesi
 
 **Üç ayrı kabul düzeyi vardır:**
