@@ -1048,7 +1048,7 @@ function completeNelMatchLessonStep(skill,index){
 function renderNelMatchLessonStep(skill,index=null){
   const ss=ensureSkillState(state,skill.id);
   const saved=Math.min(NEL_MATCH_LESSON_STEPS.length-1,Math.max(0,ss.learningCycle?.lessonStepIndex||0));
-  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_MATCH_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay?0:saved)):index;
+  const at=index==null?(session?.lessonReplayStep!=null?Math.min(NEL_MATCH_LESSON_STEPS.length-1,Math.max(0,Number(session.lessonReplayStep)||0)):(session?.lessonReplay&&ss.learningCycle?.lessonTaughtAt?0:saved)):index;
   const step=NEL_MATCH_LESSON_STEPS[at];
   session.lessonStepIndex=at; currentQuestion=null; renderPracticeHeader(skill);
   $('#practiceMode').textContent='KEŞFET'; $('#practiceMode').dataset.mode='teach';
