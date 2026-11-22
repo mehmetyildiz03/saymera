@@ -92,3 +92,20 @@ Inspector ekranında **Okul Öncesi → Eşleştirme (nelMatchAttributes) → 1.
 **Veri sınırı:** `?inspect=1` **sandbox** açar. Gerçek kullanıcı verisi yazılmaz. Aynı sekme açıkken Ders Merkezi'ne gidip geri döndüğünüzde yarım kalan dersi sürdürebilme test edilir; **sayfa yenileme, sekme kapatma veya cihaz değiştirme** sonrasında sandbox ilerlemesinin korunması beklenmez. Bu durum canlı ürünün kalıcı ilerleme politikası için geçerli bir test değildir. Çocuğun kimlik, ses veya görüntü kaydını uygulamaya eklemeyin.
 
 **Son sürüm sabitleme:** Deneme başlamadan hemen önce [PR #26](https://github.com/mehmetyildiz03/saymera/pull/26) head commit'ini, tüm otomatik testlerin o commit üzerinde PASS olduğunu ve yerel klasördeki `git rev-parse HEAD` sonucunun aynı commit olduğunu doğrulayın. PR değişirken eski kopyadan elde edilen gözlemler sürüme karıştırılmamalıdır.
+
+## 9. Main sonrası kullanıcı denemesi (gizli özellik, normal ana menü değil)
+
+Bu bölüm **main birleşmesi, main CI PASS ve GitHub Pages'in güncellenmesi sonrasında** uygulanacaktır. Taslak PR bağlantıları ile canlı `main` bağlantısını birbirine karıştırmayın.
+
+**Test adresi:** https://mehmetyildiz03.github.io/saymera/?inspect=1
+
+1. Safari'de bağlantıyı aç. Daha önce açtıysan sekmeyi yenile; eski PWA önbelleği nedeniyle eski ekran görünüyorsa yeni özel sekmede dene veya site önbelleğini kontrol et. Yeni önbellek adı en az `saymera-v1-27-0-` ile başlamalıdır.
+2. Inspector'da **Okul Öncesi** profilini ve **Aynı özelliği eşleştir** dersini seç.
+3. **Bu adımdan aç** ile ilk adımı başlat. Dinle düğmesi ses çıkarıyor mu; nesneye dokunup boş yere yerleştirebiliyor musun gözle.
+4. Renk ve şekil adımlarında **iki hedefin ikisini** doldur; bir eşleştirmede Sonraki'nin açılmaması gerekir.
+5. Kural değiştirmede ilk renk eşleştirmesinden sonra **Dinle**'ye yeniden bas; ikinci yönergenin şekil kuralı olduğunu kontrol et.
+6. Üçüncü adımdayken **X ile kapat**, **Ders Merkezi**'ne gir ve **Öğrenmeye başla**'yı seç; aynı açık sekmede kaldığın adımdan devam edip etmediğini kontrol et.
+7. Eşleştirmeyi tamamla ve **Yeniden aç** ile ilk adımın geldiğini doğrula. Tüm işlemlerin yanıtını yetişkin vermesin.
+8. Denemenin sonunda `?inspect=1` adresinden çıktığında **gerçek ilerlemenin değişmediğini** kontrol et. Sandbox sekmesi/yenilenmesi arasında ilerleme korunmaz; bu beklenen davranıştır.
+
+**Sınır:** GitHub Pages güncellemesinin tamamlandığını yalnız kodun `main`e birleşmesinden çıkarsamayın. `main` sonrası CI ve dağıtım kanıtı gerekir. Kullanıcıya “canlıya açıldı” denmez; okul öncesi v2 normal menüde gizli kalır ve yalnız test sorgu parametresiyle erişilir. Bu parametre gizlilik/giriş güvenliği değildir, sadece test arayüzü bayrağıdır. Gerçek çocuk ve fiziksel cihaz denemelerinin tamamı kullanıcı gözlemine dayanır; asistan yapıldı diye işaretleyemez.
