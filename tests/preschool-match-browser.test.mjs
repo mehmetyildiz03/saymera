@@ -67,8 +67,15 @@ try{
         const audioReady=await page.evaluate(()=>{
           window.__matchSpoken=[];
           if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return false;
-          window.speechSynthesis.cancel=()=>{};
-          window.speechSynthesis.speak=utterance=>window.__matchSpoken.push(utterance.text);
+          // Browser-native speech synthesis may replace instance methods during navigation;
+          // test our spoken text deterministically, not an OS voice engine.
+          Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{
+            cancel(){},
+            speak(utterance){window.__matchSpoken.push(utterance.text);}
+          }});
+          Object.defineProperty(window,'SpeechSynthesisUtterance',{configurable:true,value:class{
+            constructor(text){this.text=text;}
+          }});
           return true;
         });
         assert.equal(audioReady,true,'manual Turkish speech should be available on supported browser');
