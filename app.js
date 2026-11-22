@@ -844,13 +844,19 @@ function nelMatchReasonVisual(step){
 function nelMatchItemSpeech(item={}){
   const colours={blue:'mavi',red:'kırmızı',yellow:'sarı',green:'yeşil'};
   const shapes={circle:'daire',square:'kare',triangle:'üçgen',bar:'çubuk',tower:'kule'};
-  return [colours[item.tone]||'',shapes[item.shape]||''].filter(Boolean).join(' ');
+  const sizes={small:'küçük',medium:'orta',large:'büyük'};
+  const lengths={short:'kısa',medium:'orta uzunlukta',long:'uzun'};
+  const heights={short:'alçak',medium:'orta yükseklikte',tall:'yüksek'};
+  const traits=[colours[item.tone]||'',sizes[item.size]||'',shapes[item.shape]||''];
+  if(item.shape==='bar')traits.push(lengths[item.length]||'');
+  if(item.shape==='tower')traits.push(heights[item.height]||'');
+  return traits.filter(Boolean).join(' ');
 }
 function nelMatchPlaceVisual(step){
   const phase=step.phases?.[0]||{attribute:step.attribute,label:step.attribute==='exact'?'Aynı nesneyi eşleştir.':'Ortak özelliği eşleştir.'};
   return '<div class="nel-match-core nel-match-place-core" data-nel-match-phase="0">'+
     (step.context?'<span class="nel-match-place-context">'+esc(step.context)+'</span>':'')+
-    '<div class="nel-match-place-target-row"><div class="nel-match-target-card"><small>HEDEF NESNE</small>'+nelMatchObjectMarkup(step.target,'eşleştirilecek hedef')+'</div>'+
+    '<div class="nel-match-place-target-row"><div class="nel-match-target-card"><small>HEDEF NESNE</small>'+nelMatchObjectMarkup(step.target,'hedef '+nelMatchItemSpeech(step.target))+'</div>'+
     '<button type="button" class="nel-match-place-slot" id="nelMatchPlaceSlot" aria-label="Seçtiğin nesneyi buraya yerleştir"><small>EŞLEŞTİRME ALANI</small><span id="nelMatchPlaceSlotContent">Buraya yerleştir</span></button></div>'+
     '<p class="nel-match-place-phase" id="nelMatchPlacePhase" aria-live="polite">'+esc(phase.label)+'</p>'+
     '<div class="nel-match-place-bank" aria-label="Eşleştirme nesneleri">'+step.options.map((item,index)=>'<button type="button" class="nel-match-place-option" data-nel-place-index="'+index+'" aria-label="'+esc(nelMatchItemSpeech(item))+'">'+nelMatchObjectMarkup(item,nelMatchItemSpeech(item))+'</button>').join('')+'</div>'+
