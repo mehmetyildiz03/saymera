@@ -60,6 +60,8 @@ for(const skill of renderAuditSkills){
 for(const type of generatedVisuals) assert.ok(app.includes(`case '${type}'`),`generated P1 visual has no renderer: ${type}`);
 for(const interaction of generatedInteractions) assert.ok(app.includes(`interaction==='${interaction}'`),`generated P1 manipulative has no interaction handler: ${interaction}`);
 
+const packageVersion=JSON.parse(read('package.json')).version.replaceAll('.','-');
+assert.match(sw,new RegExp("^const CACHE='saymera-v"+packageVersion+"-[^']+';"),'PWA cache prefix must match current package version to avoid serving stale Learn lessons');
 assert.equal(manifest.short_name,'SAYMERA');
 for(const asset of ['./','./index.html','./styles.css','./app.js','./engine.mjs','./manifest.webmanifest','./assets/icon-192.png','./assets/icon-512.png']) assert.ok(sw.includes(`'${asset}'`),`service worker missing ${asset}`);
 for(const f of ['assets/icon-192.png','assets/icon-512.png']) assert.ok(fs.existsSync(path.join(root,f)),`missing ${f}`);
