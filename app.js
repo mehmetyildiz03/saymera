@@ -836,7 +836,7 @@ function nelMatchChoiceVisual(step){
 function nelMatchReasonVisual(step){
   return '<div class="nel-match-core">'+
     '<div class="nel-match-pair-card">'+nelMatchObjectMarkup(step.left,'sol nesne')+'<span>↔</span>'+nelMatchObjectMarkup(step.right,'sağ nesne')+'</div>'+
-    '<div class="nel-match-reason-grid">'+step.options.map(value=>'<button type="button" class="nel-match-reason" data-nel-reason="'+esc(value)+'" data-correct="'+(value===step.correct?'true':'false')+'">'+esc(value)+'</button>').join('')+'</div>'+
+    '<div class="nel-match-reason-grid">'+step.options.map((value,index)=>'<div class="nel-match-reason-option"><button type="button" class="nel-match-reason" data-nel-reason="'+esc(value)+'" data-correct="'+(value===step.correct?'true':'false')+'">'+esc(value)+'</button><button type="button" class="nel-match-reason-audio" data-nel-reason-audio="'+esc(value)+'" aria-label="'+(index+1)+'. açıklamayı dinle">🔊</button></div>').join('')+'</div>'+
     '<p class="nel-match-help" id="nelMatchHelp"></p>'+
     '<div class="nel-match-result" id="nelMatchResult">'+esc(step.result)+'</div>'+
   '</div>';
@@ -951,7 +951,8 @@ function wireNelMatchLessonStep(step,next){
     return;
   }
   if(step.kind==='reason'){
-    $$('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
+    $('.nel-match-reason-audio').forEach(button=>button.addEventListener('click',()=>speak(button.dataset.nelReasonAudio||'')));
+    $('.nel-match-reason').forEach(button=>button.addEventListener('click',()=>{
       if(button.disabled) return;
       if(button.dataset.correct!=='true'){
         button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),320);
