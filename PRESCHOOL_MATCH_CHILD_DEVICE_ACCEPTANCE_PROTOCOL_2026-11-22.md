@@ -72,3 +72,23 @@ Yetişkin müdahalesi ile elde edilen yanıt bağımsız cevapla karıştırılm
 - PR #24, #25 ve #26 bağımlılıklarını ayrı ayrı gözden geçir; **main merge = Preschool canlı yayını** değildir.
 - Gerçek cihaz + çocuk gözlem sonuçlarına göre yalnız gerekli tasarım noktalarını onar.
 - Diğer 16 becerinin pedagojik denetimine geçmeden önce bu ilk dersin tekrar kullanılabilir kalite ölçütlerini netleştir.
+
+## 8. Yerel ağda iPhone/iPad üzerinde açma — yayına alma değil
+
+Bu yol **bilgisayarın ve telefonun aynı güvenilir Wi-Fi ağında** bulunmasını gerektirir. GitHub Pages bağlantısı `main` sürümünü gösterir ve bu PR adayını denemek için kullanılmamalıdır.
+
+Windows bilgisayarda mevcut çalışmalarınızı bozmamak için ayrı bir test klasörüne klonlayın. Git ve Python 3 kuruluysa terminalde:
+
+```powershell
+git clone --branch codex/preschool-match-multiple-targets-v3 --single-branch https://github.com/mehmetyildiz03/saymera.git saymera-preschool-pilot
+cd saymera-preschool-pilot
+py -m http.server 4173 --bind 0.0.0.0
+```
+
+Ayrı bir terminalde `ipconfig` komutuyla bilgisayarın bağlı olduğu Wi-Fi adaptörünün IPv4 adresini öğrenin. iPhone/iPad Safari'de `http://BILGISAYARIN_YEREL_IP_ADRESI:4173/?inspect=1` adresini açın (ör. **adres şablonu**, gerçek IP değil). Windows güvenlik duvarı erişimi engelliyorsa yalnızca **özel/güvenilir ağ** için gerekli yerel izinleri değerlendirin; internete port yönlendirme, halka açık tünel veya public deploy açmayın.
+
+Inspector ekranında **Okul Öncesi → Eşleştirme (nelMatchAttributes) → 1. adım → Bu adımdan aç** sırasını kullanın. Etkinliklere sırayla ilerleyin; ses için ekrandaki **🔊 Dinle** düğmesini deneyin.
+
+**Veri sınırı:** `?inspect=1` **sandbox** açar. Gerçek kullanıcı verisi yazılmaz. Aynı sekme açıkken Ders Merkezi'ne gidip geri döndüğünüzde yarım kalan dersi sürdürebilme test edilir; **sayfa yenileme, sekme kapatma veya cihaz değiştirme** sonrasında sandbox ilerlemesinin korunması beklenmez. Bu durum canlı ürünün kalıcı ilerleme politikası için geçerli bir test değildir. Çocuğun kimlik, ses veya görüntü kaydını uygulamaya eklemeyin.
+
+**Son sürüm sabitleme:** Deneme başlamadan hemen önce [PR #26](https://github.com/mehmetyildiz03/saymera/pull/26) head commit'ini, tüm otomatik testlerin o commit üzerinde PASS olduğunu ve yerel klasördeki `git rev-parse HEAD` sonucunun aynı commit olduğunu doğrulayın. PR değişirken eski kopyadan elde edilen gözlemler sürüme karıştırılmamalıdır.
