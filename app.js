@@ -746,7 +746,6 @@ const NEL_MATCH_LESSON_STEPS=[
     result:'Renkleri ve büyüklükleri farklı; ama ikisi de daire.'
   },
   {
-  {
     id:'switch-match-rule',section:'ÖZELLİĞE BAK',kind:'rule-switch',
     target:{shape:'circle',tone:'blue',size:'small'},
     options:[
