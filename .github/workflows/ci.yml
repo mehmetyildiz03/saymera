@@ -343,3 +343,21 @@ jobs:
         with:
           name: preschool-shape-compose-browser-screenshots
           path: preschool-shape-compose-test-results/
+
+  preschool-spatial-relations-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Verify NEL preschool spatial-relations active learning on phone and tablet
+        run: node tests/preschool-spatial-relations-browser.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preschool-spatial-relations-browser-screenshots
+          path: preschool-spatial-relations-test-results/
